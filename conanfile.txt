@@ -1,0 +1,5 @@
+[requires]
+DiligentGraphics/2.4.40478aa.c3bc561@terragraphics/wip
+
+[generators]
+cmake
