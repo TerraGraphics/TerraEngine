@@ -17,7 +17,7 @@ public:
     VertexBuffer& operator=(VertexBuffer&&) noexcept;
 
 public:
-    void Bind(dg::RefCntAutoPtr<dg::IDeviceContext>& context);
+    void Bind(ContextPtr& context);
 
 private:
 	dg::RefCntAutoPtr<dg::IBuffer> m_vertexBuffer;
@@ -34,7 +34,7 @@ public:
 	uint32_t GetNumber() const noexcept { return m_number; }
 	dg::VALUE_TYPE GetType() const noexcept { return m_type; }
 
-    void Bind(dg::RefCntAutoPtr<dg::IDeviceContext>& context);
+    void Bind(ContextPtr& context);
 
 private:
 	uint32_t m_number = 0;
@@ -61,8 +61,8 @@ public:
     GeometryNode(VertexBuffer&& vertexBuffer, IndexBuffer&& indexBuffer);
 
 public:
-    void Bind(dg::RefCntAutoPtr<dg::IDeviceContext>& context);
-    uint32_t Draw(dg::RefCntAutoPtr<dg::IDeviceContext>& context);
+    void Bind(ContextPtr& context);
+    uint32_t Draw(ContextPtr& context);
 
 private:
     VertexBuffer m_vertexBuffer;

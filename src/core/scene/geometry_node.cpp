@@ -31,7 +31,7 @@ VertexBuffer& VertexBuffer::operator=(VertexBuffer&& other) noexcept {
     return *this;
 }
 
-void VertexBuffer::Bind(dg::RefCntAutoPtr<dg::IDeviceContext>& context) {
+void VertexBuffer::Bind(ContextPtr& context) {
     dg::Uint32 offset = 0;
     dg::IBuffer* pBuffs[] = { m_vertexBuffer };
     context->SetVertexBuffers(0, 1, pBuffs, &offset, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, dg::SET_VERTEX_BUFFERS_FLAG_RESET);
@@ -85,7 +85,7 @@ IndexBuffer& IndexBuffer::operator=(IndexBuffer&& other) noexcept {
     return *this;
 }
 
-void IndexBuffer::Bind(dg::RefCntAutoPtr<dg::IDeviceContext>& context) {
+void IndexBuffer::Bind(ContextPtr& context) {
     context->SetIndexBuffer(m_indexBuffer, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
@@ -95,12 +95,12 @@ GeometryNode::GeometryNode(VertexBuffer&& vertexBuffer, IndexBuffer&& indexBuffe
 
 }
 
-void GeometryNode::Bind(dg::RefCntAutoPtr<dg::IDeviceContext>& context) {
+void GeometryNode::Bind(ContextPtr& context) {
     m_vertexBuffer.Bind(context);
     m_indexBuffer.Bind(context);
 }
 
-uint32_t GeometryNode::Draw(dg::RefCntAutoPtr<dg::IDeviceContext>& context) {
+uint32_t GeometryNode::Draw(ContextPtr& context) {
     dg::DrawIndexedAttribs drawAttrs;
     drawAttrs.IndexType  = m_indexBuffer.GetType();
     drawAttrs.NumIndices = m_indexBuffer.GetNumber();

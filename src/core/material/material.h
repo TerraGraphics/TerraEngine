@@ -12,7 +12,7 @@ public:
     Material(const dg::RefCntAutoPtr<dg::IPipelineState>& pipelineState);
 
     dg::RefCntAutoPtr<dg::IPipelineState> GetPipelineState() { return m_pipelineState; }
-    void Bind();
+    void Bind(ContextPtr& context);
 
 private:
     dg::RefCntAutoPtr<dg::IPipelineState> m_pipelineState;

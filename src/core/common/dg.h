@@ -11,3 +11,4 @@ namespace Diligent {
 namespace dg = Diligent;
 
 using DevicePtr = dg::RefCntAutoPtr<dg::IRenderDevice>;
+using ContextPtr = dg::RefCntAutoPtr<dg::IDeviceContext>;
