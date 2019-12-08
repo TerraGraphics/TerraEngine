@@ -85,14 +85,17 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
     m_desc.ResourceLayout.NumVariables = m_vars.size();
 
 
-    std::unique_ptr<dg::StaticSamplerDesc[]> samplers(new dg::StaticSamplerDesc[m_samplers.size()]);
-    auto* samplersIt = samplers.get();
-    for (const auto& sampler: m_samplers) {
-        *samplersIt = {sampler.shaderType, sampler.name.c_str(), sampler.desc};
-        ++samplersIt;
-    }
+    std::unique_ptr<dg::StaticSamplerDesc[]> samplers;
+    if (!m_samplers.empty()) {
+        samplers = std::unique_ptr<dg::StaticSamplerDesc[]> (new dg::StaticSamplerDesc[m_samplers.size()]);
+        auto* samplersIt = samplers.get();
+        for (const auto& sampler: m_samplers) {
+            *samplersIt = {sampler.shaderType, sampler.name.c_str(), sampler.desc};
+            ++samplersIt;
+        }
 
-    m_desc.ResourceLayout.StaticSamplers    = samplers.get();
+        m_desc.ResourceLayout.StaticSamplers = samplers.get();
+    }
     m_desc.ResourceLayout.NumStaticSamplers = m_samplers.size();
 
     return m_builder->Build(m_desc);

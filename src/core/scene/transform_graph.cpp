@@ -74,7 +74,7 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
 void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList) {
     if (!m_materialNode.expired()) {
         if (!m_transformCB) {
-            dg::CreateUniformBuffer(device, sizeof(dg::Transform), "VS constants CB", &m_transformCB);
+            dg::CreateUniformBuffer(device, sizeof(dg::ShaderTransform), "CB::VS::ShaderTransform ", &m_transformCB);
         }
 
         nodeList.push_back(shared_from_this());
@@ -85,7 +85,7 @@ void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<s
             m_transform.matWorld = parent->m_transform.matWorld * m_baseTransform;
             m_transform.matNormal = m_transform.matWorld.RemoveTranslation().Inverse().Transpose();
 
-            dg::Transform* data;
+            dg::ShaderTransform* data;
             context->MapBuffer(m_transformCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
             *data = m_transform;
             context->UnmapBuffer(m_transformCB, dg::MAP_WRITE);

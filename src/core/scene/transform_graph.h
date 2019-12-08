@@ -7,10 +7,9 @@
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
 
-namespace Diligent
-{
-#include "structures.fxh"
-class IBuffer;
+namespace Diligent {
+    #include "structures.fxh"
+    class IBuffer;
 }
 
 inline const dg::float4x4 ONE = dg::float4x4(
@@ -38,7 +37,7 @@ public:
 
     void SetTransform(const dg::float4x4& transform);
     const dg::float4x4& GetBaseTransform() const noexcept { return m_baseTransform; }
-    const dg::Transform& GetTransform() const noexcept { return m_transform; }
+    const dg::ShaderTransform& GetTransform() const noexcept { return m_transform; }
     const dg::RefCntAutoPtr<dg::IBuffer>& GetTransformCB() const noexcept { return m_transformCB; }
     const std::weak_ptr<MaterialNode> GetMaterialNode() const noexcept { return m_materialNode; }
 
@@ -50,7 +49,7 @@ private:
     std::weak_ptr<MaterialNode> m_materialNode;
     bool m_isDirty = true;
     dg::float4x4 m_baseTransform = ONE;
-    dg::Transform m_transform = {ONE, ONE};
+    dg::ShaderTransform m_transform = {ONE, ONE};
     dg::RefCntAutoPtr<dg::IBuffer> m_transformCB;
 };
 
