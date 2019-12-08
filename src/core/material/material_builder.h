@@ -4,8 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RasterizerState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
 
 #include "core/material/material.h"
 
@@ -38,8 +37,9 @@ public:
         ~Builder() = default;
 
         Builder& CullMode(dg::CULL_MODE value) noexcept;
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc) noexcept;
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode) noexcept;
+        Builder& Var(dg::SHADER_TYPE shaderType, const dg::String& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
+        Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
+        Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
 
         std::shared_ptr<Material> Build(const dg::Char* name = nullptr);
 

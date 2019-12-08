@@ -2,6 +2,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
+#include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
@@ -39,28 +40,37 @@ MaterialBuilder::Builder& MaterialBuilder::Builder::CullMode(dg::CULL_MODE value
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderType, const dg::String& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
     ShaderResourceVariableDescKey key{shaderType, name};
     if (m_vars.find(key) != m_vars.cend()) {
-        LOG_ERROR_AND_THROW("Shader varaible ", name, " is duplicated for shader type ", shaderType);
+        LOG_ERROR_AND_THROW("Shader varaible ", name, " is duplicated for shader type ", dg::GetShaderTypeLiteralName(shaderType));
     }
-    m_vars[key] = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE;
+    m_vars[key] = type;
+
+    return *this;
+}
+
+MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+    Var(shaderType, name, type);
     m_samplers.emplace_back(shaderType, name, desc);
 
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
     dg::SamplerDesc desc;
     desc.AddressU = addressMode;
     desc.AddressV = addressMode;
     desc.AddressW = addressMode;
 
-    return TextureVar(shaderType, name, desc);
+    Var(shaderType, name, type);
+    m_samplers.emplace_back(shaderType, name, desc);
+
+    return *this;
 }
 
 std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) {
-    m_desc.Name = name;
+    m_desc.Name = (name != nullptr) ? name : "no name is assigned";
     m_desc.ResourceLayout.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
 

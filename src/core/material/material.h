@@ -1,17 +1,22 @@
 #pragma once
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
-
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
 
+
+namespace Diligent {
+    class IPipelineState;
+    class IShaderResourceBinding;
+}
 
 class Material : Fixed {
 public:
     Material() = delete;
     Material(const dg::RefCntAutoPtr<dg::IPipelineState>& pipelineState);
 
-    dg::RefCntAutoPtr<dg::IPipelineState> GetPipelineState() { return m_pipelineState; }
+    const dg::Char* GetName() const;
+    dg::RefCntAutoPtr<dg::IShaderResourceBinding> CreateShaderResourceBinding();
+
     void Bind(ContextPtr& context);
 
 private:
