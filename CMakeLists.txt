@@ -43,6 +43,8 @@ PRIVATE
     LibTiff
     ZLib
     DiligentCore
+
+    ${CONAN_PKG_LIBS_FMT}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -1,4 +1,5 @@
 [requires]
+fmt/6.0.0@bincrafters/stable
 DiligentGraphics/2.4.40478aa.c3bc561@terragraphics/wip
 
 [generators]
