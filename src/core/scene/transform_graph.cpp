@@ -20,7 +20,7 @@ TransformNode::TransformNode(const dg::float4x4& transform, const std::weak_ptr<
 
 std::shared_ptr<TransformNode> TransformNode::Clone(const dg::float4x4& transform) const {
     auto node = std::make_shared<TransformNode>(transform);
-    if (auto matNode = m_materialNode.lock()) {
+    if (!m_materialNode.expired()) {
         node->m_materialNode = m_materialNode;
     }
 
@@ -34,7 +34,7 @@ std::shared_ptr<TransformNode> TransformNode::Clone(const dg::float4x4& transfor
 
 std::shared_ptr<TransformNode> TransformNode::Clone(const std::weak_ptr<TransformNode>& parent) const {
     auto node = std::make_shared<TransformNode>(m_baseTransform, parent);
-    if (auto matNode = m_materialNode.lock()) {
+    if (!m_materialNode.expired()) {
         node->m_materialNode = m_materialNode;
     }
 
@@ -75,6 +75,7 @@ void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<s
     if (!m_materialNode.expired()) {
         if (!m_transformCB) {
             dg::CreateUniformBuffer(device, sizeof(dg::ShaderTransform), "CB::VS::ShaderTransform ", &m_transformCB);
+            m_isDirty = true;
         }
 
         nodeList.push_back(shared_from_this());
@@ -82,13 +83,15 @@ void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<s
 
     if (m_isDirty) {
         if (auto parent = m_parent.lock()) {
-            m_transform.matWorld = parent->m_transform.matWorld * m_baseTransform;
+            m_transform.matWorld = m_baseTransform * parent->m_transform.matWorld;
             m_transform.matNormal = m_transform.matWorld.RemoveTranslation().Inverse().Transpose();
 
-            dg::ShaderTransform* data;
-            context->MapBuffer(m_transformCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
-            *data = m_transform;
-            context->UnmapBuffer(m_transformCB, dg::MAP_WRITE);
+            if (!m_materialNode.expired()) {
+                dg::ShaderTransform* data;
+                context->MapBuffer(m_transformCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
+                *data = m_transform;
+                context->UnmapBuffer(m_transformCB, dg::MAP_WRITE);
+            }
 
             m_isDirty = false;
         }
