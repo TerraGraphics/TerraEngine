@@ -103,7 +103,7 @@ void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<s
 }
 
 TransformGraph::TransformGraph()
-    : m_root(std::make_shared<TransformNode>(ONE, std::make_shared<TransformNode>())) {
+    : m_root(std::make_shared<TransformNode>(dg::One4x4, std::make_shared<TransformNode>())) {
 
 }
 
