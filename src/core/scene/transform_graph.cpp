@@ -2,7 +2,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Buffer.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsTools/include/GraphicsUtilities.h>
+#include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 
 #include "core/scene/material_node.h"
 

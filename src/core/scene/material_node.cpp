@@ -1,7 +1,7 @@
 #include "core/scene/material_node.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsTools/include/GraphicsUtilities.h>
+#include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
 
 #include "core/common/exception.h"
