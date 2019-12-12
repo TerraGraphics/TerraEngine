@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(terra VERSION 0.1 LANGUAGES CXX)
 
+add_subdirectory(third_party/xcb_keysyms)
+
+project(terra VERSION 0.1 LANGUAGES CXX)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
 conan_cmake_run(CONANFILE conanfile.txt
                 BASIC_SETUP CMAKE_TARGETS
@@ -28,8 +30,8 @@ PRIVATE
     X11
     xcb
 
-    XCBKeySyms
-    NativeAppBase
+    xcb_keysyms
+
     Diligent-Common
     Diligent-GraphicsTools
     Diligent-TextureLoader
