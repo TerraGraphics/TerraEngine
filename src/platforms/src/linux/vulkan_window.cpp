@@ -26,9 +26,10 @@ static std::string ParseXCBConnectError(int err) {
 void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& title) {
     m_width = width;
     m_height = height;
+
     m_connection = xcb_connect(nullptr, &screenNumber);
     if (int err = xcb_connection_has_error(m_connection); err != 0) {
-        throw EngineError("Unable to make an XCB connection, {}", ParseXCBConnectError(err));
+        throw EngineError("unable to make an XCB connection, {}", ParseXCBConnectError(err));
     }
 
     const xcb_setup_t* setup = xcb_get_setup(m_connection);

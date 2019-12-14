@@ -21,8 +21,8 @@ public:
     xcb_intern_atom_reply_t* GetAtomWMDeleteWindow() noexcept { return m_atomWMDeleteWindow; }
 
 private:
-    uint16_t m_width;
-    uint16_t m_height;
+    uint16_t m_width = 0;
+    uint16_t m_height = 0;
     uint32_t m_window = 0;
     xcb_connection_t* m_connection = nullptr;
     xcb_intern_atom_reply_t* m_atomWMDeleteWindow = nullptr;
