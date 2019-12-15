@@ -40,6 +40,9 @@ void GLGraphics::Create() {
 
     Diligent::SwapChainDesc scDesc;
     engineFactoryGL->CreateDeviceAndSwapChainGL(m_createInfo, &m_device, contexts.data(), scDesc, &m_swapChain);
+    if (!m_device) {
+        throw EngineError("failed to initialize OpenGL");
+    }
 
     m_immediateContext.Attach(contexts[0]);
     auto numDeferredCtx = contexts.size() - 1;
