@@ -12,6 +12,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 add_definitions(-DPLATFORM_LINUX -DVULKAN_SUPPORTED)
+# add_definitions(-DPLATFORM_LINUX -DGL_SUPPORTED)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -22,7 +23,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE "src" "src/SampleBase/include" "assets")
+target_include_directories(${PROJECT_NAME} PRIVATE "src" "src/platforms/include" "assets")
 
 target_link_libraries(${PROJECT_NAME}
 PRIVATE

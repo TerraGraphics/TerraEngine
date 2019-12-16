@@ -1,6 +1,5 @@
 #include "gl/gl_graphics.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
 
 #include "core/common/exception.h"
@@ -13,7 +12,7 @@ GLGraphics::GLGraphics(void* display, void* nativeWindowHandle) {
 #endif
 }
 
-void GLGraphics::Create() {
+void GLGraphics::Create(int /* validationLevel */) {
 #if !PLATFORM_MACOS
     if (m_createInfo.pNativeWndHandle == nullptr) {
         throw EngineError("nativeWindowHandle for GL init is equal null");
@@ -50,8 +49,4 @@ void GLGraphics::Create() {
     for (uint32_t ctx = 0; ctx != numDeferredCtx; ++ctx) {
         m_deferredContexts[ctx].Attach(contexts[1 + ctx]);
     }
-}
-
-void GLGraphics::Destroy() {
-
 }

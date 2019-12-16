@@ -4,7 +4,7 @@
 #include "core/common/exception.h"
 
 
-VulkanGraphics::VulkanGraphics(uint32_t window, void* connection)
+VulkanGraphics::VulkanGraphics(uint32_t window, xcb_connection_t* connection)
     : m_window(window)
     , m_connection(connection) {
 }
@@ -39,7 +39,7 @@ void VulkanGraphics::Create(int validationLevel) {
     if (!m_swapChain) {
         Diligent::SwapChainDesc scDesc;
         struct XCBInfo {
-            void* connection;
+            xcb_connection_t* connection;
             uint32_t window;
         } nativeWindowHandle = {m_connection, m_window};
         engineFactoryVk->CreateSwapChainVk(m_device, contexts[0], scDesc, &nativeWindowHandle, &m_swapChain);
@@ -51,8 +51,4 @@ void VulkanGraphics::Create(int validationLevel) {
     for (uint32_t ctx = 0; ctx != numDeferredCtx; ++ctx) {
         m_deferredContexts[ctx].Attach(contexts[1 + ctx]);
     }
-}
-
-void VulkanGraphics::Destroy() {
-
 }

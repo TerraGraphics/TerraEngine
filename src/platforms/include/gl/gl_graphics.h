@@ -11,8 +11,7 @@ public:
     GLGraphics(void* display, void* nativeWindowHandle);
     ~GLGraphics() = default;
 
-    void Create();
-    void Destroy();
+    void Create(int validationLevel = -1) override;
 
     Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
 
