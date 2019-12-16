@@ -10,11 +10,11 @@ class VulkanGraphics : public Graphics {
 public:
     VulkanGraphics() = delete;
     VulkanGraphics(uint32_t window, xcb_connection_t* connection);
-    ~VulkanGraphics() = default;
-
-    void Create(int validationLevel = -1) override;
+    ~VulkanGraphics() override = default;
 
     Diligent::EngineVkCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
+
+    void Create(int validationLevel = -1) override;
 
 private:
     uint32_t m_window;

@@ -22,6 +22,9 @@
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, int, const int*);
 
+WindowGLLinux::~WindowGLLinux() {
+    Destroy();
+}
 
 void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& title) {
     m_width = width;
@@ -127,9 +130,13 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
 }
 
 void WindowGLLinux::Destroy() {
-    auto ctx = glXGetCurrentContext();
-    glXMakeCurrent(m_display, None, NULL);
-    glXDestroyContext(m_display, ctx);
-    XDestroyWindow(m_display, m_window);
-    XCloseDisplay(m_display);
+    if (m_display != nullptr) {
+        auto ctx = glXGetCurrentContext();
+        glXMakeCurrent(m_display, None, NULL);
+        glXDestroyContext(m_display, ctx);
+        XDestroyWindow(m_display, m_window);
+        XCloseDisplay(m_display);
+        m_display = nullptr;
+        m_window = 0;
+    }
 }

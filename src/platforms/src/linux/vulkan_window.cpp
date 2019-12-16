@@ -23,6 +23,10 @@ static std::string ParseXCBConnectError(int err) {
     }
 }
 
+WindowVulkanLinux::~WindowVulkanLinux() {
+    Destroy();
+}
+
 void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& title) {
     m_width = width;
     m_height = height;
@@ -89,8 +93,17 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
 }
 
 void WindowVulkanLinux::Destroy() {
-    xcb_destroy_window(m_connection, m_window);
-    xcb_disconnect(m_connection);
+    if (m_atomWMDeleteWindow != nullptr) {
+        free(m_atomWMDeleteWindow);
+        m_atomWMDeleteWindow = nullptr;
+    }
+
+    if (m_connection != nullptr) {
+        xcb_destroy_window(m_connection, m_window);
+        xcb_disconnect(m_connection);
+        m_connection = nullptr;
+        m_window = 0;
+    }
 }
 
 void WindowVulkanLinux::Process(const xcb_generic_event_t* event) {

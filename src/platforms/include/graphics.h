@@ -14,7 +14,7 @@ namespace Diligent {
 class Graphics {
 public:
     Graphics() = default;
-    ~Graphics();
+    virtual ~Graphics();
 
     virtual void Create(int validationLevel = -1) = 0;
 

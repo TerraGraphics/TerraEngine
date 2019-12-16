@@ -9,11 +9,11 @@ class GLGraphics : public Graphics {
 public:
     GLGraphics() = delete;
     GLGraphics(void* display, void* nativeWindowHandle);
-    ~GLGraphics() = default;
-
-    void Create(int validationLevel = -1) override;
+    ~GLGraphics() override = default;
 
     Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
+
+    void Create(int validationLevel = -1) override;
 
 private:
     Diligent::EngineGLCreateInfo m_createInfo;
