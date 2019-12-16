@@ -5,8 +5,8 @@
 #include "core/common/exception.h"
 
 
-GLGraphics::GLGraphics(void* display, void* nativeWindowHandle) {
-    m_createInfo.pNativeWndHandle = nativeWindowHandle;
+GLGraphics::GLGraphics(uint32_t window, Display* display) {
+    m_createInfo.pNativeWndHandle = reinterpret_cast<void *>(window);
 #if PLATFORM_LINUX
     m_createInfo.pDisplay = display;
 #endif

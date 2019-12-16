@@ -4,7 +4,7 @@
 #include "window.h"
 
 
-class WindowVulkanLinux : public Window {
+class WindowVulkanLinux : public RenderWindow {
 public:
     WindowVulkanLinux() = default;
     ~WindowVulkanLinux() override;

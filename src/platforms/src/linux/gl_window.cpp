@@ -1,8 +1,8 @@
 #include "linux/gl_window.h"
 
 #include <GL/glx.h>
-
 #include "core/common/exception.h"
+
 
 #ifndef GLX_CONTEXT_MAJOR_VERSION_ARB
 #    define GLX_CONTEXT_MAJOR_VERSION_ARB 0x2091
@@ -21,6 +21,7 @@
 #endif
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, int, const int*);
+
 
 WindowGLLinux::~WindowGLLinux() {
     Destroy();

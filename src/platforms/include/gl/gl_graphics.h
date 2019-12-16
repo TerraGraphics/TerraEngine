@@ -5,10 +5,11 @@
 #include "graphics.h"
 
 
+typedef struct _XDisplay Display;
 class GLGraphics : public Graphics {
 public:
     GLGraphics() = delete;
-    GLGraphics(void* display, void* nativeWindowHandle);
+    GLGraphics(uint32_t window, Display* display);
     ~GLGraphics() override = default;
 
     Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }

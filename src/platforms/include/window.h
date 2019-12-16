@@ -3,10 +3,10 @@
 #include <string>
 
 
-class Window {
+class RenderWindow {
 public:
-    Window() = default;
-    virtual ~Window() = default;
+    RenderWindow() = default;
+    virtual ~RenderWindow() = default;
 
     uint16_t GetWidth() noexcept { return m_width; }
     uint16_t GetHeight() noexcept { return m_height; }

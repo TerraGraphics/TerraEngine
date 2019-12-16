@@ -1,6 +1,10 @@
 #include "graphics.h"
 
 Graphics::~Graphics() {
+    Destroy();
+}
+
+void Graphics::Destroy() {
     if (m_immediateContext) {
         m_immediateContext->Flush();
     }
