@@ -1,6 +1,9 @@
 #include "linux/vulkan_window.h"
 
 #include <xcb/xcb_icccm.h>
+#include <xcb_keysyms.h>
+
+#include "linux/x11_key_map.h"
 #include "core/common/exception.h"
 
 
@@ -70,12 +73,15 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     free(reply);
 
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.length(), title.c_str());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, title.length(), title.c_str());
 
     // https://stackoverflow.com/a/27771295
     xcb_size_hints_t hints = {};
     hints.flags = XCB_ICCCM_SIZE_HINT_P_SIZE;
     hints.min_width = 320;
     hints.min_height = 240;
+    hints.width = m_width;
+    hints.height = m_height;
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS,
         32, sizeof(xcb_size_hints_t), &hints);
 
@@ -90,9 +96,18 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     while ((e = xcb_wait_for_event(m_connection))) {
         if ((e->response_type & ~0x80) == XCB_EXPOSE) break;
     }
+
+    if (m_keySymbols == nullptr) {
+        m_keySymbols = xcb_key_symbols_alloc(m_connection);
+    }
 }
 
 void WindowVulkanLinux::Destroy() {
+    if (m_keySymbols != nullptr) {
+        xcb_key_symbols_free(m_keySymbols);
+        m_keySymbols = nullptr;
+    }
+
     if (m_atomWMDeleteWindow != nullptr) {
         free(m_atomWMDeleteWindow);
         m_atomWMDeleteWindow = nullptr;
@@ -106,10 +121,103 @@ void WindowVulkanLinux::Destroy() {
     }
 }
 
-void WindowVulkanLinux::Process(const xcb_generic_event_t* event) {
-    const auto* cfgEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-    if ((cfgEvent->width != m_width) || (cfgEvent->height != m_height)) {
-        m_width  = cfgEvent->width;
-        m_height = cfgEvent->height;
+void WindowVulkanLinux::ProcessEvents() {
+    xcb_generic_event_t* event = nullptr;
+    while ((event = xcb_poll_for_event(m_connection)) != nullptr) {
+        switch (event->response_type & 0x7f) { // 0b1111111
+            // 0b100001
+            case XCB_CLIENT_MESSAGE:
+                if ((*(xcb_client_message_event_t*)event).data.data32[0] == m_atomWMDeleteWindow->atom) {
+                    m_windowShouldClose = true;
+                }
+                break;
+
+            // 0b10001
+            case XCB_DESTROY_NOTIFY:
+                m_windowShouldClose = true;
+                break;
+
+            // 0b10110
+            case XCB_CONFIGURE_NOTIFY: {
+                const auto* configureEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+                auto width = configureEvent->width;
+                auto height = configureEvent->height;
+                if (((width != m_width) || (height != m_height)) && (width != 0) && (height != 0)) {
+                    m_width  = width;
+                    m_height = height;
+                }
+            }
+            break;
+
+            // 0b10
+            case XCB_KEY_PRESS: {
+                const auto* typedEvent = reinterpret_cast<const xcb_key_press_event_t*>(event);
+                HandleKeyEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
+            }
+            break;
+
+            // 0b11
+            case XCB_KEY_RELEASE: {
+                const auto* typedEvent = reinterpret_cast<const xcb_key_release_event_t*>(event);
+                HandleKeyEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
+            }
+            break;
+
+            // 0b100
+            case XCB_BUTTON_PRESS: {
+                const auto* typedEvent = reinterpret_cast<const xcb_button_press_event_t*>(event);
+                HandleMouseButtonEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
+            }
+
+            // 0b101
+            case XCB_BUTTON_RELEASE: {
+                const auto* typedEvent = reinterpret_cast<const xcb_button_release_event_t*>(event);
+                HandleMouseButtonEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
+            }
+
+            // XCB_MOTION_NOTIFY - 0b110
+
+            default:
+                break;
+        }
+        free(event);
+    }
+}
+
+void WindowVulkanLinux::HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint16_t state) {
+    if (m_eventHandler) {
+        uint8_t modifiers = 0;
+        if (state & XCB_MOD_MASK_SHIFT) {
+            modifiers |= KeyModifier::Shift;
+        }
+        if (state & XCB_MOD_MASK_CONTROL) {
+            modifiers |= KeyModifier::Control;
+        }
+        if (state & XCB_MOD_MASK_1) {
+            modifiers |= KeyModifier::Alt;
+        }
+        if (state & XCB_MOD_MASK_4) {
+            modifiers |= KeyModifier::Super;
+        }
+        m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), modifiers);
+    }
+}
+
+void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint16_t state) {
+    if (m_eventHandler) {
+        uint8_t modifiers = 0;
+        if (state & XCB_MOD_MASK_SHIFT) {
+            modifiers |= KeyModifier::Shift;
+        }
+        if (state & XCB_MOD_MASK_CONTROL) {
+            modifiers |= KeyModifier::Control;
+        }
+        if (state & XCB_MOD_MASK_1) {
+            modifiers |= KeyModifier::Alt;
+        }
+        if (state & XCB_MOD_MASK_4) {
+            modifiers |= KeyModifier::Super;
+        }
+        m_eventHandler->OnKeyEvent(action, MouseBottonToKey(code), modifiers);
     }
 }
