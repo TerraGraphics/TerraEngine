@@ -4,3 +4,4 @@
 
 Key KeySymToKey(uint32_t value);
 Key MouseBottonToKey(uint8_t value);
+uint8_t StateToModifiers(uint state);

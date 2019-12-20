@@ -1,6 +1,9 @@
 #include "linux/gl_window.h"
 
 #include <GL/glx.h>
+#include <X11/XKBlib.h>
+
+#include "linux/x11_key_map.h"
 #include "core/common/exception.h"
 
 
@@ -81,6 +84,9 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
         throw EngineError("failed to create window");
     }
 
+    m_atomWMDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(m_display, m_window, &m_atomWMDeleteWindow, 1);
+
     {
         auto sizeHints        = XAllocSizeHints();
         sizeHints->flags      = PMinSize;
@@ -139,5 +145,62 @@ void WindowGLLinux::Destroy() {
         XCloseDisplay(m_display);
         m_display = nullptr;
         m_window = 0;
+        m_atomWMDeleteWindow = 0;
+    }
+}
+
+
+void WindowGLLinux::ProcessEvents() {
+    XPending(m_display);
+    while (XQLength(m_display)) {
+        XEvent event;
+        XNextEvent(m_display, &event);
+        switch (event.type) {
+            case ClientMessage: {
+                if (event.xclient.data.l[0] == m_atomWMDeleteWindow) {
+                    m_windowShouldClose = true;
+                }
+            }
+            break;
+            case DestroyNotify:
+                m_windowShouldClose = true;
+                break;
+            case ConfigureNotify: {
+                auto width = event.xconfigure.width;
+                auto height = event.xconfigure.height;
+                if (((width != m_width) || (height != m_height)) && (width != 0) && (height != 0)) {
+                    m_width  = width;
+                    m_height = height;
+                }
+            }
+            break;
+            case KeyPress:
+                HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
+                break;
+            case KeyRelease:
+                HandleKeyEvent(KeyAction::Release, event.xkey.keycode, event.xkey.state);
+                break;
+            case ButtonPress:
+                HandleMouseButtonEvent(KeyAction::Press, event.xbutton.button, event.xbutton.state);
+                break;
+            case ButtonRelease:
+                HandleMouseButtonEvent(KeyAction::Release, event.xbutton.button, event.xbutton.state);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
+    if (m_eventHandler) {
+        auto key = KeySymToKey(XkbKeycodeToKeysym(m_display, code, 0, 0));
+        m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
+    }
+}
+
+void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint state) {
+    if (m_eventHandler) {
+        m_eventHandler->OnKeyEvent(action, MouseBottonToKey(code), StateToModifiers(state));
     }
 }

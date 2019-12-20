@@ -17,11 +17,11 @@ public:
     void Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& title);
     void Destroy() override;
 
-    void ProcessEvents();
+    void ProcessEvents() override;
 
 private:
-    void HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint16_t state);
-    void HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint16_t state);
+    void HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint state);
+    void HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint state);
 
 private:
     uint32_t m_window = 0;

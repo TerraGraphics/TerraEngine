@@ -1,7 +1,7 @@
 #include "linux/x11_key_map.h"
 
+#include <X11/X.h>
 #include <X11/keysym.h>
-#include <xcb/xproto.h>
 
 
 Key KeySymToKey(uint32_t value) {
@@ -134,9 +134,27 @@ Key KeySymToKey(uint32_t value) {
 
 Key MouseBottonToKey(uint8_t value) {
     switch (value) {
-        case XCB_BUTTON_INDEX_1:    return Key::MouseLeft;
-        case XCB_BUTTON_INDEX_2:    return Key::MouseMiddle;
-        case XCB_BUTTON_INDEX_3:    return Key::MouseRight;
-        default:                    return Key::Unknown;
+        case Button1: return Key::MouseLeft;
+        case Button2: return Key::MouseMiddle;
+        case Button3: return Key::MouseRight;
+        default:      return Key::Unknown;
     }
+}
+
+uint8_t StateToModifiers(uint state) {
+    uint8_t modifiers = 0;
+    if (state & ShiftMask) {
+        modifiers |= KeyModifier::Shift;
+    }
+    if (state & ControlMask) {
+        modifiers |= KeyModifier::Control;
+    }
+    if (state & Mod1Mask) {
+        modifiers |= KeyModifier::Alt;
+    }
+    if (state & Mod4Mask) {
+        modifiers |= KeyModifier::Super;
+    }
+
+    return modifiers;
 }

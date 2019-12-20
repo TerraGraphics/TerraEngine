@@ -80,8 +80,6 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     hints.flags = XCB_ICCCM_SIZE_HINT_P_SIZE;
     hints.min_width = 320;
     hints.min_height = 240;
-    hints.width = m_width;
-    hints.height = m_height;
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS,
         32, sizeof(xcb_size_hints_t), &hints);
 
@@ -184,40 +182,14 @@ void WindowVulkanLinux::ProcessEvents() {
     }
 }
 
-void WindowVulkanLinux::HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint16_t state) {
+void WindowVulkanLinux::HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint state) {
     if (m_eventHandler) {
-        uint8_t modifiers = 0;
-        if (state & XCB_MOD_MASK_SHIFT) {
-            modifiers |= KeyModifier::Shift;
-        }
-        if (state & XCB_MOD_MASK_CONTROL) {
-            modifiers |= KeyModifier::Control;
-        }
-        if (state & XCB_MOD_MASK_1) {
-            modifiers |= KeyModifier::Alt;
-        }
-        if (state & XCB_MOD_MASK_4) {
-            modifiers |= KeyModifier::Super;
-        }
-        m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), modifiers);
+        m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), StateToModifiers(state));
     }
 }
 
-void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint16_t state) {
+void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint state) {
     if (m_eventHandler) {
-        uint8_t modifiers = 0;
-        if (state & XCB_MOD_MASK_SHIFT) {
-            modifiers |= KeyModifier::Shift;
-        }
-        if (state & XCB_MOD_MASK_CONTROL) {
-            modifiers |= KeyModifier::Control;
-        }
-        if (state & XCB_MOD_MASK_1) {
-            modifiers |= KeyModifier::Alt;
-        }
-        if (state & XCB_MOD_MASK_4) {
-            modifiers |= KeyModifier::Super;
-        }
-        m_eventHandler->OnKeyEvent(action, MouseBottonToKey(code), modifiers);
+        m_eventHandler->OnKeyEvent(action, MouseBottonToKey(code), StateToModifiers(state));
     }
 }
