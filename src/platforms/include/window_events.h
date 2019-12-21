@@ -169,4 +169,5 @@ public:
 
     virtual void OnKeyEvent(KeyAction /* action */, Key /* key */, uint8_t /* modifiers */) = 0;
     virtual void OnCursorPosition(int64_t x, int64_t y) = 0;
+    virtual void OnScroll(int delta) = 0;
 };

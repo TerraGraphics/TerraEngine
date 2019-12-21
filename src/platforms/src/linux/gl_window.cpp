@@ -207,6 +207,22 @@ void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
 
 void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint state) {
     if (m_eventHandler) {
-        m_eventHandler->OnKeyEvent(action, MouseBottonToKey(code), StateToModifiers(state));
+        switch (code) {
+            case Button1:
+                m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
+                break;
+            case Button2:
+                m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
+                break;
+            case Button3:
+                m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
+                break;
+            case Button4:
+                m_eventHandler->OnScroll(1);
+                break;
+            case Button5:
+                m_eventHandler->OnScroll(-1);
+                break;
+        }
     }
 }

@@ -32,3 +32,7 @@ void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t mod
 void DebugWindowEventsHandler::OnCursorPosition(int64_t x, int64_t y) {
     std::cout << "Cursor x = " << x <<", y = " << y << std::endl;
 }
+
+void DebugWindowEventsHandler::OnScroll(int delta) {
+    std::cout << "Scroll delta = " << delta << std::endl;
+}

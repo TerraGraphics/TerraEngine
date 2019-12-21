@@ -132,15 +132,6 @@ Key KeySymToKey(uint32_t value) {
     }
 }
 
-Key MouseBottonToKey(uint8_t value) {
-    switch (value) {
-        case Button1: return Key::MouseLeft;
-        case Button2: return Key::MouseMiddle;
-        case Button3: return Key::MouseRight;
-        default:      return Key::Unknown;
-    }
-}
-
 uint8_t StateToModifiers(uint state) {
     uint8_t modifiers = 0;
     if (state & ShiftMask) {

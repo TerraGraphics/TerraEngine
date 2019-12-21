@@ -199,6 +199,24 @@ void WindowVulkanLinux::HandleKeyEvent(KeyAction action, xcb_keycode_t code, uin
 
 void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint state) {
     if (m_eventHandler) {
-        m_eventHandler->OnKeyEvent(action, MouseBottonToKey(code), StateToModifiers(state));
+        switch (code) {
+            case XCB_BUTTON_INDEX_1:
+                m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
+                break;
+            case XCB_BUTTON_INDEX_2:
+                m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
+                break;
+            case XCB_BUTTON_INDEX_3:
+                m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
+                break;
+            case XCB_BUTTON_INDEX_4:
+                m_eventHandler->OnScroll(1);
+                break;
+            case XCB_BUTTON_INDEX_5:
+                m_eventHandler->OnScroll(-1);
+                break;
+            default:
+                break;
+        }
     }
 }
