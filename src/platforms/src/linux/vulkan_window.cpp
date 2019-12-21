@@ -166,14 +166,23 @@ void WindowVulkanLinux::ProcessEvents() {
                 const auto* typedEvent = reinterpret_cast<const xcb_button_press_event_t*>(event);
                 HandleMouseButtonEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
             }
+            break;
 
             // 0b101
             case XCB_BUTTON_RELEASE: {
                 const auto* typedEvent = reinterpret_cast<const xcb_button_release_event_t*>(event);
                 HandleMouseButtonEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
             }
+            break;
 
-            // XCB_MOTION_NOTIFY - 0b110
+            // 0b110
+            case XCB_MOTION_NOTIFY: {
+                const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
+                if (m_eventHandler) {
+                    m_eventHandler->OnCursorPosition(typedEvent->event_x, typedEvent->event_y);
+                }
+            }
+            break;
 
             default:
                 break;

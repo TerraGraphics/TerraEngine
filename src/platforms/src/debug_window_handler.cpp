@@ -28,3 +28,7 @@ void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t mod
 
     std::cout << ToString(action) << " " << strModifiers << ToString(key) << std::endl;
 }
+
+void DebugWindowEventsHandler::OnCursorPosition(int64_t x, int64_t y) {
+    std::cout << "Cursor x = " << x <<", y = " << y << std::endl;
+}

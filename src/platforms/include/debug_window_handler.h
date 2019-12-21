@@ -9,4 +9,5 @@ public:
     ~DebugWindowEventsHandler() override = default;
 
     void OnKeyEvent(KeyAction action, Key key, uint8_t modifiers) override;
+    void OnCursorPosition(int64_t x, int64_t y) override;
 };
