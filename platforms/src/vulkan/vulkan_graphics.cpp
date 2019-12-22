@@ -1,7 +1,6 @@
 #include "vulkan/vulkan_graphics.h"
 
 #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
-#include "core/common/exception.h"
 
 
 VulkanGraphics::VulkanGraphics(uint32_t window, xcb_connection_t* connection)
@@ -33,7 +32,7 @@ void VulkanGraphics::Create(int validationLevel) {
 
     engineFactoryVk->CreateDeviceAndContextsVk(m_createInfo, &m_device, contexts.data());
     if (!m_device) {
-        throw EngineError("failed to initialize Vulkan");
+        throw std::runtime_error("failed to initialize Vulkan");
     }
 
     if (!m_swapChain) {

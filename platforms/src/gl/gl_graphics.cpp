@@ -2,8 +2,6 @@
 
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
 
-#include "core/common/exception.h"
-
 
 GLGraphics::GLGraphics(uint32_t window, Display* display) {
     m_createInfo.pNativeWndHandle = reinterpret_cast<void *>(window);
@@ -15,7 +13,7 @@ GLGraphics::GLGraphics(uint32_t window, Display* display) {
 void GLGraphics::Create(int /* validationLevel */) {
 #if !PLATFORM_MACOS
     if (m_createInfo.pNativeWndHandle == nullptr) {
-        throw EngineError("nativeWindowHandle for GL init is equal null");
+        throw std::runtime_error("nativeWindowHandle for GL init is equal null");
     }
 #endif
 
@@ -40,7 +38,7 @@ void GLGraphics::Create(int /* validationLevel */) {
     Diligent::SwapChainDesc scDesc;
     engineFactoryGL->CreateDeviceAndSwapChainGL(m_createInfo, &m_device, contexts.data(), scDesc, &m_swapChain);
     if (!m_device) {
-        throw EngineError("failed to initialize OpenGL");
+        throw std::runtime_error("failed to initialize OpenGL");
     }
 
     m_immediateContext.Attach(contexts[0]);

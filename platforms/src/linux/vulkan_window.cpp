@@ -4,7 +4,6 @@
 #include <xcb_keysyms.h>
 
 #include "linux/x11_key_map.h"
-#include "core/common/exception.h"
 
 
 static std::string ParseXCBConnectError(int err) {
@@ -36,7 +35,7 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
 
     m_connection = xcb_connect(nullptr, &screenNumber);
     if (int err = xcb_connection_has_error(m_connection); err != 0) {
-        throw EngineError("unable to make an XCB connection, {}", ParseXCBConnectError(err));
+        throw std::runtime_error("unable to make an XCB connection: " + ParseXCBConnectError(err));
     }
 
     const xcb_setup_t* setup = xcb_get_setup(m_connection);

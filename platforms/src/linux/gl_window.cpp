@@ -1,10 +1,10 @@
 #include "linux/gl_window.h"
 
 #include <GL/glx.h>
+#include <exception>
 #include <X11/XKBlib.h>
 
 #include "linux/x11_key_map.h"
-#include "core/common/exception.h"
 
 
 #ifndef GLX_CONTEXT_MAJOR_VERSION_ARB
@@ -60,7 +60,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     int fbcount = 0;
     GLXFBConfig* fbc = glXChooseFBConfig(m_display, DefaultScreen(m_display), visualAttribs, &fbcount);
     if (!fbc) {
-        throw EngineError("failed to retrieve a framebuffer config");
+        throw std::runtime_error("failed to retrieve a framebuffer config");
     }
 
     XVisualInfo* vi = glXGetVisualFromFBConfig(m_display, fbc[0]);
@@ -81,7 +81,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
 
     m_window = XCreateWindow(m_display, parent, posX, posY, m_width, m_height, 0, vi->depth, InputOutput, vi->visual, valueMask, &swa);
     if (!m_window) {
-        throw EngineError("failed to create window");
+        throw std::runtime_error("failed to create window");
     }
 
     XStoreName(m_display, m_window, name.c_str());
@@ -110,7 +110,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     }
 
     if (glXCreateContextAttribsARB == nullptr) {
-        throw EngineError("glXCreateContextAttribsARB entry point not found");
+        throw std::runtime_error("glXCreateContextAttribsARB entry point not found");
     }
 
     int flags = GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
@@ -131,7 +131,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     constexpr int valTrue = 1;
     GLXContext ctx  = glXCreateContextAttribsARB(m_display, fbc[0], NULL, valTrue, contextAttribs);
     if (!ctx) {
-        throw EngineError("failed to create GL context");
+        throw std::runtime_error("failed to create GL context");
     }
     XFree(fbc);
 
