@@ -30,7 +30,7 @@ WindowGLLinux::~WindowGLLinux() {
     Destroy();
 }
 
-void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& title) {
+void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name) {
     m_width = width;
     m_height = height;
 
@@ -83,6 +83,8 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     if (!m_window) {
         throw EngineError("failed to create window");
     }
+
+    XStoreName(m_display, m_window, name.c_str());
 
     m_atomWMDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(m_display, m_window, &m_atomWMDeleteWindow, 1);
@@ -149,6 +151,9 @@ void WindowGLLinux::Destroy() {
     }
 }
 
+void WindowGLLinux::SetTitle(const std::string& title) {
+    XStoreName(m_display, m_window, title.c_str());
+}
 
 void WindowGLLinux::ProcessEvents() {
     XPending(m_display);

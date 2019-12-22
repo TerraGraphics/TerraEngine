@@ -30,7 +30,7 @@ WindowVulkanLinux::~WindowVulkanLinux() {
     Destroy();
 }
 
-void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& title) {
+void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& name) {
     m_width = width;
     m_height = height;
 
@@ -72,8 +72,8 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, (*reply).atom, 4, 32, 1, &(*m_atomWMDeleteWindow).atom);
     free(reply);
 
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.length(), title.c_str());
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, title.length(), title.c_str());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, name.length(), name.c_str());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, name.length(), name.c_str());
 
     // https://stackoverflow.com/a/27771295
     xcb_size_hints_t hints = {};
@@ -117,6 +117,11 @@ void WindowVulkanLinux::Destroy() {
         m_connection = nullptr;
         m_window = 0;
     }
+}
+
+void WindowVulkanLinux::SetTitle(const std::string& title) {
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.length(), title.c_str());
+    xcb_flush(m_connection);
 }
 
 void WindowVulkanLinux::ProcessEvents() {

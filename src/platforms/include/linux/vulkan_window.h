@@ -12,11 +12,11 @@ public:
 
     uint32_t GetWindow() noexcept { return m_window; }
     xcb_connection_t* GetConnection() noexcept { return m_connection; }
-    xcb_intern_atom_reply_t* GetAtomWMDeleteWindow() noexcept { return m_atomWMDeleteWindow; }
 
-    void Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& title);
+    void Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& name);
     void Destroy() override;
 
+    void SetTitle(const std::string& title) override;
     void ProcessEvents() override;
 
 private:

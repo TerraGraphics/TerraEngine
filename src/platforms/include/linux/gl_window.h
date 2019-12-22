@@ -12,9 +12,10 @@ public:
     uint32_t GetWindow() noexcept { return m_window; }
     Display* GetDisplay() noexcept { return m_display; }
 
-    void Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& title);
+    void Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name);
     void Destroy() override;
 
+    void SetTitle(const std::string& title) override;
     void ProcessEvents() override;
 
 private:

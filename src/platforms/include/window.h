@@ -17,7 +17,9 @@ public:
     void SetEventHandler(std::unique_ptr<WindowEventsHandler>&& handler);
     virtual void Destroy() = 0;
 
+    virtual void SetTitle(const std::string& title) = 0;
     virtual void ProcessEvents() = 0;
+
 protected:
     bool m_windowShouldClose = false;
     uint16_t m_width = 0;
