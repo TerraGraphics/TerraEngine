@@ -77,7 +77,8 @@
         "CXX": "/usr/bin/clang++"
     },
     "cmake.configureArgs": [
-        "-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF"
+        "-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
+        "-DDILIGENT_NO_VULKAN:BOOL=OFF"
     ],
     "C_Cpp.enhancedColorization": "Disabled"
 }
