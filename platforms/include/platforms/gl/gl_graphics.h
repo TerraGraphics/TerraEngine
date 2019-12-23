@@ -2,7 +2,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
 
-#include "graphics.h"
+#include "platforms/graphics.h"
 
 
 typedef struct _XDisplay Display;

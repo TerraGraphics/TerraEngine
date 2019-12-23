@@ -1,6 +1,6 @@
 #pragma once
 
-#include "window.h"
+#include "platforms/window.h"
 
 
 typedef struct _XDisplay Display;

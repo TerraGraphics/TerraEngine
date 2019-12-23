@@ -1,6 +1,6 @@
 #pragma once
 
-#include "window_events.h"
+#include "platforms/window_events.h"
 
 
 class DebugWindowEventsHandler : public WindowEventsHandler {

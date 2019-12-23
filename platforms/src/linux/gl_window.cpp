@@ -1,10 +1,10 @@
-#include "linux/gl_window.h"
+#include "platforms/linux/gl_window.h"
 
 #include <GL/glx.h>
 #include <exception>
 #include <X11/XKBlib.h>
 
-#include "linux/x11_key_map.h"
+#include "platforms/linux/x11_key_map.h"
 
 
 #ifndef GLX_CONTEXT_MAJOR_VERSION_ARB

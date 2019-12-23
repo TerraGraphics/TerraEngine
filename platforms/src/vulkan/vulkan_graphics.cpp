@@ -1,4 +1,4 @@
-#include "vulkan/vulkan_graphics.h"
+#include "platforms/vulkan/vulkan_graphics.h"
 
 #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
 

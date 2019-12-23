@@ -1,9 +1,10 @@
 #pragma once
 
-#include <xcb/xcb.h>
-#include "window.h"
+#include "platforms/window.h"
 
 
+struct xcb_intern_atom_reply_t;
+typedef struct xcb_connection_t xcb_connection_t;
 typedef struct _XCBKeySymbols xcb_key_symbols_t;
 class WindowVulkanLinux : public RenderWindow {
 public:
@@ -20,8 +21,8 @@ public:
     void ProcessEvents() override;
 
 private:
-    void HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint state);
-    void HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint state);
+    void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
+    void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
 
 private:
     uint32_t m_window = 0;

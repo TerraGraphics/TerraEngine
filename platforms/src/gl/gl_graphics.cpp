@@ -1,4 +1,4 @@
-#include "gl/gl_graphics.h"
+#include "platforms/gl/gl_graphics.h"
 
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
 

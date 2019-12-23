@@ -1,9 +1,9 @@
-#include "linux/vulkan_window.h"
+#include "platforms/linux/vulkan_window.h"
 
 #include <xcb/xcb_icccm.h>
-#include <xcb_keysyms.h>
+#include <xcb/xcb_keysyms.h>
 
-#include "linux/x11_key_map.h"
+#include "platforms/linux/x11_key_map.h"
 
 
 static std::string ParseXCBConnectError(int err) {
@@ -195,13 +195,13 @@ void WindowVulkanLinux::ProcessEvents() {
     }
 }
 
-void WindowVulkanLinux::HandleKeyEvent(KeyAction action, xcb_keycode_t code, uint state) {
+void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
     if (m_eventHandler) {
         m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), StateToModifiers(state));
     }
 }
 
-void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, xcb_button_t code, uint state) {
+void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state) {
     if (m_eventHandler) {
         switch (code) {
             case XCB_BUTTON_INDEX_1:

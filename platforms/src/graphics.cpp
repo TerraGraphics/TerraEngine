@@ -1,4 +1,5 @@
-#include "graphics.h"
+#include "platforms/graphics.h"
+
 
 Graphics::~Graphics() {
     Destroy();
