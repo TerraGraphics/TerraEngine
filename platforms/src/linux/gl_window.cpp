@@ -195,12 +195,9 @@ void WindowGLLinux::ProcessEvents() {
             case ButtonRelease:
                 HandleMouseButtonEvent(KeyAction::Release, event.xbutton.button, event.xbutton.state);
                 break;
-            case MotionNotify: {
-                if (m_eventHandler) {
-                    m_eventHandler->OnCursorPosition(event.xmotion.x, event.xmotion.y);
-                }
-            }
-            break;
+            case MotionNotify:
+                m_eventHandler->OnCursorPosition(event.xmotion.x, event.xmotion.y);
+                break;
             default:
                 break;
         }
@@ -208,30 +205,26 @@ void WindowGLLinux::ProcessEvents() {
 }
 
 void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
-    if (m_eventHandler) {
-        auto key = KeySymToKey(XkbKeycodeToKeysym(m_display, code, 0, 0));
-        m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
-    }
+    auto key = KeySymToKey(XkbKeycodeToKeysym(m_display, code, 0, 0));
+    m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
 }
 
 void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint state) {
-    if (m_eventHandler) {
-        switch (code) {
-            case Button1:
-                m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
-                break;
-            case Button2:
-                m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
-                break;
-            case Button3:
-                m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
-                break;
-            case Button4:
-                m_eventHandler->OnScroll(1);
-                break;
-            case Button5:
-                m_eventHandler->OnScroll(-1);
-                break;
-        }
+    switch (code) {
+        case Button1:
+            m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
+            break;
+        case Button2:
+            m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
+            break;
+        case Button3:
+            m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
+            break;
+        case Button4:
+            m_eventHandler->OnScroll(1);
+            break;
+        case Button5:
+            m_eventHandler->OnScroll(-1);
+            break;
     }
 }

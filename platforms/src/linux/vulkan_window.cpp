@@ -187,9 +187,7 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b110
             case XCB_MOTION_NOTIFY: {
                 const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-                if (m_eventHandler) {
-                    m_eventHandler->OnCursorPosition(typedEvent->event_x, typedEvent->event_y);
-                }
+                m_eventHandler->OnCursorPosition(typedEvent->event_x, typedEvent->event_y);
             }
             break;
 
@@ -201,31 +199,27 @@ void WindowVulkanLinux::ProcessEvents() {
 }
 
 void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
-    if (m_eventHandler) {
-        m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), StateToModifiers(state));
-    }
+    m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), StateToModifiers(state));
 }
 
 void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state) {
-    if (m_eventHandler) {
-        switch (code) {
-            case XCB_BUTTON_INDEX_1:
-                m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
-                break;
-            case XCB_BUTTON_INDEX_2:
-                m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
-                break;
-            case XCB_BUTTON_INDEX_3:
-                m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
-                break;
-            case XCB_BUTTON_INDEX_4:
-                m_eventHandler->OnScroll(1);
-                break;
-            case XCB_BUTTON_INDEX_5:
-                m_eventHandler->OnScroll(-1);
-                break;
-            default:
-                break;
-        }
+    switch (code) {
+        case XCB_BUTTON_INDEX_1:
+            m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
+            break;
+        case XCB_BUTTON_INDEX_2:
+            m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
+            break;
+        case XCB_BUTTON_INDEX_3:
+            m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
+            break;
+        case XCB_BUTTON_INDEX_4:
+            m_eventHandler->OnScroll(1);
+            break;
+        case XCB_BUTTON_INDEX_5:
+            m_eventHandler->OnScroll(-1);
+            break;
+        default:
+            break;
     }
 }
