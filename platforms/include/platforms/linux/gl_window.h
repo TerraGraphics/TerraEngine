@@ -6,7 +6,8 @@
 typedef struct _XDisplay Display;
 class WindowGLLinux : public RenderWindow {
 public:
-    WindowGLLinux() = default;
+    WindowGLLinux() = delete;
+    WindowGLLinux(const std::shared_ptr<WindowEventsHandler>& handler);
     ~WindowGLLinux() override;
 
     uint32_t GetWindow() noexcept { return m_window; }

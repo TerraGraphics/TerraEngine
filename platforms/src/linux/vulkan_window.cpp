@@ -25,6 +25,11 @@ static std::string ParseXCBConnectError(int err) {
     }
 }
 
+WindowVulkanLinux::WindowVulkanLinux(const std::shared_ptr<WindowEventsHandler>& handler)
+    : RenderWindow(handler) {
+
+}
+
 WindowVulkanLinux::~WindowVulkanLinux() {
     Destroy();
 }

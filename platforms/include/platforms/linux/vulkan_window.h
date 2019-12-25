@@ -8,7 +8,8 @@ typedef struct xcb_connection_t xcb_connection_t;
 typedef struct _XCBKeySymbols xcb_key_symbols_t;
 class WindowVulkanLinux : public RenderWindow {
 public:
-    WindowVulkanLinux() = default;
+    WindowVulkanLinux() = delete;
+    WindowVulkanLinux(const std::shared_ptr<WindowEventsHandler>& handler);
     ~WindowVulkanLinux() override;
 
     uint32_t GetWindow() noexcept { return m_window; }

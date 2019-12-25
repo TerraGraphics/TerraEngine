@@ -25,6 +25,10 @@
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, int, const int*);
 
+WindowGLLinux::WindowGLLinux(const std::shared_ptr<WindowEventsHandler>& handler)
+    : RenderWindow(handler) {
+
+}
 
 WindowGLLinux::~WindowGLLinux() {
     Destroy();
