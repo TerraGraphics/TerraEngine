@@ -196,7 +196,7 @@ void WindowGLLinux::ProcessEvents() {
                 HandleMouseButtonEvent(KeyAction::Release, event.xbutton.button, event.xbutton.state);
                 break;
             case MotionNotify:
-                m_eventHandler->OnCursorPosition(event.xmotion.x, event.xmotion.y);
+                m_eventHandler->OnCursorPosition(static_cast<double>(event.xmotion.x), static_cast<double>(event.xmotion.y));
                 break;
             default:
                 break;

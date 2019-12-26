@@ -187,7 +187,7 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b110
             case XCB_MOTION_NOTIFY: {
                 const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-                m_eventHandler->OnCursorPosition(typedEvent->event_x, typedEvent->event_y);
+                m_eventHandler->OnCursorPosition(static_cast<double>(typedEvent->event_x), static_cast<double>(typedEvent->event_y));
             }
             break;
 

@@ -3,6 +3,14 @@
 #include <iostream>
 
 
+void DebugWindowEventsHandler::Update() {
+
+}
+
+void DebugWindowEventsHandler::OnWindowSizeEvent(uint32_t width, uint32_t height) {
+    std::cout << "Window width = " << width <<", height = " << height << std::endl;
+}
+
 void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t modifiers) {
     std::string delimiter;
     std::string strModifiers;
@@ -29,7 +37,11 @@ void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t mod
     std::cout << ToString(action) << " " << strModifiers << ToString(key) << std::endl;
 }
 
-void DebugWindowEventsHandler::OnCursorPosition(int64_t x, int64_t y) {
+void DebugWindowEventsHandler::OnCharEvent(char16_t ch) {
+    std::cout << "char = " << ch << std::endl;
+}
+
+void DebugWindowEventsHandler::OnCursorPosition(double x, double y) {
     std::cout << "Cursor x = " << x <<", y = " << y << std::endl;
 }
 

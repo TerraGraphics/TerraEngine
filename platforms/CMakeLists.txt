@@ -6,6 +6,7 @@ include(platforms_check.cmake)
 set(LIBS)
 set(SOURCE_FILES
     src/debug_window_handler.cpp
+    src/default_window_handler.cpp
     src/graphics.cpp
     src/window_events.cpp
     src/window.cpp
