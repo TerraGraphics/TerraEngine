@@ -79,7 +79,7 @@ std::u16string DefaultWindowEventsHandler::GetInput() const noexcept {
     return m_userInput;
 }
 
-void DefaultWindowEventsHandler::Update() {
+void DefaultWindowEventsHandler::OnNewFrame() {
     m_scrollOffset = 0;
 
     m_userInput.clear();
@@ -94,7 +94,9 @@ void DefaultWindowEventsHandler::Update() {
 }
 
 void DefaultWindowEventsHandler::OnWindowSizeEvent(uint32_t width, uint32_t height) {
-    m_sizeChanged = ((m_width != width) || (m_height != height));
+    if ((m_width != width) || (m_height != height)) {
+        m_sizeChanged = true;
+    }
     m_width = width;
     m_height = height;
 }

@@ -35,9 +35,6 @@ WindowGLLinux::~WindowGLLinux() {
 }
 
 void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name) {
-    m_width = width;
-    m_height = height;
-
     m_display = XOpenDisplay(0);
 
     static int visualAttribs[] = {
@@ -83,7 +80,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     uint valueMask = CWBorderPixel | CWColormap | CWEventMask;
     auto parent = RootWindow(m_display, vi->screen);
 
-    m_window = XCreateWindow(m_display, parent, posX, posY, m_width, m_height, 0, vi->depth, InputOutput, vi->visual, valueMask, &swa);
+    m_window = XCreateWindow(m_display, parent, posX, posY, width, height, 0, vi->depth, InputOutput, vi->visual, valueMask, &swa);
     if (!m_window) {
         throw std::runtime_error("failed to create window");
     }
@@ -140,6 +137,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     XFree(fbc);
 
     glXMakeCurrent(m_display, m_window, ctx);
+    m_eventHandler->OnWindowSizeEvent(width, height);
 }
 
 void WindowGLLinux::Destroy() {
@@ -160,6 +158,7 @@ void WindowGLLinux::SetTitle(const std::string& title) {
 }
 
 void WindowGLLinux::ProcessEvents() {
+    m_eventHandler->OnNewFrame();
     XPending(m_display);
     while (XQLength(m_display)) {
         XEvent event;
@@ -174,15 +173,9 @@ void WindowGLLinux::ProcessEvents() {
             case DestroyNotify:
                 m_windowShouldClose = true;
                 break;
-            case ConfigureNotify: {
-                auto width = event.xconfigure.width;
-                auto height = event.xconfigure.height;
-                if (((width != m_width) || (height != m_height)) && (width != 0) && (height != 0)) {
-                    m_width  = width;
-                    m_height = height;
-                }
-            }
-            break;
+            case ConfigureNotify:
+                m_eventHandler->OnWindowSizeEvent(event.xconfigure.width, event.xconfigure.height);
+                break;
             case KeyPress:
                 HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
                 break;

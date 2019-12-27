@@ -35,9 +35,6 @@ WindowVulkanLinux::~WindowVulkanLinux() {
 }
 
 void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& name) {
-    m_width = width;
-    m_height = height;
-
     m_connection = xcb_connect(nullptr, &screenNumber);
     if (int err = xcb_connection_has_error(m_connection); err != 0) {
         throw std::runtime_error("unable to make an XCB connection: " + ParseXCBConnectError(err));
@@ -63,7 +60,7 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
         XCB_EVENT_MASK_BUTTON_RELEASE;
 
     m_window = xcb_generate_id(m_connection);
-    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, screen->root, posX, posY, m_width, m_height, 0,
+    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, screen->root, posX, posY, width, height, 0,
                       XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, valueMask, valueList);
 
     // Magic code that will send notification when window is destroyed
@@ -94,9 +91,18 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_configure_window(m_connection, m_window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, coords);
     xcb_flush(m_connection);
 
-    xcb_generic_event_t* e;
-    while ((e = xcb_wait_for_event(m_connection))) {
-        if ((e->response_type & ~0x80) == XCB_EXPOSE) break;
+    xcb_generic_event_t* event = nullptr;
+    m_eventHandler->OnWindowSizeEvent(width, height);
+    while ((event = xcb_wait_for_event(m_connection)) != nullptr) {
+        auto type = (event->response_type & ~0x80);
+        if (type == XCB_CONFIGURE_NOTIFY) {
+            const auto* configureEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+            m_eventHandler->OnWindowSizeEvent(configureEvent->width, configureEvent->height);
+        } else if (type == XCB_EXPOSE) {
+            free(event);
+            break;
+        }
+        free (event);
     }
 
     if (m_keySymbols == nullptr) {
@@ -129,6 +135,7 @@ void WindowVulkanLinux::SetTitle(const std::string& title) {
 }
 
 void WindowVulkanLinux::ProcessEvents() {
+    m_eventHandler->OnNewFrame();
     xcb_generic_event_t* event = nullptr;
     while ((event = xcb_poll_for_event(m_connection)) != nullptr) {
         switch (event->response_type & 0x7f) { // 0b1111111
@@ -147,12 +154,7 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b10110
             case XCB_CONFIGURE_NOTIFY: {
                 const auto* configureEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-                auto width = configureEvent->width;
-                auto height = configureEvent->height;
-                if (((width != m_width) || (height != m_height)) && (width != 0) && (height != 0)) {
-                    m_width  = width;
-                    m_height = height;
-                }
+                m_eventHandler->OnWindowSizeEvent(configureEvent->width, configureEvent->height);
             }
             break;
 

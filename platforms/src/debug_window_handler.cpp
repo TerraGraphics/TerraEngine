@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-void DebugWindowEventsHandler::Update() {
+void DebugWindowEventsHandler::OnNewFrame() {
 
 }
 
