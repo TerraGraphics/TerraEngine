@@ -168,6 +168,7 @@ public:
     virtual ~WindowEventsHandler() = default;
 
     virtual void OnNewFrame() = 0;
+    virtual void OnWindowDestroy() = 0;
     virtual void OnWindowSizeEvent(uint32_t width, uint32_t height) = 0;
     virtual void OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) = 0;
     virtual void OnCharEvent(char16_t ch) = 0;

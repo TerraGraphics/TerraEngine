@@ -9,6 +9,8 @@ public:
     ~DefaultWindowEventsHandler() override = default;
 
 public:
+    bool IsWindowShouldClose() const noexcept { return m_windowShouldClose; }
+
     bool GetWindowSize(uint32_t& width, uint32_t& height) const noexcept;
 
     void GetCursorPosition(float& posX, float& posY) const noexcept;
@@ -29,6 +31,7 @@ public:
 
 protected:
     void OnNewFrame() override;
+    void OnWindowDestroy() override;
     void OnWindowSizeEvent(uint32_t width, uint32_t height) override;
     void OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) override;
     void OnCharEvent(char16_t ch) override;
@@ -36,6 +39,7 @@ protected:
     void OnScroll(int delta) override;
 
 private:
+    bool m_windowShouldClose = false;
     bool m_sizeChanged = false;
     uint32_t m_width = 0;
     uint32_t m_height = 0;

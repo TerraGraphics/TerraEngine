@@ -3,7 +3,7 @@
 #include "core/common/exception.h"
 
 
-void Engine::Create(const std::shared_ptr<RenderWindow>& window, const std::shared_ptr<WindowEventsHandler>& eventHandler,
+void Engine::Create(const std::shared_ptr<RenderWindow>& window, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
     const std::shared_ptr<Graphics>& graphics, std::unique_ptr<Application>&& application) {
 
     m_window = window;
@@ -35,7 +35,7 @@ void Engine::Create(const std::shared_ptr<RenderWindow>& window, const std::shar
 void Engine::Run() {
     while (true) {
         m_window->ProcessEvents();
-        if (m_window->IsWindowShouldClose()) {
+        if (m_eventHandler->IsWindowShouldClose()) {
             break;
         }
         m_application->Update(float(1.f / 60.f));

@@ -79,6 +79,10 @@ std::u16string DefaultWindowEventsHandler::GetInput() const noexcept {
     return m_userInput;
 }
 
+void DefaultWindowEventsHandler::OnWindowDestroy() {
+    m_windowShouldClose = true;
+}
+
 void DefaultWindowEventsHandler::OnNewFrame() {
     m_scrollOffset = 0;
 

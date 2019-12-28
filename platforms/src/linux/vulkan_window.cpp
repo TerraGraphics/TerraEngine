@@ -142,13 +142,13 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b100001
             case XCB_CLIENT_MESSAGE:
                 if ((*(xcb_client_message_event_t*)event).data.data32[0] == m_atomWMDeleteWindow->atom) {
-                    m_windowShouldClose = true;
+                    m_eventHandler->OnWindowDestroy();
                 }
                 break;
 
             // 0b10001
             case XCB_DESTROY_NOTIFY:
-                m_windowShouldClose = true;
+                m_eventHandler->OnWindowDestroy();
                 break;
 
             // 0b10110

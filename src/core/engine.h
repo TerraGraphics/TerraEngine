@@ -35,14 +35,14 @@ public:
     EngineFactoryPtr GetEngineFactory() noexcept { return m_engineFactory; }
     std::shared_ptr<WindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
 
-    void Create(const std::shared_ptr<RenderWindow>& window, const std::shared_ptr<WindowEventsHandler>& eventHandler,
+    void Create(const std::shared_ptr<RenderWindow>& window, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
         const std::shared_ptr<Graphics>& graphics, std::unique_ptr<Application>&& application);
     void Run();
     void Destroy();
 
 private:
     std::shared_ptr<RenderWindow> m_window = nullptr;
-    std::shared_ptr<WindowEventsHandler> m_eventHandler = nullptr;
+    std::shared_ptr<DefaultWindowEventsHandler> m_eventHandler = nullptr;
     std::shared_ptr<Graphics> m_graphics = nullptr;
     std::unique_ptr<Application> m_application = nullptr;
 

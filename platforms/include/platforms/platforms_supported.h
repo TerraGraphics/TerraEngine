@@ -15,4 +15,3 @@
 #endif // PLATFORM_LINUX
 
 #include "platforms/debug_window_handler.h"
-#include "platforms/default_window_handler.h"

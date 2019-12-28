@@ -166,12 +166,12 @@ void WindowGLLinux::ProcessEvents() {
         switch (event.type) {
             case ClientMessage: {
                 if (event.xclient.data.l[0] == m_atomWMDeleteWindow) {
-                    m_windowShouldClose = true;
+                    m_eventHandler->OnWindowDestroy();
                 }
             }
             break;
             case DestroyNotify:
-                m_windowShouldClose = true;
+                m_eventHandler->OnWindowDestroy();
                 break;
             case ConfigureNotify:
                 m_eventHandler->OnWindowSizeEvent(event.xconfigure.width, event.xconfigure.height);

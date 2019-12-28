@@ -4,14 +4,21 @@
 
 
 void DebugWindowEventsHandler::OnNewFrame() {
+    DefaultWindowEventsHandler::OnNewFrame();
+}
 
+void DebugWindowEventsHandler::OnWindowDestroy() {
+    DefaultWindowEventsHandler::OnWindowDestroy();
+    std::cout << "Window destroy" << std::endl;
 }
 
 void DebugWindowEventsHandler::OnWindowSizeEvent(uint32_t width, uint32_t height) {
+    DefaultWindowEventsHandler::OnWindowSizeEvent(width, height);
     std::cout << "Window width = " << width <<", height = " << height << std::endl;
 }
 
 void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t modifiers) {
+    DefaultWindowEventsHandler::OnKeyEvent(action, key, modifiers);
     std::string delimiter;
     std::string strModifiers;
     if (modifiers & KeyModifier::Shift) {
@@ -38,13 +45,16 @@ void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t mod
 }
 
 void DebugWindowEventsHandler::OnCharEvent(char16_t ch) {
+    DefaultWindowEventsHandler::OnCharEvent(ch);
     std::cout << "char = " << ch << std::endl;
 }
 
 void DebugWindowEventsHandler::OnCursorPosition(double x, double y) {
+    DefaultWindowEventsHandler::OnCursorPosition(x, y);
     std::cout << "Cursor x = " << x <<", y = " << y << std::endl;
 }
 
 void DebugWindowEventsHandler::OnScroll(int delta) {
+    DefaultWindowEventsHandler::OnScroll(delta);
     std::cout << "Scroll delta = " << delta << std::endl;
 }

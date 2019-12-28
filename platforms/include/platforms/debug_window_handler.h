@@ -1,14 +1,16 @@
 #pragma once
 
-#include "platforms/window_events.h"
+#include "platforms/default_window_handler.h"
 
 
-class DebugWindowEventsHandler : public WindowEventsHandler {
+class DebugWindowEventsHandler : public DefaultWindowEventsHandler {
 public:
     DebugWindowEventsHandler() = default;
     ~DebugWindowEventsHandler() override = default;
 
+protected:
     void OnNewFrame() override;
+    void OnWindowDestroy() override;
     void OnWindowSizeEvent(uint32_t width, uint32_t height) override;
     void OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) override;
     void OnCharEvent(char16_t ch) override;
