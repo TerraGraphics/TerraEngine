@@ -18,6 +18,14 @@ public:
     virtual void Destroy() = 0;
 };
 
+struct EngineDesc {
+    std::shared_ptr<RenderWindow> window = nullptr;
+    std::shared_ptr<DefaultWindowEventsHandler> eventHandler = nullptr;
+    std::shared_ptr<Graphics> graphics = nullptr;
+    std::unique_ptr<Application> application = nullptr;
+    bool isVSync = true;
+};
+
 class Engine final : Fixed {
 private:
     Engine() = default;
@@ -35,8 +43,7 @@ public:
     EngineFactoryPtr GetEngineFactory() noexcept { return m_engineFactory; }
     std::shared_ptr<WindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
 
-    void Create(const std::shared_ptr<RenderWindow>& window, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-        const std::shared_ptr<Graphics>& graphics, std::unique_ptr<Application>&& application);
+    void Create(EngineDesc&& desc);
     void Run();
     void Destroy();
 
@@ -50,4 +57,6 @@ private:
     SwapChainPtr m_swapChain;
     ContextPtr m_immediateContext;
     EngineFactoryPtr m_engineFactory;
+
+    bool m_isVSync = true;
 };

@@ -85,6 +85,7 @@ void DefaultWindowEventsHandler::OnWindowDestroy() {
 
 void DefaultWindowEventsHandler::OnNewFrame() {
     m_scrollOffset = 0;
+    m_sizeChanged = false;
 
     m_userInput.clear();
     for(size_t i=0; i!=(static_cast<size_t>(Key::Last) + 1); ++i) {

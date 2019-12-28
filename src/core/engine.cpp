@@ -3,13 +3,13 @@
 #include "core/common/exception.h"
 
 
-void Engine::Create(const std::shared_ptr<RenderWindow>& window, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-    const std::shared_ptr<Graphics>& graphics, std::unique_ptr<Application>&& application) {
+void Engine::Create(EngineDesc&& desc) {
 
-    m_window = window;
-    m_eventHandler = eventHandler;
-    m_graphics = graphics;
-    m_application = std::move(application);
+    m_window = desc.window;
+    m_eventHandler = desc.eventHandler;
+    m_graphics = desc.graphics;
+    m_application = std::move(desc.application);
+    m_isVSync = desc.isVSync;
 
     if (!m_window) {
         throw EngineError("window is not set");
@@ -38,8 +38,21 @@ void Engine::Run() {
         if (m_eventHandler->IsWindowShouldClose()) {
             break;
         }
+
+        uint32_t windowWidth;
+        uint32_t windowHeight;
+        if (m_eventHandler->GetWindowSize(windowWidth, windowHeight)) {
+            auto swapWidth = m_swapChain->GetDesc().Width;
+            auto swapHeight = m_swapChain->GetDesc().Height;
+
+            if (((windowWidth != swapWidth) || (windowHeight != swapHeight)) && (windowWidth != 0) && (windowHeight != 0)) {
+                m_swapChain->Resize(windowWidth, swapHeight);
+            }
+        }
+
         m_application->Update(float(1.f / 60.f));
         m_application->Draw();
+        m_swapChain->Present(m_isVSync ? 1 : 0);
     }
 }
 
