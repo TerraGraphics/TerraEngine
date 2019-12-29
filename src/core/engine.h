@@ -41,7 +41,7 @@ public:
     SwapChainPtr GetSwapChain() noexcept { return m_swapChain; }
     ContextPtr GetImmediateContext() noexcept { return m_immediateContext; }
     EngineFactoryPtr GetEngineFactory() noexcept { return m_engineFactory; }
-    std::shared_ptr<WindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
+    std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
 
     void Create(EngineDesc&& desc);
     void Run();

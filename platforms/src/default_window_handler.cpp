@@ -84,6 +84,9 @@ void DefaultWindowEventsHandler::OnWindowDestroy() {
 }
 
 void DefaultWindowEventsHandler::OnNewFrame() {
+    m_cursorLastPosX = m_cursorPosX;
+    m_cursorLastPosY = m_cursorPosY;
+
     m_scrollOffset = 0;
     m_sizeChanged = false;
 
@@ -101,9 +104,9 @@ void DefaultWindowEventsHandler::OnNewFrame() {
 void DefaultWindowEventsHandler::OnWindowSizeEvent(uint32_t width, uint32_t height) {
     if ((m_width != width) || (m_height != height)) {
         m_sizeChanged = true;
+        m_width = width;
+        m_height = height;
     }
-    m_width = width;
-    m_height = height;
 }
 
 void DefaultWindowEventsHandler::OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) {

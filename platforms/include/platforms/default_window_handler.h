@@ -29,7 +29,7 @@ public:
 
     std::u16string GetInput() const noexcept;
 
-protected:
+public:
     void OnNewFrame() override;
     void OnWindowDestroy() override;
     void OnWindowSizeEvent(uint32_t width, uint32_t height) override;

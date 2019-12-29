@@ -4,7 +4,6 @@
 
 
 void Engine::Create(EngineDesc&& desc) {
-
     m_window = desc.window;
     m_eventHandler = desc.eventHandler;
     m_graphics = desc.graphics;
