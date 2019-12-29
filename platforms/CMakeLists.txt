@@ -18,7 +18,7 @@ if(PLATFORM_LINUX)
     if(GL_SUPPORTED)
         list(APPEND SOURCE_FILES src/gl/gl_graphics.cpp)
         list(APPEND SOURCE_FILES src/linux/gl_window.cpp)
-        list(APPEND LIBS GL X11 GraphicsEngineOpenGL)
+        list(APPEND LIBS GL X11 Xcursor GraphicsEngineOpenGL)
     endif()
 
     if(VULKAN_SUPPORTED)

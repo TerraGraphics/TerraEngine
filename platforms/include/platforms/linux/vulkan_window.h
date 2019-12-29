@@ -19,6 +19,7 @@ public:
     void Destroy() override;
 
     void SetTitle(const std::string& title) override;
+    void SetCursor(CursorType value) override {};
     void ProcessEvents() override;
 
 private:

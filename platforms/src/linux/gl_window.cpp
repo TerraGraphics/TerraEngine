@@ -3,6 +3,8 @@
 #include <GL/glx.h>
 #include <exception>
 #include <X11/XKBlib.h>
+#include <X11/cursorfont.h>
+#include <X11/Xcursor/Xcursor.h>
 
 #include "platforms/linux/x11_key_map.h"
 
@@ -100,6 +102,8 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     }
 
     XMapWindow(m_display, m_window);
+    CreateCursors();
+    SetCursor(CursorType::Arrow);
 
     glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
     {
@@ -142,6 +146,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
 
 void WindowGLLinux::Destroy() {
     if (m_display != nullptr) {
+        DestroyCursors();
         auto ctx = glXGetCurrentContext();
         glXMakeCurrent(m_display, None, NULL);
         glXDestroyContext(m_display, ctx);
@@ -155,6 +160,18 @@ void WindowGLLinux::Destroy() {
 
 void WindowGLLinux::SetTitle(const std::string& title) {
     XStoreName(m_display, m_window, title.c_str());
+}
+
+void WindowGLLinux::SetCursor(CursorType value) {
+    if (m_currentCursorType == value) {
+        return;
+    }
+    m_currentCursorType = value;
+    if (value <= CursorType::LastStandartCursor) {
+        XDefineCursor(m_display, m_window, m_cursors[static_cast<uint>(value)]);
+    } else {
+        XDefineCursor(m_display, m_window, m_hiddenCursor);
+    }
 }
 
 void WindowGLLinux::ProcessEvents() {
@@ -194,6 +211,73 @@ void WindowGLLinux::ProcessEvents() {
             default:
                 break;
         }
+    }
+}
+
+void WindowGLLinux::CreateCursors() {
+    for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
+        auto type = static_cast<CursorType>(i);
+        uint nativeType = 0;
+        switch (type) {
+            case CursorType::Arrow:
+                nativeType = XC_left_ptr;
+                break;
+            case CursorType::IBeam:
+                nativeType = XC_xterm;
+                break;
+            case CursorType::Crosshair:
+                nativeType = XC_crosshair;
+                break;
+            case CursorType::Hand:
+                nativeType = XC_hand2;
+                break;
+            case CursorType::ResizeH:
+                nativeType = XC_sb_h_double_arrow;
+                break;
+            case CursorType::ResizeV:
+                nativeType = XC_sb_v_double_arrow;
+                break;
+            default:
+                throw std::runtime_error("unknown cursor type id");
+        }
+
+        m_cursors[i] = XCreateFontCursor(m_display, nativeType);
+        if (!m_cursors[i]) {
+            throw std::runtime_error("failed to create standard cursor");
+        }
+    }
+
+    // create hidden cursor
+    const uint width = 16;
+    const uint height = 16;
+
+    XcursorImage* image = XcursorImageCreate(width, height);
+    if (image == NULL) {
+        throw std::runtime_error("failed to create hidden cursor");
+    }
+
+    image->xhot = 0;
+    image->yhot = 0;
+
+    auto* target = image->pixels;
+    for (uint i=0; i!=width*height;  ++i, ++target) {
+        *target = 0;
+    }
+
+    m_hiddenCursor = XcursorImageLoadCursor(m_display, image);
+    XcursorImageDestroy(image);
+}
+
+void WindowGLLinux::DestroyCursors() {
+    for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
+        if (m_cursors[i] != 0) {
+            XFreeCursor(m_display, m_cursors[i]);
+            m_cursors[i] = 0;
+        }
+    }
+    if (m_hiddenCursor != 0) {
+        XFreeCursor(m_display, m_hiddenCursor);
+        m_hiddenCursor = 0;
     }
 }
 

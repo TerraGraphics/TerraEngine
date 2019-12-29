@@ -3,6 +3,20 @@
 #include <memory>
 #include "window_events.h"
 
+enum class CursorType : uint8_t {
+    Arrow = 0,
+    IBeam = 1,
+    Crosshair = 2,
+    Hand = 3,
+    ResizeH = 4,
+    ResizeV = 5,
+
+    Hidden = 6,
+    Disabled = 7,
+
+    LastStandartCursor = ResizeV,
+};
+
 
 class RenderWindow {
 public:
@@ -12,6 +26,7 @@ public:
 
     virtual void Destroy() = 0;
     virtual void SetTitle(const std::string& title) = 0;
+    virtual void SetCursor(CursorType value) = 0;
     virtual void ProcessEvents() = 0;
 
 protected:
