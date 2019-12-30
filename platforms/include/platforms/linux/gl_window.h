@@ -23,6 +23,11 @@ public:
 private:
     void CreateCursors();
     void DestroyCursors();
+    void DisableCursor();
+    void EnableCursor();
+    void GetCursorPos(int& x, int& y);
+    void SetCursorPos(int x, int y);
+    void HandleSizeEvent(uint32_t width, uint32_t height);
     void HandleKeyEvent(KeyAction action, uint code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
 
@@ -31,6 +36,14 @@ private:
     uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
     uint32_t m_hiddenCursor = 0;
     CursorType m_currentCursorType = CursorType::Disabled;
+    int m_windowCenterX = 0;
+    int m_windowCenterY = 0;
+    int m_visibleCursorPosX = 0;
+    int m_visibleCursorPosY = 0;
+    int m_lastCursorPosX = 0;
+    int m_lastCursorPosY = 0;
+    double m_virtualCursorX = 0.0;
+    double m_virtualCursorY = 0.0;
     Display* m_display = nullptr;
     uint64_t m_atomWMDeleteWindow = 0;
 };

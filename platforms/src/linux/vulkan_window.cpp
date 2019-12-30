@@ -219,6 +219,7 @@ void WindowVulkanLinux::ProcessEvents() {
         free(event);
     }
 }
+
 void WindowVulkanLinux::CreateCursors() {
     if (xcb_cursor_context_new(m_connection, m_screen, &m_cursorContext) < 0) {
         throw std::runtime_error("failed create xbc cursor context");

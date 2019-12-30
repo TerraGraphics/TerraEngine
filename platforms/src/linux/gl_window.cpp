@@ -104,6 +104,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     XMapWindow(m_display, m_window);
     CreateCursors();
     SetCursor(CursorType::Arrow);
+    GetCursorPos(m_lastCursorPosX, m_lastCursorPosY);
 
     glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
     {
@@ -141,7 +142,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     XFree(fbc);
 
     glXMakeCurrent(m_display, m_window, ctx);
-    m_eventHandler->OnWindowSizeEvent(width, height);
+    HandleSizeEvent(width, height);
 }
 
 void WindowGLLinux::Destroy() {
@@ -163,14 +164,24 @@ void WindowGLLinux::SetTitle(const std::string& title) {
 }
 
 void WindowGLLinux::SetCursor(CursorType value) {
-    if (m_currentCursorType == value) {
+    if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
         return;
     }
+    if (m_currentCursorType == CursorType::Disabled) {
+        EnableCursor();
+        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+    }
+
     m_currentCursorType = value;
     if (value <= CursorType::LastStandartCursor) {
         XDefineCursor(m_display, m_window, m_cursors[static_cast<uint>(value)]);
-    } else {
+    } else if (value == CursorType::Hidden) {
         XDefineCursor(m_display, m_window, m_hiddenCursor);
+    } else if (value == CursorType::Disabled) {
+        XDefineCursor(m_display, m_window, m_hiddenCursor);
+        GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+        DisableCursor();
+        SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
 }
 
@@ -191,7 +202,7 @@ void WindowGLLinux::ProcessEvents() {
                 m_eventHandler->OnWindowDestroy();
                 break;
             case ConfigureNotify:
-                m_eventHandler->OnWindowSizeEvent(event.xconfigure.width, event.xconfigure.height);
+                HandleSizeEvent(event.xconfigure.width, event.xconfigure.height);
                 break;
             case KeyPress:
                 HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
@@ -205,12 +216,30 @@ void WindowGLLinux::ProcessEvents() {
             case ButtonRelease:
                 HandleMouseButtonEvent(KeyAction::Release, event.xbutton.button, event.xbutton.state);
                 break;
-            case MotionNotify:
-                m_eventHandler->OnCursorPosition(static_cast<double>(event.xmotion.x), static_cast<double>(event.xmotion.y));
-                break;
+            case MotionNotify: {
+                if (m_currentCursorType == CursorType::Disabled) {
+                    if ((event.xmotion.x == m_lastCursorPosX) && (event.xmotion.y == m_lastCursorPosY)) {
+                        break;
+                    }
+                    auto dtX = static_cast<double>(event.xmotion.x - m_lastCursorPosX);
+                    auto dtY = static_cast<double>(event.xmotion.y - m_lastCursorPosY);
+                    m_virtualCursorX += dtX;
+                    m_virtualCursorY += dtY;
+                    m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
+                } else {
+                    m_eventHandler->OnCursorPosition(static_cast<double>(event.xmotion.x), static_cast<double>(event.xmotion.y));
+                }
+                m_lastCursorPosX = event.xmotion.x;
+                m_lastCursorPosY = event.xmotion.y;
+            }
+            break;
             default:
                 break;
         }
+    }
+
+    if ((m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
+        SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
 }
 
@@ -279,6 +308,41 @@ void WindowGLLinux::DestroyCursors() {
         XFreeCursor(m_display, m_hiddenCursor);
         m_hiddenCursor = 0;
     }
+}
+
+void WindowGLLinux::DisableCursor() {
+    XGrabPointer(m_display, m_window, True,
+                 ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                 GrabModeAsync, GrabModeAsync,
+                 m_window,
+                 m_hiddenCursor,
+                 CurrentTime);
+    XFlush(m_display);
+}
+
+void WindowGLLinux::EnableCursor() {
+    XUngrabPointer(m_display, CurrentTime);
+    XFlush(m_display);
+}
+
+void WindowGLLinux::GetCursorPos(int& x, int& y) {
+    Window root, child;
+    int rootX, rootY;
+    unsigned int mask;
+    XQueryPointer(m_display, m_window, &root, &child, &rootX, &rootY, &x, &y, &mask);
+}
+
+void WindowGLLinux::SetCursorPos(int x, int y) {
+    m_lastCursorPosX = x;
+    m_lastCursorPosY = y;
+    XWarpPointer(m_display, None, m_window, 0, 0, 0, 0, x, y);
+    XFlush(m_display);
+}
+
+void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
+    m_windowCenterX = width / 2;
+    m_windowCenterY = height / 2;
+    m_eventHandler->OnWindowSizeEvent(width, height);
 }
 
 void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {

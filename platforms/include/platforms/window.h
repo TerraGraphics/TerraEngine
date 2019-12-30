@@ -13,6 +13,7 @@ enum class CursorType : uint8_t {
 
     Hidden = 6,
     Disabled = 7,
+    Undefined = 8,
 
     LastStandartCursor = ResizeV,
 };
