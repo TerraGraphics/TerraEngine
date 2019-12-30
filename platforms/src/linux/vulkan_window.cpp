@@ -1,6 +1,7 @@
 #include "platforms/linux/vulkan_window.h"
 
 #include <xcb/xcb_icccm.h>
+#include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
 
 #include "platforms/linux/x11_key_map.h"
@@ -46,10 +47,10 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
         xcb_screen_next(&screenIt);
     }
 
-    auto screen = screenIt.data;
+    m_screen = screenIt.data;
     uint32_t valueMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     uint32_t valueList[32];
-    valueList[0] = screen->black_pixel;
+    valueList[0] = m_screen->black_pixel;
     valueList[1] =
         XCB_EVENT_MASK_KEY_RELEASE |
         XCB_EVENT_MASK_KEY_PRESS |
@@ -60,8 +61,8 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
         XCB_EVENT_MASK_BUTTON_RELEASE;
 
     m_window = xcb_generate_id(m_connection);
-    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, screen->root, posX, posY, width, height, 0,
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, valueMask, valueList);
+    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, m_screen->root, posX, posY, width, height, 0,
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual, valueMask, valueList);
 
     // Magic code that will send notification when window is destroyed
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_connection, 1, 12, "WM_PROTOCOLS");
@@ -105,6 +106,9 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
         free (event);
     }
 
+    CreateCursors();
+    SetCursor(CursorType::Arrow);
+
     if (m_keySymbols == nullptr) {
         m_keySymbols = xcb_key_symbols_alloc(m_connection);
     }
@@ -116,6 +120,8 @@ void WindowVulkanLinux::Destroy() {
         m_keySymbols = nullptr;
     }
 
+    DestroyCursors();
+
     if (m_atomWMDeleteWindow != nullptr) {
         free(m_atomWMDeleteWindow);
         m_atomWMDeleteWindow = nullptr;
@@ -126,11 +132,25 @@ void WindowVulkanLinux::Destroy() {
         xcb_disconnect(m_connection);
         m_connection = nullptr;
         m_window = 0;
+        m_screen = nullptr;
     }
 }
 
 void WindowVulkanLinux::SetTitle(const std::string& title) {
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.length(), title.c_str());
+    xcb_flush(m_connection);
+}
+
+void WindowVulkanLinux::SetCursor(CursorType value) {
+    if (m_currentCursorType == value) {
+        return;
+    }
+    m_currentCursorType = value;
+    if (value <= CursorType::LastStandartCursor) {
+        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_cursors[static_cast<uint>(value)]});
+    } else {
+        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_hiddenCursor});
+    }
     xcb_flush(m_connection);
 }
 
@@ -198,6 +218,50 @@ void WindowVulkanLinux::ProcessEvents() {
         }
         free(event);
     }
+}
+void WindowVulkanLinux::CreateCursors() {
+    if (xcb_cursor_context_new(m_connection, m_screen, &m_cursorContext) < 0) {
+        throw std::runtime_error("failed create xbc cursor context");
+    }
+    m_cursors[static_cast<uint>(CursorType::Arrow)] = xcb_cursor_load_cursor(m_cursorContext, "left_ptr");
+    m_cursors[static_cast<uint>(CursorType::IBeam)] = xcb_cursor_load_cursor(m_cursorContext, "xterm");
+    m_cursors[static_cast<uint>(CursorType::Crosshair)] = xcb_cursor_load_cursor(m_cursorContext, "crosshair");
+    m_cursors[static_cast<uint>(CursorType::Hand)] = xcb_cursor_load_cursor(m_cursorContext, "hand2");
+    m_cursors[static_cast<uint>(CursorType::ResizeH)] = xcb_cursor_load_cursor(m_cursorContext, "sb_h_double_arrow");
+    m_cursors[static_cast<uint>(CursorType::ResizeV)] = xcb_cursor_load_cursor(m_cursorContext, "sb_v_double_arrow");
+
+    const xcb_pixmap_t pixmap = xcb_generate_id(m_connection);
+    m_hiddenCursor = xcb_generate_id(m_connection);
+    xcb_create_pixmap(m_connection,
+        1, // bits per pixel
+        pixmap,
+        m_screen->root,
+        1, // width
+        1  // height
+    );
+
+    xcb_create_cursor(m_connection, m_hiddenCursor, pixmap, pixmap, 0, 0, 0, 0, 0, 0, 0, 0);
+    xcb_free_pixmap(m_connection, pixmap);
+}
+
+void WindowVulkanLinux::DestroyCursors() {
+    if (m_cursorContext == nullptr) {
+        return;
+    }
+
+    for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
+        if (m_cursors[i] != 0) {
+            xcb_free_cursor(m_connection, m_cursors[i]);
+            m_cursors[i] = 0;
+        }
+    }
+
+    if (m_hiddenCursor != 0) {
+        xcb_free_cursor(m_connection, m_hiddenCursor);
+    }
+
+    xcb_cursor_context_free(m_cursorContext);
+    m_cursorContext = nullptr;
 }
 
 void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
