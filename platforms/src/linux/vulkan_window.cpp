@@ -74,9 +74,18 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, (*reply).atom, 4, 32, 1, &(*m_atomWMDeleteWindow).atom);
     free(reply);
 
-    auto nameLen = static_cast<uint32_t>(name.length());
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, nameLen, name.c_str());
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, nameLen, name.c_str());
+    // Set ICCCM WM_NAME property
+    {
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
+        static_cast<uint32_t>(name.length()), name.c_str());
+    }
+
+    // Set ICCCM WM_CLASS property
+    {
+        std::string classInstance = name +std::string("\0", 1) + name;
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8,
+            static_cast<uint32_t>(classInstance.length()), classInstance.c_str());
+    }
 
     // https://stackoverflow.com/a/27771295
     xcb_size_hints_t hints = {};

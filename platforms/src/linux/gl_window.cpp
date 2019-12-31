@@ -87,10 +87,22 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
         throw std::runtime_error("failed to create window");
     }
 
-    XStoreName(m_display, m_window, name.c_str());
-
     m_atomWMDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(m_display, m_window, &m_atomWMDeleteWindow, 1);
+
+    // Set ICCCM WM_NAME property
+    {
+        XStoreName(m_display, m_window, name.c_str());
+    }
+
+    // Set ICCCM WM_CLASS property
+    {
+        XClassHint* hint = XAllocClassHint();
+        hint->res_name = const_cast<char*>(name.c_str());
+        hint->res_class = const_cast<char*>(name.c_str());
+        XSetClassHint(m_display, m_window, hint);
+        XFree(hint);
+    }
 
     {
         auto sizeHints        = XAllocSizeHints();
