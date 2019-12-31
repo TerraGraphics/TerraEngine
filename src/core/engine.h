@@ -41,8 +41,13 @@ public:
     SwapChainPtr GetSwapChain() noexcept { return m_swapChain; }
     ContextPtr GetImmediateContext() noexcept { return m_immediateContext; }
     EngineFactoryPtr GetEngineFactory() noexcept { return m_engineFactory; }
+
     std::shared_ptr<RenderWindow> GetWindow() noexcept { return m_window; }
     std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
+
+    float GetFps() const noexcept {
+        return static_cast<float>(m_timeDeltas.size()) / m_timeDeltasTotal;
+    }
 
     void Create(EngineDesc&& desc);
     void Run();
@@ -60,4 +65,9 @@ private:
     EngineFactoryPtr m_engineFactory;
 
     bool m_isVSync = true;
+
+    float m_deltaTime = 1.0f / 60.0f;
+    uint16_t m_timeDeltasPos = 0;
+    std::array<float, 120> m_timeDeltas = { /*1.0f / 60.0f*/ };
+    float m_timeDeltasTotal = static_cast<float>(m_timeDeltas.size()) / 60.0f;
 };

@@ -1,9 +1,12 @@
 #include "core/engine.h"
 
+#include <chrono>
 #include "core/common/exception.h"
 
 
 void Engine::Create(EngineDesc&& desc) {
+    m_timeDeltas.fill(1.0f / 60.0f);
+
     m_window = desc.window;
     m_eventHandler = desc.eventHandler;
     m_graphics = desc.graphics;
@@ -32,7 +35,17 @@ void Engine::Create(EngineDesc&& desc) {
 }
 
 void Engine::Run() {
+    auto timeLast = std::chrono::steady_clock::now();
+
     while (true) {
+        auto now = std::chrono::steady_clock::now();
+        m_deltaTime = std::chrono::duration<float>(now - timeLast).count();
+        timeLast = now;
+
+        m_timeDeltasTotal += (m_deltaTime - m_timeDeltas[m_timeDeltasPos]);
+        m_timeDeltas[m_timeDeltasPos] = m_deltaTime;
+        m_timeDeltasPos = (m_timeDeltasPos+1) % m_timeDeltas.size();
+
         m_window->ProcessEvents();
         if (m_eventHandler->IsWindowShouldClose()) {
             break;

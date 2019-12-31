@@ -70,9 +70,6 @@ target_compile_options(${PROJECT_NAME}
         -Wsign-conversion
         -Wsign-promo
 
-        -Wno-nested-anon-types
-        -Wno-gnu-anonymous-struct
-
         # Diligent
         -Wno-non-virtual-dtor
         -Wno-float-equal
