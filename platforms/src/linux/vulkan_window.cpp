@@ -93,12 +93,12 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_flush(m_connection);
 
     xcb_generic_event_t* event = nullptr;
-    m_eventHandler->OnWindowSizeEvent(width, height);
+    HandleSizeEvent(width, height);
     while ((event = xcb_wait_for_event(m_connection)) != nullptr) {
         auto type = (event->response_type & ~0x80);
         if (type == XCB_CONFIGURE_NOTIFY) {
             const auto* configureEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-            m_eventHandler->OnWindowSizeEvent(configureEvent->width, configureEvent->height);
+            HandleSizeEvent(configureEvent->width, configureEvent->height);
         } else if (type == XCB_EXPOSE) {
             free(event);
             break;
@@ -108,6 +108,7 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
 
     CreateCursors();
     SetCursor(CursorType::Arrow);
+    GetCursorPos(m_lastCursorPosX, m_lastCursorPosY);
 
     if (m_keySymbols == nullptr) {
         m_keySymbols = xcb_key_symbols_alloc(m_connection);
@@ -142,14 +143,25 @@ void WindowVulkanLinux::SetTitle(const std::string& title) {
 }
 
 void WindowVulkanLinux::SetCursor(CursorType value) {
-    if (m_currentCursorType == value) {
+    if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
         return;
     }
+
+    if (m_currentCursorType == CursorType::Disabled) {
+        EnableCursor();
+        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+    }
+
     m_currentCursorType = value;
     if (value <= CursorType::LastStandartCursor) {
         xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_cursors[static_cast<uint>(value)]});
+    } else if (value == CursorType::Hidden) {
+        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_hiddenCursor});
     } else {
         xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_hiddenCursor});
+        GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+        DisableCursor();
+        SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
     xcb_flush(m_connection);
 }
@@ -174,7 +186,7 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b10110
             case XCB_CONFIGURE_NOTIFY: {
                 const auto* configureEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-                m_eventHandler->OnWindowSizeEvent(configureEvent->width, configureEvent->height);
+                HandleSizeEvent(configureEvent->width, configureEvent->height);
             }
             break;
 
@@ -209,7 +221,20 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b110
             case XCB_MOTION_NOTIFY: {
                 const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-                m_eventHandler->OnCursorPosition(static_cast<double>(typedEvent->event_x), static_cast<double>(typedEvent->event_y));
+                if (m_currentCursorType == CursorType::Disabled) {
+                    if ((typedEvent->event_x == m_lastCursorPosX) && (typedEvent->event_y == m_lastCursorPosY)) {
+                        break;
+                    }
+                    auto dtX = static_cast<double>(typedEvent->event_x - m_lastCursorPosX);
+                    auto dtY = static_cast<double>(typedEvent->event_y - m_lastCursorPosY);
+                    m_virtualCursorX += dtX;
+                    m_virtualCursorY += dtY;
+                    m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
+                } else {
+                    m_eventHandler->OnCursorPosition(static_cast<double>(typedEvent->event_x), static_cast<double>(typedEvent->event_y));
+                }
+                m_lastCursorPosX = typedEvent->event_x;
+                m_lastCursorPosY = typedEvent->event_y;
             }
             break;
 
@@ -217,6 +242,10 @@ void WindowVulkanLinux::ProcessEvents() {
                 break;
         }
         free(event);
+    }
+
+    if ((m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
+        SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
 }
 
@@ -263,6 +292,50 @@ void WindowVulkanLinux::DestroyCursors() {
 
     xcb_cursor_context_free(m_cursorContext);
     m_cursorContext = nullptr;
+}
+
+void WindowVulkanLinux::DisableCursor() {
+    xcb_grab_pointer_cookie_t cookie = xcb_grab_pointer(m_connection, 1, m_window,
+        XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION,
+        XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC,
+        m_window,
+        m_hiddenCursor,
+        XCB_CURRENT_TIME);
+
+    xcb_grab_pointer_reply_t* grabReply = xcb_grab_pointer_reply(m_connection, cookie, nullptr);
+    if ((grabReply == nullptr) || (grabReply->status != XCB_GRAB_STATUS_SUCCESS)) {
+        std::runtime_error("failed to disable cursor");
+    }
+    xcb_flush(m_connection);
+}
+
+void WindowVulkanLinux::EnableCursor() {
+    xcb_ungrab_pointer(m_connection, XCB_TIME_CURRENT_TIME);
+    xcb_flush(m_connection);
+}
+
+void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
+    xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
+				xcb_query_pointer(m_connection, m_screen->root), nullptr);
+
+    if (pointer == nullptr) {
+        std::runtime_error("failed to get cursor position");
+    }
+    x = pointer->win_x;
+    y = pointer->win_y;
+}
+
+void WindowVulkanLinux::SetCursorPos(int x, int y) {
+    m_lastCursorPosX = x;
+    m_lastCursorPosY = y;
+    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, x, y);
+    xcb_flush(m_connection);
+}
+
+void WindowVulkanLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
+    m_windowCenterX = width / 2;
+    m_windowCenterY = height / 2;
+    m_eventHandler->OnWindowSizeEvent(width, height);
 }
 
 void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
