@@ -50,6 +50,36 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 
+target_compile_options(${PROJECT_NAME}
+    PRIVATE
+        -Werror
+
+        -Wall
+        -Wextra
+        -Wpedantic
+
+        -Wcast-align
+        -Wcast-qual
+        -Wconversion
+        -Wctor-dtor-privacy
+        -Wenum-compare
+        -Wfloat-equal
+        -Wold-style-cast
+        -Woverloaded-virtual
+        -Wredundant-decls
+        -Wsign-conversion
+        -Wsign-promo
+
+        -Wno-nested-anon-types
+        -Wno-gnu-anonymous-struct
+
+        # Diligent
+        # -Wnon-virtual-dtor
+        -Wno-float-equal
+        -Wno-unused-parameter
+        -Wno-gnu-zero-variadic-macro-arguments
+)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES

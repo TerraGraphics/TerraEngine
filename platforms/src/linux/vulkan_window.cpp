@@ -74,16 +74,17 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, (*reply).atom, 4, 32, 1, &(*m_atomWMDeleteWindow).atom);
     free(reply);
 
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, name.length(), name.c_str());
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, name.length(), name.c_str());
+    auto nameLen = static_cast<uint32_t>(name.length());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, nameLen, name.c_str());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, nameLen, name.c_str());
 
     // https://stackoverflow.com/a/27771295
     xcb_size_hints_t hints = {};
     hints.flags = XCB_ICCCM_SIZE_HINT_P_SIZE;
     hints.min_width = 320;
     hints.min_height = 240;
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS,
-        32, sizeof(xcb_size_hints_t), &hints);
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS, 32,
+        static_cast<uint32_t>(sizeof(xcb_size_hints_t)), &hints);
 
     xcb_map_window(m_connection, m_window);
 
@@ -138,7 +139,8 @@ void WindowVulkanLinux::Destroy() {
 }
 
 void WindowVulkanLinux::SetTitle(const std::string& title) {
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.length(), title.c_str());
+    auto titleLen = static_cast<uint32_t>(title.length());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, titleLen, title.c_str());
     xcb_flush(m_connection);
 }
 
@@ -153,12 +155,16 @@ void WindowVulkanLinux::SetCursor(CursorType value) {
     }
 
     m_currentCursorType = value;
+
+    uint32_t cursor[1];
     if (value <= CursorType::LastStandartCursor) {
-        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_cursors[static_cast<uint>(value)]});
-    } else if (value == CursorType::Hidden) {
-        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_hiddenCursor});
+        cursor[0] = m_cursors[static_cast<uint>(value)];
     } else {
-        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, (uint32_t[]){m_hiddenCursor});
+        cursor[0] = m_hiddenCursor;
+    }
+
+    xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, reinterpret_cast<const void*>(&cursor));
+    if (value == CursorType::Disabled) {
         GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
         DisableCursor();
         SetCursorPos(m_windowCenterX, m_windowCenterY);
@@ -172,11 +178,13 @@ void WindowVulkanLinux::ProcessEvents() {
     while ((event = xcb_poll_for_event(m_connection)) != nullptr) {
         switch (event->response_type & 0x7f) { // 0b1111111
             // 0b100001
-            case XCB_CLIENT_MESSAGE:
-                if ((*(xcb_client_message_event_t*)event).data.data32[0] == m_atomWMDeleteWindow->atom) {
+            case XCB_CLIENT_MESSAGE: {
+                const auto* typedEvent = reinterpret_cast<const xcb_client_message_event_t*>(event);
+                if (typedEvent->data.data32[0] == m_atomWMDeleteWindow->atom) {
                     m_eventHandler->OnWindowDestroy();
                 }
-                break;
+            }
+            break;
 
             // 0b10001
             case XCB_DESTROY_NOTIFY:
@@ -185,8 +193,8 @@ void WindowVulkanLinux::ProcessEvents() {
 
             // 0b10110
             case XCB_CONFIGURE_NOTIFY: {
-                const auto* configureEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-                HandleSizeEvent(configureEvent->width, configureEvent->height);
+                const auto* typedEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+                HandleSizeEvent(typedEvent->width, typedEvent->height);
             }
             break;
 
@@ -328,7 +336,7 @@ void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
 void WindowVulkanLinux::SetCursorPos(int x, int y) {
     m_lastCursorPosX = x;
     m_lastCursorPosY = y;
-    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, x, y);
+    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, static_cast<int16_t>(x), static_cast<int16_t>(y));
     xcb_flush(m_connection);
 }
 

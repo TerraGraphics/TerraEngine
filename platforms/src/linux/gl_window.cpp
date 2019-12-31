@@ -82,7 +82,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     uint valueMask = CWBorderPixel | CWColormap | CWEventMask;
     auto parent = RootWindow(m_display, vi->screen);
 
-    m_window = XCreateWindow(m_display, parent, posX, posY, width, height, 0, vi->depth, InputOutput, vi->visual, valueMask, &swa);
+    m_window = static_cast<uint32_t>(XCreateWindow(m_display, parent, posX, posY, width, height, 0, vi->depth, InputOutput, vi->visual, valueMask, &swa));
     if (!m_window) {
         throw std::runtime_error("failed to create window");
     }
@@ -110,7 +110,8 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     {
         // Create an oldstyle context first, to get the correct function pointer for glXCreateContextAttribsARB
         GLXContext ctx_old         = glXCreateContext(m_display, vi, 0, GL_TRUE);
-        glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB");
+        auto* address = glXGetProcAddress(reinterpret_cast<const GLubyte*>("glXCreateContextAttribsARB"));
+        glXCreateContextAttribsARB = reinterpret_cast<glXCreateContextAttribsARBProc>(address);
         glXMakeCurrent(m_display, None, NULL);
         glXDestroyContext(m_display, ctx_old);
     }
@@ -193,7 +194,7 @@ void WindowGLLinux::ProcessEvents() {
         XNextEvent(m_display, &event);
         switch (event.type) {
             case ClientMessage: {
-                if (event.xclient.data.l[0] == m_atomWMDeleteWindow) {
+                if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atomWMDeleteWindow) {
                     m_eventHandler->OnWindowDestroy();
                 }
             }
@@ -202,7 +203,7 @@ void WindowGLLinux::ProcessEvents() {
                 m_eventHandler->OnWindowDestroy();
                 break;
             case ConfigureNotify:
-                HandleSizeEvent(event.xconfigure.width, event.xconfigure.height);
+                HandleSizeEvent(static_cast<uint32_t>(event.xconfigure.width), static_cast<uint32_t>(event.xconfigure.height));
                 break;
             case KeyPress:
                 HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
@@ -270,7 +271,7 @@ void WindowGLLinux::CreateCursors() {
                 throw std::runtime_error("unknown cursor type id");
         }
 
-        m_cursors[i] = XCreateFontCursor(m_display, nativeType);
+        m_cursors[i] = static_cast<uint32_t>(XCreateFontCursor(m_display, nativeType));
         if (!m_cursors[i]) {
             throw std::runtime_error("failed to create standard cursor");
         }
@@ -293,7 +294,7 @@ void WindowGLLinux::CreateCursors() {
         *target = 0;
     }
 
-    m_hiddenCursor = XcursorImageLoadCursor(m_display, image);
+    m_hiddenCursor = static_cast<uint32_t>(XcursorImageLoadCursor(m_display, image));
     XcursorImageDestroy(image);
 }
 
@@ -346,7 +347,7 @@ void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
 }
 
 void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
-    auto key = KeySymToKey(XkbKeycodeToKeysym(m_display, code, 0, 0));
+    auto key = KeySymToKey(static_cast<uint32_t>(XkbKeycodeToKeysym(m_display, static_cast<KeyCode>(code), 0, 0)));
     m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
 }
 
