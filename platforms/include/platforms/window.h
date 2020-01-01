@@ -27,6 +27,8 @@ public:
 
     virtual void Destroy() = 0;
     virtual void SetTitle(const std::string& title) = 0;
+    virtual void GetCursorPos(int& x, int& y) = 0;
+    virtual void SetCursorPos(int x, int y) = 0;
     virtual void SetCursor(CursorType value) = 0;
     virtual void ProcessEvents() = 0;
 

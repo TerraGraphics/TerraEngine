@@ -21,6 +21,8 @@ public:
     void Destroy() override;
 
     void SetTitle(const std::string& title) override;
+    void GetCursorPos(int& x, int& y) override;
+    void SetCursorPos(int x, int y) override;
     void SetCursor(CursorType value) override;
     void ProcessEvents() override;
 
@@ -29,8 +31,6 @@ private:
     void DestroyCursors();
     void DisableCursor();
     void EnableCursor();
-    void GetCursorPos(int& x, int& y);
-    void SetCursorPos(int x, int y);
     void HandleSizeEvent(uint32_t width, uint32_t height);
     void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);

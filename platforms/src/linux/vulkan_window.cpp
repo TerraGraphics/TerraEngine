@@ -144,6 +144,24 @@ void WindowVulkanLinux::SetTitle(const std::string& title) {
     xcb_flush(m_connection);
 }
 
+void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
+    xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
+				xcb_query_pointer(m_connection, m_window), nullptr);
+
+    if (pointer == nullptr) {
+        std::runtime_error("failed to get cursor position");
+    }
+    x = pointer->win_x;
+    y = pointer->win_y;
+}
+
+void WindowVulkanLinux::SetCursorPos(int x, int y) {
+    m_lastCursorPosX = x;
+    m_lastCursorPosY = y;
+    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, static_cast<int16_t>(x), static_cast<int16_t>(y));
+    xcb_flush(m_connection);
+}
+
 void WindowVulkanLinux::SetCursor(CursorType value) {
     if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
         return;
@@ -319,24 +337,6 @@ void WindowVulkanLinux::DisableCursor() {
 
 void WindowVulkanLinux::EnableCursor() {
     xcb_ungrab_pointer(m_connection, XCB_TIME_CURRENT_TIME);
-    xcb_flush(m_connection);
-}
-
-void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
-    xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
-				xcb_query_pointer(m_connection, m_screen->root), nullptr);
-
-    if (pointer == nullptr) {
-        std::runtime_error("failed to get cursor position");
-    }
-    x = pointer->win_x;
-    y = pointer->win_y;
-}
-
-void WindowVulkanLinux::SetCursorPos(int x, int y) {
-    m_lastCursorPosX = x;
-    m_lastCursorPosY = y;
-    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, static_cast<int16_t>(x), static_cast<int16_t>(y));
     xcb_flush(m_connection);
 }
 

@@ -74,7 +74,7 @@ target_compile_options(${PROJECT_NAME}
         -Wno-gnu-anonymous-struct
 
         # Diligent
-        # -Wnon-virtual-dtor
+        -Wno-non-virtual-dtor
         -Wno-float-equal
         -Wno-unused-parameter
         -Wno-gnu-zero-variadic-macro-arguments

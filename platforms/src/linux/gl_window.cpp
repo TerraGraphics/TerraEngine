@@ -164,6 +164,20 @@ void WindowGLLinux::SetTitle(const std::string& title) {
     XStoreName(m_display, m_window, title.c_str());
 }
 
+void WindowGLLinux::GetCursorPos(int& x, int& y) {
+    Window root, child;
+    int rootX, rootY;
+    unsigned int mask;
+    XQueryPointer(m_display, m_window, &root, &child, &rootX, &rootY, &x, &y, &mask);
+}
+
+void WindowGLLinux::SetCursorPos(int x, int y) {
+    m_lastCursorPosX = x;
+    m_lastCursorPosY = y;
+    XWarpPointer(m_display, None, m_window, 0, 0, 0, 0, x, y);
+    XFlush(m_display);
+}
+
 void WindowGLLinux::SetCursor(CursorType value) {
     if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
         return;
@@ -323,20 +337,6 @@ void WindowGLLinux::DisableCursor() {
 
 void WindowGLLinux::EnableCursor() {
     XUngrabPointer(m_display, CurrentTime);
-    XFlush(m_display);
-}
-
-void WindowGLLinux::GetCursorPos(int& x, int& y) {
-    Window root, child;
-    int rootX, rootY;
-    unsigned int mask;
-    XQueryPointer(m_display, m_window, &root, &child, &rootX, &rootY, &x, &y, &mask);
-}
-
-void WindowGLLinux::SetCursorPos(int x, int y) {
-    m_lastCursorPosX = x;
-    m_lastCursorPosY = y;
-    XWarpPointer(m_display, None, m_window, 0, 0, 0, 0, x, y);
     XFlush(m_display);
 }
 
