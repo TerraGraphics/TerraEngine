@@ -74,32 +74,37 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, (*reply).atom, 4, 32, 1, &(*m_atomWMDeleteWindow).atom);
     free(reply);
 
-    // Set ICCCM WM_NAME property
+    // Set WM_NAME property
     {
         xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
         static_cast<uint32_t>(name.length()), name.c_str());
     }
 
-    // Set ICCCM WM_CLASS property
+    // Set WM_CLASS property
     {
         std::string classInstance = name +std::string("\0", 1) + name;
         xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8,
             static_cast<uint32_t>(classInstance.length()), classInstance.c_str());
     }
 
-    // https://stackoverflow.com/a/27771295
-    xcb_size_hints_t hints = {};
-    hints.flags = XCB_ICCCM_SIZE_HINT_P_SIZE;
-    hints.min_width = 320;
-    hints.min_height = 240;
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS, 32,
-        static_cast<uint32_t>(sizeof(xcb_size_hints_t)), &hints);
+    // Set WM_NORMAL_HINTS property
+    {
+        xcb_size_hints_t hints = {};
+        hints.flags = XCB_ICCCM_SIZE_HINT_P_MIN_SIZE;
+        hints.min_width = 320;
+        hints.min_height = 240;
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS, 32,
+            static_cast<uint32_t>(sizeof(xcb_size_hints_t)), &hints);
+    }
+
+    // Create cursors
+    {
+        CreateCursors();
+        SetCursor(CursorType::Arrow);
+        GetCursorPos(m_lastCursorPosX, m_lastCursorPosY);
+    }
 
     xcb_map_window(m_connection, m_window);
-
-    // Force the x/y coordinates to 100,100 results are identical in consecutive runs
-    const uint32_t coords[] = {100, 100};
-    xcb_configure_window(m_connection, m_window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, coords);
     xcb_flush(m_connection);
 
     xcb_generic_event_t* event = nullptr;
@@ -115,10 +120,6 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
         }
         free (event);
     }
-
-    CreateCursors();
-    SetCursor(CursorType::Arrow);
-    GetCursorPos(m_lastCursorPosX, m_lastCursorPosY);
 
     if (m_keySymbols == nullptr) {
         m_keySymbols = xcb_key_symbols_alloc(m_connection);

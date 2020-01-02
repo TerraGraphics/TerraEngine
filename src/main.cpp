@@ -13,7 +13,7 @@ static void CreatePlatform(EngineDesc& desc) {
 
 #if VULKAN_SUPPORTED
     auto vulkanWindow = std::make_shared<WindowVulkanLinux>(desc.eventHandler);
-    vulkanWindow->Create(0, 0, 800, 600, 0, "terra");
+    vulkanWindow->Create(200, 200, 1024, 768, 0, "terra");
     desc.graphics = std::make_shared<VulkanGraphics>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
     desc.window = vulkanWindow;
     return;
@@ -21,7 +21,7 @@ static void CreatePlatform(EngineDesc& desc) {
 
 #if GL_SUPPORTED
     auto glWindow = std::make_shared<WindowGLLinux>(desc.eventHandler);
-    glWindow->Create(0, 0, 800, 600, "terra");
+    glWindow->Create(200, 200, 1024, 768, "terra");
     desc.graphics = std::make_shared<GLGraphics>(glWindow->GetWindow(), glWindow->GetDisplay());
     desc.window = glWindow;
     return;

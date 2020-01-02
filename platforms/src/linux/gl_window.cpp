@@ -90,12 +90,12 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     m_atomWMDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(m_display, m_window, &m_atomWMDeleteWindow, 1);
 
-    // Set ICCCM WM_NAME property
+    // Set WM_NAME property
     {
         XStoreName(m_display, m_window, name.c_str());
     }
 
-    // Set ICCCM WM_CLASS property
+    // Set WM_CLASS property
     {
         XClassHint* hint = XAllocClassHint();
         hint->res_name = const_cast<char*>(name.c_str());
@@ -104,19 +104,25 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
         XFree(hint);
     }
 
+    // Set WM_NORMAL_HINTS property
     {
-        auto sizeHints        = XAllocSizeHints();
-        sizeHints->flags      = PMinSize;
-        sizeHints->min_width  = 320;
-        sizeHints->min_height = 240;
-        XSetWMNormalHints(m_display, m_window, sizeHints);
-        XFree(sizeHints);
+        XSizeHints* hint = XAllocSizeHints();
+        hint->flags = PMinSize;
+        hint->min_width  = 320;
+        hint->min_height = 240;
+        XSetWMNormalHints(m_display, m_window, hint);
+        XFree(hint);
+    }
+
+    // Create cursors
+    {
+        CreateCursors();
+        SetCursor(CursorType::Arrow);
+        GetCursorPos(m_lastCursorPosX, m_lastCursorPosY);
     }
 
     XMapWindow(m_display, m_window);
-    CreateCursors();
-    SetCursor(CursorType::Arrow);
-    GetCursorPos(m_lastCursorPosX, m_lastCursorPosY);
+    XFlush(m_display);
 
     glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
     {

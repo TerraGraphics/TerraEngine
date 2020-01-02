@@ -39,7 +39,7 @@ private:
     uint32_t m_window = 0;
     uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
     uint32_t m_hiddenCursor = 0;
-    CursorType m_currentCursorType = CursorType::Disabled;
+    CursorType m_currentCursorType = CursorType::Hidden;
     int m_windowCenterX = 0;
     int m_windowCenterY = 0;
     int m_visibleCursorPosX = 0;
