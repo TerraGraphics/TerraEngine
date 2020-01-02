@@ -26,8 +26,8 @@ static std::string ParseXCBConnectError(int err) {
     }
 }
 
-WindowVulkanLinux::WindowVulkanLinux(const std::shared_ptr<WindowEventsHandler>& handler)
-    : RenderWindow(handler) {
+WindowVulkanLinux::WindowVulkanLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
+    : RenderWindow(desc, handler) {
 
 }
 
@@ -35,7 +35,7 @@ WindowVulkanLinux::~WindowVulkanLinux() {
     Destroy();
 }
 
-void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name) {
+void WindowVulkanLinux::Create() {
     // Connect to X server
     int preferredScreenNumber;
     m_connection = xcb_connect(nullptr, &preferredScreenNumber);
@@ -51,8 +51,7 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
             xcb_screen_next(&screenIt);
         }
         m_screen = screenIt.data;
-        m_monitorWidth = m_screen->width_in_pixels;
-        m_monitorHeight = m_screen->height_in_pixels;
+        SetMonitorSize(m_screen->width_in_pixels, m_screen->height_in_pixels);
     }
 
     uint32_t valueMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
@@ -68,8 +67,9 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
         XCB_EVENT_MASK_BUTTON_RELEASE;
 
     m_window = xcb_generate_id(m_connection);
-    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, m_screen->root, posX, posY, width, height, 0,
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual, valueMask, valueList);
+    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, m_screen->root,
+                    m_desc.positionX, m_desc.positionY, m_desc.width, m_desc.height, 0,
+                    XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual, valueMask, valueList);
 
     // Magic code that will send notification when window is destroyed
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_connection, 1, 12, "WM_PROTOCOLS");
@@ -84,12 +84,12 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     // Set WM_NAME property
     {
         xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8,
-        static_cast<uint32_t>(name.length()), name.c_str());
+            static_cast<uint32_t>(m_desc.name.length()), m_desc.name.c_str());
     }
 
     // Set WM_CLASS property
     {
-        std::string classInstance = name +std::string("\0", 1) + name;
+        std::string classInstance = m_desc.name +std::string("\0", 1) + m_desc.name;
         xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8,
             static_cast<uint32_t>(classInstance.length()), classInstance.c_str());
     }
@@ -98,8 +98,8 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     {
         xcb_size_hints_t hints = {};
         hints.flags = XCB_ICCCM_SIZE_HINT_P_MIN_SIZE;
-        hints.min_width = 320;
-        hints.min_height = 240;
+        hints.min_width = m_desc.minWidth;
+        hints.min_height = m_desc.minHeight;
         xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NORMAL_HINTS, XCB_ATOM_WM_SIZE_HINTS, 32,
             static_cast<uint32_t>(sizeof(xcb_size_hints_t)), &hints);
     }
@@ -115,7 +115,7 @@ void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint1
     xcb_flush(m_connection);
 
     xcb_generic_event_t* event = nullptr;
-    HandleSizeEvent(width, height);
+    HandleSizeEvent(m_desc.width, m_desc.height);
     while ((event = xcb_wait_for_event(m_connection)) != nullptr) {
         auto type = (event->response_type & ~0x80);
         if (type == XCB_CONFIGURE_NOTIFY) {

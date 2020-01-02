@@ -11,13 +11,13 @@ typedef struct xcb_cursor_context_t xcb_cursor_context_t;
 class WindowVulkanLinux : public RenderWindow {
 public:
     WindowVulkanLinux() = delete;
-    WindowVulkanLinux(const std::shared_ptr<WindowEventsHandler>& handler);
+    WindowVulkanLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler);
     ~WindowVulkanLinux() override;
 
     uint32_t GetWindow() noexcept { return m_window; }
     xcb_connection_t* GetConnection() noexcept { return m_connection; }
 
-    void Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name);
+    void Create() override;
     void Destroy() override;
 
     void SetTitle(const std::string& title) override;

@@ -27,8 +27,8 @@
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, int, const int*);
 
-WindowGLLinux::WindowGLLinux(const std::shared_ptr<WindowEventsHandler>& handler)
-    : RenderWindow(handler) {
+WindowGLLinux::WindowGLLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
+    : RenderWindow(desc, handler) {
 
 }
 
@@ -36,7 +36,7 @@ WindowGLLinux::~WindowGLLinux() {
     Destroy();
 }
 
-void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name) {
+void WindowGLLinux::Create() {
     // Connect to X server
     m_display = XOpenDisplay(NULL);
     if (m_display == nullptr) {
@@ -46,8 +46,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     // Get screen
     {
         Screen* screen = DefaultScreenOfDisplay(m_display);
-        m_monitorWidth = static_cast<uint16_t>(screen->width);
-        m_monitorHeight = static_cast<uint16_t>(screen->height);
+        SetMonitorSize(static_cast<uint16_t>(screen->width), static_cast<uint16_t>(screen->height));
     }
 
     static int visualAttribs[] = {
@@ -93,7 +92,9 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     uint valueMask = CWBorderPixel | CWColormap | CWEventMask;
     auto parent = RootWindow(m_display, vi->screen);
 
-    m_window = static_cast<uint32_t>(XCreateWindow(m_display, parent, posX, posY, width, height, 0, vi->depth, InputOutput, vi->visual, valueMask, &swa));
+    m_window = static_cast<uint32_t>(XCreateWindow(m_display, parent,
+                            m_desc.positionX, m_desc.positionY, m_desc.width, m_desc.height, 0,
+                            vi->depth, InputOutput, vi->visual, valueMask, &swa));
     if (!m_window) {
         throw std::runtime_error("failed to create window");
     }
@@ -103,14 +104,14 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
 
     // Set WM_NAME property
     {
-        XStoreName(m_display, m_window, name.c_str());
+        XStoreName(m_display, m_window, m_desc.name.c_str());
     }
 
     // Set WM_CLASS property
     {
         XClassHint* hint = XAllocClassHint();
-        hint->res_name = const_cast<char*>(name.c_str());
-        hint->res_class = const_cast<char*>(name.c_str());
+        hint->res_name = const_cast<char*>(m_desc.name.c_str());
+        hint->res_class = const_cast<char*>(m_desc.name.c_str());
         XSetClassHint(m_display, m_window, hint);
         XFree(hint);
     }
@@ -119,8 +120,8 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     {
         XSizeHints* hint = XAllocSizeHints();
         hint->flags = PMinSize;
-        hint->min_width  = 320;
-        hint->min_height = 240;
+        hint->min_width  = m_desc.minWidth;
+        hint->min_height = m_desc.minHeight;
         XSetWMNormalHints(m_display, m_window, hint);
         XFree(hint);
     }
@@ -172,7 +173,7 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
     XFree(fbc);
 
     glXMakeCurrent(m_display, m_window, ctx);
-    HandleSizeEvent(width, height);
+    HandleSizeEvent(m_desc.width, m_desc.height);
 }
 
 void WindowGLLinux::Destroy() {
