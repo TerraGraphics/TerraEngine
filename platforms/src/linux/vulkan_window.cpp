@@ -35,19 +35,26 @@ WindowVulkanLinux::~WindowVulkanLinux() {
     Destroy();
 }
 
-void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, int screenNumber, const std::string& name) {
-    m_connection = xcb_connect(nullptr, &screenNumber);
+void WindowVulkanLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name) {
+    // Connect to X server
+    int preferredScreenNumber;
+    m_connection = xcb_connect(nullptr, &preferredScreenNumber);
     if (int err = xcb_connection_has_error(m_connection); err != 0) {
         throw std::runtime_error("unable to make an XCB connection: " + ParseXCBConnectError(err));
     }
 
-    const xcb_setup_t* setup = xcb_get_setup(m_connection);
-    xcb_screen_iterator_t screenIt = xcb_setup_roots_iterator(setup);
-    while (screenNumber-- > 0) {
-        xcb_screen_next(&screenIt);
+    // Get screen
+    {
+        const xcb_setup_t* setup = xcb_get_setup(m_connection);
+        xcb_screen_iterator_t screenIt = xcb_setup_roots_iterator(setup);
+        while (preferredScreenNumber-- > 0) {
+            xcb_screen_next(&screenIt);
+        }
+        m_screen = screenIt.data;
+        m_monitorWidth = m_screen->width_in_pixels;
+        m_monitorHeight = m_screen->height_in_pixels;
     }
 
-    m_screen = screenIt.data;
     uint32_t valueMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     uint32_t valueList[32];
     valueList[0] = m_screen->black_pixel;
@@ -139,11 +146,14 @@ void WindowVulkanLinux::Destroy() {
         m_atomWMDeleteWindow = nullptr;
     }
 
-    if (m_connection != nullptr) {
+    if (m_window != 0) {
         xcb_destroy_window(m_connection, m_window);
+        m_window = 0;
+    }
+
+    if (m_connection != nullptr) {
         xcb_disconnect(m_connection);
         m_connection = nullptr;
-        m_window = 0;
         m_screen = nullptr;
     }
 }

@@ -37,7 +37,18 @@ WindowGLLinux::~WindowGLLinux() {
 }
 
 void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t height, const std::string& name) {
-    m_display = XOpenDisplay(0);
+    // Connect to X server
+    m_display = XOpenDisplay(NULL);
+    if (m_display == nullptr) {
+        throw std::runtime_error("failed to open display");
+    }
+
+    // Get screen
+    {
+        Screen* screen = DefaultScreenOfDisplay(m_display);
+        m_monitorWidth = static_cast<uint16_t>(screen->width);
+        m_monitorHeight = static_cast<uint16_t>(screen->height);
+    }
 
     static int visualAttribs[] = {
         GLX_RENDER_TYPE,    GLX_RGBA_BIT,
@@ -165,16 +176,21 @@ void WindowGLLinux::Create(int16_t posX, int16_t posY, uint16_t width, uint16_t 
 }
 
 void WindowGLLinux::Destroy() {
-    if (m_display != nullptr) {
-        DestroyCursors();
-        auto ctx = glXGetCurrentContext();
-        glXMakeCurrent(m_display, None, NULL);
-        glXDestroyContext(m_display, ctx);
+    DestroyCursors();
+
+    auto ctx = glXGetCurrentContext();
+    glXMakeCurrent(m_display, None, NULL);
+    glXDestroyContext(m_display, ctx);
+
+    if (m_window != 0) {
         XDestroyWindow(m_display, m_window);
-        XCloseDisplay(m_display);
-        m_display = nullptr;
         m_window = 0;
         m_atomWMDeleteWindow = 0;
+    }
+
+    if (m_display != nullptr) {
+        XCloseDisplay(m_display);
+        m_display = nullptr;
     }
 }
 

@@ -13,7 +13,7 @@ static void CreatePlatform(EngineDesc& desc) {
 
 #if VULKAN_SUPPORTED
     auto vulkanWindow = std::make_shared<WindowVulkanLinux>(desc.eventHandler);
-    vulkanWindow->Create(200, 200, 1024, 768, 0, "terra");
+    vulkanWindow->Create(200, 200, 1024, 768, "terra");
     desc.graphics = std::make_shared<VulkanGraphics>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
     desc.window = vulkanWindow;
     return;
@@ -39,7 +39,6 @@ static bool Run() {
         desc.isVSync = true;
 
         try {
-
             CreatePlatform(desc);
             desc.graphics->Create(validationLevel);
         } catch(const std::exception& e) {
