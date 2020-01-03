@@ -1,5 +1,6 @@
 #include "middleware/generator/mesh_generator.h"
 
+#include "core/math/constants.h"
 #include "core/scene/geometry_node.h"
 
 
@@ -12,7 +13,10 @@ struct VertexPNC {
 };
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCube(DevicePtr device) {
-    VertexPNC vb[24];
+    uint32_t vertexCount = 24;
+    VertexBufferBuilder vbBuilder;
+    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
+
     vb[ 0].position	= dg::float3(-0.5f,-0.5f,-0.5f);
     vb[ 1].position	= dg::float3(-0.5f, 0.5f,-0.5f);
     vb[ 2].position	= dg::float3( 0.5f, 0.5f,-0.5f);
@@ -38,75 +42,83 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCube(DevicePtr device) {
     vb[22].position	= dg::float3( 0.5f, 0.5f, 0.5f);
     vb[23].position	= dg::float3( 0.5f, 0.5f,-0.5f);
 
-    for(int i=0,j=0; i<6; ++i) {
-        vb[j++].uv = dg::float2(0.0f,1.0f);
-        vb[j++].uv = dg::float2(0.0f,0.0f);
-        vb[j++].uv = dg::float2(1.0f,0.0f);
-        vb[j++].uv = dg::float2(1.0f,1.0f);
-    }
-
-    for(int i=0; i<8; ++i) {
-        float zn = (i<4) ? -1.0f : 1.0f;
-        vb[i+ 0].normal = dg::float3(0.0f, 0.0f,  zn);
-        vb[i+ 8].normal = dg::float3(zn,   0.0f, 0.0f);
-        vb[i+16].normal = dg::float3(0.0f, zn,   0.0f);
-    }
-
-    size_t j = 0;
-    uint32_t ib[12 * 3];
+    uint32_t ind = 0;
     for(uint32_t i=0; i!=6; ++i) {
-        uint32_t sm = i * 4;
-        ib[j++] = sm; ib[j++] = sm + 1; ib[j++] = sm + 2;
-        ib[j++] = sm; ib[j++] = sm + 2; ib[j++] = sm + 3;
+        vb[ind++].uv = dg::float2(0.0f,1.0f);
+        vb[ind++].uv = dg::float2(0.0f,0.0f);
+        vb[ind++].uv = dg::float2(1.0f,0.0f);
+        vb[ind++].uv = dg::float2(1.0f,1.0f);
     }
 
-    return std::make_shared<GeometryNode>(
-        VertexBuffer(device, vb, sizeof(vb), "Cube vertex buffer"),
-        IndexBuffer(device, ib, sizeof(ib), "Cube index buffer"));
+    for(uint32_t i=0; i!=8; ++i) {
+        float axis = (i < 4) ? -1.0f : 1.0f;
+        vb[i+ 0].normal = dg::float3(0.0f, 0.0f, axis);
+        vb[i+ 8].normal = dg::float3(axis, 0.0f, 0.0f);
+        vb[i+16].normal = dg::float3(0.0f, axis, 0.0f);
+    }
+
+    uint32_t indexCount = 12 * 3;
+    IndexBufferBuilder ibBuilder;
+    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
+
+    ind = 0;
+    for(uint32_t i=0; i!=6; ++i) {
+        uint32_t offset = i * 4;
+        ib[ind++] = offset; ib[ind++] = offset + 1; ib[ind++] = offset + 2;
+        ib[ind++] = offset; ib[ind++] = offset + 2; ib[ind++] = offset + 3;
+    }
+
+    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "cube vb"), vb.OffsetBytes(),
+        ibBuilder.Build(device, "cube ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
 }
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidSphere(DevicePtr device, uint16_t cntVertexCircle) {
-    cntVertexCircle = std::min(cntVertexCircle, uint16_t(363));
-    uint16_t plg = cntVertexCircle/2 - 1;
+    uint16_t plg = cntVertexCircle / 2 - 1;
 
-    // CAABB box;
-    float B = -dg::PI_F * 0.5f;
-    float stepB = dg::PI_F / float(plg + 1);
-    float stepA = 2.0f * dg::PI_F / float(cntVertexCircle - 1);
+    uint32_t vertexCount = static_cast<uint32_t>(plg) * static_cast<uint32_t>(cntVertexCircle) + uint32_t(2);
+    VertexBufferBuilder vbBuilder;
+    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
+
+    float angleB = -HalfPI<float>();
+    float stepB = PI<float>() / static_cast<float>(plg + 1);
+    float stepA = TwoPI<float>() / static_cast<float>(cntVertexCircle - 1);
 
     uint32_t ind = 1;
-    uint16_t vertexCnt = plg*cntVertexCircle + 2;
-    auto* vb = new VertexPNC[vertexCnt];
     for(auto ix=0; ix!=plg; ++ix) {
-        B += stepB;
-        float Vy = std::sin(B);
-        float rad = std::cos(B);
-        float tv = (1.0f - Vy) / 2.0f;
+        angleB += stepB;
+        float posY = std::sin(angleB) * 0.5f;
+        float radius = std::cos(angleB) * 0.5f;
+        float textureV = 0.f - posY;
 
-        float A = 0.0f;
+        float angleA = 0.0f;
         for(auto iy=0; iy!=cntVertexCircle; iy++) {
-            float s = std::sin(A);
-            float c = std::cos(A);
+            float posZ = std::sin(angleA) * radius;
+            float posX = std::cos(angleA) * radius;
+            float textureU = angleA * 0.5f * OneOverPI<float>();
 
-            vb[ind].position = dg::float3(rad * c, Vy, rad * s) * 0.5f;
-            vb[ind].uv = dg::float2(A * 0.5f / dg::PI_F, tv);
-            vb[ind].normal   = dg::normalize(vb[ind].position);
-            ind++;
-            A+=stepA;
+            vb[ind].position = dg::float3(posX, posY, posZ);
+            vb[ind].normal = dg::normalize(vb[ind].position);
+            vb[ind].uv = dg::float2(textureU, textureV);
+
+            ++ind;
+            angleA+=stepA;
         }
     }
 
-    vb[0]			= VertexPNC{dg::float3(0.0f,-0.5f,0.0f), dg::float3(0.0f,-1.0f,0.0f), dg::float2(0.5f,1.0f)};
-    vb[vertexCnt-1]	= VertexPNC{dg::float3(0.0f, 0.5f,0.0f), dg::float3(0.0f, 1.0f,0.0f), dg::float2(0.5f,0.0f)};
+    uint32_t firstInd = 0;
+    uint32_t lastInd = vertexCount-1;
+    vb[firstInd] = VertexPNC{dg::float3(0.0f,-0.5f,0.0f), dg::float3(0.0f,-1.0f,0.0f), dg::float2(0.5f,1.0f)};
+    vb[lastInd]	 = VertexPNC{dg::float3(0.0f, 0.5f,0.0f), dg::float3(0.0f, 1.0f,0.0f), dg::float2(0.5f,0.0f)};
 
+    uint32_t indexCount = 6*(cntVertexCircle-1)*plg;
+    IndexBufferBuilder ibBuilder;
+    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
 
     ind=0;
-    size_t indexCnt = 6*(cntVertexCircle-1)*plg;
-    uint32_t* ib = new uint32_t[indexCnt];
     for(uint32_t ix=0; ix!=plg-1; ++ix) {
         uint32_t z1,z2,z3,z4;
-        z1=ix*cntVertexCircle+1;	z2=z1+1;
-        z3=z1+cntVertexCircle;		z4=z2+cntVertexCircle;
+        z1 = ix*cntVertexCircle+1; z2 = z1+1;
+        z3 = z1+cntVertexCircle;   z4 = z2+cntVertexCircle;
         for(auto iy=0; iy!=cntVertexCircle-1; iy++) {
             ib[ind++]=z1;	ib[ind++]=z3;	ib[ind++]=z4;
             ib[ind++]=z1;	ib[ind++]=z4;	ib[ind++]=z2;
@@ -116,27 +128,23 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidSphere(DevicePtr device,
 
     uint32_t iy = cntVertexCircle*(plg-1);
     for(uint32_t ix=1; ix!=cntVertexCircle; ix++) {
-        ib[ind++]=ix;       ib[ind++]=ix+1;   ib[ind++]=0;
-        ib[ind++]=iy+ix+1;  ib[ind++]=iy+ix;  ib[ind++]=vertexCnt-1;
+        ib[ind++]=ix;       ib[ind++]=ix+1;   ib[ind++]=firstInd;
+        ib[ind++]=iy+ix+1;  ib[ind++]=iy+ix;  ib[ind++]=lastInd;
     }
 
-
-    auto node = std::make_shared<GeometryNode>(
-        VertexBuffer(device, vb, vertexCnt * sizeof(VertexPNC), "Sphere vertex buffer"),
-        IndexBuffer(device, ib, indexCnt * sizeof(*ib), "Sphere index buffer"));
-    delete []vb;
-    delete []ib;
-
-    return node;
+    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "sphere vb"), vb.OffsetBytes(),
+        ibBuilder.Build(device, "sphere ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
 }
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCylinder(DevicePtr device, uint16_t cntVertexCircle) {
 	cntVertexCircle = std::max(cntVertexCircle, uint16_t(3));
-	uint32_t vertexCnt = 4*cntVertexCircle;
 
-	float angle = 0;
-	float step = 2.0f * dg::PI_F/float(cntVertexCircle);
-    auto* vb = new VertexPNC[vertexCnt];
+    uint32_t vertexCount = 4 * cntVertexCircle;
+    VertexBufferBuilder vbBuilder;
+    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
+
+	float angle = 0.f;
+	float step = TwoPI<float>() / static_cast<float>(cntVertexCircle);
 	for(uint32_t i=0; i!=cntVertexCircle; ++i) {
         float s = std::sin(angle);
         float c = std::cos(angle);
@@ -167,11 +175,13 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCylinder(DevicePtr devic
 		vb[i+cntVertexCircle*3].uv       = tex;
 	}
 
+    uint32_t indexCount = (cntVertexCircle - 1) * 12;
+    IndexBufferBuilder ibBuilder;
+    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
+
 	uint32_t num = 0;
 	uint32_t addSm = (cntVertexCircle - 2)*3;
 	uint32_t addV = cntVertexCircle*3;
-    size_t indexCnt = (cntVertexCircle - 1) * 12;
-    uint32_t* ib = new uint32_t[indexCnt];
 
     //  bottom + top circle
 	for(uint32_t i=2; i!=cntVertexCircle; ++i) {
@@ -200,23 +210,19 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCylinder(DevicePtr devic
 		ib[num++] = z2;
 	}
 
-
-    auto node = std::make_shared<GeometryNode>(
-        VertexBuffer(device, vb, vertexCnt * sizeof(VertexPNC), "Cylinder vertex buffer"),
-        IndexBuffer(device, ib, indexCnt * sizeof(*ib), "Cylinder index buffer"));
-    delete []vb;
-    delete []ib;
-
-    return node;
+    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "cylinder vb"), vb.OffsetBytes(),
+        ibBuilder.Build(device, "cylinder ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
 }
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidPlane(DevicePtr device, uint32_t cntXSides, uint32_t cntZSides, float scaleTextureX, float scaleTextureZ) {
     cntXSides = std::max(cntXSides, uint32_t(2));
     cntZSides = std::max(cntZSides, uint32_t(2));
 
+    uint32_t vertexCount = (cntXSides+1)*(cntZSides+1);
+    VertexBufferBuilder vbBuilder;
+    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
+
     uint32_t ind = 0;
-    uint32_t vertexCnt = (cntXSides+1)*(cntZSides+1);
-    auto* vb = new VertexPNC[vertexCnt];
     for(uint32_t i=0; i!=cntXSides + 1; ++i) {
         float tu = static_cast<float>(i)/static_cast<float>(cntXSides);
         for(uint32_t j=0; j!=cntZSides + 1; ++j) {
@@ -228,10 +234,11 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidPlane(DevicePtr device, 
         }
     }
 
+    uint32_t indexCount = cntXSides*cntZSides*6;
+    IndexBufferBuilder ibBuilder;
+    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
 
     ind = 0;
-    uint32_t indexCnt = cntXSides*cntZSides*6;
-    uint32_t* ib = new uint32_t[indexCnt];
     for(uint32_t i=0; i!=cntXSides; ++i) {
         for(uint32_t j=0; j!=cntZSides; ++j) {
             uint32_t z1 = i * static_cast<uint32_t>(cntXSides + 1) + j;
@@ -245,11 +252,6 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidPlane(DevicePtr device, 
         }
     }
 
-    auto node = std::make_shared<GeometryNode>(
-        VertexBuffer(device, vb, vertexCnt * sizeof(VertexPNC), "Cylinder vertex buffer"),
-        IndexBuffer(device, ib, indexCnt * sizeof(*ib), "Cylinder index buffer"));
-    delete []vb;
-    delete []ib;
-
-    return node;
+    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "cylinder vb"), vb.OffsetBytes(),
+        ibBuilder.Build(device, "cylinder ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
 }
