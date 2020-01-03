@@ -9,10 +9,6 @@
 #include "core/material/material.h"
 
 
-namespace Diligent {
-    class ISwapChain;
-}
-
 class MaterialBuilder : Fixed {
 public:
     struct Builder : Fixed {
@@ -52,7 +48,7 @@ public:
 
 public:
     MaterialBuilder() = delete;
-    MaterialBuilder(const DevicePtr& device, const dg::RefCntAutoPtr<dg::ISwapChain>& swapChain);
+    MaterialBuilder(const DevicePtr& device, const SwapChainPtr& swapChain);
     ~MaterialBuilder() = default;
 
     Builder Create(dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, const dg::InputLayoutDesc& layoutDesc);
@@ -60,5 +56,5 @@ private:
     std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc);
 
     DevicePtr m_device;
-    dg::RefCntAutoPtr<dg::ISwapChain> m_swapChain;
+    SwapChainPtr m_swapChain;
 };

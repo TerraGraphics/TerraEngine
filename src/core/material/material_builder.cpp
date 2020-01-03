@@ -101,7 +101,7 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
     return m_builder->Build(m_desc);
 }
 
-MaterialBuilder::MaterialBuilder(const DevicePtr& device, const dg::RefCntAutoPtr<dg::ISwapChain>& swapChain)
+MaterialBuilder::MaterialBuilder(const DevicePtr& device, const SwapChainPtr& swapChain)
     : m_device(device)
     , m_swapChain(swapChain) {
 
