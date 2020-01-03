@@ -36,6 +36,46 @@ WindowGLLinux::~WindowGLLinux() {
     Destroy();
 }
 
+void WindowGLLinux::SetTitle(const std::string& title) {
+    XStoreName(m_display, m_window, title.c_str());
+}
+
+void WindowGLLinux::GetCursorPos(int& x, int& y) {
+    Window root, child;
+    int rootX, rootY;
+    unsigned int mask;
+    XQueryPointer(m_display, m_window, &root, &child, &rootX, &rootY, &x, &y, &mask);
+}
+
+void WindowGLLinux::SetCursorPos(int x, int y) {
+    m_lastCursorPosX = x;
+    m_lastCursorPosY = y;
+    XWarpPointer(m_display, None, m_window, 0, 0, 0, 0, x, y);
+    XFlush(m_display);
+}
+
+void WindowGLLinux::SetCursor(CursorType value) {
+    if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
+        return;
+    }
+    if (m_currentCursorType == CursorType::Disabled) {
+        EnableCursor();
+        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+    }
+
+    m_currentCursorType = value;
+    if (value <= CursorType::LastStandartCursor) {
+        XDefineCursor(m_display, m_window, m_cursors[static_cast<uint>(value)]);
+    } else if (value == CursorType::Hidden) {
+        XDefineCursor(m_display, m_window, m_hiddenCursor);
+    } else if (value == CursorType::Disabled) {
+        XDefineCursor(m_display, m_window, m_hiddenCursor);
+        GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+        DisableCursor();
+        SetCursorPos(m_windowCenterX, m_windowCenterY);
+    }
+}
+
 void WindowGLLinux::Create() {
     // Connect to X server
     m_display = XOpenDisplay(NULL);
@@ -192,46 +232,6 @@ void WindowGLLinux::Destroy() {
     if (m_display != nullptr) {
         XCloseDisplay(m_display);
         m_display = nullptr;
-    }
-}
-
-void WindowGLLinux::SetTitle(const std::string& title) {
-    XStoreName(m_display, m_window, title.c_str());
-}
-
-void WindowGLLinux::GetCursorPos(int& x, int& y) {
-    Window root, child;
-    int rootX, rootY;
-    unsigned int mask;
-    XQueryPointer(m_display, m_window, &root, &child, &rootX, &rootY, &x, &y, &mask);
-}
-
-void WindowGLLinux::SetCursorPos(int x, int y) {
-    m_lastCursorPosX = x;
-    m_lastCursorPosY = y;
-    XWarpPointer(m_display, None, m_window, 0, 0, 0, 0, x, y);
-    XFlush(m_display);
-}
-
-void WindowGLLinux::SetCursor(CursorType value) {
-    if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
-        return;
-    }
-    if (m_currentCursorType == CursorType::Disabled) {
-        EnableCursor();
-        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
-    }
-
-    m_currentCursorType = value;
-    if (value <= CursorType::LastStandartCursor) {
-        XDefineCursor(m_display, m_window, m_cursors[static_cast<uint>(value)]);
-    } else if (value == CursorType::Hidden) {
-        XDefineCursor(m_display, m_window, m_hiddenCursor);
-    } else if (value == CursorType::Disabled) {
-        XDefineCursor(m_display, m_window, m_hiddenCursor);
-        GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
-        DisableCursor();
-        SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
 }
 

@@ -32,9 +32,10 @@ static EngineDesc GetEngineSettings() {
     return desc;
 }
 
-static void CreatePlatform(WindowDesc windowDesc, EngineDesc& engineDesc) {
+static void CreatePlatform(bool useOpenGL, WindowDesc windowDesc, EngineDesc& engineDesc) {
 #ifdef PLATFORM_LINUX
 
+if (!useOpenGL) {
 #if VULKAN_SUPPORTED
     auto vulkanWindow = std::make_shared<WindowVulkanLinux>(windowDesc, engineDesc.eventHandler);
     vulkanWindow->Create();
@@ -42,6 +43,7 @@ static void CreatePlatform(WindowDesc windowDesc, EngineDesc& engineDesc) {
     engineDesc.window = vulkanWindow;
     return;
 #endif
+}
 
 #if GL_SUPPORTED
     auto glWindow = std::make_shared<WindowGLLinux>(windowDesc, engineDesc.eventHandler);
@@ -55,7 +57,7 @@ static void CreatePlatform(WindowDesc windowDesc, EngineDesc& engineDesc) {
     throw std::runtime_error("undefined platform");
 }
 
-static bool Run() {
+static bool Run(bool useOpenGL) {
     WindowDesc windowDesc;
     try {
         windowDesc = GetWindowSettings();
@@ -79,7 +81,7 @@ static bool Run() {
     }
 
     try {
-        CreatePlatform(windowDesc, engineDesc);
+        CreatePlatform(useOpenGL, windowDesc, engineDesc);
     } catch(const std::exception& e) {
         LOG_ERROR_MESSAGE("Platform initialization error: {}", e.what());
         return false;
@@ -116,5 +118,5 @@ static bool Run() {
 }
 
 int main() {
-    return Run() ? EXIT_SUCCESS : EXIT_FAILURE;
+    return Run(false) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -55,12 +55,16 @@ public:
     uint16_t GetMonitorWidth() const noexcept { return m_monitorWidth; }
     uint16_t GetMonitorHeight() const noexcept { return m_monitorHeight; }
 
-    virtual void Create() = 0;
-    virtual void Destroy() = 0;
     virtual void SetTitle(const std::string& title) = 0;
+
     virtual void GetCursorPos(int& x, int& y) = 0;
     virtual void SetCursorPos(int x, int y) = 0;
+
+    CursorType GetCursor() const noexcept { return m_currentCursorType; }
     virtual void SetCursor(CursorType value) = 0;
+
+    virtual void Create() = 0;
+    virtual void Destroy() = 0;
     virtual void ProcessEvents() = 0;
 
 protected:
@@ -70,5 +74,6 @@ protected:
     WindowDesc m_desc;
     uint16_t m_monitorWidth = 0;
     uint16_t m_monitorHeight = 0;
+    CursorType m_currentCursorType = CursorType::Hidden;
     std::shared_ptr<WindowEventsHandler> m_eventHandler;
 };

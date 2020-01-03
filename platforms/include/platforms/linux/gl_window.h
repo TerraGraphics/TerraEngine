@@ -13,13 +13,14 @@ public:
     uint32_t GetWindow() noexcept { return m_window; }
     Display* GetDisplay() noexcept { return m_display; }
 
-    void Create() override;
-    void Destroy() override;
-
     void SetTitle(const std::string& title) override;
+
     void GetCursorPos(int& x, int& y) override;
     void SetCursorPos(int x, int y) override;
     void SetCursor(CursorType value) override;
+
+    void Create() override;
+    void Destroy() override;
     void ProcessEvents() override;
 
 private:
@@ -35,7 +36,6 @@ private:
     uint32_t m_window = 0;
     uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
     uint32_t m_hiddenCursor = 0;
-    CursorType m_currentCursorType = CursorType::Hidden;
     int m_windowCenterX = 0;
     int m_windowCenterY = 0;
     int m_visibleCursorPosX = 0;

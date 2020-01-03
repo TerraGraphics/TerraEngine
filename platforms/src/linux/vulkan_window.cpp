@@ -35,6 +35,58 @@ WindowVulkanLinux::~WindowVulkanLinux() {
     Destroy();
 }
 
+void WindowVulkanLinux::SetTitle(const std::string& title) {
+    auto titleLen = static_cast<uint32_t>(title.length());
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, titleLen, title.c_str());
+    xcb_flush(m_connection);
+}
+
+void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
+    xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
+				xcb_query_pointer(m_connection, m_window), nullptr);
+
+    if (pointer == nullptr) {
+        std::runtime_error("failed to get cursor position");
+    }
+    x = pointer->win_x;
+    y = pointer->win_y;
+}
+
+void WindowVulkanLinux::SetCursorPos(int x, int y) {
+    m_lastCursorPosX = x;
+    m_lastCursorPosY = y;
+    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, static_cast<int16_t>(x), static_cast<int16_t>(y));
+    xcb_flush(m_connection);
+}
+
+void WindowVulkanLinux::SetCursor(CursorType value) {
+    if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
+        return;
+    }
+
+    if (m_currentCursorType == CursorType::Disabled) {
+        EnableCursor();
+        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+    }
+
+    m_currentCursorType = value;
+
+    uint32_t cursor[1];
+    if (value <= CursorType::LastStandartCursor) {
+        cursor[0] = m_cursors[static_cast<uint>(value)];
+    } else {
+        cursor[0] = m_hiddenCursor;
+    }
+
+    xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, reinterpret_cast<const void*>(&cursor));
+    if (value == CursorType::Disabled) {
+        GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
+        DisableCursor();
+        SetCursorPos(m_windowCenterX, m_windowCenterY);
+    }
+    xcb_flush(m_connection);
+}
+
 void WindowVulkanLinux::Create() {
     // Connect to X server
     int preferredScreenNumber;
@@ -156,58 +208,6 @@ void WindowVulkanLinux::Destroy() {
         m_connection = nullptr;
         m_screen = nullptr;
     }
-}
-
-void WindowVulkanLinux::SetTitle(const std::string& title) {
-    auto titleLen = static_cast<uint32_t>(title.length());
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, titleLen, title.c_str());
-    xcb_flush(m_connection);
-}
-
-void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
-    xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
-				xcb_query_pointer(m_connection, m_window), nullptr);
-
-    if (pointer == nullptr) {
-        std::runtime_error("failed to get cursor position");
-    }
-    x = pointer->win_x;
-    y = pointer->win_y;
-}
-
-void WindowVulkanLinux::SetCursorPos(int x, int y) {
-    m_lastCursorPosX = x;
-    m_lastCursorPosY = y;
-    xcb_warp_pointer(m_connection, XCB_NONE, m_window, 0, 0, 0, 0, static_cast<int16_t>(x), static_cast<int16_t>(y));
-    xcb_flush(m_connection);
-}
-
-void WindowVulkanLinux::SetCursor(CursorType value) {
-    if ((m_currentCursorType == value) || (value >= CursorType::Undefined)) {
-        return;
-    }
-
-    if (m_currentCursorType == CursorType::Disabled) {
-        EnableCursor();
-        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
-    }
-
-    m_currentCursorType = value;
-
-    uint32_t cursor[1];
-    if (value <= CursorType::LastStandartCursor) {
-        cursor[0] = m_cursors[static_cast<uint>(value)];
-    } else {
-        cursor[0] = m_hiddenCursor;
-    }
-
-    xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, reinterpret_cast<const void*>(&cursor));
-    if (value == CursorType::Disabled) {
-        GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
-        DisableCursor();
-        SetCursorPos(m_windowCenterX, m_windowCenterY);
-    }
-    xcb_flush(m_connection);
 }
 
 void WindowVulkanLinux::ProcessEvents() {
