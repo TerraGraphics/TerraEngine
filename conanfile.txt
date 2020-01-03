@@ -1,6 +1,6 @@
 [requires]
 fmt/6.0.0@bincrafters/stable
-DiligentGraphics/2.4.930577d.4a0ad96@terragraphics/wip
+DiligentGraphics/2.4.7685592.1ad5f15@terragraphics/wip
 
 [generators]
 cmake
