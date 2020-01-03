@@ -20,7 +20,7 @@ TransformNode::TransformNode(const dg::float4x4& transform, const std::weak_ptr<
 
 std::shared_ptr<TransformNode> TransformNode::Clone(const dg::float4x4& transform) const {
     auto node = std::make_shared<TransformNode>(transform);
-    if (!m_materialNode.expired()) {
+    if (m_materialNode) {
         node->m_materialNode = m_materialNode;
     }
 
@@ -34,7 +34,7 @@ std::shared_ptr<TransformNode> TransformNode::Clone(const dg::float4x4& transfor
 
 std::shared_ptr<TransformNode> TransformNode::Clone(const std::weak_ptr<TransformNode>& parent) const {
     auto node = std::make_shared<TransformNode>(m_baseTransform, parent);
-    if (!m_materialNode.expired()) {
+    if (m_materialNode) {
         node->m_materialNode = m_materialNode;
     }
 
@@ -72,7 +72,7 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
 }
 
 void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList) {
-    if (!m_materialNode.expired()) {
+    if (m_materialNode) {
         if (!m_transformCB) {
             dg::CreateUniformBuffer(device, sizeof(dg::ShaderTransform), "CB::VS::ShaderTransform ", &m_transformCB);
             m_isDirty = true;
@@ -86,7 +86,7 @@ void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<s
             m_transform.matWorld = m_baseTransform * parent->m_transform.matWorld;
             m_transform.matNormal = m_transform.matWorld.RemoveTranslation().Inverse().Transpose();
 
-            if (!m_materialNode.expired()) {
+            if (m_materialNode) {
                 dg::ShaderTransform* data;
                 context->MapBuffer(m_transformCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
                 *data = m_transform;

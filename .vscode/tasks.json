@@ -2,9 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Run",
+            "label": "Run Vulkan",
             "type": "shell",
             "command": "./terra",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Run OpenGL",
+            "type": "shell",
+            "command": "./terra -opengl",
             "group": "build",
             "presentation": {
                 "reveal": "always",

@@ -39,8 +39,13 @@ if (!useOpenGL) {
 #if VULKAN_SUPPORTED
     auto vulkanWindow = std::make_shared<WindowVulkanLinux>(windowDesc, engineDesc.eventHandler);
     vulkanWindow->Create();
-    engineDesc.graphics = std::make_shared<VulkanGraphics>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
+
+    auto vulkanGraphics = std::make_shared<VulkanGraphics>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
+    Diligent::EngineVkCreateInfo& info = vulkanGraphics->GetCreateInfo();
+    info.DynamicHeapSize = 8 << 21;
+
     engineDesc.window = vulkanWindow;
+    engineDesc.graphics = vulkanGraphics;
     return;
 #endif
 }
@@ -48,8 +53,11 @@ if (!useOpenGL) {
 #if GL_SUPPORTED
     auto glWindow = std::make_shared<WindowGLLinux>(windowDesc, engineDesc.eventHandler);
     glWindow->Create();
-    engineDesc.graphics = std::make_shared<GLGraphics>(glWindow->GetWindow(), glWindow->GetDisplay());
+
+    auto glGraphics = std::make_shared<GLGraphics>(glWindow->GetWindow(), glWindow->GetDisplay());
+
     engineDesc.window = glWindow;
+    engineDesc.graphics = glGraphics;
     return;
 #endif
 
@@ -117,6 +125,12 @@ static bool Run(bool useOpenGL) {
     return true;
 }
 
-int main() {
-    return Run(false) ? EXIT_SUCCESS : EXIT_FAILURE;
+static bool IsCmdOptionExists(char** begin, char** end, const std::string& option) {
+    return std::find(begin, end, option) != end;
+}
+
+int main(int argc, char * argv[]) {
+    bool useOpenGL = IsCmdOptionExists(argv, argv+argc, "-opengl");
+
+    return Run(useOpenGL) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

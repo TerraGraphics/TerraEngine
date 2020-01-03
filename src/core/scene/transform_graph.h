@@ -32,14 +32,14 @@ public:
     const dg::float4x4& GetBaseTransform() const noexcept { return m_baseTransform; }
     const dg::ShaderTransform& GetTransform() const noexcept { return m_transform; }
     const dg::RefCntAutoPtr<dg::IBuffer>& GetTransformCB() const noexcept { return m_transformCB; }
-    const std::weak_ptr<MaterialNode> GetMaterialNode() const noexcept { return m_materialNode; }
+    const std::shared_ptr<MaterialNode> GetMaterialNode() const noexcept { return m_materialNode; }
 
     void Update(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList);
 
 private:
     std::weak_ptr<TransformNode> m_parent;
     std::vector<std::shared_ptr<TransformNode>> m_children;
-    std::weak_ptr<MaterialNode> m_materialNode;
+    std::shared_ptr<MaterialNode> m_materialNode = nullptr;
     bool m_isDirty = true;
     dg::float4x4 m_baseTransform = dg::One4x4;
     dg::ShaderTransform m_transform = {dg::One4x4, dg::One4x4};
