@@ -4,6 +4,8 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
+#include "core/material/material_vars.h"
+
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
     return (std::tie(shaderType, name) < std::tie(other.shaderType, other.name));
@@ -101,10 +103,11 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
     return m_builder->Build(m_desc);
 }
 
-MaterialBuilder::MaterialBuilder(const DevicePtr& device, const SwapChainPtr& swapChain)
+MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain)
     : m_device(device)
     , m_swapChain(swapChain) {
 
+    m_staticVarsStorage = std::make_shared<StaticVarsStorage>(device, context);
 }
 
 MaterialBuilder::Builder MaterialBuilder::Create(dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, const dg::InputLayoutDesc& layoutDesc) {
@@ -117,6 +120,7 @@ std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
 
     dg::RefCntAutoPtr<dg::IPipelineState> pipelineState;
     m_device->CreatePipelineState(desc, &pipelineState);
+    m_staticVarsStorage->SetVars(pipelineState);
 
     return std::make_shared<Material>(pipelineState);
 }

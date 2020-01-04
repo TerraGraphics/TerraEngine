@@ -9,6 +9,7 @@
 #include "core/material/material.h"
 
 
+class StaticVarsStorage;
 class MaterialBuilder : Fixed {
 public:
     struct Builder : Fixed {
@@ -48,13 +49,17 @@ public:
 
 public:
     MaterialBuilder() = delete;
-    MaterialBuilder(const DevicePtr& device, const SwapChainPtr& swapChain);
+    MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain);
     ~MaterialBuilder() = default;
 
+    std::shared_ptr<StaticVarsStorage> GetStaticVarsStorage() { return m_staticVarsStorage; }
+
     Builder Create(dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, const dg::InputLayoutDesc& layoutDesc);
+
 private:
     std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc);
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
+    std::shared_ptr<StaticVarsStorage> m_staticVarsStorage = nullptr;
 };

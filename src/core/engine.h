@@ -67,5 +67,5 @@ private:
 
     bool m_isVSync = true;
 
-    CyclicalCounter<double, 120> m_fpsCounter = CyclicalCounter<double, 120>(1.f/60.f);
+    CyclicalCounter<double, 120> m_fpsCounter = CyclicalCounter<double, 120>(1./60.);
 };
