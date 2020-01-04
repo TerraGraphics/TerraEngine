@@ -2,6 +2,7 @@
 
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
+#include "core/common/counter.h"
 
 
 namespace Diligent {
@@ -9,7 +10,7 @@ namespace Diligent {
     class IShaderResourceBinding;
 }
 
-class Material : Fixed {
+class Material : public Counter<Material>, Fixed {
 public:
     Material() = delete;
     Material(const dg::RefCntAutoPtr<dg::IPipelineState>& pipelineState);

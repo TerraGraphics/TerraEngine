@@ -4,6 +4,7 @@
 
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
+#include "core/common/counter.h"
 #include "platforms/platforms.h"
 
 
@@ -13,7 +14,7 @@ public:
     virtual ~Application() = default;
 
     virtual void Create() = 0;
-    virtual void Update(float deltaTime) = 0;
+    virtual void Update(double deltaTime) = 0;
     virtual void Draw() = 0;
     virtual void Destroy() = 0;
 };
@@ -46,7 +47,7 @@ public:
     std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
 
     float GetFps() const noexcept {
-        return static_cast<float>(m_timeDeltas.size()) / m_timeDeltasTotal;
+        return static_cast<double>(m_fpsCounter.Size()) / m_fpsCounter.Sum();
     }
 
     void Create(EngineDesc&& desc);
@@ -66,8 +67,5 @@ private:
 
     bool m_isVSync = true;
 
-    float m_deltaTime = 1.0f / 60.0f;
-    uint16_t m_timeDeltasPos = 0;
-    std::array<float, 120> m_timeDeltas = { /*1.0f / 60.0f*/ };
-    float m_timeDeltasTotal = static_cast<float>(m_timeDeltas.size()) / 60.0f;
+    CyclicalCounter<double, 120> m_fpsCounter = CyclicalCounter<double, 120>(1.f/60.f);
 };
