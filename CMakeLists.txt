@@ -5,7 +5,9 @@ include(${CMAKE_SOURCE_DIR}/conan.cmake)
 conan_cmake_run(CONANFILE conanfile.txt
     BASIC_SETUP CMAKE_TARGETS
     BUILD_TYPE "Release"
-    BUILD missing)
+    BUILD missing
+    OPTIONS DiligentGraphics:development=False
+    )
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 

@@ -4,14 +4,20 @@ from conans import ConanFile, CMake, tools
 
 class DiligentGraphics(ConanFile):
     name = "DiligentGraphics"
-    version = "2.4.7685592.1ad5f15"
+    version = "2.4.7685592.1ad5f15.2"
     license = "Apache License 2.0"
     url = "https://github.com/DiligentGraphics/DiligentGraphics"
     description = " A modern cross-platform low-level graphics library and rendering framework"
     topics = ("gamedev", "graphics-engine", "renderer", "rendering", "graphics-library", "3d-engine")
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False]}
-    default_options = {"shared": False}
+    options = {
+        "shared": [True, False],
+        "development": [True, False],
+    }
+    default_options = {
+        "shared": False,
+        "development": False,
+    }
     generators = "cmake"
 
     def source(self):
@@ -37,14 +43,20 @@ class DiligentGraphics(ConanFile):
                 f.write("add_subdirectory(DiligentTools)\n")
                 f.close()
 
-    def build(self):
+    def _create_cmake(self):
         cmake = CMake(self)
+        if self.options.development:
+            cmake.definitions["DEVELOPMENT"] = 1
         cmake.configure(source_folder="DiligentGraphics")
+        cmake.build()
+        return cmake
+
+    def build(self):
+        cmake = self._create_cmake()
         cmake.build()
 
     def package(self):
-        cmake = CMake(self)
-        cmake.configure(source_folder="DiligentGraphics")
+        cmake = self._create_cmake()
         cmake.install()
 
         self.copy("libDiligentCore.a", src="DiligentCore", dst="lib", keep_path=False)
