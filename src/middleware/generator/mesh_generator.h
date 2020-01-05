@@ -44,5 +44,5 @@ struct MeshGenerator {
         cntXSides - Number of vertices on 0X axis (cntXSides >= 2)
         cntZSides - Number of vertices on 0Z axis (cntZSides >= 2)
     */
-    static std::shared_ptr<GeometryNode> CreateSolidPlane(DevicePtr device, uint32_t cntXSides = 2, uint32_t cntZSides = 2, float scaleTextureX = 1.0f, float scaleTextureZ = 1.0f);
+    static std::shared_ptr<GeometryNode> CreateSolidPlaneXZ(DevicePtr device, uint32_t cntXPoints = 2, uint32_t cntZPoints = 2, float scaleTextureX = 1.0f, float scaleTextureZ = 1.0f);
 };

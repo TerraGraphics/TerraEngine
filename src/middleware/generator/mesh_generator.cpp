@@ -214,44 +214,46 @@ std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCylinder(DevicePtr devic
         ibBuilder.Build(device, "cylinder ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
 }
 
-std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidPlane(DevicePtr device, uint32_t cntXSides, uint32_t cntZSides, float scaleTextureX, float scaleTextureZ) {
-    cntXSides = std::max(cntXSides, uint32_t(2));
-    cntZSides = std::max(cntZSides, uint32_t(2));
+std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidPlaneXZ(DevicePtr device, uint32_t cntXPoints, uint32_t cntZPoints, float scaleTextureX, float scaleTextureZ) {
+    cntXPoints = std::max(cntXPoints, uint32_t(2));
+    cntZPoints = std::max(cntZPoints, uint32_t(2));
 
-    uint32_t vertexCount = (cntXSides+1)*(cntZSides+1);
+    uint32_t vertexCount = cntXPoints * cntZPoints;
     VertexBufferBuilder vbBuilder;
     auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
 
     uint32_t ind = 0;
-    for(uint32_t i=0; i!=cntXSides + 1; ++i) {
-        float tu = static_cast<float>(i)/static_cast<float>(cntXSides);
-        for(uint32_t j=0; j!=cntZSides + 1; ++j) {
-            float tv = static_cast<float>(j)/static_cast<float>(cntZSides);
-            vb[ind].position = dg::float3(tu-0.5f, 0.0f, tv-0.5f);
-            vb[ind].normal = dg::float3(0.0f,    1.0f, 0.0f);
-            vb[ind].uv = dg::float2(scaleTextureX*tu, scaleTextureZ*tv);
+    for(uint32_t i=0; i!=cntXPoints; ++i) {
+        float tu = static_cast<float>(i) / static_cast<float>(cntXPoints - 1);
+        for(uint32_t j=0; j!=cntZPoints; ++j) {
+            float tv = static_cast<float>(j) / static_cast<float>(cntZPoints - 1);
+            vb[ind].position = dg::float3(tu - 0.5f, 0.0f, tv - 0.5f);
+            vb[ind].normal = dg::float3(0.0f, 1.0f, 0.0f);
+            vb[ind].uv = dg::float2(scaleTextureX * tu, scaleTextureZ * tv);
             ++ind;
         }
     }
 
-    uint32_t indexCount = cntXSides*cntZSides*6;
+    uint32_t indexCount = (cntXPoints - 1) * (cntZPoints - 1) * 6;
     IndexBufferBuilder ibBuilder;
     auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
 
     ind = 0;
-    for(uint32_t i=0; i!=cntXSides; ++i) {
-        for(uint32_t j=0; j!=cntZSides; ++j) {
-            uint32_t z1 = i * static_cast<uint32_t>(cntXSides + 1) + j;
-            uint32_t z2 = z1 + static_cast<uint32_t>(cntZSides + 1);
-            ib[ind++] = z1;
-            ib[ind++] = z1+1;
-            ib[ind++] = z2;
-            ib[ind++] = z2;
-            ib[ind++] = z1+1;
-            ib[ind++] = z2+1;
+    for(uint32_t i=0; i!=(cntXPoints - 1); ++i) {
+        for(uint32_t j=0; j!=(cntZPoints - 1); ++j) {
+            uint32_t bottomLeftVertex = i * cntXPoints + j;
+            uint32_t topLeftVertex = bottomLeftVertex + cntZPoints;
+
+            ib[ind++] = bottomLeftVertex;
+            ib[ind++] = bottomLeftVertex + 1;
+            ib[ind++] = topLeftVertex;
+
+            ib[ind++] = topLeftVertex;
+            ib[ind++] = bottomLeftVertex + 1;
+            ib[ind++] = topLeftVertex + 1;
         }
     }
 
-    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "cylinder vb"), vb.OffsetBytes(),
-        ibBuilder.Build(device, "cylinder ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
+    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "plane vb"), vb.OffsetBytes(),
+        ibBuilder.Build(device, "plane ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
 }

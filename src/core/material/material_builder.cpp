@@ -117,6 +117,7 @@ MaterialBuilder::Builder MaterialBuilder::Create(dg::RefCntAutoPtr<dg::IShader>&
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
     desc.GraphicsPipeline.RTVFormats[0] = m_swapChain->GetDesc().ColorBufferFormat;
     desc.GraphicsPipeline.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
+    // desc.GraphicsPipeline.RasterizerDesc.FillMode = dg::FILL_MODE_WIREFRAME;
 
     dg::RefCntAutoPtr<dg::IPipelineState> pipelineState;
     m_device->CreatePipelineState(desc, &pipelineState);
