@@ -47,10 +47,10 @@ void PlaneShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 }
 
 void PlaneShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    uint32_t ind = vertexStartIndex;
+    uint32_t ind = 0;
     for(uint32_t i=0; i!=(m_cntWidthPoints - 1); ++i) {
         for(uint32_t j=0; j!=(m_cntHeightPoints - 1); ++j) {
-            uint32_t bottomLeftVertex = i * m_cntWidthPoints + j;
+            uint32_t bottomLeftVertex = i * m_cntWidthPoints + j + vertexStartIndex;
             uint32_t topLeftVertex = bottomLeftVertex + m_cntHeightPoints;
 
             ib[ind++] = bottomLeftVertex;

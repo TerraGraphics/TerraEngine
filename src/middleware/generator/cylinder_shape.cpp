@@ -38,9 +38,9 @@ void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 }
 
 void CylinderShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    uint32_t ind = vertexStartIndex;
+    uint32_t ind = 0;
     for(uint32_t i=0; i!=(m_cntCirclePoints - 1); ++i) {
-        uint32_t bottomLeftVertex = i;
+        uint32_t bottomLeftVertex = i + vertexStartIndex;
         uint32_t topLeftVertex = bottomLeftVertex + m_cntCirclePoints;
 
         ib[ind++] = bottomLeftVertex;

@@ -54,9 +54,9 @@ void CubeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 }
 
 void CubeShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    uint32_t ind = vertexStartIndex;
+    uint32_t ind = 0;
     for(uint32_t i=0; i!=6; ++i) {
-        uint32_t offset = i * 4;
+        uint32_t offset = i * 4 + vertexStartIndex;
         ib[ind++] = offset; ib[ind++] = offset + 1; ib[ind++] = offset + 2;
         ib[ind++] = offset; ib[ind++] = offset + 2; ib[ind++] = offset + 3;
     }

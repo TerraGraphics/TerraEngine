@@ -50,23 +50,37 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 void SphereShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
     uint32_t plg = m_cntCirclePoints / 2 - 1;
 
-    uint32_t ind = vertexStartIndex;
+    uint32_t ind = 0;
     for(uint32_t ix=0; ix!=plg-1; ++ix) {
-        uint32_t z1,z2,z3,z4;
-        z1 = ix*m_cntCirclePoints+1; z2 = z1+1;
-        z3 = z1+m_cntCirclePoints;   z4 = z2+m_cntCirclePoints;
+        uint32_t bottomLeftVertex = ix * m_cntCirclePoints + 1 + vertexStartIndex;
+        uint32_t topLeftVertex = bottomLeftVertex + m_cntCirclePoints;
+
         for(auto iy=0; iy!=m_cntCirclePoints-1; iy++) {
-            ib[ind++]=z1;	ib[ind++]=z3;	ib[ind++]=z4;
-            ib[ind++]=z1;	ib[ind++]=z4;	ib[ind++]=z2;
-            z1++; z2++; z3++; z4++;
+            ib[ind++] = bottomLeftVertex;
+            ib[ind++] = topLeftVertex;
+            ib[ind++] = topLeftVertex + 1;
+
+            ib[ind++] = bottomLeftVertex;
+            ib[ind++] = topLeftVertex + 1;
+            ib[ind++] = bottomLeftVertex + 1;
+
+            ++bottomLeftVertex;
+            ++topLeftVertex;
         }
     }
 
     uint32_t firstInd = vertexStartIndex;
     uint32_t lastInd = vertexStartIndex + m_vertexCount - 1;
-    uint32_t iy = m_cntCirclePoints*(plg-1);
+    uint32_t topVertexIndexOffset = m_cntCirclePoints * (plg - 1) + vertexStartIndex;
     for(uint32_t ix=1; ix!=m_cntCirclePoints; ix++) {
-        ib[ind++]=ix;       ib[ind++]=ix+1;   ib[ind++]=firstInd;
-        ib[ind++]=iy+ix+1;  ib[ind++]=iy+ix;  ib[ind++]=lastInd;
+        uint32_t bottomVertexIndex = vertexStartIndex + ix;
+        ib[ind++] = bottomVertexIndex;
+        ib[ind++] = bottomVertexIndex + 1;
+        ib[ind++] = firstInd;
+
+        uint32_t topVertexIndex = topVertexIndexOffset + ix;
+        ib[ind++] = topVertexIndex + 1;
+        ib[ind++] = topVertexIndex;
+        ib[ind++] = lastInd;
     }
 }

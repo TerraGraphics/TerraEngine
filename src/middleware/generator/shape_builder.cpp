@@ -25,7 +25,7 @@ std::shared_ptr<GeometryNode> ShapeBuilder::Join(const std::initializer_list<con
         auto vb = vbBuilder.AddRange<VertexPNC>(shape->m_vertexCount);
         shape->FillVertex(vb);
         if (shape->m_matrixChanged) {
-            auto& matrix = shape->m_matrix;
+            const auto& matrix = shape->m_matrix;
             for (VertexPNC* it = vb.Begin(); it != vb.End(); ++it) {
                 it->position = it->position * matrix;
             }

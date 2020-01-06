@@ -70,7 +70,7 @@ static bool Run(bool useOpenGL) {
     try {
         windowDesc = GetWindowSettings();
     } catch(const std::exception& e) {
-        LOG_ERROR_MESSAGE("Window settings initialization error: {}", e.what());
+        LOG_ERROR_MESSAGE("Window settings initialization error: ", e.what());
         return false;
     } catch(...) {
         LOG_ERROR_MESSAGE("Window settings initialization error: unhandled exception");
@@ -81,7 +81,7 @@ static bool Run(bool useOpenGL) {
     try {
         engineDesc = GetEngineSettings();
     } catch(const std::exception& e) {
-        LOG_ERROR_MESSAGE("Engine settings initialization error: {}", e.what());
+        LOG_ERROR_MESSAGE("Engine settings initialization error: ", e.what());
         return false;
     } catch(...) {
         LOG_ERROR_MESSAGE("Engine settings initialization error: unhandled exception");
@@ -91,7 +91,7 @@ static bool Run(bool useOpenGL) {
     try {
         CreatePlatform(useOpenGL, windowDesc, engineDesc);
     } catch(const std::exception& e) {
-        LOG_ERROR_MESSAGE("Platform initialization error: {}", e.what());
+        LOG_ERROR_MESSAGE("Platform initialization error: ", e.what());
         return false;
     } catch(...) {
         LOG_ERROR_MESSAGE("Platform initialization error: unhandled exception");
@@ -104,7 +104,7 @@ static bool Run(bool useOpenGL) {
         engineDesc.graphics->Create(validationLevel);
         engine.Create(std::move(engineDesc));
     } catch(const std::exception& e) {
-        LOG_ERROR_MESSAGE("Engine initialization error: {}", e.what());
+        LOG_ERROR_MESSAGE("Engine initialization error: ", e.what());
         return false;
     } catch(...) {
         LOG_ERROR_MESSAGE("Engine initialization error: unhandled exception");
@@ -115,7 +115,7 @@ static bool Run(bool useOpenGL) {
         engine.Run();
         engine.Destroy();
     } catch(const std::exception& e) {
-        LOG_ERROR_MESSAGE("Runtime error: {}", e.what());
+        LOG_ERROR_MESSAGE("Runtime error: ", e.what());
         return false;
     } catch(...) {
         LOG_ERROR_MESSAGE("Runtime error: unhandled exception");

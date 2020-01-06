@@ -1,11 +1,6 @@
 #include "editor/general_scene.h"
 
-#include <DiligentTools/TextureLoader/interface/TextureLoader.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentTools/TextureLoader/interface/TextureUtilities.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/ShaderMacroHelper.h>
 
 #include "core/engine.h"
@@ -13,6 +8,8 @@
 #include "core/math/random.h"
 #include "core/scene/material_node.h"
 #include "core/material/material_builder.h"
+#include "middleware/generator/plane_shape.h"
+#include "middleware/generator/shape_builder.h"
 #include "middleware/generator/mesh_generator.h"
 
 
@@ -171,43 +168,43 @@ void GeneralScene::GenerateTrees() {
 }
 
 void GeneralScene::GenerateGrass() {
-    auto plane = MeshGenerator::CreateSolidPlaneXZ(m_device, 2, 2, 1.0f, 1.0f);
+    float angleY = ThirdPI<float>() * 2.0f;
+    auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(ThirdPI<float>() / 3.f);
 
-    auto grass0MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, plane);
+    PlaneShape plane1(2, 2, 1.0f, 1.0f, Axis::Z);
+    plane1.SetTranform(matBase);
+
+    PlaneShape plane2(2, 2, 1.0f, 1.0f, Axis::Z);
+    plane2.SetTranform(matBase * dg::float4x4::RotationY(angleY));
+
+    PlaneShape plane3(2, 2, 1.0f, 1.0f, Axis::Z);
+    plane3.SetTranform(matBase * dg::float4x4::RotationY(angleY * 2.f));
+
+    auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
+
+    auto grass0MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, bush);
     grass0MatNode->SetPixelShaderVar("g_Texture", m_TextureGrass0);
 
-    auto grass1MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, plane);
+    auto grass1MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, bush);
     grass1MatNode->SetPixelShaderVar("g_Texture", m_TextureGrass1);
 
-    auto flower0MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, plane);
+    auto flower0MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, bush);
     flower0MatNode->SetPixelShaderVar("g_Texture", m_TextureFlower0);
 
     std::srand(15);
     auto materialNode = grass0MatNode;
-    auto multiplier = 2;
+    auto multiplier = 10;
     for (int i=0; i!=multiplier * 1000; ++i) {
-        auto scaleValue = LinearRand(0.7f, 1.3f);
-        auto matScale = dg::float4x4::Scale(scaleValue);
+        auto matScale = dg::float4x4::Scale(LinearRand(0.3f, 1.f));
 
-        auto vecPos = LinearRand(dg::float3(-50, scaleValue * 0.5, -50), dg::float3(50, scaleValue * 0.5, 50));
+        auto vecPos = LinearRand(dg::float3(-50.f, 0.f, -50.f), dg::float3(50.f, 0.f, 50.f));
         auto matModelPosition = dg::float4x4::Translation(vecPos);
-
-        auto root = std::make_shared<TransformNode>(matScale * matModelPosition);
-        m_scene->AddChild(root);
 
         if (i == multiplier * 450) {
             materialNode = grass1MatNode;
         } else  if (i == multiplier * 900) {
             materialNode = flower0MatNode;
         }
-        for (int j=0; j!=3; ++j) {
-            float angleX = -HalfPI<float>() + LinearRand(-0.3f, 0.3f);
-            auto matRotX = dg::float4x4::RotationX(angleX);
-
-            float angleY = static_cast<float>(j) * PI<float>() / 3.0f + LinearRand(-0.3f, 0.3f);
-            auto matRotY = dg::float4x4::RotationY(angleY);
-
-            root->NewChild(materialNode, matRotX * matRotY);
-        }
+        m_scene->NewChild(materialNode, matScale * matModelPosition);
     }
 }
