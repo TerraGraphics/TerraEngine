@@ -1,19 +1,25 @@
 #include "middleware/generator/plane_shape.h"
 
+#include "core/common/exception.h"
+
 
 PlaneShape::PlaneShape(uint32_t cntWidthPoints, uint32_t cntHeightPoints, float scaleTextureWidth, float scaleTextureHeight, Axis axisUp)
-    : m_cntWidthPoints(std::max(cntWidthPoints, uint32_t(2)))
-    , m_cntHeightPoints(std::max(cntHeightPoints, uint32_t(2)))
+    : Shape(cntWidthPoints * cntHeightPoints, (cntWidthPoints - 1) * (cntHeightPoints - 1) * 6)
+    , m_cntWidthPoints(cntWidthPoints)
+    , m_cntHeightPoints(cntHeightPoints)
     , m_scaleTextureWidth(scaleTextureWidth)
     , m_scaleTextureHeight(scaleTextureHeight)
     , m_axisUp(axisUp) {
 
+    if (m_cntWidthPoints < 2) {
+        throw EngineError("Minimum value for cntWidthPoints in PlaneShape is 2");
+    }
+    if (m_cntHeightPoints < 2) {
+        throw EngineError("Minimum value for cntHeightPoints in PlaneShape is 2");
+    }
 }
 
-VertexBufferRange<VertexPNC> PlaneShape::FillVertex(VertexBufferBuilder& vbBuilder) {
-    uint32_t vertexCount = m_cntWidthPoints * m_cntHeightPoints;
-    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
-
+void PlaneShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t ind = 0;
     for(uint32_t i=0; i!=m_cntWidthPoints; ++i) {
         float tu = static_cast<float>(i) / static_cast<float>(m_cntWidthPoints - 1);
@@ -38,15 +44,10 @@ VertexBufferRange<VertexPNC> PlaneShape::FillVertex(VertexBufferBuilder& vbBuild
             ++ind;
         }
     }
-
-    return std::move(vb);
 }
 
-IndexBufferRange<uint32_t> PlaneShape::FillIndex(IndexBufferBuilder& ibBuilder) {
-    uint32_t indexCount = (m_cntWidthPoints - 1) * (m_cntHeightPoints - 1) * 6;
-    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
-
-    uint32_t ind = 0;
+void PlaneShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
+    uint32_t ind = vertexStartIndex;
     for(uint32_t i=0; i!=(m_cntWidthPoints - 1); ++i) {
         for(uint32_t j=0; j!=(m_cntHeightPoints - 1); ++j) {
             uint32_t bottomLeftVertex = i * m_cntWidthPoints + j;
@@ -61,6 +62,4 @@ IndexBufferRange<uint32_t> PlaneShape::FillIndex(IndexBufferBuilder& ibBuilder) 
             ib[ind++] = topLeftVertex + 1;
         }
     }
-
-    return std::move(ib);
 }

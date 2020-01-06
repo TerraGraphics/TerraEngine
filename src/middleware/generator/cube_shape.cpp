@@ -1,10 +1,12 @@
 #include "middleware/generator/cube_shape.h"
 
 
-VertexBufferRange<VertexPNC> CubeShape::FillVertex(VertexBufferBuilder& vbBuilder) {
-    uint32_t vertexCount = 24;
-    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
+CubeShape::CubeShape()
+    : Shape(24, 12 * 3) {
 
+}
+
+void CubeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     vb[ 0].position	= dg::float3(-0.5f,-0.5f,-0.5f);
     vb[ 1].position	= dg::float3(-0.5f, 0.5f,-0.5f);
     vb[ 2].position	= dg::float3( 0.5f, 0.5f,-0.5f);
@@ -49,20 +51,13 @@ VertexBufferRange<VertexPNC> CubeShape::FillVertex(VertexBufferBuilder& vbBuilde
         vb[i+ 8].normal = dg::float3(axis, 0.0f, 0.0f);
         vb[i+16].normal = dg::float3(0.0f, axis, 0.0f);
     }
-
-    return std::move(vb);
 }
 
-IndexBufferRange<uint32_t> CubeShape::FillIndex(IndexBufferBuilder& ibBuilder) {
-    uint32_t indexCount = 12 * 3;
-    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
-
-    uint32_t ind = 0;
+void CubeShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
+    uint32_t ind = vertexStartIndex;
     for(uint32_t i=0; i!=6; ++i) {
         uint32_t offset = i * 4;
         ib[ind++] = offset; ib[ind++] = offset + 1; ib[ind++] = offset + 2;
         ib[ind++] = offset; ib[ind++] = offset + 2; ib[ind++] = offset + 3;
     }
-
-    return std::move(ib);
 }

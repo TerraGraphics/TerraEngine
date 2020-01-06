@@ -3,14 +3,15 @@
 #include "middleware/generator/shape.h"
 
 
-class PlaneShape {
+class PlaneShape : public Shape {
 public:
     PlaneShape() = delete;
     PlaneShape(uint32_t cntWidthPoints, uint32_t cntHeightPoints, float scaleTextureWidth, float scaleTextureHeight, Axis axisUp);
     ~PlaneShape() = default;
 
-    VertexBufferRange<VertexPNC> FillVertex(VertexBufferBuilder& vbBuilder);
-    IndexBufferRange<uint32_t> FillIndex(IndexBufferBuilder& ibBuilder);
+protected:
+    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
+    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
 
 private:
     uint32_t m_cntWidthPoints;

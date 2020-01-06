@@ -3,14 +3,15 @@
 #include "middleware/generator/shape.h"
 
 
-class SphereShape {
+class SphereShape : public Shape {
 public:
     SphereShape() = delete;
     SphereShape(uint32_t cntCirclePoints);
     ~SphereShape() = default;
 
-    VertexBufferRange<VertexPNC> FillVertex(VertexBufferBuilder& vbBuilder);
-    IndexBufferRange<uint32_t> FillIndex(IndexBufferBuilder& ibBuilder);
+protected:
+    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
+    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
 
 private:
     uint32_t m_cntCirclePoints;

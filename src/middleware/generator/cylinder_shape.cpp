@@ -1,17 +1,18 @@
 #include "middleware/generator/cylinder_shape.h"
 
-#include "core/math/constants.h"
+#include "core/common/exception.h"
 
 
 CylinderShape::CylinderShape(uint32_t cntCirclePoints)
-    : m_cntCirclePoints(std::max(cntCirclePoints, uint32_t(3))) {
+    : Shape(2 * cntCirclePoints, (cntCirclePoints - 1) * 6)
+    , m_cntCirclePoints(cntCirclePoints) {
 
+    if (m_cntCirclePoints < 3) {
+        throw EngineError("Minimum value for cntCirclePoints in CylinderShape is 3");
+    }
 }
 
-VertexBufferRange<VertexPNC> CylinderShape::FillVertex(VertexBufferBuilder& vbBuilder) {
-    uint32_t vertexCount = 2 * m_cntCirclePoints;
-    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
-
+void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 	float angle = 0.f;
 	float step = TwoPI<float>() / static_cast<float>(m_cntCirclePoints - 1);
 	for(uint32_t i=0; i!=m_cntCirclePoints; ++i) {
@@ -34,15 +35,10 @@ VertexBufferRange<VertexPNC> CylinderShape::FillVertex(VertexBufferBuilder& vbBu
 		vb[ind].normal = normal;
 		vb[ind].uv = dg::float2(textureU, 0);
 	}
-
-    return std::move(vb);
 }
 
-IndexBufferRange<uint32_t> CylinderShape::FillIndex(IndexBufferBuilder& ibBuilder) {
-    uint32_t indexCount = (m_cntCirclePoints - 1) * 6;
-    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
-
-    uint32_t ind = 0;
+void CylinderShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
+    uint32_t ind = vertexStartIndex;
     for(uint32_t i=0; i!=(m_cntCirclePoints - 1); ++i) {
         uint32_t bottomLeftVertex = i;
         uint32_t topLeftVertex = bottomLeftVertex + m_cntCirclePoints;
@@ -55,6 +51,4 @@ IndexBufferRange<uint32_t> CylinderShape::FillIndex(IndexBufferBuilder& ibBuilde
         ib[ind++] = bottomLeftVertex + 1;
         ib[ind++] = topLeftVertex + 1;
     }
-
-    return std::move(ib);
 }

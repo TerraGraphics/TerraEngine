@@ -29,12 +29,12 @@ struct MeshGenerator {
     static std::shared_ptr<GeometryNode> CreateSolidCube(DevicePtr& device);
     /*!
         Creates a sphere with a center at the beginning of coordinates and a diameter equal to 1
-        cntCirclePoints - Number of vertices in one circle of sphere
+        cntCirclePoints - Number of vertices in one circle of sphere (cntCirclePoints >= 3)
     */
     static std::shared_ptr<GeometryNode> CreateSolidSphere(DevicePtr& device, uint32_t cntCirclePoints);
     /*!
         Creates a cylinder with a center at the beginning of coordinates, with a diameter and height equal to 1
-        cntCirclePoints - Number of vertices in the base circle
+        cntCirclePoints - Number of vertices in the base circle (cntCirclePoints >= 3)
     */
     static std::shared_ptr<GeometryNode> CreateSolidCylinder(DevicePtr& device, uint32_t cntCirclePoints);
     /*!

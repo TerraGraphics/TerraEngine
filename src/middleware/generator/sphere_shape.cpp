@@ -1,18 +1,19 @@
 #include "middleware/generator/sphere_shape.h"
 
-#include "core/math/constants.h"
+#include "core/common/exception.h"
 
 
 SphereShape::SphereShape(uint32_t cntCirclePoints)
-    : m_cntCirclePoints(std::max(cntCirclePoints, uint32_t(3))) {
+    : Shape((cntCirclePoints / 2 - 1) * cntCirclePoints + uint32_t(2), 6 * (cntCirclePoints - 1) * (cntCirclePoints / 2 - 1))
+    , m_cntCirclePoints(cntCirclePoints) {
 
+    if (m_cntCirclePoints < 3) {
+        throw EngineError("Minimum value for cntCirclePoints in SphereShape is 3");
+    }
 }
 
-VertexBufferRange<VertexPNC> SphereShape::FillVertex(VertexBufferBuilder& vbBuilder) {
+void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t plg = m_cntCirclePoints / 2 - 1;
-
-    uint32_t vertexCount = plg * m_cntCirclePoints + uint32_t(2);
-    auto vb = vbBuilder.AddRange<VertexPNC>(vertexCount);
 
     float angleB = -HalfPI<float>();
     float stepB = PI<float>() / static_cast<float>(plg + 1);
@@ -41,20 +42,15 @@ VertexBufferRange<VertexPNC> SphereShape::FillVertex(VertexBufferBuilder& vbBuil
     }
 
     uint32_t firstInd = 0;
-    uint32_t lastInd = vertexCount-1;
+    uint32_t lastInd = m_vertexCount-1;
     vb[firstInd] = VertexPNC{dg::float3(0.0f,-0.5f,0.0f), dg::float3(0.0f,-1.0f,0.0f), dg::float2(0.5f,1.0f)};
     vb[lastInd]	 = VertexPNC{dg::float3(0.0f, 0.5f,0.0f), dg::float3(0.0f, 1.0f,0.0f), dg::float2(0.5f,0.0f)};
-
-    return std::move(vb);
 }
 
-IndexBufferRange<uint32_t> SphereShape::FillIndex(IndexBufferBuilder& ibBuilder) {
+void SphereShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
     uint32_t plg = m_cntCirclePoints / 2 - 1;
-    uint32_t vertexCount = plg * m_cntCirclePoints + uint32_t(2);
-    uint32_t indexCount = 6*(m_cntCirclePoints-1)*plg;
-    auto ib = ibBuilder.AddRange<uint32_t>(indexCount);
 
-    uint32_t ind = 0;
+    uint32_t ind = vertexStartIndex;
     for(uint32_t ix=0; ix!=plg-1; ++ix) {
         uint32_t z1,z2,z3,z4;
         z1 = ix*m_cntCirclePoints+1; z2 = z1+1;
@@ -66,13 +62,11 @@ IndexBufferRange<uint32_t> SphereShape::FillIndex(IndexBufferBuilder& ibBuilder)
         }
     }
 
-    uint32_t firstInd = 0;
-    uint32_t lastInd = vertexCount-1;
+    uint32_t firstInd = vertexStartIndex;
+    uint32_t lastInd = vertexStartIndex + m_vertexCount - 1;
     uint32_t iy = m_cntCirclePoints*(plg-1);
     for(uint32_t ix=1; ix!=m_cntCirclePoints; ix++) {
         ib[ind++]=ix;       ib[ind++]=ix+1;   ib[ind++]=firstInd;
         ib[ind++]=iy+ix+1;  ib[ind++]=iy+ix;  ib[ind++]=lastInd;
     }
-
-    return std::move(ib);
 }

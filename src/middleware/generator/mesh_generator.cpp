@@ -4,59 +4,28 @@
 #include "middleware/generator/cube_shape.h"
 #include "middleware/generator/plane_shape.h"
 #include "middleware/generator/sphere_shape.h"
+#include "middleware/generator/shape_builder.h"
 #include "middleware/generator/cylinder_shape.h"
 
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCube(DevicePtr& device) {
     CubeShape shape;
-
-    VertexBufferBuilder vbBuilder;
-    auto vb = shape.FillVertex(vbBuilder);
-
-    IndexBufferBuilder ibBuilder;
-    auto ib = shape.FillIndex(ibBuilder);
-
-    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "cube vb"), vb.OffsetBytes(),
-        ibBuilder.Build(device, "cube ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
+    return ShapeBuilder(device).Join({&shape}, "Cube");
 }
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidSphere(DevicePtr& device, uint32_t cntCirclePoints) {
     SphereShape shape(cntCirclePoints);
-
-    VertexBufferBuilder vbBuilder;
-    auto vb = shape.FillVertex(vbBuilder);
-
-    IndexBufferBuilder ibBuilder;
-    auto ib = shape.FillIndex(ibBuilder);
-
-    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "sphere vb"), vb.OffsetBytes(),
-        ibBuilder.Build(device, "sphere ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
+    return ShapeBuilder(device).Join({&shape}, "Sphere");
 }
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidCylinder(DevicePtr& device, uint32_t cntCirclePoints) {
     CylinderShape shape(cntCirclePoints);
-
-    VertexBufferBuilder vbBuilder;
-    auto vb = shape.FillVertex(vbBuilder);
-
-    IndexBufferBuilder ibBuilder;
-    auto ib = shape.FillIndex(ibBuilder);
-
-    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "cylinder vb"), vb.OffsetBytes(),
-        ibBuilder.Build(device, "cylinder ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
+    return ShapeBuilder(device).Join({&shape}, "Cylinder");
 }
 
 static std::shared_ptr<GeometryNode> CreateSolidPlane(DevicePtr& device, uint32_t cntWidthPoints, uint32_t cntHeightPoints, float scaleTextureWidth, float scaleTextureHeight, Axis axisUp) {
     PlaneShape shape(cntWidthPoints, cntHeightPoints, scaleTextureWidth, scaleTextureHeight, axisUp);
-
-    VertexBufferBuilder vbBuilder;
-    auto vb = shape.FillVertex(vbBuilder);
-
-    IndexBufferBuilder ibBuilder;
-    auto ib = shape.FillIndex(ibBuilder);
-
-    return std::make_shared<GeometryNode>(vbBuilder.Build(device, "plane vb"), vb.OffsetBytes(),
-        ibBuilder.Build(device, "plane ib"), ib.OffsetBytes(), ib.Count(), ib.IsUint32());
+    return ShapeBuilder(device).Join({&shape}, "Plane");
 }
 
 std::shared_ptr<GeometryNode> MeshGenerator::CreateSolidPlaneXZ(DevicePtr& device, uint32_t cntXPoints, uint32_t cntZPoints, float scaleTextureX, float scaleTextureZ) {

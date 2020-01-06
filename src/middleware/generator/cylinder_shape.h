@@ -3,14 +3,15 @@
 #include "middleware/generator/shape.h"
 
 
-class CylinderShape {
+class CylinderShape : public Shape {
 public:
     CylinderShape() = delete;
     CylinderShape(uint32_t cntCirclePoints);
     ~CylinderShape() = default;
 
-    VertexBufferRange<VertexPNC> FillVertex(VertexBufferBuilder& vbBuilder);
-    IndexBufferRange<uint32_t> FillIndex(IndexBufferBuilder& ibBuilder);
+protected:
+    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
+    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
 
 private:
     uint32_t m_cntCirclePoints;

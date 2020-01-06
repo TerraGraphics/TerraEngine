@@ -3,11 +3,12 @@
 #include "middleware/generator/shape.h"
 
 
-class CubeShape {
+class CubeShape : public Shape {
 public:
-    CubeShape() = default;
+    CubeShape();
     ~CubeShape() = default;
 
-    VertexBufferRange<VertexPNC> FillVertex(VertexBufferBuilder& vbBuilder);
-    IndexBufferRange<uint32_t> FillIndex(IndexBufferBuilder& ibBuilder);
+protected:
+    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
+    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
 };
