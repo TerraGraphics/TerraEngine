@@ -8,7 +8,9 @@
 class Camera : Fixed {
 public:
 	Camera() = delete;
-	Camera(float fovy, float nearPlane, float farPlane, bool isGL);
+	// isCoordSystemRH = true - like OpenGL
+	// isCoordSystemRH = false - like Vulkan
+	Camera(float fovy, float nearPlane, float farPlane, bool isGL, bool isCoordSystemRH);
 	~Camera() = default;
 
 public:
@@ -26,21 +28,25 @@ public:
 		return m_farPlane;
 	}
 
+	bool IsCoordSystemRH() const noexcept {
+		return m_isCoordSystemRH;
+	}
+
 	dg::float3 GetPosition() const noexcept {
 		return m_position;
 	}
 
 	dg::float3 GetDirection() const noexcept {
-		return dg::float3(m_matView[0][2], m_matView[1][2], m_matView[2][2]);
-	}
-
-	dg::float3 GetToEyeDirection() const noexcept {
-		return dg::float3(-m_matView[0][2], -m_matView[1][2], -m_matView[2][2]);
+		return dg::float3(m_matView[0][2], m_matView[1][2], m_matView[2][2]) * (m_isCoordSystemRH ? -1.f : 1.f);
 	}
 
 	// A normalized vector that is directed to the left of the direction of the gaze
-	dg::float3 GetLeftVector() const noexcept { // TODO: add minus?
+	dg::float3 GetLeftVector() const noexcept {
 		return dg::float3(m_matView[0][0], m_matView[1][0], m_matView[2][0]);
+	}
+
+	dg::float3 GetUpDirection() const noexcept {
+		return dg::float3(0.0, 1.0, 0.0);
 	}
 
 	dg::float4x4 GetProjMatrix() const noexcept {
@@ -51,6 +57,7 @@ public:
 		return m_matView;
 	}
 private:
+	void calcProjMatrix();
 	void calcViewMatrix(const dg::float3& direction);
 
 private:
@@ -62,6 +69,7 @@ private:
 	float m_nearPlane = 0.1f;
 	float m_farPlane = 100.0;
 	bool m_isGL = false;
+	bool m_isCoordSystemRH = true;
 
 	dg::float4x4 m_matProj;
 	dg::float4x4 m_matView = dg::One4x4;
