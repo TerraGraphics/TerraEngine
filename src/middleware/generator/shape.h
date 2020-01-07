@@ -34,7 +34,6 @@ protected:
     virtual void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const = 0;
 
 protected:
-    // TODO: generate normal matrix
     dg::float4x4 m_matrix = dg::One4x4;
     bool m_matrixChanged = false;
 

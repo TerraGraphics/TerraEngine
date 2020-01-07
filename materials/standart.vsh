@@ -25,6 +25,6 @@ struct PSInput {
 // If the variable has structure type (like in this example), the structure declarations must also be indentical.
 void main(in  VSInput vsIn, out PSInput psIn) {
     psIn.position = mul(mul(camera.matViewProj, transform.matWorld), float4(vsIn.position,1.0));
-    psIn.normal = mul(float4(vsIn.normal, 0.0), transform.matNormal).xyz;
+    psIn.normal = mul((float3x3)transform.matNormal, vsIn.normal);
     psIn.uv = vsIn.uv;
 }

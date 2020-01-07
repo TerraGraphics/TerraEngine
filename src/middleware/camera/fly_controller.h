@@ -15,9 +15,11 @@ public:
         Backward = 1,
         Right = 2,
         Left = 3,
-        LowSpeed = 4,
-        HighSpeed = 5,
-        Last = 6,
+        Up = 4,
+        Down = 5,
+        LowSpeed = 6,
+        HighSpeed = 7,
+        Last = 8,
     };
     FlyCameraController() = default;
     ~FlyCameraController() = default;
@@ -50,9 +52,10 @@ private:
     // Current camera angle in the radians (x: yaw - left/right,  y: pitch - up/down)
     dg::float2 m_rotation = dg::float2(0, 0);
     dg::float2 m_rotationSpeed = dg::float2(0, 0);
-    dg::float3 m_direction = dg::float3(1.0f, 0.0f, 0.0f);
+    dg::float3 m_directionRH = dg::float3(1.0f, 0.0f, 0.0f);
+    dg::float3 m_directionLH = dg::float3(1.0f, 0.0f, 0.0f);
 
     Key m_hostkey[static_cast<size_t>(FlyCameraController::Action::Last)] = {
-        /*Forward*/Key::W, /*Backward*/Key::S, /*Right*/Key::D, /*Left*/Key::A, /*LowSpeed*/Key::Control, /*HighSpeed*/Key::Shift};
+        /*Forward*/Key::W, /*Backward*/Key::S, /*Right*/Key::D, /*Left*/Key::A, /*Up*/Key::E, /*Down*/Key::Q, /*LowSpeed*/Key::Control, /*HighSpeed*/Key::Shift};
     std::vector<std::shared_ptr<Camera>> m_cameras;
 };

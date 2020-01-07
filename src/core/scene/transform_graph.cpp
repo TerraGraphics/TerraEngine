@@ -4,6 +4,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 
+#include "core/math/normal_matrix.h"
 #include "core/scene/material_node.h"
 
 
@@ -84,7 +85,7 @@ void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<s
     if (m_isDirty) {
         if (auto parent = m_parent.lock()) {
             m_transform.matWorld = m_baseTransform * parent->m_transform.matWorld;
-            m_transform.matNormal = m_transform.matWorld.RemoveTranslation().Inverse().Transpose();
+            m_transform.matNormal = MakeNormalMatrix4x4(m_transform.matWorld);
 
             if (m_materialNode) {
                 dg::ShaderTransform* data;

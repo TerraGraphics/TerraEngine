@@ -31,7 +31,7 @@ void FlyCameraController::SetMouseSensitivity(float value) noexcept {
 
 void FlyCameraController::AttachCamera(const std::shared_ptr<Camera>& camera) {
     camera->SetAspectRatio(m_aspectRatio);
-    camera->SetViewParams(camera->GetPosition(), m_direction);
+    camera->SetViewParams(camera->GetPosition(), camera->IsCoordSystemRH() ? m_directionRH : m_directionLH);
     m_cameras.push_back(camera);
 }
 
@@ -62,6 +62,13 @@ void FlyCameraController::Update(const std::shared_ptr<DefaultWindowEventsHandle
             moveDirection.y -= 1.0f;
             isMove = true;
         }
+        if (eventHandler->IsKeyStickyDown(m_hostkey[static_cast<size_t>(Action::Up)])) {
+            moveDirection.z += 1.0f;
+            isMove = true;
+        } else if (eventHandler->IsKeyStickyDown(m_hostkey[static_cast<size_t>(Action::Down)])) {
+            moveDirection.z -= 1.0f;
+            isMove = true;
+        }
         if (isMove) {
             auto currentSpeed = dg::normalize(moveDirection);
             if (eventHandler->IsKeyStickyDown(m_hostkey[static_cast<size_t>(Action::HighSpeed)])) {
@@ -86,7 +93,8 @@ void FlyCameraController::Update(const std::shared_ptr<DefaultWindowEventsHandle
 
             m_rotation.x = std::fmod(m_rotation.x, TwoPI<float>());
             m_rotation.y = dg::clamp(m_rotation.y, pitchMin, pitchMax);
-            m_direction = vecEye * dg::float4x4::RotationZ(m_rotation.y) * dg::float4x4::RotationY(-m_rotation.x);
+            m_directionRH = vecEye * dg::float4x4::RotationZ(m_rotation.y) * dg::float4x4::RotationY(m_rotation.x);
+            m_directionLH = vecEye * dg::float4x4::RotationZ(m_rotation.y) * dg::float4x4::RotationY(-m_rotation.x);
         }
 
         if (isMove || isRotate) {
@@ -94,8 +102,10 @@ void FlyCameraController::Update(const std::shared_ptr<DefaultWindowEventsHandle
                 auto position =
                     camera->GetPosition() +
                     camera->GetDirection() * positionOffset.x +
-                    camera->GetLeftVector() * positionOffset.y;
-                camera->SetViewParams(position, m_direction);
+                    camera->GetLeftVector() * positionOffset.y +
+                    camera->GetUpDirection() * positionOffset.z;
+
+                camera->SetViewParams(position, camera->IsCoordSystemRH() ? m_directionRH : m_directionLH);
             }
         }
     }

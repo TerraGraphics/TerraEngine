@@ -2,6 +2,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 
+#include "core/math/normal_matrix.h"
 #include "core/scene/geometry_node.h"
 #include "middleware/generator/shape.h"
 
@@ -26,8 +27,10 @@ std::shared_ptr<GeometryNode> ShapeBuilder::Join(const std::initializer_list<con
         shape->FillVertex(vb);
         if (shape->m_matrixChanged) {
             const auto& matrix = shape->m_matrix;
+            const auto normalMatrix = MakeNormalMatrix3x3(matrix);
             for (VertexPNC* it = vb.Begin(); it != vb.End(); ++it) {
                 it->position = it->position * matrix;
+                it->normal = it->normal * normalMatrix;
             }
         }
 
