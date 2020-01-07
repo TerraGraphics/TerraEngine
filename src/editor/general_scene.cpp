@@ -52,39 +52,58 @@ void GeneralScene::CreateShaders() {
     ShaderCI.UseCombinedTextureSamplers = true;
 
     dg::RefCntAutoPtr<dg::IShaderSourceInputStreamFactory> pShaderSourceFactory;
-    Engine::Get().GetEngineFactory()->CreateDefaultShaderSourceStreamFactory("assets", &pShaderSourceFactory);
+    Engine::Get().GetEngineFactory()->CreateDefaultShaderSourceStreamFactory("materials", &pShaderSourceFactory);
     ShaderCI.pShaderSourceStreamFactory = pShaderSourceFactory;
+    ShaderCI.CombinedSamplerSuffix = "Sampler";
 
     {
         ShaderCI.Desc.ShaderType = dg::SHADER_TYPE_VERTEX;
         ShaderCI.EntryPoint      = "main";
-        ShaderCI.Desc.Name       = "Standart VS";
+        ShaderCI.Desc.Name       = "vs::standart";
         ShaderCI.FilePath        = "standart.vsh";
         m_device->CreateShader(ShaderCI, &m_vsStandart);
     }
     {
         ShaderCI.Desc.ShaderType = dg::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint      = "main";
-        ShaderCI.Desc.Name       = "noLight Tex PS";
+        ShaderCI.Desc.Name       = "ps::tex::noLight";
         ShaderCI.FilePath        = "noLight.psh";
-        m_device->CreateShader(ShaderCI, &m_psTex);
+        m_device->CreateShader(ShaderCI, &m_psTexNoLight);
     }
     {
         ShaderCI.Desc.ShaderType = dg::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint      = "main";
-        ShaderCI.Desc.Name       = "noLight_discard Tex PS";
+        ShaderCI.Desc.Name       = "ps::tex::discard::noLight";
         ShaderCI.FilePath        = "noLight_discard.psh";
-        m_device->CreateShader(ShaderCI, &m_psTexDiscard);
+        m_device->CreateShader(ShaderCI, &m_psTexDiscardNoLight);
+    }
+    {
+        ShaderCI.Desc.ShaderType = dg::SHADER_TYPE_PIXEL;
+        ShaderCI.EntryPoint      = "main";
+        ShaderCI.Desc.Name       = "ps::tex::phong";
+        ShaderCI.FilePath        = "phong.psh";
+        m_device->CreateShader(ShaderCI, &m_psTexPhong);
     }
     {
         dg::ShaderMacroHelper Macros;
         Macros.AddShaderMacro("DISABLE_TEXTURE", 1);
         ShaderCI.Desc.ShaderType = dg::SHADER_TYPE_PIXEL;
         ShaderCI.EntryPoint      = "main";
-        ShaderCI.Desc.Name       = "noLight Clr PS";
+        ShaderCI.Desc.Name       = "ps::clr::noLight";
         ShaderCI.FilePath        = "noLight.psh";
         ShaderCI.Macros          = Macros;
-        m_device->CreateShader(ShaderCI, &m_psClr);
+        m_device->CreateShader(ShaderCI, &m_psClrNoLight);
+        ShaderCI.Macros = nullptr;
+    }
+    {
+        dg::ShaderMacroHelper Macros;
+        Macros.AddShaderMacro("DISABLE_TEXTURE", 1);
+        ShaderCI.Desc.ShaderType = dg::SHADER_TYPE_PIXEL;
+        ShaderCI.EntryPoint      = "main";
+        ShaderCI.Desc.Name       = "ps::clr::phong";
+        ShaderCI.FilePath        = "phong.psh";
+        ShaderCI.Macros          = Macros;
+        m_device->CreateShader(ShaderCI, &m_psClrPhong);
         ShaderCI.Macros = nullptr;
     }
 }
@@ -116,30 +135,42 @@ void GeneralScene::CreateTextures() {
 }
 
 void GeneralScene::CreateMaterials(std::shared_ptr<MaterialBuilder>& materialBuilder) {
-    m_materialTex = materialBuilder->Create(m_vsStandart, m_psTex, layoutDesc).
+    m_matTexNoLight = materialBuilder->Create(m_vsStandart, m_psTexNoLight, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "g_Texture", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("StandartTex");
+        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::tex::noLight");
 
-    m_materialTexDiscard = materialBuilder->Create(m_vsStandart, m_psTexDiscard, layoutDesc).
+    m_matTexDiscardNoLight = materialBuilder->Create(m_vsStandart, m_psTexDiscardNoLight, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "g_Texture", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("StandartTex");
+        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::tex::discard::noLight");
 
-    m_materialClr = materialBuilder->Create(m_vsStandart, m_psClr, layoutDesc).
+    m_matTexPhong = materialBuilder->Create(m_vsStandart, m_psTexPhong, layoutDesc).
+        CullMode(dg::CULL_MODE_NONE).
+        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
+        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::tex::phong");
+
+    m_matClrNoLight = materialBuilder->Create(m_vsStandart, m_psClrNoLight, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("StandartClr");
+        Build("mat::clr::noLight");
+
+    m_matClrPhong = materialBuilder->Create(m_vsStandart, m_psClrPhong, layoutDesc).
+        CullMode(dg::CULL_MODE_NONE).
+        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
+        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::clr::phong");
 }
 
 void GeneralScene::GenerateGround() {
     auto plane = MeshGenerator::CreateSolidPlaneXZ(m_device, 2, 2, 4.0f, 4.0f);
 
-    auto groundNode = std::make_shared<MaterialNode>(m_materialTex, plane);
-    groundNode->SetPixelShaderVar("g_Texture", m_TextureGround);
+    auto groundNode = std::make_shared<MaterialNode>(m_matTexNoLight, plane);
+    groundNode->SetPixelShaderVar("texBase", m_TextureGround);
 
     auto matModel = dg::float4x4::Scale(256, 1, 256);
     m_scene->NewChild(groundNode, matModel);
@@ -148,14 +179,14 @@ void GeneralScene::GenerateGround() {
 void GeneralScene::GenerateTrees() {
     auto tree = std::make_shared<TransformNode>();
 
-    auto trunkMatNode = std::make_shared<MaterialClrNode>(m_materialClr, MeshGenerator::CreateSolidCylinder(m_device, 5));
-    trunkMatNode->Params().colDiffuse = dg::float4(139.f, 69.f, 19.f, 255.f) / 255.f;
+    auto trunkMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, MeshGenerator::CreateSolidCylinder(m_device, 5));
+    trunkMatNode->Params().crlBase = dg::float4(139.f, 69.f, 19.f, 255.f) / 255.f;
 
     auto matModelTrunk = dg::float4x4::Scale(0.5, 4, 0.5) * dg::float4x4::Translation(0, 2, 0);
     tree->NewChild(trunkMatNode, matModelTrunk);
 
-    auto crownMatNode = std::make_shared<MaterialClrNode>(m_materialClr, MeshGenerator::CreateSolidSphere(m_device, 10));
-    crownMatNode->Params().colDiffuse = dg::float4(0, 128.f, 0, 255.f) / 255.f;
+    auto crownMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, MeshGenerator::CreateSolidSphere(m_device, 10));
+    crownMatNode->Params().crlBase = dg::float4(0, 128.f, 0, 255.f) / 255.f;
 
     auto matModelCrown = dg::float4x4::Scale(4, 8, 4) * dg::float4x4::Translation(0, 7, 0);
     tree->NewChild(crownMatNode, matModelCrown);
@@ -182,14 +213,14 @@ void GeneralScene::GenerateGrass() {
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 
-    auto grass0MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, bush);
-    grass0MatNode->SetPixelShaderVar("g_Texture", m_TextureGrass0);
+    auto grass0MatNode = std::make_shared<MaterialNode>(m_matTexDiscardNoLight, bush);
+    grass0MatNode->SetPixelShaderVar("texBase", m_TextureGrass0);
 
-    auto grass1MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, bush);
-    grass1MatNode->SetPixelShaderVar("g_Texture", m_TextureGrass1);
+    auto grass1MatNode = std::make_shared<MaterialNode>(m_matTexDiscardNoLight, bush);
+    grass1MatNode->SetPixelShaderVar("texBase", m_TextureGrass1);
 
-    auto flower0MatNode = std::make_shared<MaterialNode>(m_materialTexDiscard, bush);
-    flower0MatNode->SetPixelShaderVar("g_Texture", m_TextureFlower0);
+    auto flower0MatNode = std::make_shared<MaterialNode>(m_matTexDiscardNoLight, bush);
+    flower0MatNode->SetPixelShaderVar("texBase", m_TextureFlower0);
 
     std::srand(15);
     auto materialNode = grass0MatNode;

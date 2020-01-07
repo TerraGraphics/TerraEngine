@@ -1,0 +1,26 @@
+#include "structures.fxh"
+
+Texture2D    texBase;
+SamplerState texBaseSampler;
+
+struct PSInput {
+    float4 position : SV_POSITION;
+    float3 normal   : NORMAL;
+    float2 uv       : TEX_COORD;
+};
+
+struct PSOutput {
+    float4 Color : SV_TARGET;
+};
+
+float4 GetBaseColor(in PSInput psIn) {
+    return texBase.Sample(texBaseSampler, psIn.uv);
+}
+
+void main(in PSInput psIn, out PSOutput psOut) {
+    float4 baseColor = GetBaseColor(psIn);
+    if(baseColor.a < 0.2)
+        discard;
+
+    psOut.Color = baseColor;
+}

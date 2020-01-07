@@ -34,9 +34,11 @@ private:
 private:
     // shaders
     dg::RefCntAutoPtr<dg::IShader> m_vsStandart;
-    dg::RefCntAutoPtr<dg::IShader> m_psTex;
-    dg::RefCntAutoPtr<dg::IShader> m_psTexDiscard;
-    dg::RefCntAutoPtr<dg::IShader> m_psClr;
+    dg::RefCntAutoPtr<dg::IShader> m_psTexNoLight;
+    dg::RefCntAutoPtr<dg::IShader> m_psTexDiscardNoLight;
+    dg::RefCntAutoPtr<dg::IShader> m_psTexPhong;
+    dg::RefCntAutoPtr<dg::IShader> m_psClrNoLight;
+    dg::RefCntAutoPtr<dg::IShader> m_psClrPhong;
 
     // textures
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureGround;
@@ -45,9 +47,11 @@ private:
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureFlower0;
 
     // materials
-    std::shared_ptr<Material> m_materialTex;
-    std::shared_ptr<Material> m_materialTexDiscard;
-    std::shared_ptr<Material> m_materialClr;
+    std::shared_ptr<Material> m_matTexNoLight;
+    std::shared_ptr<Material> m_matTexDiscardNoLight;
+    std::shared_ptr<Material> m_matTexPhong;
+    std::shared_ptr<Material> m_matClrNoLight;
+    std::shared_ptr<Material> m_matClrPhong;
 
     std::shared_ptr<Scene> m_scene;
 
