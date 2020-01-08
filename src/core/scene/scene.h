@@ -3,6 +3,7 @@
 #include "core/scene/transform_graph.h"
 
 
+class WriteableVertexBuffer;
 class Scene : public TransformGraph, Fixed {
 public:
     Scene() = delete;
@@ -15,5 +16,6 @@ public:
 private:
     DevicePtr m_device;
     ContextPtr m_context;
+    std::shared_ptr<WriteableVertexBuffer> m_transformBuffer;
     std::vector<std::shared_ptr<TransformNode>> m_nodeListForDraw;
 };

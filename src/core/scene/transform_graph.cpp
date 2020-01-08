@@ -1,9 +1,5 @@
 #include "core/scene/transform_graph.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Buffer.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
-
 #include "core/math/normal_matrix.h"
 #include "core/scene/material_node.h"
 
@@ -72,34 +68,21 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
     m_baseTransform = transform;
 }
 
-void TransformNode::Update(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList) {
-    if (m_materialNode) {
-        if (!m_transformCB) {
-            dg::CreateUniformBuffer(device, sizeof(dg::ShaderTransform), "CB::VS::ShaderTransform ", &m_transformCB);
-            m_isDirty = true;
-        }
-
-        nodeList.push_back(shared_from_this());
-    }
-
+void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList) {
     if (m_isDirty) {
         if (auto parent = m_parent.lock()) {
             m_transform.matWorld = m_baseTransform * parent->m_transform.matWorld;
             m_transform.matNormal = MakeNormalMatrix4x4(m_transform.matWorld);
-
-            if (m_materialNode) {
-                dg::ShaderTransform* data;
-                context->MapBuffer(m_transformCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
-                *data = m_transform;
-                context->UnmapBuffer(m_transformCB, dg::MAP_WRITE);
-            }
-
             m_isDirty = false;
         }
     }
 
+    if (m_materialNode) {
+        nodeList.push_back(shared_from_this());
+    }
+
     for (auto& node : m_children) {
-        node->Update(device, context, nodeList);
+        node->Update(nodeList);
     }
 }
 
@@ -120,6 +103,6 @@ void TransformGraph::AddChild(const std::shared_ptr<TransformNode>& node) {
     m_root->AddChild(node);
 }
 
-void TransformGraph::UpdateGraph(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList) {
-    m_root->Update(device, context, nodeList);
+void TransformGraph::UpdateGraph(std::vector<std::shared_ptr<TransformNode>>& nodeList) {
+    m_root->Update(nodeList);
 }

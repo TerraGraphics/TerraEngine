@@ -9,7 +9,6 @@
 
 namespace Diligent {
     #include "structures.fxh"
-    class IBuffer;
 }
 
 class MaterialNode;
@@ -31,10 +30,9 @@ public:
     void SetTransform(const dg::float4x4& transform);
     const dg::float4x4& GetBaseTransform() const noexcept { return m_baseTransform; }
     const dg::ShaderTransform& GetTransform() const noexcept { return m_transform; }
-    const dg::RefCntAutoPtr<dg::IBuffer>& GetTransformCB() const noexcept { return m_transformCB; }
     const std::shared_ptr<MaterialNode> GetMaterialNode() const noexcept { return m_materialNode; }
 
-    void Update(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList);
+    void Update(std::vector<std::shared_ptr<TransformNode>>& nodeList);
 
 private:
     std::weak_ptr<TransformNode> m_parent;
@@ -43,7 +41,6 @@ private:
     bool m_isDirty = true;
     dg::float4x4 m_baseTransform = dg::One4x4;
     dg::ShaderTransform m_transform = {dg::One4x4, dg::One4x4};
-    dg::RefCntAutoPtr<dg::IBuffer> m_transformCB;
 };
 
 class TransformGraph {
@@ -55,7 +52,7 @@ public:
     std::shared_ptr<TransformNode> NewChild(const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform = dg::One4x4);
     void AddChild(const std::shared_ptr<TransformNode>& node);
 
-    void UpdateGraph(DevicePtr& device, ContextPtr& context, std::vector<std::shared_ptr<TransformNode>>& nodeList);
+    void UpdateGraph(std::vector<std::shared_ptr<TransformNode>>& nodeList);
 private:
     std::shared_ptr<TransformNode> m_root = nullptr;
 };

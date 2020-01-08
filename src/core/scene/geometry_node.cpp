@@ -19,10 +19,11 @@ void GeometryNode::Bind(ContextPtr& context) {
     m_indexBuffer->Bind(context, m_indexBufferOffsetBytes);
 }
 
-uint32_t GeometryNode::Draw(ContextPtr& context) {
+uint32_t GeometryNode::Draw(ContextPtr& context, uint32_t firstInstanceIndex) {
     dg::DrawIndexedAttribs drawAttrs;
     drawAttrs.IndexType  = m_indexBufferUint32 ? dg::VT_UINT32 : dg::VT_UINT16;
     drawAttrs.NumIndices = m_indexBufferCount;
+    drawAttrs.FirstInstanceLocation = firstInstanceIndex;
     drawAttrs.Flags = dg::DRAW_FLAG_VERIFY_ALL;
 
     context->DrawIndexed(drawAttrs);

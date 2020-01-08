@@ -41,8 +41,8 @@ void MaterialNode::Bind(DevicePtr& device, ContextPtr& context) {
     m_geometry->Bind(context);
 }
 
-uint32_t MaterialNode::Draw(ContextPtr& context) {
-    return m_geometry->Draw(context);
+uint32_t MaterialNode::Draw(ContextPtr& context, uint32_t firstInstanceIndex) {
+    return m_geometry->Draw(context, firstInstanceIndex);
 }
 
 MaterialClrNode::MaterialClrNode(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry)

@@ -17,7 +17,7 @@ public:
 
 public:
     void Bind(ContextPtr& context);
-    uint32_t Draw(ContextPtr& context);
+    uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0);
 
 private:
     std::shared_ptr<VertexBuffer> m_vertexBuffer = nullptr;

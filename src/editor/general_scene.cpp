@@ -14,13 +14,31 @@
 
 
 static dg::LayoutElement LayoutElems[] = {
-        // Attribute 0 - vertex position
-        dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
-        // Attribute 1 - normal
-        dg::LayoutElement{1, 0, 3, dg::VT_FLOAT32, dg::False},
-        // Attribute 2 - texture coordinates
-        dg::LayoutElement{2, 0, 2, dg::VT_FLOAT32, dg::False}
-    };
+    // vertex position
+    dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
+    // normal
+    dg::LayoutElement{1, 0, 3, dg::VT_FLOAT32, dg::False},
+    // texture coordinates
+    dg::LayoutElement{2, 0, 2, dg::VT_FLOAT32, dg::False},
+
+    // Per-instance data - second buffer slot
+    // WorldRow0
+    dg::LayoutElement{3, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // WorldRow1
+    dg::LayoutElement{4, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // WorldRow2
+    dg::LayoutElement{5, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // WorldRow3
+    dg::LayoutElement{6, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow0
+    dg::LayoutElement{7, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow1
+    dg::LayoutElement{8, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow2
+    dg::LayoutElement{9, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow3
+    dg::LayoutElement{10, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE}
+};
 
 static dg::InputLayoutDesc layoutDesc(LayoutElems, _countof(LayoutElems));
 
