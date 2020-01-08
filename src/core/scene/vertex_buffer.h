@@ -12,15 +12,38 @@
 
 
 class VertexBuffer : public Counter<VertexBuffer>, Fixed {
+protected:
+    VertexBuffer() = default;
+
 public:
-    VertexBuffer() = delete;
     VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const dg::Char* name = nullptr);
     ~VertexBuffer() = default;
 
     void Bind(ContextPtr& context, uint32_t offset);
 
-private:
+protected:
 	dg::RefCntAutoPtr<dg::IBuffer> m_vertexBuffer;
+};
+
+class WriteableVertexBuffer : public VertexBuffer {
+public:
+    WriteableVertexBuffer() = delete;
+    WriteableVertexBuffer(DevicePtr& device, uint32_t size, dg::USAGE usage = dg::USAGE_DYNAMIC, const dg::Char* name = nullptr);
+    ~WriteableVertexBuffer() = default;
+
+    template<typename T> T* Map(ContextPtr& context) {
+        return reinterpret_cast<T*>(MapRaw(context));
+    }
+
+    void* MapRaw(ContextPtr& context);
+    void Unmap(ContextPtr& context);
+
+    void Update(ContextPtr& context, const void* data);
+
+    void BindExclusively(ContextPtr& context, uint32_t slot = 0);
+
+private:
+    bool m_mapped = false;
 };
 
 template<typename Vertex> class VertexBufferRange : Noncopyable {
