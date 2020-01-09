@@ -5,7 +5,6 @@
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
-#include "platforms/platforms.h"
 
 
 class Application {
@@ -19,6 +18,9 @@ public:
     virtual void Destroy() = 0;
 };
 
+class Graphics;
+class RenderWindow;
+class DefaultWindowEventsHandler;
 struct EngineDesc {
     std::shared_ptr<RenderWindow> window = nullptr;
     std::shared_ptr<DefaultWindowEventsHandler> eventHandler = nullptr;
@@ -27,10 +29,11 @@ struct EngineDesc {
     bool isVSync = true;
 };
 
+class FileManager;
 class Engine final : Fixed {
 private:
-    Engine() = default;
-    ~Engine() = default;
+    Engine();
+    ~Engine();
 
 public:
     static Engine& Get() noexcept {
@@ -46,6 +49,8 @@ public:
     std::shared_ptr<RenderWindow> GetWindow() noexcept { return m_window; }
     std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
 
+    std::shared_ptr<FileManager> GetFileManager() noexcept { return m_fileManager; }
+
     float GetFps() const noexcept {
         return static_cast<double>(m_fpsCounter.Size()) / m_fpsCounter.Sum();
     }
@@ -59,6 +64,8 @@ private:
     std::shared_ptr<DefaultWindowEventsHandler> m_eventHandler = nullptr;
     std::shared_ptr<Graphics> m_graphics = nullptr;
     std::unique_ptr<Application> m_application = nullptr;
+
+    std::shared_ptr<FileManager> m_fileManager;
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;

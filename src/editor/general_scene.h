@@ -5,6 +5,7 @@
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
 
+
 namespace Diligent {
     class IShader;
     class ITextureView;

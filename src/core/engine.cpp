@@ -1,8 +1,18 @@
 #include "core/engine.h"
 
+#include "core/common/path.h"
 #include "core/common/timer.h"
+#include "platforms/platforms.h"
 #include "core/common/exception.h"
 
+
+Engine::Engine() {
+    m_fileManager = std::make_shared<FileManager>();
+}
+
+Engine::~Engine() {
+
+}
 
 void Engine::Create(EngineDesc&& desc) {
     m_window = desc.window;

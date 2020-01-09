@@ -6,6 +6,7 @@
 #include "core/engine.h"
 #include "core/scene/scene.h"
 #include "core/math/random.h"
+#include "platforms/platforms.h"
 #include "core/scene/material_node.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/plane_shape.h"
