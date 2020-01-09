@@ -1,9 +1,9 @@
-meta {
-    name: "",
-    group: "",
-    parameters : []
-}
-pixel = <<SHADER
+name: ""
+group: ""
+root: true
+pixel {
+    parameters: {}
+    source: <<SHADER
 struct PSInput {
     float4 position : SV_POSITION;
     float3 normal   : NORMAL;
@@ -19,7 +19,10 @@ void main(in PSInput psIn, out PSOutput psOut) : SV_TARGET {
     return float4(abientDiffuse + specular, 1.0);
 }
 SHADER
-vertex = <<SHADER
+}
+vertex {
+    parameters: {}
+    source: <<SHADER
 cbuffer Camera {
     ShaderCamera camera;
 };
@@ -60,3 +63,4 @@ void main(in  VSInput vsIn, out PSInput psIn) {
     psIn.uv = vsIn.uv;
 }
 SHADER
+}

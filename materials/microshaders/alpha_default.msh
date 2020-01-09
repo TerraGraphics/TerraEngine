@@ -1,0 +1,9 @@
+name: ""
+group: "ALPHA"
+pixel {
+    parameters: {}
+    source: <<SHADER
+void AlphaTest(in float alpha) {
+}
+SHADER
+}

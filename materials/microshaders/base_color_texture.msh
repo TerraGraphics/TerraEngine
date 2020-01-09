@@ -1,12 +1,12 @@
-meta {
-    name: "BASE_COLOR_TEXTURE",
-    group: "BASE_COLOR_VALUE",
-    parameters : [
+name: "BASE_COLOR_TEXTURE"
+group: "BASE_COLOR_VALUE"
+pixel {
+    parameters: {
         textures2D: ["texBase"]
-    ]
-}
-pixel = <<SHADER
+    }
+    source: <<SHADER
 float4 GetBaseColor(in PSInput psIn) {
     return texBase.Sample(texBaseSampler, psIn.uv);
 }
 SHADER
+}

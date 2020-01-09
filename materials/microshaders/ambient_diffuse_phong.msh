@@ -1,9 +1,8 @@
-meta {
-    name: "AMBIENT_DIFFUSE_PHONG",
-    group: "AMBIENT_DIFFUSE_LIGHT",
-    parameters : []
-}
-pixel = <<SHADER
+name: "AMBIENT_DIFFUSE_PHONG"
+group: "AMBIENT_DIFFUSE_LIGHT"
+pixel {
+    parameters: {}
+    source: <<SHADER
 float3 LightAmbientDiffuse(in PSInput psIn, in float3 baseColor) {
 	const float3 lightColor = float3(1, 1, 1);
     const float3 toLightDirection = float3(0, 1, 0);
@@ -18,3 +17,4 @@ float3 LightAmbientDiffuse(in PSInput psIn, in float3 baseColor) {
     return ambient + diffuse;
 }
 SHADER
+}

@@ -1,12 +1,12 @@
-meta {
-    name: "",
-    group: "BASE_COLOR_VALUE",
-    parameters : [
+name: ""
+group: "BASE_COLOR_VALUE"
+pixel {
+    parameters: {
         cbuffers: ["material"]
-    ]
-}
-pixel = <<SHADER
+    }
+    source: <<SHADER
 float4 GetBaseColor(in PSInput psIn) {
     return material.crlBase;
 }
 SHADER
+}

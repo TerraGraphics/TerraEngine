@@ -1,11 +1,10 @@
-meta {
-    name: "SPECULAR_PHONG",
-    group: "SPECULAR_LIGHT",
-    parameters : [
+name: "SPECULAR_PHONG"
+group: "SPECULAR_LIGHT"
+pixel {
+    parameters: {
         cbuffers: ["camera"]
-    ]
-}
-pixel = <<SHADER
+    }
+    source: <<SHADER
 float3 LightSpecular(in PSInput psIn, in float4 baseColor) {
     const float3 lightColor = float3(1, 1, 1);
     const float3 toLightDirection = float3(0, 1, 0);
@@ -22,3 +21,4 @@ float3 LightSpecular(in PSInput psIn, in float4 baseColor) {
     return powSpecular * baseColor;
 }
 SHADER
+}
