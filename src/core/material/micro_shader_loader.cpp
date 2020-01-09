@@ -87,6 +87,8 @@ uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
 }
 
 MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
+    Source src;
+
     std::vector<Microshader> microshaders(m_defaultMicroShaders);
     microshaders.push_back(m_root);
     for (uint64_t id=0; id!=64; ++id) {
@@ -94,7 +96,12 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
             if (id >= m_namedMicroShaders.size()) {
                 throw EngineError("invalid microshaders mask for get sources, id = {} not exists", id);
             }
-            microshaders[m_namedMicroShaders[id].groupID] = m_namedMicroShaders[id];
+            const auto& ms = m_namedMicroShaders[id];
+            if (!src.name.empty()) {
+                src.name += ".";
+            }
+            src.name += ms.name;
+            microshaders[ms.groupID] = ms;
         }
     }
 
@@ -105,7 +112,7 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
         gs.Append(ms.gs);
     }
 
-    Source src;
+
     src.vs = vs.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + vs.source;
     src.ps = ps.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + ps.source;
     src.gs = gs.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + gs.source;

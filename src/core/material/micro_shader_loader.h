@@ -9,6 +9,7 @@
 class MicroShaderLoader : Fixed {
 public:
     struct Source {
+        std::string name;
         std::string vs;
         std::string ps;
         std::string gs;
