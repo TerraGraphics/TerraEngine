@@ -1,12 +1,26 @@
 #pragma once
 
 #include <ucl++.h>
+#include <functional>
 #include <filesystem>
 #include "core/common/ctor.h"
 
 
 class MicroShaderLoader : Fixed {
+public:
+    struct Source {
+        std::string vs;
+        std::string ps;
+        std::string gs;
+    };
+
+    using CBufferGenerator = std::function<std::string (const std::string&)>;
+
+private:
     struct ShaderData {
+        void Append(const ShaderData& other);
+        std::string GenParametersToStr(const std::string& samplerSuffix, const CBufferGenerator& cBufferGenerator);
+
         std::set<std::string> textures2D;
         std::set<std::string> cbuffers;
         std::string source;
@@ -24,17 +38,14 @@ class MicroShaderLoader : Fixed {
     };
 
 public:
-    struct Source {
-        std::string vs;
-        std::string ps;
-        std::string gs;
-    };
-
-public:
-    MicroShaderLoader() = default;
+    MicroShaderLoader();
     ~MicroShaderLoader() = default;
 
     void Load(const std::filesystem::path& dirPath, const std::string& extension);
+    void SetSamplerSuffix(const std::string& value);
+    void SetCBufferGenerator(const CBufferGenerator& value);
+    uint64_t GetMask(const std::string& name) const;
+    Source GetSources(uint64_t mask) const;
 
 private:
     void ParseMicroshader(const ucl::Ucl& section);
@@ -42,6 +53,9 @@ private:
     void ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
 
 private:
+    std::string m_samplerSuffix = "Sampler";
+    CBufferGenerator m_cBufferGenerator;
+
     Microshader m_root;
     // namedMicroShaderID => namedMicroShader
     std::vector<Microshader> m_namedMicroShaders;

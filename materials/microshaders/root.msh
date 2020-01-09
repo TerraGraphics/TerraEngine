@@ -21,12 +21,10 @@ void main(in PSInput psIn, out PSOutput psOut) : SV_TARGET {
 SHADER
 }
 vertex {
-    parameters: {}
+    parameters: {
+        cbuffers: ["camera"]
+    }
     source: <<SHADER
-cbuffer Camera {
-    ShaderCamera camera;
-};
-
 struct VSInput {
     float3 position : ATTRIB0;
     float3 normal   : ATTRIB1;
