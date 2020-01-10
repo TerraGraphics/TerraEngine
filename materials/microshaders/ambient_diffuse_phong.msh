@@ -1,7 +1,11 @@
 name: "AMBIENT_DIFFUSE_PHONG"
 group: "AMBIENT_DIFFUSE_LIGHT"
 pixel {
-    parameters: {}
+    parameters: {
+        inputs: {
+            normal: [float3, NORMAL]
+        }
+    }
     source: <<SHADER
 float3 LightAmbientDiffuse(in PSInput psIn, in float3 baseColor) {
 	const float3 lightColor = float3(1, 1, 1);

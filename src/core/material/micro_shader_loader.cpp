@@ -4,18 +4,46 @@
 
 
 void MicroShaderLoader::ShaderData::Append(const MicroShaderLoader::ShaderData& other) {
+    includes.insert(other.includes.begin(), other.includes.end());
     textures2D.insert(other.textures2D.begin(), other.textures2D.end());
     cbuffers.insert(other.cbuffers.begin(), other.cbuffers.end());
+
+    for (const auto& [name, itype]: other.inputs) {
+        const auto it = inputs.find(name);
+        if (it != inputs.cend()) {
+            if (it->second.type != itype.type) {
+                throw EngineError("different types for one input key '{}': '{}' and '{}'",
+                    name, it->second.type, itype.type);
+            }
+            if (it->second.semantic != itype.semantic) {
+                throw EngineError("different semantics for one input key '{}': '{}' and '{}'",
+                    name, it->second.semantic, itype.semantic);
+            }
+        } else {
+            inputs[name] = itype;
+        }
+    }
+
     source += other.source;
 }
 
 std::string MicroShaderLoader::ShaderData::GenParametersToStr(const std::string& samplerSuffix, const CBufferGenerator& cBufferGenerator) {
-    std::string s("\n");
+    std::string s;
+    for (const auto& file: includes) {
+        s += "#include \"" + file + "\"\n";
+    }
     for (const auto& t: textures2D) {
         s += fmt::format("Texture2D {0};\nSamplerState {0}{1};\n", t, samplerSuffix);
     }
     for (const auto& cb: cbuffers) {
         s += cBufferGenerator(cb) + "\n";
+    }
+    if (!inputs.empty()) {
+        s += "struct PSInput {\n";
+        for (const auto& [key, inputType]: inputs) {
+            s += fmt::format("{} {}: {};\n", inputType.type, key, inputType.semantic);
+        }
+        s += "};\n";
     }
 
     return s;
@@ -112,7 +140,6 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
         gs.Append(ms.gs);
     }
 
-
     src.vs = vs.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + vs.source;
     src.ps = ps.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + ps.source;
     src.gs = gs.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + gs.source;
@@ -196,7 +223,11 @@ void MicroShaderLoader::ParseShader(const ucl::Ucl& section, const std::string& 
 
 void MicroShaderLoader::ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     for (const auto &it: section) {
-        if (it.key() == "textures2D") {
+        if (it.key() == "includes") {
+            for (const auto& fileIt: it) {
+                shader.includes.insert(fileIt.string_value());
+            }
+        } else if (it.key() == "textures2D") {
             for (const auto& texIt: it) {
                 shader.textures2D.insert(texIt.string_value());
             }
@@ -204,8 +235,35 @@ void MicroShaderLoader::ParseParameters(const ucl::Ucl& section, const std::stri
             for (const auto& nameIt: it) {
                 shader.cbuffers.insert(nameIt.string_value());
             }
+        } else if (it.key() == "inputs") {
+            ParseInputs(it, sectionName + ".inputs", shader);
         } else {
             throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
+        }
+    }
+}
+
+void MicroShaderLoader::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+    for (const auto& inputIt: section) {
+        if (inputIt.size() != 2) {
+            throw EngineError("section with types (for '{}.{}') shall be of two elements, in fact it is equal to {}",
+                    sectionName, inputIt.key(), inputIt.dump());
+        }
+        InputType inputType{inputIt[0].string_value(), inputIt[1].string_value()};
+        const auto name = inputIt.key();
+
+        auto it = shader.inputs.find(name);
+        if (it != shader.inputs.cend()) {
+            if (it->second.type != inputType.type) {
+                throw EngineError("different types for one inputs key '{}.{}', current type: {}, previous: {}",
+                    sectionName, inputIt.key(), inputType.type, it->second.type);
+            }
+            if (it->second.semantic != inputType.semantic) {
+                throw EngineError("different semantics for one inputs key '{}.{}', current type: {}, previous: {}",
+                    sectionName, inputIt.key(), inputType.semantic, it->second.semantic);
+            }
+        } else {
+            shader.inputs[name] = inputType;
         }
     }
 }

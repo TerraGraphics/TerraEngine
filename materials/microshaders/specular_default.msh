@@ -3,7 +3,7 @@ group: "SPECULAR_LIGHT"
 pixel {
     parameters: {}
     source: <<SHADER
-float3 LightSpecular(in PSInput psIn, in float4 baseColor) {
+float3 LightSpecular(in PSInput psIn, in float3 baseColor) {
     return float3(0);
 }
 SHADER

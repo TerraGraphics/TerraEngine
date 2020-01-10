@@ -3,9 +3,13 @@ group: "SPECULAR_LIGHT"
 pixel {
     parameters: {
         cbuffers: ["camera"]
+        includes: ["structures.fxh"]
+        inputs: {
+            normal: [float3, NORMAL]
+        }
     }
     source: <<SHADER
-float3 LightSpecular(in PSInput psIn, in float4 baseColor) {
+float3 LightSpecular(in PSInput psIn, in float3 baseColor) {
     const float3 lightColor = float3(1, 1, 1);
     const float3 toLightDirection = float3(0, 1, 0);
     // shininess > 0

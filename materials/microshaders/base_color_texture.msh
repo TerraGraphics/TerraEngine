@@ -3,6 +3,9 @@ group: "BASE_COLOR_VALUE"
 pixel {
     parameters: {
         textures2D: ["texBase"]
+        inputs: {
+            uv: [float2, TEX_COORD]
+        }
     }
     source: <<SHADER
 float4 GetBaseColor(in PSInput psIn) {

@@ -18,12 +18,18 @@ public:
     using CBufferGenerator = std::function<std::string (const std::string&)>;
 
 private:
+    struct InputType {
+        std::string type;
+        std::string semantic;
+    };
     struct ShaderData {
         void Append(const ShaderData& other);
         std::string GenParametersToStr(const std::string& samplerSuffix, const CBufferGenerator& cBufferGenerator);
 
+        std::set<std::string> includes;
         std::set<std::string> textures2D;
         std::set<std::string> cbuffers;
+        std::map<std::string, InputType> inputs;
         std::string source;
     };
 
@@ -52,6 +58,7 @@ private:
     void ParseMicroshader(const ucl::Ucl& section);
     void ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
     void ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
+    void ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
 
 private:
     std::string m_samplerSuffix = "Sampler";

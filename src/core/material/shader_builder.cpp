@@ -20,6 +20,32 @@ ShaderBuilder::Shaders ShaderBuilder::Build(const MicroShaderLoader::Source& sou
     return Shaders {vs, ps, gs};
 }
 
+static void ProcessBuildError(const std::string& text, const std::string& name, dg::SHADER_TYPE shaderType, dg::IDataBlob* compilerOutput, const char* exceptionMsg) {
+    const char* typeStr = dg::GetShaderTypeLiteralName(shaderType);
+
+    std::string errorMessage;
+    std::string parsedShaderCode;
+    if (compilerOutput != nullptr) {
+        char* rawPtr = reinterpret_cast<char*>(compilerOutput->GetDataPtr());
+        auto firstMsg = std::string(rawPtr);
+        errorMessage = "\nError: " + firstMsg;
+        parsedShaderCode = "\nParsed shader code:\n<<<<<<<<<\n" + std::string(rawPtr + firstMsg.size() + 1) + "\n<<<<<<<<<";
+        compilerOutput->Release();
+    }
+
+    std::string shaderCode = "\nShader code:\n<<<<<<<<<\n" + text + "\n<<<<<<<<<";
+
+    std::string exceptionStr;
+    if (exceptionMsg) {
+        exceptionStr = "\nexception: " + std::string(exceptionMsg);
+    }
+
+    auto msg = fmt::format("Failed to build {} shader '{}', {}{}{}{}", typeStr, name, shaderCode, parsedShaderCode, errorMessage, exceptionStr);
+    LOG_ERROR_MESSAGE(msg.c_str());
+
+    throw EngineError("failed to build {} shader {}", typeStr, name);
+}
+
 dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& text, const std::string& name, dg::SHADER_TYPE shaderType) {
     dg::RefCntAutoPtr<dg::IShader> shader;
 
@@ -27,7 +53,7 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
         return shader;
     }
 
-    dg::RefCntAutoPtr<dg::IDataBlob> compilerOutput;
+    dg::IDataBlob* compilerOutput = nullptr;
 
     dg::ShaderCreateInfo ShaderCI;
     ShaderCI.pShaderSourceStreamFactory = m_shaderSourceFactory;
@@ -43,14 +69,14 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
     try {
         m_device->CreateShader(ShaderCI, &shader);
     } catch (const std::exception& e) {
-        LOG_ERROR_MESSAGE("Failed to build ", dg::GetShaderTypeLiteralName(shaderType), " shader ", name, ":\n<<<<<<<<<\n", text, "\n<<<<<<<<<\nError: ", e.what());
-        throw EngineError("failed to build {} shader {}, error: {}", dg::GetShaderTypeLiteralName(shaderType), name, e.what());
+        ProcessBuildError(text, name, shaderType, compilerOutput, e.what());
     }
 
     if (!shader) {
-        // SetDebugMessageCallback
-        LOG_ERROR_MESSAGE("Failed to build ", dg::GetShaderTypeLiteralName(shaderType), " shader ", name, ":\n<<<<<<<<<\n", text, "\n<<<<<<<<<\nError: ", reinterpret_cast<char*>(compilerOutput->GetDataPtr()));
-        throw EngineError("failed to build {} shader {}", dg::GetShaderTypeLiteralName(shaderType), name);
+        ProcessBuildError(text, name, shaderType, compilerOutput, nullptr);
+    }
+    if (compilerOutput) {
+        compilerOutput->Release();
     }
 
     return shader;
