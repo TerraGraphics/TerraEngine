@@ -25,7 +25,6 @@ public:
     void Draw();
 
 private:
-    void CreateShaders();
     void CreateTextures();
     void CreateMaterials(std::shared_ptr<MaterialBuilder>& materialBuilder);
     void GenerateGround();
@@ -33,14 +32,6 @@ private:
     void GenerateGrass();
 
 private:
-    // shaders
-    dg::RefCntAutoPtr<dg::IShader> m_vsStandart;
-    dg::RefCntAutoPtr<dg::IShader> m_psTexNoLight;
-    dg::RefCntAutoPtr<dg::IShader> m_psTexDiscardNoLight;
-    dg::RefCntAutoPtr<dg::IShader> m_psTexPhong;
-    dg::RefCntAutoPtr<dg::IShader> m_psClrNoLight;
-    dg::RefCntAutoPtr<dg::IShader> m_psClrPhong;
-
     // textures
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureGround;
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrass0;

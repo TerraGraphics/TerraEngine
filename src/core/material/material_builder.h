@@ -3,12 +3,15 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <filesystem>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
 
 #include "core/material/material.h"
 
 
+class ShaderBuilder;
+class MicroShaderLoader;
 class StaticVarsStorage;
 class MaterialBuilder : Fixed {
 public:
@@ -49,17 +52,21 @@ public:
 
 public:
     MaterialBuilder() = delete;
-    MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain);
+    MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory);
     ~MaterialBuilder() = default;
 
     std::shared_ptr<StaticVarsStorage> GetStaticVarsStorage() { return m_staticVarsStorage; }
+    uint64_t GetShaderMask(const std::string& name) const;
 
-    Builder Create(dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, const dg::InputLayoutDesc& layoutDesc);
+    void Load(const std::filesystem::path& dirPath, const std::string& filesExtension);
+    Builder Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc);
 
 private:
     std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc);
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
+    std::unique_ptr<ShaderBuilder> m_shaderBuilder;
+    std::unique_ptr<MicroShaderLoader> m_microShaderLoader;
     std::shared_ptr<StaticVarsStorage> m_staticVarsStorage = nullptr;
 };

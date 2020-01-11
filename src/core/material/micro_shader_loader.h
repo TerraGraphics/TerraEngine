@@ -48,7 +48,7 @@ public:
     MicroShaderLoader();
     ~MicroShaderLoader() = default;
 
-    void Load(const std::filesystem::path& dirPath, const std::string& extension);
+    void Load(const std::filesystem::path& dirPath, const std::string& filesExtension);
     void SetSamplerSuffix(const std::string& value);
     void SetCBufferGenerator(const CBufferGenerator& value);
     uint64_t GetMask(const std::string& name) const;

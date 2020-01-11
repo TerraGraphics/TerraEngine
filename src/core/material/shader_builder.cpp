@@ -13,11 +13,15 @@ ShaderBuilder::ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& en
 }
 
 ShaderBuilder::Shaders ShaderBuilder::Build(const MicroShaderLoader::Source& source) {
-    auto vs = BuildSource(source.vs, source.name, dg::SHADER_TYPE_VERTEX);
-    auto ps = BuildSource(source.ps, source.name, dg::SHADER_TYPE_PIXEL);
-    auto gs = BuildSource(source.gs, source.name, dg::SHADER_TYPE_GEOMETRY);
+    Shaders result;
+    result.vs = BuildSource(source.vs, source.name, dg::SHADER_TYPE_VERTEX);
+    result.ps = BuildSource(source.ps, source.name, dg::SHADER_TYPE_PIXEL);
+    result.gs = BuildSource(source.gs, source.name, dg::SHADER_TYPE_GEOMETRY);
 
-    return Shaders {vs, ps, gs};
+    m_cache.push_back(result.vs);
+    m_cache.push_back(result.ps);
+    m_cache.push_back(result.gs);
+    return  result;
 }
 
 static void ProcessBuildError(const std::string& text, const std::string& name, dg::SHADER_TYPE shaderType, dg::IDataBlob* compilerOutput, const char* exceptionMsg) {
@@ -55,19 +59,19 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
 
     dg::IDataBlob* compilerOutput = nullptr;
 
-    dg::ShaderCreateInfo ShaderCI;
-    ShaderCI.pShaderSourceStreamFactory = m_shaderSourceFactory;
-    ShaderCI.Source = text.c_str();
-    ShaderCI.EntryPoint = "main";
-    ShaderCI.UseCombinedTextureSamplers = true;
-    ShaderCI.CombinedSamplerSuffix = "Sampler";
-    ShaderCI.Desc.ShaderType = shaderType;
-    ShaderCI.Desc.Name = "vs::standart";
-    ShaderCI.SourceLanguage = dg::SHADER_SOURCE_LANGUAGE_HLSL;
-    ShaderCI.ppCompilerOutput = &compilerOutput;
+    dg::ShaderCreateInfo shaderCI;
+    shaderCI.pShaderSourceStreamFactory = m_shaderSourceFactory;
+    shaderCI.Source = text.c_str();
+    shaderCI.EntryPoint = "main";
+    shaderCI.UseCombinedTextureSamplers = true;
+    shaderCI.CombinedSamplerSuffix = "Sampler";
+    shaderCI.Desc.ShaderType = shaderType;
+    shaderCI.Desc.Name = "vs::standart";
+    shaderCI.SourceLanguage = dg::SHADER_SOURCE_LANGUAGE_HLSL;
+    shaderCI.ppCompilerOutput = &compilerOutput;
 
     try {
-        m_device->CreateShader(ShaderCI, &shader);
+        m_device->CreateShader(shaderCI, &shader);
     } catch (const std::exception& e) {
         ProcessBuildError(text, name, shaderType, compilerOutput, e.what());
     }

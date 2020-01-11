@@ -31,5 +31,6 @@ private:
 
 private:
     DevicePtr m_device;
+    std::vector<dg::RefCntAutoPtr<dg::IShader>> m_cache;
     dg::RefCntAutoPtr<dg::IShaderSourceInputStreamFactory> m_shaderSourceFactory;
 };

@@ -55,12 +55,18 @@ MicroShaderLoader::MicroShaderLoader() {
     };
 }
 
-void MicroShaderLoader::Load(const std::filesystem::path& dirPath, const std::string& extension) {
+void MicroShaderLoader::Load(const std::filesystem::path& dirPath, const std::string& filesExtension) {
+    m_root = Microshader();
+    m_namedMicroShaders.clear();
+    m_namedMicroShaderIDs.clear();
+    m_defaultMicroShaders.clear();
+    m_groupIDs.clear();
+
     if (!std::filesystem::is_directory(dirPath)) {
         throw EngineError("failed load microshader files, load path {} is not a directory", dirPath.c_str());
     }
 
-    auto fullExtension = extension;
+    auto fullExtension = filesExtension;
     if (fullExtension.empty() || (fullExtension[0] != '.')) {
         fullExtension = "." + fullExtension;
     }

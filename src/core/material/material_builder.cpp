@@ -1,10 +1,13 @@
 #include "core/material/material_builder.h"
 
+#include <fmt/format.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 #include "core/material/material_vars.h"
+#include "core/material/shader_builder.h"
+#include "core/material/micro_shader_loader.h"
 
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
@@ -103,15 +106,36 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
     return m_builder->Build(m_desc);
 }
 
-MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain)
+MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory)
     : m_device(device)
     , m_swapChain(swapChain) {
 
+    m_shaderBuilder = std::make_unique<ShaderBuilder>(device, engineFactory);
+    m_microShaderLoader = std::make_unique<MicroShaderLoader>();
     m_staticVarsStorage = std::make_shared<StaticVarsStorage>(device, context);
+
+    m_microShaderLoader->SetSamplerSuffix("Sampler");
+    m_microShaderLoader->SetCBufferGenerator([](const std::string& name) -> std::string {
+        const std::string fmtStr = "cbuffer {0} {{ Shader{0} {1}; }};";
+        auto nameUpper = name;
+        nameUpper[0] = std::toupper(name[0]);
+        return fmt::format(fmtStr, nameUpper, name);
+    });
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, const dg::InputLayoutDesc& layoutDesc) {
-    return Builder(this, shaderVS, shaderPS, layoutDesc);
+uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {
+    return m_microShaderLoader->GetMask(name);
+}
+
+void MaterialBuilder::Load(const std::filesystem::path& dirPath, const std::string& filesExtension) {
+    m_microShaderLoader->Load(dirPath, filesExtension);
+}
+
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc) {
+    auto src = m_microShaderLoader->GetSources(mask);
+    auto shaders = m_shaderBuilder->Build(src);
+
+    return Builder(this, shaders.vs, shaders.ps, layoutDesc);
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
