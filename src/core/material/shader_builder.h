@@ -14,6 +14,16 @@ public:
         dg::RefCntAutoPtr<dg::IShader> gs;
     };
 
+private:
+    struct CacheKey {
+        dg::SHADER_TYPE shaderType;
+        std::string source;
+
+        // hash function
+        std::size_t operator()(const CacheKey& value) const;
+        bool operator==(const CacheKey& other) const;
+    };
+
 public:
     ShaderBuilder() = delete;
     ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& engineFactory);
@@ -23,7 +33,7 @@ public:
     Shaders Build(const MicroShaderLoader::Source& source);
 
 private:
-    dg::RefCntAutoPtr<dg::IShader> BuildSource(const std::string& text, const std::string& name, dg::SHADER_TYPE shaderType);
+    dg::RefCntAutoPtr<dg::IShader> BuildSource(const CacheKey& shaderSrc, const std::string& name);
 
 private:
     DevicePtr m_device;
@@ -32,5 +42,5 @@ private:
     MaterialBuilderDesc m_desc;
     dg::RefCntAutoPtr<dg::IShaderSourceInputStreamFactory> m_shaderSourceFactory;
 
-    std::vector<dg::RefCntAutoPtr<dg::IShader>> m_cache;
+    std::unordered_map<CacheKey, dg::RefCntAutoPtr<dg::IShader>, CacheKey> m_cache;
 };

@@ -1,8 +1,22 @@
 #include "core/material/shader_builder.h"
 
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
-#include "core/common/exception.h"
 
+#include "core/common/exception.h"
+#include "core/common/hash_combine.h"
+
+
+std::size_t ShaderBuilder::CacheKey::operator()(const ShaderBuilder::CacheKey& value) const {
+    std::size_t h = 0;
+    hash_combine(h, value.shaderType);
+    hash_combine(h, value.source);
+
+    return h;
+}
+
+bool ShaderBuilder::CacheKey::operator==(const ShaderBuilder::CacheKey& other) const {
+    return ((shaderType == other.shaderType) && (source == other.source));
+}
 
 ShaderBuilder::ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& engineFactory)
     : m_device(device)
@@ -17,13 +31,10 @@ void ShaderBuilder::Create(const MaterialBuilderDesc& desc) {
 
 ShaderBuilder::Shaders ShaderBuilder::Build(const MicroShaderLoader::Source& source) {
     Shaders result;
-    result.vs = BuildSource(source.vs, source.name, dg::SHADER_TYPE_VERTEX);
-    result.ps = BuildSource(source.ps, source.name, dg::SHADER_TYPE_PIXEL);
-    result.gs = BuildSource(source.gs, source.name, dg::SHADER_TYPE_GEOMETRY);
+    result.vs = BuildSource(CacheKey{dg::SHADER_TYPE_VERTEX, source.vs}, source.name);
+    result.ps = BuildSource(CacheKey{dg::SHADER_TYPE_PIXEL, source.ps}, source.name);
+    result.gs = BuildSource(CacheKey{dg::SHADER_TYPE_GEOMETRY, source.gs}, source.name);
 
-    m_cache.push_back(result.vs);
-    m_cache.push_back(result.ps);
-    m_cache.push_back(result.gs);
     return  result;
 }
 
@@ -53,15 +64,20 @@ static void ProcessBuildError(const std::string& text, const std::string& name, 
     throw EngineError("failed to build {} shader {}", typeStr, name);
 }
 
-dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& text, const std::string& name, dg::SHADER_TYPE shaderType) {
+dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const CacheKey& shaderSrc, const std::string& name) {
     dg::RefCntAutoPtr<dg::IShader> shader;
 
-    if (text.empty()) {
+    if (shaderSrc.source.empty()) {
         return shader;
     }
 
+    const auto it = m_cache.find(shaderSrc);
+    if (it != m_cache.cend()) {
+        return it->second;
+    }
+
     std::string fullName;
-    switch (shaderType) {
+    switch (shaderSrc.shaderType) {
         case dg::SHADER_TYPE_VERTEX:
             fullName = "vs.";
             break;
@@ -81,11 +97,11 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
 
     dg::ShaderCreateInfo shaderCI;
     shaderCI.pShaderSourceStreamFactory = m_shaderSourceFactory;
-    shaderCI.Source = text.c_str();
+    shaderCI.Source = shaderSrc.source.c_str();
     shaderCI.EntryPoint = "main";
     shaderCI.UseCombinedTextureSamplers = true;
     shaderCI.CombinedSamplerSuffix = m_desc.samplerSuffix.c_str();
-    shaderCI.Desc.ShaderType = shaderType;
+    shaderCI.Desc.ShaderType = shaderSrc.shaderType;
     shaderCI.Desc.Name = fullName.c_str();
     shaderCI.SourceLanguage = dg::SHADER_SOURCE_LANGUAGE_HLSL;
     shaderCI.ppCompilerOutput = &compilerOutput;
@@ -93,15 +109,17 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
     try {
         m_device->CreateShader(shaderCI, &shader);
     } catch (const std::exception& e) {
-        ProcessBuildError(text, name, shaderType, compilerOutput, e.what());
+        ProcessBuildError(shaderSrc.source, name, shaderSrc.shaderType, compilerOutput, e.what());
     }
 
     if (!shader) {
-        ProcessBuildError(text, name, shaderType, compilerOutput, nullptr);
+        ProcessBuildError(shaderSrc.source, name, shaderSrc.shaderType, compilerOutput, nullptr);
     }
     if (compilerOutput) {
         compilerOutput->Release();
     }
+
+    m_cache[shaderSrc] = shader;
 
     return shader;
 }

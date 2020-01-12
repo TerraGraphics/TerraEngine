@@ -30,6 +30,7 @@ struct EngineDesc {
 };
 
 class FileManager;
+class MaterialBuilder;
 class Engine final : Fixed {
 private:
     Engine();
@@ -50,6 +51,7 @@ public:
     std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
 
     std::shared_ptr<FileManager> GetFileManager() noexcept { return m_fileManager; }
+    std::shared_ptr<MaterialBuilder> GetMaterialBuilder() noexcept { return m_materialBuilder; }
 
     float GetFps() const noexcept {
         return static_cast<double>(m_fpsCounter.Size()) / m_fpsCounter.Sum();
@@ -66,6 +68,7 @@ private:
     std::unique_ptr<Application> m_application = nullptr;
 
     std::shared_ptr<FileManager> m_fileManager;
+    std::shared_ptr<MaterialBuilder> m_materialBuilder;
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;

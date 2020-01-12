@@ -13,20 +13,19 @@ namespace Diligent {
 
 class Scene;
 class Material;
-class MaterialBuilder;
 class GeneralScene : Fixed {
 public:
     GeneralScene() = default;
     ~GeneralScene() = default;
 
 public:
-    void Create(std::shared_ptr<MaterialBuilder>& materialBuilder);
+    void Create();
     void Update(double deltaTime);
     void Draw();
 
 private:
     void CreateTextures();
-    void CreateMaterials(std::shared_ptr<MaterialBuilder>& materialBuilder);
+    void CreateMaterials();
     void GenerateGround();
     void GenerateTrees();
     void GenerateGrass();

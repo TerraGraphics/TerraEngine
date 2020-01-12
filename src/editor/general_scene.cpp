@@ -44,13 +44,13 @@ static dg::LayoutElement LayoutElems[] = {
 static dg::InputLayoutDesc layoutDesc(LayoutElems, _countof(LayoutElems));
 
 
-void GeneralScene::Create(std::shared_ptr<MaterialBuilder>& materialBuilder) {
+void GeneralScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
     m_scene = std::make_shared<Scene>(m_device, engine.GetImmediateContext());
 
     CreateTextures();
-    CreateMaterials(materialBuilder);
+    CreateMaterials();
     GenerateGround();
     GenerateTrees();
     GenerateGrass();
@@ -90,7 +90,8 @@ void GeneralScene::CreateTextures() {
     }
 }
 
-void GeneralScene::CreateMaterials(std::shared_ptr<MaterialBuilder>& materialBuilder) {
+void GeneralScene::CreateMaterials() {
+    auto materialBuilder = Engine::Get().GetMaterialBuilder();
     const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");

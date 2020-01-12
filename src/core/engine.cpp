@@ -4,6 +4,8 @@
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
+#include "core/material/shader_builder.h"
+#include "core/material/material_builder.h"
 
 
 Engine::Engine() {
@@ -38,6 +40,7 @@ void Engine::Create(EngineDesc&& desc) {
     m_swapChain = m_graphics->GetSwapChain();
     m_immediateContext = m_graphics->GetImmediateContext();
     m_engineFactory = m_graphics->GetEngineFactory();
+    m_materialBuilder = std::make_shared<MaterialBuilder>(m_device, m_immediateContext, m_swapChain, m_engineFactory);
 
     m_application->Create();
 }
