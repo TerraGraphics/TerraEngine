@@ -113,22 +113,15 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     m_shaderBuilder = std::make_unique<ShaderBuilder>(device, engineFactory);
     m_microShaderLoader = std::make_unique<MicroShaderLoader>();
     m_staticVarsStorage = std::make_shared<StaticVarsStorage>(device, context);
-
-    m_microShaderLoader->SetSamplerSuffix("Sampler");
-    m_microShaderLoader->SetCBufferGenerator([](const std::string& name) -> std::string {
-        const std::string fmtStr = "cbuffer {0} {{ Shader{0} {1}; }};";
-        auto nameUpper = name;
-        nameUpper[0] = std::toupper(name[0]);
-        return fmt::format(fmtStr, nameUpper, name);
-    });
 }
 
 uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {
     return m_microShaderLoader->GetMask(name);
 }
 
-void MaterialBuilder::Load(const std::filesystem::path& dirPath, const std::string& filesExtension) {
-    m_microShaderLoader->Load(dirPath, filesExtension);
+void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
+    m_microShaderLoader->Load(desc);
+    m_shaderBuilder->Create(desc);
 }
 
 MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc) {

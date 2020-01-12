@@ -27,19 +27,19 @@ void MicroShaderLoader::ShaderData::Append(const MicroShaderLoader::ShaderData& 
     source += other.source;
 }
 
-std::string MicroShaderLoader::ShaderData::GenParametersToStr(const std::string& samplerSuffix, const CBufferGenerator& cBufferGenerator) {
+std::string MicroShaderLoader::ShaderData::GenParametersToStr(const MaterialBuilderDesc& desc) {
     std::string s;
     for (const auto& file: includes) {
         s += "#include \"" + file + "\"\n";
     }
     for (const auto& t: textures2D) {
-        s += fmt::format("Texture2D {0};\nSamplerState {0}{1};\n", t, samplerSuffix);
+        s += fmt::format("Texture2D {0};\nSamplerState {0}{1};\n", t, desc.samplerSuffix);
     }
     for (const auto& cb: cbuffers) {
-        s += cBufferGenerator(cb) + "\n";
+        s += desc.cbufferGenerator(cb) + "\n";
     }
     if (!inputs.empty()) {
-        s += "struct PSInput {\n";
+        s += fmt::format("struct {} {{\n", desc.psInputStructName);
         for (const auto& [key, inputType]: inputs) {
             s += fmt::format("{} {}: {};\n", inputType.type, key, inputType.semantic);
         }
@@ -49,29 +49,24 @@ std::string MicroShaderLoader::ShaderData::GenParametersToStr(const std::string&
     return s;
 }
 
-MicroShaderLoader::MicroShaderLoader() {
-    m_cBufferGenerator = [](const std::string& name) -> std::string {
-        return fmt::format("cbuffer {0} {{ Shader{0} {0}; }};", name);
-    };
-}
-
-void MicroShaderLoader::Load(const std::filesystem::path& dirPath, const std::string& filesExtension) {
+void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
+    m_desc = desc;
     m_root = Microshader();
     m_namedMicroShaders.clear();
     m_namedMicroShaderIDs.clear();
     m_defaultMicroShaders.clear();
     m_groupIDs.clear();
 
-    if (!std::filesystem::is_directory(dirPath)) {
-        throw EngineError("failed load microshader files, load path {} is not a directory", dirPath.c_str());
+    if (!std::filesystem::is_directory(m_desc.shadersDir)) {
+        throw EngineError("failed load microshader files, load path {} is not a directory", m_desc.shadersDir.c_str());
     }
 
-    auto fullExtension = filesExtension;
+    auto fullExtension = m_desc.shaderFilesExtension;
     if (fullExtension.empty() || (fullExtension[0] != '.')) {
         fullExtension = "." + fullExtension;
     }
 
-    for(auto& it: std::filesystem::directory_iterator(dirPath)) {
+    for(auto& it: std::filesystem::directory_iterator(m_desc.shadersDir)) {
         const auto path = it.path();
         if (!std::filesystem::is_regular_file(it.path())) {
             continue;
@@ -101,14 +96,6 @@ void MicroShaderLoader::Load(const std::filesystem::path& dirPath, const std::st
             throw EngineError("not found default microshader for group {}", sh.group);
         }
     }
-}
-
-void MicroShaderLoader::SetSamplerSuffix(const std::string& value) {
-    m_samplerSuffix = value;
-}
-
-void MicroShaderLoader::SetCBufferGenerator(const CBufferGenerator& value) {
-    m_cBufferGenerator = value;
 }
 
 uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
@@ -146,9 +133,9 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
         gs.Append(ms.gs);
     }
 
-    src.vs = vs.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + vs.source;
-    src.ps = ps.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + ps.source;
-    src.gs = gs.GenParametersToStr(m_samplerSuffix, m_cBufferGenerator) + gs.source;
+    src.vs = vs.GenParametersToStr(m_desc) + vs.source;
+    src.ps = ps.GenParametersToStr(m_desc) + ps.source;
+    src.gs = gs.GenParametersToStr(m_desc) + gs.source;
 
     return src;
 }
@@ -181,7 +168,7 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
     }
 
     if (ms.group.empty()) {
-        throw EngineError("required section 'meta::group' was not found");
+        throw EngineError("required section 'group' was not found");
     }
     auto groupIt = m_groupIDs.find(ms.group);
     if (groupIt == m_groupIDs.cend()) {

@@ -1,13 +1,10 @@
 #pragma once
 
 #include <map>
-#include <vector>
-#include <memory>
-#include <filesystem>
-
 #include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
 
 #include "core/material/material.h"
+#include "core/material/material_builder_desc.h"
 
 
 class ShaderBuilder;
@@ -58,7 +55,7 @@ public:
     std::shared_ptr<StaticVarsStorage> GetStaticVarsStorage() { return m_staticVarsStorage; }
     uint64_t GetShaderMask(const std::string& name) const;
 
-    void Load(const std::filesystem::path& dirPath, const std::string& filesExtension);
+    void Load(const MaterialBuilderDesc& desc);
     Builder Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc);
 
 private:

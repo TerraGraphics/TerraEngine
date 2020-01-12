@@ -1,9 +1,8 @@
 #pragma once
 
 #include <ucl++.h>
-#include <functional>
-#include <filesystem>
 #include "core/common/ctor.h"
+#include "core/material/material_builder_desc.h"
 
 
 class MicroShaderLoader : Fixed {
@@ -15,8 +14,6 @@ public:
         std::string gs;
     };
 
-    using CBufferGenerator = std::function<std::string (const std::string&)>;
-
 private:
     struct InputType {
         std::string type;
@@ -24,7 +21,7 @@ private:
     };
     struct ShaderData {
         void Append(const ShaderData& other);
-        std::string GenParametersToStr(const std::string& samplerSuffix, const CBufferGenerator& cBufferGenerator);
+        std::string GenParametersToStr(const MaterialBuilderDesc& desc);
 
         std::set<std::string> includes;
         std::set<std::string> textures2D;
@@ -45,12 +42,10 @@ private:
     };
 
 public:
-    MicroShaderLoader();
+    MicroShaderLoader() = default;
     ~MicroShaderLoader() = default;
 
-    void Load(const std::filesystem::path& dirPath, const std::string& filesExtension);
-    void SetSamplerSuffix(const std::string& value);
-    void SetCBufferGenerator(const CBufferGenerator& value);
+    void Load(const MaterialBuilderDesc& desc);
     uint64_t GetMask(const std::string& name) const;
     Source GetSources(uint64_t mask) const;
 
@@ -61,8 +56,7 @@ private:
     void ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
 
 private:
-    std::string m_samplerSuffix = "Sampler";
-    CBufferGenerator m_cBufferGenerator;
+    MaterialBuilderDesc m_desc;
 
     Microshader m_root;
     // namedMicroShaderID => namedMicroShader

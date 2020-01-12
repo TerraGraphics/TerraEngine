@@ -6,11 +6,6 @@
 #include "core/material/micro_shader_loader.h"
 
 
-namespace Diligent {
-    class IShader;
-    class IShaderSourceInputStreamFactory;
-}
-
 class ShaderBuilder : Fixed {
 public:
     struct Shaders {
@@ -24,6 +19,7 @@ public:
     ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& engineFactory);
     ~ShaderBuilder() = default;
 
+    void Create(const MaterialBuilderDesc& desc);
     Shaders Build(const MicroShaderLoader::Source& source);
 
 private:
@@ -31,6 +27,10 @@ private:
 
 private:
     DevicePtr m_device;
-    std::vector<dg::RefCntAutoPtr<dg::IShader>> m_cache;
+    EngineFactoryPtr m_engineFactory;
+
+    MaterialBuilderDesc m_desc;
     dg::RefCntAutoPtr<dg::IShaderSourceInputStreamFactory> m_shaderSourceFactory;
+
+    std::vector<dg::RefCntAutoPtr<dg::IShader>> m_cache;
 };

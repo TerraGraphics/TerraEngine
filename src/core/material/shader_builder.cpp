@@ -1,15 +1,18 @@
 #include "core/material/shader_builder.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
-
 #include "core/common/exception.h"
 
 
 ShaderBuilder::ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& engineFactory)
-    : m_device(device) {
-    engineFactory->CreateDefaultShaderSourceStreamFactory("materials", &m_shaderSourceFactory);
+    : m_device(device)
+    , m_engineFactory(engineFactory) {
+
+}
+
+void ShaderBuilder::Create(const MaterialBuilderDesc& desc) {
+    m_desc = desc;
+    m_engineFactory->CreateDefaultShaderSourceStreamFactory(m_desc.shadersDir.c_str(), &m_shaderSourceFactory);
 }
 
 ShaderBuilder::Shaders ShaderBuilder::Build(const MicroShaderLoader::Source& source) {
@@ -57,6 +60,23 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
         return shader;
     }
 
+    std::string fullName;
+    switch (shaderType) {
+        case dg::SHADER_TYPE_VERTEX:
+            fullName = "vs.";
+            break;
+        case dg::SHADER_TYPE_PIXEL:
+            fullName = "ps.";
+            break;
+        case dg::SHADER_TYPE_GEOMETRY:
+            fullName = "gs.";
+            break;
+        default:
+            fullName = "unknown.";
+            break;
+    }
+    fullName += name;
+
     dg::IDataBlob* compilerOutput = nullptr;
 
     dg::ShaderCreateInfo shaderCI;
@@ -64,9 +84,9 @@ dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const std::string& tex
     shaderCI.Source = text.c_str();
     shaderCI.EntryPoint = "main";
     shaderCI.UseCombinedTextureSamplers = true;
-    shaderCI.CombinedSamplerSuffix = "Sampler";
+    shaderCI.CombinedSamplerSuffix = m_desc.samplerSuffix.c_str();
     shaderCI.Desc.ShaderType = shaderType;
-    shaderCI.Desc.Name = "vs::standart";
+    shaderCI.Desc.Name = fullName.c_str();
     shaderCI.SourceLanguage = dg::SHADER_SOURCE_LANGUAGE_HLSL;
     shaderCI.ppCompilerOutput = &compilerOutput;
 
