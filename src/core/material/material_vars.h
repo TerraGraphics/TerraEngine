@@ -21,14 +21,7 @@ public:
     StaticVarsStorage(const DevicePtr& device, const ContextPtr& context);
     ~StaticVarsStorage();
 
-    template<typename T> uint32_t Add(dg::SHADER_TYPE shaderType, const std::string& name, const T& data) {
-        return Add(shaderType, name, reinterpret_cast<const void*>(&data), sizeof(T));
-    }
-    template<typename T> void Update(uint32_t id, const T& data) {
-        Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
-    }
-
-    uint32_t Add(dg::SHADER_TYPE shaderType, const std::string& name, const void* data, size_t size);
+    uint32_t Add(dg::SHADER_TYPE shaderType, const std::string& name, size_t size);
     void Update(uint32_t id, const void* data, size_t size);
 
     void SetVars(dg::IPipelineState* pipelineState);

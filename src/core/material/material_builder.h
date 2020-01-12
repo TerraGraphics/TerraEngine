@@ -4,12 +4,12 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
 
 #include "core/material/material.h"
+#include "core/material/material_vars.h"
 #include "core/material/material_builder_desc.h"
 
 
 class ShaderBuilder;
 class MicroShaderLoader;
-class StaticVarsStorage;
 class MaterialBuilder : Fixed {
 public:
     struct Builder : Fixed {
@@ -50,12 +50,23 @@ public:
 public:
     MaterialBuilder() = delete;
     MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory);
-    ~MaterialBuilder() = default;
+    ~MaterialBuilder();
 
-    std::shared_ptr<StaticVarsStorage> GetStaticVarsStorage() { return m_staticVarsStorage; }
     uint64_t GetShaderMask(const std::string& name) const;
 
     void Load(const MaterialBuilderDesc& desc);
+
+    template<typename T> uint32_t AddGlobalVar(dg::SHADER_TYPE shaderType, const std::string& name) {
+        T data;
+        uint32_t id = m_staticVarsStorage->Add(shaderType, name, sizeof(T));
+        m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
+        return id;
+    }
+
+    template<typename T> void UpdateGlobalVar(uint32_t id, const T& data) {
+        m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
+    }
+
     Builder Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc);
 
 private:
@@ -63,7 +74,7 @@ private:
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
-    std::unique_ptr<ShaderBuilder> m_shaderBuilder;
-    std::unique_ptr<MicroShaderLoader> m_microShaderLoader;
-    std::shared_ptr<StaticVarsStorage> m_staticVarsStorage = nullptr;
+    ShaderBuilder* m_shaderBuilder = nullptr;
+    MicroShaderLoader* m_microShaderLoader = nullptr;
+    StaticVarsStorage* m_staticVarsStorage = nullptr;
 };

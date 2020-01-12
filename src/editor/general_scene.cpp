@@ -1,7 +1,6 @@
 #include "editor/general_scene.h"
 
 #include <DiligentTools/TextureLoader/interface/TextureUtilities.h>
-#include <DiligentCore/Graphics/GraphicsTools/interface/ShaderMacroHelper.h>
 
 #include "core/engine.h"
 #include "core/scene/scene.h"

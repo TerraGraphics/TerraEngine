@@ -5,7 +5,6 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
-#include "core/material/material_vars.h"
 #include "core/material/shader_builder.h"
 #include "core/material/micro_shader_loader.h"
 
@@ -108,11 +107,26 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
 
 MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory)
     : m_device(device)
-    , m_swapChain(swapChain) {
+    , m_swapChain(swapChain)
+    , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
+    , m_staticVarsStorage(new StaticVarsStorage(device, context))
+    , m_microShaderLoader(new MicroShaderLoader()) {
 
-    m_shaderBuilder = std::make_unique<ShaderBuilder>(device, engineFactory);
-    m_microShaderLoader = std::make_unique<MicroShaderLoader>();
-    m_staticVarsStorage = std::make_shared<StaticVarsStorage>(device, context);
+}
+
+MaterialBuilder::~MaterialBuilder() {
+    if (m_microShaderLoader) {
+        delete m_microShaderLoader;
+        m_microShaderLoader = nullptr;
+    }
+    if (m_staticVarsStorage) {
+        delete m_staticVarsStorage;
+        m_staticVarsStorage = nullptr;
+    }
+    if (m_shaderBuilder) {
+        delete m_shaderBuilder;
+        m_shaderBuilder = nullptr;
+    }
 }
 
 uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {

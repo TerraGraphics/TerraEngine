@@ -4,7 +4,6 @@
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
-#include "core/material/shader_builder.h"
 #include "core/material/material_builder.h"
 
 
