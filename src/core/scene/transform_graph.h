@@ -7,9 +7,6 @@
 #include "core/common/ctor.h"
 #include "core/math/constants.h"
 
-namespace Diligent {
-    #include "structures.fxh"
-}
 
 class MaterialNode;
 class TransformNode : Noncopyable, public std::enable_shared_from_this<TransformNode> {
@@ -29,7 +26,8 @@ public:
 
     void SetTransform(const dg::float4x4& transform);
     const dg::float4x4& GetBaseTransform() const noexcept { return m_baseTransform; }
-    const dg::ShaderTransform& GetTransform() const noexcept { return m_transform; }
+    const dg::float4x4& GetWorldMatrix() const noexcept { return m_world; }
+    const dg::float3x3& GetNormalMatrix() const noexcept { return m_normal; }
     const std::shared_ptr<MaterialNode> GetMaterialNode() const noexcept { return m_materialNode; }
 
     void Update(std::vector<std::shared_ptr<TransformNode>>& nodeList);
@@ -40,7 +38,8 @@ private:
     std::shared_ptr<MaterialNode> m_materialNode = nullptr;
     bool m_isDirty = true;
     dg::float4x4 m_baseTransform = dg::One4x4;
-    dg::ShaderTransform m_transform = {dg::One4x4, dg::One4x4};
+    dg::float4x4 m_world = dg::One4x4;
+    dg::float3x3 m_normal = dg::One3x3;
 };
 
 class TransformGraph {

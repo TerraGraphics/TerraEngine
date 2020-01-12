@@ -71,8 +71,8 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
 void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList) {
     if (m_isDirty) {
         if (auto parent = m_parent.lock()) {
-            m_transform.matWorld = m_baseTransform * parent->m_transform.matWorld;
-            m_transform.matNormal = MakeNormalMatrix4x4(m_transform.matWorld);
+            m_world = m_baseTransform * parent->m_world;
+            m_normal = MakeNormalMatrix3x3(m_world);
             m_isDirty = false;
         }
     }

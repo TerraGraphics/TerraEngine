@@ -31,13 +31,11 @@ static dg::LayoutElement LayoutElems[] = {
     // WorldRow3
     dg::LayoutElement{6, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
     // NormalRow0
-    dg::LayoutElement{7, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    dg::LayoutElement{7, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
     // NormalRow1
-    dg::LayoutElement{8, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    dg::LayoutElement{8, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
     // NormalRow2
-    dg::LayoutElement{9, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow3
-    dg::LayoutElement{10, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE}
+    dg::LayoutElement{9, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
 };
 
 static dg::InputLayoutDesc layoutDesc(LayoutElems, _countof(LayoutElems));
@@ -188,7 +186,7 @@ void GeneralScene::GenerateGrass() {
     for (int i=0; i!=multiplier * 1000; ++i) {
         auto matScale = dg::float4x4::Scale(LinearRand(0.3f, 1.f));
 
-        auto vecPos = LinearRand(dg::float3(-50.f, 0.f, -50.f), dg::float3(50.f, 0.f, 50.f));
+        auto vecPos = LinearRand(dg::float3(-100.f, 0.f, -100.f), dg::float3(100.f, 0.f, 100.f));
         auto matModelPosition = dg::float4x4::Translation(vecPos);
 
         if (i == multiplier * 450) {

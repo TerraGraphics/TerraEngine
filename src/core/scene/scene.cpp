@@ -18,14 +18,18 @@ void Scene::Update() {
     UpdateGraph(m_nodeListForDraw);
 
     if (!m_transformBuffer) {
-        m_transformBuffer = std::make_shared<WriteableVertexBuffer>(m_device, m_nodeListForDraw.size() * sizeof(dg::float4x4) * 2, dg::USAGE_STAGING, "transform vb");
+        m_transformBuffer = std::make_shared<WriteableVertexBuffer>(m_device, m_nodeListForDraw.size() * (sizeof(dg::float4x4) + sizeof(dg::float3x3)), dg::USAGE_STAGING, "transform vb");
     }
 
     uint32_t ind = 0;
-    dg::float4x4* data = m_transformBuffer->Map<dg::float4x4>(m_context);
+    float* data = m_transformBuffer->Map<float>(m_context);
     for (const auto& node: m_nodeListForDraw) {
-        data[ind++] = node->GetTransform().matWorld;
-        data[ind++] = node->GetTransform().matNormal;
+        auto* data4x4 = reinterpret_cast<dg::float4x4*>(data);
+        *data4x4 = node->GetWorldMatrix();
+        data += 16;
+        auto* data3x3 = reinterpret_cast<dg::float3x3*>(data);
+        *data3x3 = node->GetNormalMatrix();
+        data += 9;
     }
     m_transformBuffer->Unmap(m_context);
 }
