@@ -23,6 +23,7 @@ MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE s
 MaterialBuilder::Builder::Builder(MaterialBuilder* builder,
     dg::RefCntAutoPtr<dg::IShader>& shaderVS,
     dg::RefCntAutoPtr<dg::IShader>& shaderPS,
+    dg::RefCntAutoPtr<dg::IShader>& shaderGS,
     const dg::InputLayoutDesc& layoutDesc)
     : m_builder(builder) {
 
@@ -33,6 +34,7 @@ MaterialBuilder::Builder::Builder(MaterialBuilder* builder,
 
     m_desc.GraphicsPipeline.pVS = shaderVS;
     m_desc.GraphicsPipeline.pPS = shaderPS;
+    m_desc.GraphicsPipeline.pGS = shaderGS;
     m_desc.GraphicsPipeline.InputLayout = layoutDesc;
     m_desc.GraphicsPipeline.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
 
@@ -40,6 +42,12 @@ MaterialBuilder::Builder::Builder(MaterialBuilder* builder,
 
 MaterialBuilder::Builder& MaterialBuilder::Builder::CullMode(dg::CULL_MODE value) noexcept {
     m_desc.GraphicsPipeline.RasterizerDesc.CullMode = value;
+
+    return *this;
+}
+
+MaterialBuilder::Builder& MaterialBuilder::Builder::Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept {
+    m_desc.GraphicsPipeline.PrimitiveTopology = value;
 
     return *this;
 }
@@ -142,7 +150,7 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputL
     auto src = m_microShaderLoader->GetSources(mask);
     auto shaders = m_shaderBuilder->Build(src);
 
-    return Builder(this, shaders.vs, shaders.ps, layoutDesc);
+    return Builder(this, shaders.vs, shaders.ps, shaders.gs, layoutDesc);
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {

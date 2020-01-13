@@ -30,10 +30,11 @@ public:
 
     public:
         Builder() = delete;
-        Builder(MaterialBuilder* builder, dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, const dg::InputLayoutDesc& layoutDesc);
+        Builder(MaterialBuilder* builder, dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, dg::RefCntAutoPtr<dg::IShader>& shaderGS, const dg::InputLayoutDesc& layoutDesc);
         ~Builder() = default;
 
         Builder& CullMode(dg::CULL_MODE value) noexcept;
+        Builder& Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
         Builder& Var(dg::SHADER_TYPE shaderType, const dg::String& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
         Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
         Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
