@@ -9,15 +9,41 @@
 
 
 class GeometryNode : public Counter<GeometryNode>, Fixed {
-public:
-    GeometryNode() = delete;
-    GeometryNode(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
-        const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32);
-    ~GeometryNode() = default;
+protected:
+    GeometryNode() = default;
+    virtual ~GeometryNode() = default;
 
 public:
-    void Bind(ContextPtr& context);
-    uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0);
+    virtual void Bind(ContextPtr& context) = 0;
+    virtual uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0) = 0;
+};
+
+class GeometryNodeUnindexed final : public GeometryNode {
+public:
+    GeometryNodeUnindexed() = delete;
+    GeometryNodeUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount);
+    ~GeometryNodeUnindexed() final = default;
+
+public:
+    void Bind(ContextPtr& context) final;
+    uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0) final;
+
+private:
+    std::shared_ptr<VertexBuffer> m_vertexBuffer = nullptr;
+    uint32_t m_vertexBufferOffsetBytes = 0;
+    uint32_t m_vertexBufferCount = 0;
+};
+
+class GeometryNodeIndexed final : public GeometryNode {
+public:
+    GeometryNodeIndexed() = delete;
+    GeometryNodeIndexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
+        const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32);
+    ~GeometryNodeIndexed() final = default;
+
+public:
+    void Bind(ContextPtr& context) final;
+    uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0) final;
 
 private:
     std::shared_ptr<VertexBuffer> m_vertexBuffer = nullptr;
