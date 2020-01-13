@@ -19,6 +19,12 @@ private:
         std::string type;
         std::string semantic;
     };
+
+    enum class Mixing : uint8_t {
+        Add,
+        Replace,
+    };
+
     struct ShaderData {
         void Append(const ShaderData& other);
         std::string GenParametersToStr(const MaterialBuilderDesc& desc);
@@ -27,11 +33,14 @@ private:
         std::set<std::string> textures2D;
         std::set<std::string> cbuffers;
         std::map<std::string, InputType> inputs;
+        Mixing mixing = Mixing::Add;
+        bool isEmpty = true;
         std::string source;
     };
 
     struct Microshader {
         bool isEmpty = true;
+        bool autogen = false;
         std::string name;
         std::string group;
         uint32_t groupID = 0;

@@ -4,6 +4,23 @@
 
 
 void MicroShaderLoader::ShaderData::Append(const MicroShaderLoader::ShaderData& other) {
+    if ((other.mixing == Mixing::Replace) && (mixing == Mixing::Replace)) {
+        throw EngineError("double 'mixing' value in microshaders");
+    }
+
+    if ((other.mixing == Mixing::Replace) && (mixing == Mixing::Add)) {
+        includes.clear();
+        textures2D.clear();
+        cbuffers.clear();
+        inputs.clear();
+        mixing = Mixing::Replace;
+        source.clear();
+    } else if ((other.mixing == Mixing::Add) && (mixing == Mixing::Replace)) {
+        return;
+    } else if ((other.mixing != Mixing::Add) || (mixing != Mixing::Add)) {
+        throw EngineError("unknown 'mixing' value for microshader: {}", static_cast<uint8_t>(other.mixing));
+    }
+
     includes.insert(other.includes.begin(), other.includes.end());
     textures2D.insert(other.textures2D.begin(), other.textures2D.end());
     cbuffers.insert(other.cbuffers.begin(), other.cbuffers.end());
@@ -192,10 +209,17 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
         if (m_namedMicroShaderIDs.find(ms.name) != m_namedMicroShaderIDs.cend()) {
             throw EngineError("name of the microshader ({}) is duplicated", ms.name);
         }
+        if (m_defaultMicroShaders[ms.groupID].isEmpty &&
+            (ms.vs.isEmpty || (ms.vs.mixing == Mixing::Replace)) &&
+            (ms.ps.isEmpty || (ms.ps.mixing == Mixing::Replace)) &&
+            (ms.gs.isEmpty || (ms.gs.mixing == Mixing::Replace))) {
+            m_defaultMicroShaders[ms.groupID].isEmpty = false;
+            m_defaultMicroShaders[ms.groupID].autogen = true;
+        }
         m_namedMicroShaders.push_back(ms);
         m_namedMicroShaderIDs[ms.name] = id;
     } else {
-        if (!m_defaultMicroShaders[ms.groupID].isEmpty) {
+        if (!m_defaultMicroShaders[ms.groupID].isEmpty && !m_defaultMicroShaders[ms.groupID].autogen) {
             throw EngineError("default microshader for group {} already exists", ms.group);
         }
         m_defaultMicroShaders[ms.groupID] = ms;
@@ -203,9 +227,19 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
 }
 
 void MicroShaderLoader::ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+    shader.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "parameters") {
             ParseParameters(it, sectionName + ".parameters", shader);
+        } else if (it.key() == "mixing") {
+            auto mixingStr = it.string_value();
+            if (mixingStr == "replace") {
+                shader.mixing = Mixing::Replace;
+            } else if (mixingStr == "add") {
+                shader.mixing = Mixing::Add;
+            } else {
+                throw EngineError("unknown value in section: {}.{} with data: {}", sectionName, it.key(), it.dump());
+            }
         } else if (it.key() == "source") {
             shader.source = "\n" + it.string_value() + "\n";
         } else {
