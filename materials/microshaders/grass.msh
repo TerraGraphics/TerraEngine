@@ -1,0 +1,77 @@
+name: "GRASS"
+group: "GRASS"
+geometry {
+    parameters: {
+        cbuffers: ["camera"]
+        includes: ["structures.fxh"]
+    }
+    mixing: "replace"
+    source: <<SHADER
+struct GSInput {
+    float4 position : POSITION;
+    float3 normal   : NORMAL;
+    float2 uv       : TEX_COORD;
+};
+
+struct PSInput {
+    float4 position : SV_POSITION;
+    float3 normal   : NORMAL;
+    float2 uv       : TEX_COORD;
+};
+
+[maxvertexcount(3)]
+void main(point GSInput gsIn[1], inout TriangleStream<PSInput> psInStream) {
+    float4 pos = gsIn[0].position;
+
+    PSInput psOut;
+    psOut.normal = gsIn[0].normal;
+    psOut.uv = gsIn[0].uv;
+
+    psOut.position = mul(camera.matViewProj, pos + float4(-0.02, 0.0, 0.0, 0.0));
+    psInStream.Append(psOut);
+
+    psOut.position = mul(camera.matViewProj, pos + float4(0.02, 0.0, 0.0, 0.0));
+    psInStream.Append(psOut);
+
+    psOut.position = mul(camera.matViewProj, pos + float4(0.0, 0.5, 0.0, 0.0));
+    psInStream.Append(psOut);
+}
+SHADER
+}
+vertex {
+    parameters: {}
+    mixing: "replace"
+    source: <<SHADER
+struct VSInput {
+    float3 position : ATTRIB0;
+    float3 normal   : ATTRIB1;
+    float2 uv       : ATTRIB2;
+
+    // Instance attributes
+    float4 WorldRow0 : ATTRIB3;
+    float4 WorldRow1 : ATTRIB4;
+    float4 WorldRow2 : ATTRIB5;
+    float4 WorldRow3 : ATTRIB6;
+    float3 NormalRow0 : ATTRIB7;
+    float3 NormalRow1 : ATTRIB8;
+    float3 NormalRow2 : ATTRIB9;
+};
+
+struct GSInput {
+    float4 position : POSITION;
+    float3 normal   : NORMAL;
+    float2 uv       : TEX_COORD;
+};
+
+void main(in  VSInput vsIn, out GSInput gsIn) {
+    // HLSL matrices are row-major while GLSL matrices are column-major. We will
+    // use convenience function MatrixFromRows() appropriately defined by the engine
+    float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
+    float3x3 matNormal = MatrixFromRows(vsIn.NormalRow0, vsIn.NormalRow1, vsIn.NormalRow2);
+
+    gsIn.position = mul(float4(vsIn.position,1.0), matWorld);
+    gsIn.normal = mul(vsIn.normal, matNormal);
+    gsIn.uv = vsIn.uv;
+}
+SHADER
+}

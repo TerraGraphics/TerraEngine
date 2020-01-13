@@ -7,6 +7,7 @@
 #include "core/math/random.h"
 #include "platforms/platforms.h"
 #include "core/scene/material_node.h"
+#include "core/scene/geometry_node.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/plane_shape.h"
 #include "middleware/generator/shape_builder.h"
@@ -51,6 +52,7 @@ void GeneralScene::Create() {
     GenerateGround();
     GenerateTrees();
     GenerateGrass();
+    // GenerateGrassBillboard();
 }
 
 void GeneralScene::Update(double deltaTime) {
@@ -92,6 +94,7 @@ void GeneralScene::CreateMaterials() {
     const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
+    const auto GRASS = materialBuilder->GetShaderMask("GRASS");
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
@@ -122,6 +125,13 @@ void GeneralScene::CreateMaterials() {
         Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");
+
+    m_matGrass = materialBuilder->Create(GRASS, layoutDesc).
+        CullMode(dg::CULL_MODE_NONE).
+        Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
+        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
+        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::grass");
 }
 
 void GeneralScene::GenerateGround() {
@@ -157,6 +167,23 @@ void GeneralScene::GenerateTrees() {
 }
 
 void GeneralScene::GenerateGrass() {
+    VertexBufferBuilder vbBuilder;
+    auto vb = vbBuilder.AddRange<VertexPNC>(1000 * 1000);
+    for (auto* vbIt = vb.Begin(); vbIt != vb.End(); ++vbIt) {
+        auto vecPos = LinearRand(dg::float3(-200.f, 0.f, -200.f), dg::float3(200.f, 0.f, 200.f));
+        *vbIt = VertexPNC{vecPos, dg::float3(0.f, 0.f, 0.f), dg::float2(0.f, 0.f)};
+    }
+
+    uint32_t vbOffsetBytes = 0;
+    auto geometryNode = std::make_shared<GeometryNodeUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
+
+    auto grassMatNode = std::make_shared<MaterialClrNode>(m_matGrass, geometryNode);
+    grassMatNode->Params().crlBase = dg::float4(0.f, 255.f, 0.f, 255.f) / 255.f;
+
+    m_scene->NewChild(grassMatNode);
+}
+
+void GeneralScene::GenerateGrassBillboard() {
     float angleY = ThirdPI<float>() * 2.0f;
     auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(ThirdPI<float>() / 3.f);
 

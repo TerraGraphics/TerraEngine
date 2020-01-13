@@ -4,7 +4,9 @@ pixel {
     parameters: {}
     source: <<SHADER
 void AlphaTest(in float alpha) {
-    clip(alpha - 0.2);
+    if (alpha < 0.2) {
+        discard;
+    }
 }
 SHADER
 }

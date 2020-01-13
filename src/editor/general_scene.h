@@ -29,6 +29,7 @@ private:
     void GenerateGround();
     void GenerateTrees();
     void GenerateGrass();
+    void GenerateGrassBillboard();
 
 private:
     // textures
@@ -43,6 +44,7 @@ private:
     std::shared_ptr<Material> m_matTexPhong;
     std::shared_ptr<Material> m_matClrNoLight;
     std::shared_ptr<Material> m_matClrPhong;
+    std::shared_ptr<Material> m_matGrass;
 
     std::shared_ptr<Scene> m_scene;
 
