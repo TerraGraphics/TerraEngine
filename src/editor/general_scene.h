@@ -37,6 +37,7 @@ private:
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrass0;
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrass1;
     dg::RefCntAutoPtr<dg::ITextureView> m_TextureFlower0;
+    dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrassBlade0;
 
     // materials
     std::shared_ptr<Material> m_matTexNoLight;

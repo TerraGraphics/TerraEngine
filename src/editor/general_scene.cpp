@@ -87,6 +87,11 @@ void GeneralScene::CreateTextures() {
         CreateTextureFromFile("assets/flower0.png", loadInfo, m_device, &Tex);
         m_TextureFlower0 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
+    {
+        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        CreateTextureFromFile("assets/blade_0.png", loadInfo, m_device, &Tex);
+        m_TextureGrassBlade0 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+    }
 }
 
 void GeneralScene::CreateMaterials() {
@@ -126,11 +131,11 @@ void GeneralScene::CreateMaterials() {
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");
 
-    m_matGrass = materialBuilder->Create(GRASS, layoutDesc).
+    m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | ALPHA_TEST, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
         Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
         Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::grass");
 }
 
@@ -177,8 +182,8 @@ void GeneralScene::GenerateGrass() {
     uint32_t vbOffsetBytes = 0;
     auto geometryNode = std::make_shared<GeometryNodeUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
 
-    auto grassMatNode = std::make_shared<MaterialClrNode>(m_matGrass, geometryNode);
-    grassMatNode->Params().crlBase = dg::float4(0.f, 255.f, 0.f, 255.f) / 255.f;
+    auto grassMatNode = std::make_shared<MaterialNode>(m_matGrass, geometryNode);
+    grassMatNode->SetPixelShaderVar("texBase", m_TextureGrassBlade0);
 
     m_scene->NewChild(grassMatNode);
 }
