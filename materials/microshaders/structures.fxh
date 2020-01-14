@@ -57,16 +57,12 @@ struct ShaderCamera {
     CHECK_STRUCT_ALIGNMENT(ShaderCamera);
 #endif
 
-struct ShaderTransform {
-    float4x4 matWorld;
-    float4x4 matNormal;
-};
-#ifdef CHECK_STRUCT_ALIGNMENT
-    CHECK_STRUCT_ALIGNMENT(ShaderTransform);
-#endif
-
 struct ShaderMaterial {
-    float4 crlBase DEFAULT_VALUE(float4(0, 0, 0, 1));
+    float4 crlBase DEFAULT_VALUE(float4(0.0f, 0.0f, 0.0f, 1.0f));
+    float alphaThreshold DEFAULT_VALUE(float(0.2f));
+    float noop0;
+    float noop1;
+    float noop2;
 };
 #ifdef CHECK_STRUCT_ALIGNMENT
     CHECK_STRUCT_ALIGNMENT(ShaderMaterial);

@@ -1,10 +1,13 @@
 name: "ALPHA_TEST"
 group: "ALPHA"
 pixel {
-    parameters: {}
+    parameters: {
+        cbuffers: ["material"]
+        includes: ["structures.fxh"]
+    }
     source: <<SHADER
 void AlphaTest(in float alpha) {
-    if (alpha < 0.2) {
+    if (alpha < material.alphaThreshold) {
         discard;
     }
 }

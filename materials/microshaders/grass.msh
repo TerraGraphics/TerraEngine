@@ -33,43 +33,36 @@ void main(point GSInput gsIn[1], inout TriangleStream<PSInput> psInStream) {
 
     // 0
     psOut.position = mul(camera.matViewProj, pos + float4(posX * rad, 0.0, posZ * rad, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(rad, 0.0, 0.0, 0.0));
     psOut.uv = float2(1, 1);
     psInStream.Append(psOut);
 
     // 1
     psOut.position = mul(camera.matViewProj, pos - float4(posX * rad, 0.0, posZ * rad, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(0.0, 0.0, 0.0, 0.0));
     psOut.uv = float2(0, 1);
     psInStream.Append(psOut);
 
     // 2
     psOut.position = mul(camera.matViewProj, pos + float4(posX * rad, 0.2, posZ * rad, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(rad, 0.2, 0.0, 0.0));
     psOut.uv = float2(1, 0.6);
     psInStream.Append(psOut);
 
     // 3
     psOut.position = mul(camera.matViewProj, pos - float4(posX * rad, -0.2, posZ * rad, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(0.0, 0.2, 0.0, 0.0));
     psOut.uv = float2(0, 0.6);
     psInStream.Append(psOut);
 
     // 4
     psOut.position = mul(camera.matViewProj, pos + float4(posX * rad, 0.4, posZ * rad, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(rad, 0.4, 0.0, 0.0));
     psOut.uv = float2(1, 0.2);
     psInStream.Append(psOut);
 
     // 5
     psOut.position = mul(camera.matViewProj, pos - float4(posX * rad, -0.4, posZ * rad, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(0.0, 0.4, 0.0, 0.0));
     psOut.uv = float2(0, 0.2);
     psInStream.Append(psOut);
 
     // 6
     psOut.position = mul(camera.matViewProj, pos + float4(0.0, 0.5, 0.0, 0.0));
-    // psOut.position = mul(camera.matViewProj, pos + float4(rad * 0.5, 0.5, 0.0, 0.0));
     psOut.uv = float2(0.5, 0);
     psInStream.Append(psOut);
 }

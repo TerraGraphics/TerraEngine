@@ -103,38 +103,33 @@ void GeneralScene::CreateMaterials() {
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::noLight");
 
     m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
+        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::discard::noLight");
 
     m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::phong");
 
     m_matClrNoLight = materialBuilder->Create(0, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::noLight");
 
     m_matClrPhong = materialBuilder->Create(AMBIENT_DIFFUSE_PHONG, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");
 
     m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | ALPHA_TEST, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
         Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
-        Var(dg::SHADER_TYPE_VERTEX, "Transform", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::grass");
 }
@@ -203,13 +198,16 @@ void GeneralScene::GenerateGrassBillboard() {
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 
-    auto grass0MatNode = std::make_shared<MaterialNode>(m_matTexDiscardNoLight, bush);
+    auto grass0MatNode = std::make_shared<MaterialClrNode>(m_matTexDiscardNoLight, bush);
+    grass0MatNode->Params().alphaThreshold = 0.2f;
     grass0MatNode->SetPixelShaderVar("texBase", m_TextureGrass0);
 
-    auto grass1MatNode = std::make_shared<MaterialNode>(m_matTexDiscardNoLight, bush);
+    auto grass1MatNode = std::make_shared<MaterialClrNode>(m_matTexDiscardNoLight, bush);
+    grass1MatNode->Params().alphaThreshold = 0.2f;
     grass1MatNode->SetPixelShaderVar("texBase", m_TextureGrass1);
 
-    auto flower0MatNode = std::make_shared<MaterialNode>(m_matTexDiscardNoLight, bush);
+    auto flower0MatNode = std::make_shared<MaterialClrNode>(m_matTexDiscardNoLight, bush);
+    flower0MatNode->Params().alphaThreshold = 0.2f;
     flower0MatNode->SetPixelShaderVar("texBase", m_TextureFlower0);
 
     std::srand(15);
