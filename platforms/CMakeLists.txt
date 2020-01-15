@@ -32,7 +32,6 @@ list(APPEND LIBS
     Diligent-Common
     Diligent-GraphicsTools
     Diligent-TextureLoader
-    Diligent-Imgui
     LibJpeg
     LibPng
     LibTiff

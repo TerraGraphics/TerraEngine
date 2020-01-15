@@ -23,7 +23,7 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE "src" "materials/microshaders")
-target_link_libraries(${PROJECT_NAME} PRIVATE platforms ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG})
+target_link_libraries(${PROJECT_NAME} PRIVATE platforms ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 17
