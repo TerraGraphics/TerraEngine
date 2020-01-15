@@ -31,20 +31,6 @@
 #       define INIT_STRUCT(x)
 #   endif
 
-// https://stackoverflow.com/questions/5149544/can-i-generate-a-random-number-inside-a-pixel-shader
-static const float2 randFactor = float2(
-        23.14069263277926, // e^pi
-         2.665144142690225 // 2^sqrt(2)
-);
-
-float random0(float2 vecIn) {
-    return dot(vecIn, randFactor);
-}
-
-float random(float2 vecIn) {
-    return frac(cos(dot(vecIn, randFactor)) * 12345.6789);
-}
-
 #endif
 
 
