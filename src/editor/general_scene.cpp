@@ -14,7 +14,7 @@
 #include "middleware/generator/mesh_generator.h"
 
 
-static dg::LayoutElement LayoutElems[] = {
+static dg::LayoutElement layoutElems[] = {
     // vertex position
     dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
     // normal
@@ -39,7 +39,30 @@ static dg::LayoutElement LayoutElems[] = {
     dg::LayoutElement{9, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
 };
 
-static dg::InputLayoutDesc layoutDesc(LayoutElems, _countof(LayoutElems));
+static dg::InputLayoutDesc layoutDesc(layoutElems, _countof(layoutElems));
+
+static dg::LayoutElement layoutGrassElems[] = {
+    // vertex position
+    dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
+
+    // Per-instance data - second buffer slot
+    // WorldRow0
+    dg::LayoutElement{1, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // WorldRow1
+    dg::LayoutElement{2, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // WorldRow2
+    dg::LayoutElement{3, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // WorldRow3
+    dg::LayoutElement{4, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow0
+    dg::LayoutElement{5, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow1
+    dg::LayoutElement{6, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+    // NormalRow2
+    dg::LayoutElement{7, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
+};
+
+static dg::InputLayoutDesc layoutGrassDesc(layoutGrassElems, _countof(layoutGrassElems));
 
 
 void GeneralScene::Create() {
@@ -92,6 +115,11 @@ void GeneralScene::CreateTextures() {
         CreateTextureFromFile("assets/blade_0.png", loadInfo, m_device, &Tex);
         m_TextureGrassBlade0 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
+    {
+        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        CreateTextureFromFile("assets/blade_1.jpg", loadInfo, m_device, &Tex);
+        m_TextureGrassBlade1 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+    }
 }
 
 void GeneralScene::CreateMaterials() {
@@ -127,15 +155,22 @@ void GeneralScene::CreateMaterials() {
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");
 
-    m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | ALPHA_TEST, layoutDesc).
+    m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, layoutGrassDesc).
         CullMode(dg::CULL_MODE_NONE).
         Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::grass");
+
+    m_matGrassAlpha = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | ALPHA_TEST, layoutGrassDesc).
+        CullMode(dg::CULL_MODE_NONE).
+        Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
+        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::grass::alpha");
 }
 
 void GeneralScene::GenerateGround() {
-    auto plane = MeshGenerator::CreateSolidPlaneXZ(m_device, 2, 2, 4.0f, 4.0f);
+    auto plane = MeshGenerator::CreateSolidPlaneXZ(m_device, 2, 2, 128.0f, 128.0f);
 
     auto groundNode = std::make_shared<MaterialNode>(m_matTexNoLight, plane);
     groundNode->SetPixelShaderVar("texBase", m_TextureGround);
@@ -145,6 +180,7 @@ void GeneralScene::GenerateGround() {
 }
 
 void GeneralScene::GenerateTrees() {
+    RandSeed(17);
     auto tree = std::make_shared<TransformNode>();
 
     auto trunkMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, MeshGenerator::CreateSolidCylinder(m_device, 5));
@@ -166,19 +202,30 @@ void GeneralScene::GenerateTrees() {
     }
 }
 
+struct VertexP {
+	dg::float3 position;
+};
+
 void GeneralScene::GenerateGrass() {
+    RandSeed(177);
+
     VertexBufferBuilder vbBuilder;
-    auto vb = vbBuilder.AddRange<VertexPNC>(1000 * 1000);
+    auto vb = vbBuilder.AddRange<VertexP>(10 * 1000 * 1000);
+    float halfWidt = 150.f;
     for (auto* vbIt = vb.Begin(); vbIt != vb.End(); ++vbIt) {
-        auto vecPos = LinearRand(dg::float3(-200.f, 0.f, -200.f), dg::float3(200.f, 0.f, 200.f));
-        *vbIt = VertexPNC{vecPos, dg::float3(0.f, 0.f, 0.f), dg::float2(0.f, 0.f)};
+        auto vecPos = LinearRand(dg::float3(-halfWidt, 0.f, -halfWidt), dg::float3(halfWidt, 0.f, halfWidt));
+        *vbIt = VertexP{vecPos};
     }
 
     uint32_t vbOffsetBytes = 0;
     auto geometryNode = std::make_shared<GeometryNodeUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
 
     auto grassMatNode = std::make_shared<MaterialNode>(m_matGrass, geometryNode);
-    grassMatNode->SetPixelShaderVar("texBase", m_TextureGrassBlade0);
+    grassMatNode->SetPixelShaderVar("texBase", m_TextureGrassBlade1);
+
+    // auto grassMatNode = std::make_shared<MaterialClrNode>(m_matGrassAlpha, geometryNode);
+    // grassMatNode->Params().alphaThreshold = 0.2f;
+    // grassMatNode->SetPixelShaderVar("texBase", m_TextureGrassBlade0);
 
     m_scene->NewChild(grassMatNode);
 }
@@ -210,7 +257,7 @@ void GeneralScene::GenerateGrassBillboard() {
     flower0MatNode->Params().alphaThreshold = 0.2f;
     flower0MatNode->SetPixelShaderVar("texBase", m_TextureFlower0);
 
-    std::srand(15);
+    RandSeed(15);
     auto materialNode = grass0MatNode;
     auto multiplier = 10;
     for (int i=0; i!=multiplier * 1000; ++i) {

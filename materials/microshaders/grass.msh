@@ -3,14 +3,12 @@ group: "GRASS"
 geometry {
     parameters: {
         cbuffers: ["camera"]
-        includes: ["structures.fxh"]
+        includes: ["structures.fxh", "math.fxh"]
     }
     mixing: "replace"
     source: <<SHADER
 struct GSInput {
-    float4 position : POSITION;
-    float3 normal   : NORMAL;
-    float2 uv       : TEX_COORD;
+    float3 position : POSITION;
 };
 
 struct PSInput {
@@ -19,51 +17,74 @@ struct PSInput {
     float2 uv       : TEX_COORD;
 };
 
-[maxvertexcount(7)]
+[maxvertexcount(9)]
 void main(point GSInput gsIn[1], inout TriangleStream<PSInput> psInStream) {
-    float4 pos = gsIn[0].position;
+    float3 pos = gsIn[0].position;
+    float4x4 matRotate = mul(RotationY(randomFast(pos.xz)), RotationX(ThirdPI * 0.5 * random01(pos.xz)));
+    float4x4 matFull =
+    mul(camera.matViewProj,
+        mul(Translation(pos),
+            mul(Scale(float3(1.0, 1.0 + 0.3 * random01(pos.xz), 1.0)),
+                matRotate)));
 
-    static const float rad = 0.03;
-    float posX;
-    float posZ;
-    sincos(random0(pos.xy), posZ, posX);
+    static const float halfWidth = 0.015;
+    static const float heightDt = 0.4 / 4.0;
 
     PSInput psOut;
-    psOut.normal = gsIn[0].normal;
+    psOut.normal = mul(float3(0.0, 0.0, 1.0), float3x3(matRotate));
 
+    float3 posNoX = float3(0.0, 0.0, 1.0);
     // 0
-    psOut.position = mul(camera.matViewProj, pos + float4(posX * rad, 0.0, posZ * rad, 0.0));
+    psOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
     psOut.uv = float2(1, 1);
     psInStream.Append(psOut);
 
     // 1
-    psOut.position = mul(camera.matViewProj, pos - float4(posX * rad, 0.0, posZ * rad, 0.0));
-    psOut.uv = float2(0, 1);
+    psOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    psOut.uv.x = 0.0;
     psInStream.Append(psOut);
 
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 1.0;
     // 2
-    psOut.position = mul(camera.matViewProj, pos + float4(posX * rad, 0.2, posZ * rad, 0.0));
-    psOut.uv = float2(1, 0.6);
+    psOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    psOut.uv = float2(1, 0.75);
     psInStream.Append(psOut);
 
     // 3
-    psOut.position = mul(camera.matViewProj, pos - float4(posX * rad, -0.2, posZ * rad, 0.0));
-    psOut.uv = float2(0, 0.6);
+    psOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    psOut.uv.x = 0.0;
     psInStream.Append(psOut);
 
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 3.0;
     // 4
-    psOut.position = mul(camera.matViewProj, pos + float4(posX * rad, 0.4, posZ * rad, 0.0));
-    psOut.uv = float2(1, 0.2);
+    psOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    psOut.uv = float2(1, 0.5);
     psInStream.Append(psOut);
 
     // 5
-    psOut.position = mul(camera.matViewProj, pos - float4(posX * rad, -0.4, posZ * rad, 0.0));
-    psOut.uv = float2(0, 0.2);
+    psOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    psOut.uv.x = 0.0;
     psInStream.Append(psOut);
 
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 6.0;
     // 6
-    psOut.position = mul(camera.matViewProj, pos + float4(0.0, 0.5, 0.0, 0.0));
-    psOut.uv = float2(0.5, 0);
+    psOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    psOut.uv = float2(1, 0.25);
+    psInStream.Append(psOut);
+
+    // 7
+    psOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    psOut.uv.x = 0.0;
+    psInStream.Append(psOut);
+
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 10.0;
+    // 8
+    psOut.position = mul(matFull, float4(0.0, posNoX.xyz));
+    psOut.uv = float2(0.5, 0.0);
     psInStream.Append(psOut);
 }
 SHADER
@@ -74,34 +95,23 @@ vertex {
     source: <<SHADER
 struct VSInput {
     float3 position : ATTRIB0;
-    float3 normal   : ATTRIB1;
-    float2 uv       : ATTRIB2;
 
     // Instance attributes
-    float4 WorldRow0 : ATTRIB3;
-    float4 WorldRow1 : ATTRIB4;
-    float4 WorldRow2 : ATTRIB5;
-    float4 WorldRow3 : ATTRIB6;
-    float3 NormalRow0 : ATTRIB7;
-    float3 NormalRow1 : ATTRIB8;
-    float3 NormalRow2 : ATTRIB9;
+    float4 WorldRow0 : ATTRIB1;
+    float4 WorldRow1 : ATTRIB2;
+    float4 WorldRow2 : ATTRIB3;
+    float4 WorldRow3 : ATTRIB4;
+    float3 NormalRow0 : ATTRIB5;
+    float3 NormalRow1 : ATTRIB6;
+    float3 NormalRow2 : ATTRIB7;
 };
 
 struct GSInput {
-    float4 position : POSITION;
-    float3 normal   : NORMAL;
-    float2 uv       : TEX_COORD;
+    float3 position : POSITION;
 };
 
 void main(in  VSInput vsIn, out GSInput gsIn) {
-    // HLSL matrices are row-major while GLSL matrices are column-major. We will
-    // use convenience function MatrixFromRows() appropriately defined by the engine
-    float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
-    float3x3 matNormal = MatrixFromRows(vsIn.NormalRow0, vsIn.NormalRow1, vsIn.NormalRow2);
-
-    gsIn.position = mul(float4(vsIn.position,1.0), matWorld);
-    gsIn.normal = mul(vsIn.normal, matNormal);
-    gsIn.uv = vsIn.uv;
+    gsIn.position = vsIn.position;
 }
 SHADER
 }
