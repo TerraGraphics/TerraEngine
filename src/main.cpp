@@ -146,8 +146,17 @@ static bool IsCmdOptionExists(char** begin, char** end, const std::string& optio
     return std::find(begin, end, option) != end;
 }
 
+static void Test() {
+}
+
 int main(int argc, char * argv[]) {
     bool useOpenGL = IsCmdOptionExists(argv, argv+argc, "-opengl");
+    bool runTest = IsCmdOptionExists(argv, argv+argc, "-test");
 
-    return Run(useOpenGL, spdlog::level::debug, false) ? EXIT_SUCCESS : EXIT_FAILURE;
+    if (runTest) {
+        Test();
+        return EXIT_SUCCESS;
+    } else {
+        return Run(useOpenGL, spdlog::level::debug, false) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
 }

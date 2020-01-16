@@ -26,6 +26,19 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "Run Test",
+            "type": "shell",
+            "command": "./terra -test",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }
