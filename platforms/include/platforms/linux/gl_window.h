@@ -13,6 +13,7 @@ public:
     uint32_t GetWindow() noexcept { return m_window; }
     Display* GetDisplay() noexcept { return m_display; }
 
+    void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
     void SetTitle(const std::string& title) override;
 
     void GetCursorPos(int& x, int& y) override;

@@ -7,10 +7,6 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 
 
-namespace Diligent {
-    class IEngineFactory;
-}
-
 class Graphics {
 public:
     Graphics() = default;

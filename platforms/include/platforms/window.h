@@ -55,6 +55,7 @@ public:
     uint16_t GetMonitorWidth() const noexcept { return m_monitorWidth; }
     uint16_t GetMonitorHeight() const noexcept { return m_monitorHeight; }
 
+    virtual void* GetNativeWindowHandler() const = 0;
     virtual void SetTitle(const std::string& title) = 0;
 
     virtual void GetCursorPos(int& x, int& y) = 0;
