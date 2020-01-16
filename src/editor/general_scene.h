@@ -6,11 +6,6 @@
 #include "core/common/ctor.h"
 
 
-namespace Diligent {
-    class IShader;
-    class ITextureView;
-}
-
 class Scene;
 class Material;
 class GeneralScene : Fixed {
@@ -33,12 +28,12 @@ private:
 
 private:
     // textures
-    dg::RefCntAutoPtr<dg::ITextureView> m_TextureGround;
-    dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrass0;
-    dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrass1;
-    dg::RefCntAutoPtr<dg::ITextureView> m_TextureFlower0;
-    dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrassBlade0;
-    dg::RefCntAutoPtr<dg::ITextureView> m_TextureGrassBlade1;
+    TextureViewPtr m_TextureGround;
+    TextureViewPtr m_TextureGrass0;
+    TextureViewPtr m_TextureGrass1;
+    TextureViewPtr m_TextureFlower0;
+    TextureViewPtr m_TextureGrassBlade0;
+    TextureViewPtr m_TextureGrassBlade1;
 
     // materials
     std::shared_ptr<Material> m_matTexNoLight;

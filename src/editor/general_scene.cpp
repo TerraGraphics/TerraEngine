@@ -91,32 +91,32 @@ void GeneralScene::CreateTextures() {
     loadInfo.IsSRGB = true;
 
     {
-        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        TexturePtr Tex;
         CreateTextureFromFile("assets/ground.jpg", loadInfo, m_device, &Tex);
         m_TextureGround = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
     {
-        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        TexturePtr Tex;
         CreateTextureFromFile("assets/grass0.png", loadInfo, m_device, &Tex);
         m_TextureGrass0 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
     {
-        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        TexturePtr Tex;
         CreateTextureFromFile("assets/grass1.png", loadInfo, m_device, &Tex);
         m_TextureGrass1 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
     {
-        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        TexturePtr Tex;
         CreateTextureFromFile("assets/flower0.png", loadInfo, m_device, &Tex);
         m_TextureFlower0 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
     {
-        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        TexturePtr Tex;
         CreateTextureFromFile("assets/blade_0.png", loadInfo, m_device, &Tex);
         m_TextureGrassBlade0 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
     {
-        dg::RefCntAutoPtr<dg::ITexture> Tex;
+        TexturePtr Tex;
         CreateTextureFromFile("assets/blade_1.jpg", loadInfo, m_device, &Tex);
         m_TextureGrassBlade1 = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
@@ -210,7 +210,7 @@ void GeneralScene::GenerateGrass() {
     RandSeed(177);
 
     VertexBufferBuilder vbBuilder;
-    auto vb = vbBuilder.AddRange<VertexP>(10 * 1000 * 1000);
+    auto vb = vbBuilder.AddRange<VertexP>(1 * 10 * 1000);
     float halfWidt = 150.f;
     for (auto* vbIt = vb.Begin(); vbIt != vb.End(); ++vbIt) {
         auto vecPos = LinearRand(dg::float3(-halfWidt, 0.f, -halfWidt), dg::float3(halfWidt, 0.f, halfWidt));

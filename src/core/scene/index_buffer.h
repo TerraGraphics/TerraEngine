@@ -20,7 +20,7 @@ public:
     void Bind(ContextPtr& context, uint32_t offset);
 
 private:
-	dg::RefCntAutoPtr<dg::IBuffer> m_indexBuffer;
+	BufferPtr m_indexBuffer;
 };
 
 template <typename T>

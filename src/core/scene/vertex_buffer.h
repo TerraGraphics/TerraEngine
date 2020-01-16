@@ -22,7 +22,7 @@ public:
     void Bind(ContextPtr& context, uint32_t offset);
 
 protected:
-	dg::RefCntAutoPtr<dg::IBuffer> m_vertexBuffer;
+	BufferPtr m_vertexBuffer;
 };
 
 class WriteableVertexBuffer : public VertexBuffer {

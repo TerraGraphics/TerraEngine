@@ -9,9 +9,9 @@
 class ShaderBuilder : Fixed {
 public:
     struct Shaders {
-        dg::RefCntAutoPtr<dg::IShader> vs;
-        dg::RefCntAutoPtr<dg::IShader> ps;
-        dg::RefCntAutoPtr<dg::IShader> gs;
+        ShaderPtr vs;
+        ShaderPtr ps;
+        ShaderPtr gs;
     };
 
 private:
@@ -33,14 +33,14 @@ public:
     Shaders Build(const MicroShaderLoader::Source& source);
 
 private:
-    dg::RefCntAutoPtr<dg::IShader> BuildSource(const CacheKey& shaderSrc, const std::string& name);
+    ShaderPtr BuildSource(const CacheKey& shaderSrc, const std::string& name);
 
 private:
     DevicePtr m_device;
     EngineFactoryPtr m_engineFactory;
 
     MaterialBuilderDesc m_desc;
-    dg::RefCntAutoPtr<dg::IShaderSourceInputStreamFactory> m_shaderSourceFactory;
+    ShaderSourceInputStreamFactoryPtr m_shaderSourceFactory;
 
-    std::unordered_map<CacheKey, dg::RefCntAutoPtr<dg::IShader>, CacheKey> m_cache;
+    std::unordered_map<CacheKey, ShaderPtr, CacheKey> m_cache;
 };

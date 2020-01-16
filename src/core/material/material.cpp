@@ -3,7 +3,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 
 
-Material::Material(const dg::RefCntAutoPtr<dg::IPipelineState>& pipelineState)
+Material::Material(const PipelineStatePtr& pipelineState)
     : m_pipelineState(pipelineState) {
 
 }
@@ -12,8 +12,8 @@ const dg::Char* Material::GetName() const {
     return m_pipelineState->GetDesc().Name;
 }
 
-dg::RefCntAutoPtr<dg::IShaderResourceBinding> Material::CreateShaderResourceBinding() {
-    dg::RefCntAutoPtr<dg::IShaderResourceBinding> binding;
+ShaderResourceBindingPtr Material::CreateShaderResourceBinding() {
+    ShaderResourceBindingPtr binding;
     m_pipelineState->CreateShaderResourceBinding(&binding, true);
 
     return binding;

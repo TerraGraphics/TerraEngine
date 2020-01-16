@@ -10,9 +10,6 @@ class Material;
 class GeometryNode;
 namespace Diligent {
     #include "structures.fxh"
-    class IBuffer;
-    class IDeviceObject;
-    class IShaderResourceBinding;
 }
 class MaterialNode : Fixed {
 public:
@@ -33,7 +30,7 @@ protected:
 private:
     std::shared_ptr<Material> m_material;
     std::shared_ptr<GeometryNode> m_geometry;
-    dg::RefCntAutoPtr<dg::IShaderResourceBinding> m_binding;
+    ShaderResourceBindingPtr m_binding;
 };
 
 class MaterialClrNode : public MaterialNode {
@@ -49,5 +46,5 @@ private:
     bool m_isDirty = true;
     dg::ShaderMaterial m_materialParams;
     dg::ShaderMaterial m_materialParamsFinish;
-    dg::RefCntAutoPtr<dg::IBuffer> m_materialCB;
+    BufferPtr m_materialCB;
 };

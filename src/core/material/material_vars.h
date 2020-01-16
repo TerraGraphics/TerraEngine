@@ -7,10 +7,6 @@
 #include "core/common/ctor.h"
 
 
-namespace Diligent {
-    class IPipelineState;
-}
-
 class StaticVarsStorage : Fixed {
     struct Info {
         dg::SHADER_TYPE shaderType;

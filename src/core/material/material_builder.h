@@ -30,7 +30,7 @@ public:
 
     public:
         Builder() = delete;
-        Builder(MaterialBuilder* builder, dg::RefCntAutoPtr<dg::IShader>& shaderVS, dg::RefCntAutoPtr<dg::IShader>& shaderPS, dg::RefCntAutoPtr<dg::IShader>& shaderGS, const dg::InputLayoutDesc& layoutDesc);
+        Builder(MaterialBuilder* builder, ShaderPtr& shaderVS, ShaderPtr& shaderPS, ShaderPtr& shaderGS, const dg::InputLayoutDesc& layoutDesc);
         ~Builder() = default;
 
         Builder& CullMode(dg::CULL_MODE value) noexcept;

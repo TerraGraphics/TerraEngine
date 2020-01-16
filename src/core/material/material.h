@@ -5,21 +5,16 @@
 #include "core/common/counter.h"
 
 
-namespace Diligent {
-    class IPipelineState;
-    class IShaderResourceBinding;
-}
-
 class Material : public Counter<Material>, Fixed {
 public:
     Material() = delete;
-    Material(const dg::RefCntAutoPtr<dg::IPipelineState>& pipelineState);
+    Material(const PipelineStatePtr& pipelineState);
 
     const dg::Char* GetName() const;
-    dg::RefCntAutoPtr<dg::IShaderResourceBinding> CreateShaderResourceBinding();
+    ShaderResourceBindingPtr CreateShaderResourceBinding();
 
     void Bind(ContextPtr& context);
 
 private:
-    dg::RefCntAutoPtr<dg::IPipelineState> m_pipelineState;
+    PipelineStatePtr m_pipelineState;
 };

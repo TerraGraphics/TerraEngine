@@ -20,11 +20,7 @@ MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE s
 
 }
 
-MaterialBuilder::Builder::Builder(MaterialBuilder* builder,
-    dg::RefCntAutoPtr<dg::IShader>& shaderVS,
-    dg::RefCntAutoPtr<dg::IShader>& shaderPS,
-    dg::RefCntAutoPtr<dg::IShader>& shaderGS,
-    const dg::InputLayoutDesc& layoutDesc)
+MaterialBuilder::Builder::Builder(MaterialBuilder* builder, ShaderPtr& shaderVS, ShaderPtr& shaderPS, ShaderPtr& shaderGS, const dg::InputLayoutDesc& layoutDesc)
     : m_builder(builder) {
 
     m_desc.IsComputePipeline = false;
@@ -158,7 +154,7 @@ std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
     desc.GraphicsPipeline.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
     // desc.GraphicsPipeline.RasterizerDesc.FillMode = dg::FILL_MODE_WIREFRAME;
 
-    dg::RefCntAutoPtr<dg::IPipelineState> pipelineState;
+    PipelineStatePtr pipelineState;
     m_device->CreatePipelineState(desc, &pipelineState);
     m_staticVarsStorage->SetVars(pipelineState);
 

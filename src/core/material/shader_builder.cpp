@@ -64,8 +64,8 @@ static void ProcessBuildError(const std::string& text, const std::string& name, 
     throw EngineError("failed to build {} shader {}", typeStr, name);
 }
 
-dg::RefCntAutoPtr<dg::IShader> ShaderBuilder::BuildSource(const CacheKey& shaderSrc, const std::string& name) {
-    dg::RefCntAutoPtr<dg::IShader> shader;
+ShaderPtr ShaderBuilder::BuildSource(const CacheKey& shaderSrc, const std::string& name) {
+    ShaderPtr shader;
 
     if (shaderSrc.source.empty()) {
         return shader;
