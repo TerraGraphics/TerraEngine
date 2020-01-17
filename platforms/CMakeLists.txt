@@ -14,6 +14,7 @@ set(SOURCE_FILES
 
 if(PLATFORM_LINUX)
     list(APPEND SOURCE_FILES src/linux/x11_key_map.cpp)
+    list(APPEND SOURCE_FILES src/linux/x11_input_handler.cpp)
 
     if(GL_SUPPORTED)
         list(APPEND SOURCE_FILES src/gl/gl_graphics.cpp)

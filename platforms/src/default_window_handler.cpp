@@ -158,8 +158,8 @@ void DefaultWindowEventsHandler::OnKeyEvent(KeyAction action, Key code, uint8_t 
     }
 }
 
-void DefaultWindowEventsHandler::OnCharEvent(wchar_t ch) {
-    m_userInput += ch;
+void DefaultWindowEventsHandler::OnInputEvent(const std::wstring& s) {
+    m_userInput.append(s);
 }
 
 void DefaultWindowEventsHandler::OnCursorPosition(double x, double y) {

@@ -171,7 +171,7 @@ public:
     virtual void OnWindowDestroy() = 0;
     virtual void OnWindowSizeEvent(uint32_t width, uint32_t height) = 0;
     virtual void OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) = 0;
-    virtual void OnCharEvent(wchar_t ch) = 0;
+    virtual void OnInputEvent(const std::wstring& s) = 0;
     virtual void OnCursorPosition(double x, double y) = 0;
     virtual void OnScroll(int delta) = 0;
 };
