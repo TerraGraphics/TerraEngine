@@ -11,13 +11,13 @@ class DefaultWindowEventsHandler;
 class Gui : Fixed {
 public:
     Gui() = delete;
-    Gui(const DevicePtr& device, dg::TEXTURE_FORMAT backBufferFormat, dg::TEXTURE_FORMAT depthBufferFormat, const std::shared_ptr<RenderWindow>& window);
+    Gui(const DevicePtr& device, const ContextPtr& context, dg::TEXTURE_FORMAT backBufferFormat, dg::TEXTURE_FORMAT depthBufferFormat, const std::shared_ptr<RenderWindow>& window);
     ~Gui();
 
     void Create();
     void Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& handler);
     void NewFrame();
-    void EndFrame(dg::IDeviceContext* context);
+    void EndFrame();
 
 private:
     void CreateGraphics();
@@ -26,6 +26,7 @@ private:
 
 private:
     DevicePtr m_device;
+    ContextPtr m_context;
     dg::TEXTURE_FORMAT m_backBufferFormat = dg::TEXTURE_FORMAT(0);
     dg::TEXTURE_FORMAT m_depthBufferFormat = dg::TEXTURE_FORMAT(0);
     std::shared_ptr<RenderWindow> m_window = nullptr;
@@ -38,4 +39,6 @@ private:
     BufferPtr m_ib;
     uint32_t m_vbSize = 1024;
     uint32_t m_ibSize = 2048;
+
+    bool m_enableInput = true;
 };

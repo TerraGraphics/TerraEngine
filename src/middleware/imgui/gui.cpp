@@ -29,7 +29,7 @@ struct PSInput {
 void main(in VSInput vsIn, out PSInput psIn) {
     psIn.position = mul(matProj, float4(vsIn.position.xy, 0.0, 1.0));
     psIn.color = vsIn.color;
-    psIn.uv  = vsIn.uv;
+    psIn.uv = vsIn.uv;
 }
 )";
 
@@ -49,8 +49,9 @@ float4 main(in PSInput psIn) : SV_TARGET {
 )";
 
 
-Gui::Gui(const DevicePtr& device, dg::TEXTURE_FORMAT backBufferFormat, dg::TEXTURE_FORMAT depthBufferFormat, const std::shared_ptr<RenderWindow>& window)
+Gui::Gui(const DevicePtr& device, const ContextPtr& context, dg::TEXTURE_FORMAT backBufferFormat, dg::TEXTURE_FORMAT depthBufferFormat, const std::shared_ptr<RenderWindow>& window)
     : m_device(device)
+    , m_context(context)
     , m_backBufferFormat(backBufferFormat)
     , m_depthBufferFormat(depthBufferFormat)
     , m_window(window) {
@@ -137,7 +138,7 @@ void Gui::NewFrame() {
     ImGui::NewFrame();
 }
 
-void Gui::EndFrame(dg::IDeviceContext* context) {
+void Gui::EndFrame() {
     ImGui::Render();
     ImDrawData* drawData = ImGui::GetDrawData();
     if (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f) {
@@ -154,7 +155,8 @@ void Gui::EndFrame(dg::IDeviceContext* context) {
         desc.Name           = "vb::imgui";
         desc.BindFlags      = dg::BIND_VERTEX_BUFFER;
         desc.uiSizeInBytes  = m_vbSize * sizeof(ImDrawVert);
-        desc.Usage          = dg::USAGE_DYNAMIC;
+        // TODO: dg::USAGE_DYNAMIC;
+        desc.Usage          = dg::USAGE_STAGING;
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         m_device->CreateBuffer(desc, nullptr, &m_vb);
     }
@@ -169,18 +171,19 @@ void Gui::EndFrame(dg::IDeviceContext* context) {
         desc.Name           = "ib::imgui";
         desc.BindFlags      = dg::BIND_INDEX_BUFFER;
         desc.uiSizeInBytes  = m_ibSize * sizeof(ImDrawIdx);
-        desc.Usage          = dg::USAGE_DYNAMIC;
+        // TODO: dg::USAGE_DYNAMIC;
+        desc.Usage          = dg::USAGE_STAGING;
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         m_device->CreateBuffer(desc, nullptr, &m_ib);
     }
 
     {
-        dg::MapHelper<ImDrawVert> vbData(context, m_vb, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
-        dg::MapHelper<ImDrawIdx>  ibData(context, m_ib, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
+        dg::MapHelper<ImDrawVert> vbData(m_context, m_vb, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
+        dg::MapHelper<ImDrawIdx>  ibData(m_context, m_ib, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
 
         ImDrawVert* vbIt = vbData;
         ImDrawIdx* ibIt = ibData;
-        for (int n = 0; n < drawData->CmdListsCount; ++n) {
+        for (int n = 0; n != drawData->CmdListsCount; ++n) {
             const ImDrawList* cmdList = drawData->CmdLists[n];
             memcpy(vbIt, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
             memcpy(ibIt, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
@@ -189,10 +192,11 @@ void Gui::EndFrame(dg::IDeviceContext* context) {
         }
     }
 
+
     // Our visible imgui space lies from drawData->DisplayPos (top left) to drawData->DisplayPos+data_data->DisplaySize (bottom right).
     // DisplayPos is (0,0) for single viewport apps.
     {
-        dg::MapHelper<dg::float4x4> CBData(context, m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
+        dg::MapHelper<dg::float4x4> CBData(m_context, m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
 
         // TODO: check left and right matrix
         float L = drawData->DisplayPos.x;
@@ -211,13 +215,13 @@ void Gui::EndFrame(dg::IDeviceContext* context) {
     auto setupRenderState = [&]() {
         uint32_t offsets[] = {0};
         dg::IBuffer* vbBuffers[] = {m_vb};
-        context->SetVertexBuffers(0, 1, vbBuffers, offsets, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, dg::SET_VERTEX_BUFFERS_FLAG_RESET);
-        context->SetIndexBuffer(m_ib, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        context->SetPipelineState(m_ps);
-        context->CommitShaderResources(m_binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        m_context->SetVertexBuffers(0, 1, vbBuffers, offsets, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, dg::SET_VERTEX_BUFFERS_FLAG_RESET);
+        m_context->SetIndexBuffer(m_ib, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        m_context->SetPipelineState(m_ps);
+        m_context->CommitShaderResources(m_binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
-        context->SetBlendFactors(blend_factor);
+        m_context->SetBlendFactors(blend_factor);
 
         dg::Viewport vp;
         vp.Width    = drawData->DisplaySize.x;
@@ -226,7 +230,7 @@ void Gui::EndFrame(dg::IDeviceContext* context) {
         vp.MaxDepth = 1.0f;
         vp.TopLeftX = 0;
         vp.TopLeftY = 0;
-        context->SetViewports(1, &vp, displayWidth, displayHeight);
+        m_context->SetViewports(1, &vp, displayWidth, displayHeight);
     };
 
     setupRenderState();
@@ -255,17 +259,16 @@ void Gui::EndFrame(dg::IDeviceContext* context) {
                     static_cast<int32_t>(pcmd->ClipRect.y - clip_off.y),
                     static_cast<int32_t>(pcmd->ClipRect.z - clip_off.x),
                     static_cast<int32_t>(pcmd->ClipRect.w - clip_off.y)};
-                context->SetScissorRects(1, &r, displayWidth, displayHeight);
+                m_context->SetScissorRects(1, &r, displayWidth, displayHeight);
 
-                // Bind texture, Draw
                 auto* textureSrv = reinterpret_cast<dg::ITextureView*>(pcmd->TextureId);
-                VERIFY_EXPR(textureSrv == m_fontTex);
-                (void)textureSrv;
-                //ctx->PSSetShaderResources(0, 1, &textureSrv);
+                if (textureSrv != m_fontTex) {
+                    throw EngineError("wrong texture set in imgui");
+                }
                 dg::DrawIndexedAttribs DrawAttrs(pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? dg::VT_UINT16 : dg::VT_UINT32, dg::DRAW_FLAG_VERIFY_STATES);
                 DrawAttrs.FirstIndexLocation = pcmd->IdxOffset + globalIdxOffset;
                 DrawAttrs.BaseVertex         = pcmd->VtxOffset + globalVtxOffset;
-                context->DrawIndexed(DrawAttrs);
+                m_context->DrawIndexed(DrawAttrs);
             }
         }
         globalIdxOffset += cmdList->IdxBuffer.Size;
@@ -298,13 +301,24 @@ void Gui::CreateGraphics() {
         m_device->CreateShader(shaderCI, &psShader);
     }
 
+    dg::BufferDesc cbDesc;
+    cbDesc.uiSizeInBytes = sizeof(dg::float4x4);
+    cbDesc.Usage = dg::USAGE_DYNAMIC;
+    cbDesc.BindFlags = dg::BIND_UNIFORM_BUFFER;
+    cbDesc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
+    m_device->CreateBuffer(cbDesc, nullptr, &m_cameraCB);
+    {
+        dg::MapHelper<dg::float4x4> CBData(m_context, m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
+        *CBData = dg::float4x4();
+    }
+
     dg::LayoutElement layoutElems[] = {
         // vertex position
         dg::LayoutElement{0, 0, 2, dg::VT_FLOAT32, dg::False},
         // texture coordinates
         dg::LayoutElement{1, 0, 2, dg::VT_FLOAT32, dg::False},
         // color
-        dg::LayoutElement{1, 0, 4, dg::VT_UINT8, dg::True}
+        dg::LayoutElement{2, 0, 4, dg::VT_UINT8, dg::True}
     };
 
     dg::ShaderResourceVariableDesc vars[] = {
@@ -355,13 +369,6 @@ void Gui::CreateGraphics() {
     rl.NumStaticSamplers = _countof(samplers);
 
     m_device->CreatePipelineState(desc, &m_ps);
-
-    dg::BufferDesc cbDesc;
-    cbDesc.uiSizeInBytes = sizeof(dg::float4x4);
-    cbDesc.Usage = dg::USAGE_DYNAMIC;
-    cbDesc.BindFlags = dg::BIND_UNIFORM_BUFFER;
-    cbDesc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
-    m_device->CreateBuffer(cbDesc, nullptr, &m_cameraCB);
 
     m_ps->GetStaticVariableByName(dg::SHADER_TYPE_VERTEX, "Camera")->Set(m_cameraCB);
 

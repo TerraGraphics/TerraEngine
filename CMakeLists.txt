@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(terra VERSION 0.1 LANGUAGES CXX)
+project(terra VERSION 0.2 LANGUAGES CXX)
 
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
 conan_cmake_run(CONANFILE conanfile.txt
