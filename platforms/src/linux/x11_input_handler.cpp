@@ -3,6 +3,7 @@
 #include <locale>
 #include <cstring>
 #include <codecvt>
+#include <X11/Xutil.h>
 #include "platforms/window_events.h"
 
 
@@ -73,15 +74,19 @@ void X11InputHandler::Create(Display* display, Window window) {
 }
 
 void X11InputHandler::Handle(XKeyEvent& xKeyEvent) {
-    if (m_im == nullptr) {
+    int count;
+    if (m_ic == nullptr) {
+        char strBuff[256];
+        count = XLookupString(&xKeyEvent, strBuff, sizeof(strBuff) / sizeof(strBuff[0]), nullptr, nullptr);
+        static std::wstring_convert<std::codecvt_utf8<wchar_t>> xconv;
+        m_handler->OnInputEvent(xconv.from_bytes(strBuff, strBuff + count));
         return;
     }
 
-    int count;
     Status status;
 #if defined(USE_UTF8)
     using TChar = char;
-    static size_t bufferSize = 100;
+    static size_t bufferSize = 256;
     static TChar* buffer = reinterpret_cast<TChar*>(calloc(bufferSize, sizeof(TChar)));
 
     count = Xutf8LookupString(m_ic, &xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
@@ -93,12 +98,12 @@ void X11InputHandler::Handle(XKeyEvent& xKeyEvent) {
     }
 
     if (status == XLookupChars || status == XLookupBoth) {
-        static std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
-        m_handler->OnInputEvent(myconv.from_bytes(buffer, buffer + count));
+        static std::wstring_convert<std::codecvt_utf8<wchar_t>> xutf8conv;
+        m_handler->OnInputEvent(xutf8conv.from_bytes(buffer, buffer + count));
     }
 #else /*USE_UTF8*/
     using TChar = wchar_t;
-    static size_t bufferSize = 100;
+    static size_t bufferSize = 256;
     static TChar* buffer = reinterpret_cast<TChar*>(calloc(bufferSize, sizeof(TChar)));
 
     count = XwcLookupString(m_ic, &xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
