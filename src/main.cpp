@@ -57,7 +57,7 @@ if (!useOpenGL) {
     auto glWindow = std::make_shared<WindowGLLinux>(windowDesc, engineDesc.eventHandler);
     glWindow->Create();
 
-    auto glGraphics = std::make_shared<GLGraphics>(glWindow->GetWindow(), glWindow->GetDisplay());
+    auto glGraphics = std::make_shared<GLGraphics>(glWindow->GetNativeWindowHandler(), glWindow->GetDisplay());
     Diligent::EngineGLCreateInfo& info = glGraphics->GetCreateInfo();
     info.DebugMessageCallback = logMessageCallback;
 

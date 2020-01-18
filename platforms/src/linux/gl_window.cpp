@@ -6,6 +6,7 @@
 #include <X11/cursorfont.h>
 #include <X11/Xcursor/Xcursor.h>
 
+#include "linux/x11_input_handler.h"
 #include "platforms/linux/x11_key_map.h"
 
 
@@ -28,11 +29,16 @@
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, int, const int*);
 
 WindowGLLinux::WindowGLLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
-    : RenderWindow(desc, handler) {
+    : RenderWindow(desc, handler)
+    , m_inputParser(new X11InputHandler(handler)) {
 
 }
 
 WindowGLLinux::~WindowGLLinux() {
+    if (m_inputParser != nullptr) {
+        delete m_inputParser;
+        m_inputParser = nullptr;
+    }
     Destroy();
 }
 
@@ -132,12 +138,14 @@ void WindowGLLinux::Create() {
     uint valueMask = CWBorderPixel | CWColormap | CWEventMask;
     auto parent = RootWindow(m_display, vi->screen);
 
-    m_window = static_cast<uint32_t>(XCreateWindow(m_display, parent,
+    m_window = static_cast<uint64_t>(XCreateWindow(m_display, parent,
                             m_desc.positionX, m_desc.positionY, m_desc.width, m_desc.height, 0,
                             vi->depth, InputOutput, vi->visual, valueMask, &swa));
     if (!m_window) {
         throw std::runtime_error("failed to create window");
     }
+
+    m_inputParser->Create(m_display, static_cast<Window>(m_window));
 
     m_atomWMDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(m_display, m_window, &m_atomWMDeleteWindow, 1);
@@ -179,7 +187,7 @@ void WindowGLLinux::Create() {
     glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
     {
         // Create an oldstyle context first, to get the correct function pointer for glXCreateContextAttribsARB
-        GLXContext ctx_old         = glXCreateContext(m_display, vi, 0, GL_TRUE);
+        GLXContext ctx_old = glXCreateContext(m_display, vi, 0, GL_TRUE);
         auto* address = glXGetProcAddress(reinterpret_cast<const GLubyte*>("glXCreateContextAttribsARB"));
         glXCreateContextAttribsARB = reinterpret_cast<glXCreateContextAttribsARBProc>(address);
         glXMakeCurrent(m_display, None, NULL);
@@ -256,6 +264,7 @@ void WindowGLLinux::ProcessEvents() {
                 break;
             case KeyPress:
                 HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
+                m_inputParser->Handle(event.xkey);
                 break;
             case KeyRelease:
                 HandleKeyEvent(KeyAction::Release, event.xkey.keycode, event.xkey.state);

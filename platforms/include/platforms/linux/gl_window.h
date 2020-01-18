@@ -4,13 +4,13 @@
 
 
 typedef struct _XDisplay Display;
+class X11InputHandler;
 class WindowGLLinux : public RenderWindow {
 public:
     WindowGLLinux() = delete;
     WindowGLLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler);
     ~WindowGLLinux() override;
 
-    uint32_t GetWindow() noexcept { return m_window; }
     Display* GetDisplay() noexcept { return m_display; }
 
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
@@ -34,7 +34,8 @@ private:
     void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
 
 private:
-    uint32_t m_window = 0;
+    uint64_t m_window = 0;
+    X11InputHandler* m_inputParser = nullptr;
     uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
     uint32_t m_hiddenCursor = 0;
     int m_windowCenterX = 0;
