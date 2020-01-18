@@ -75,7 +75,7 @@ void DefaultWindowEventsHandler::FillKeyboardKeysDown(bool* keysDown) const noex
     }
 }
 
-std::u16string DefaultWindowEventsHandler::GetInput() const noexcept {
+std::wstring DefaultWindowEventsHandler::GetInput() const noexcept {
     return m_userInput;
 }
 
@@ -110,7 +110,9 @@ void DefaultWindowEventsHandler::OnWindowSizeEvent(uint32_t width, uint32_t heig
 }
 
 void DefaultWindowEventsHandler::OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) {
-    if ((code > Key::LastKeyboard) || (action > KeyAction::Last)) {
+    bool isKeyboard = (code <= Key::LastKeyboard);
+    bool isMouse = ((code >= Key::FirstMouse) && (code <= Key::LastMouse));
+    if ((!isKeyboard && !isMouse) || (action > KeyAction::Last)) {
         return;
     }
 
@@ -156,7 +158,7 @@ void DefaultWindowEventsHandler::OnKeyEvent(KeyAction action, Key code, uint8_t 
     }
 }
 
-void DefaultWindowEventsHandler::OnCharEvent(char16_t ch) {
+void DefaultWindowEventsHandler::OnCharEvent(wchar_t ch) {
     m_userInput += ch;
 }
 

@@ -3,8 +3,8 @@
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
 
 
-GLGraphics::GLGraphics(uint32_t window, Display* display) {
-    m_createInfo.pNativeWndHandle = reinterpret_cast<void *>(window);
+GLGraphics::GLGraphics(void* nativeWindowHandler, Display* display) {
+    m_createInfo.pNativeWndHandle = nativeWindowHandler;
 #if PLATFORM_LINUX
     m_createInfo.pDisplay = display;
 #endif

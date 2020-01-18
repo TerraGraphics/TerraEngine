@@ -9,7 +9,7 @@ typedef struct _XDisplay Display;
 class GLGraphics : public Graphics {
 public:
     GLGraphics() = delete;
-    GLGraphics(uint32_t window, Display* display);
+    GLGraphics(void* nativeWindowHandler, Display* display);
     ~GLGraphics() override = default;
 
     Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }

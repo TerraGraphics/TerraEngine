@@ -44,7 +44,7 @@ void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t mod
     std::cout << ToString(action) << " " << strModifiers << ToString(key) << std::endl;
 }
 
-void DebugWindowEventsHandler::OnCharEvent(char16_t ch) {
+void DebugWindowEventsHandler::OnCharEvent(wchar_t ch) {
     DefaultWindowEventsHandler::OnCharEvent(ch);
     std::cout << "char = " << ch << std::endl;
 }

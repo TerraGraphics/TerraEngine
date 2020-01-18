@@ -27,14 +27,14 @@ public:
     bool GetKeyStickyDownState(Key code, uint8_t& mods) const noexcept;
     void FillKeyboardKeysDown(bool* keysDown) const noexcept;
 
-    std::u16string GetInput() const noexcept;
+    std::wstring GetInput() const noexcept;
 
 public:
     void OnNewFrame() override;
     void OnWindowDestroy() override;
     void OnWindowSizeEvent(uint32_t width, uint32_t height) override;
     void OnKeyEvent(KeyAction action, Key code, uint8_t modifiers) override;
-    void OnCharEvent(char16_t ch) override;
+    void OnCharEvent(wchar_t ch) override;
     void OnCursorPosition(double x, double y) override;
     void OnScroll(int delta) override;
 
@@ -50,5 +50,5 @@ private:
     int m_scrollOffset = 0;
     // FirstRelease, FirstPress, IsStickyDown, IsDown, Super, Alt, Control, Shift
     uint8_t m_isKeyDown[static_cast<size_t>(Key::Last) + 1] = { 0 };
-    std::u16string m_userInput;
+    std::wstring m_userInput;
 };
