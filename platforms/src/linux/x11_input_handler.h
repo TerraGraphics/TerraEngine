@@ -12,7 +12,7 @@ public:
     ~X11InputHandler();
 
     void Create(Display* display, Window window);
-    void Handle(XKeyEvent& xKeyEvent);
+    void Handle(XKeyEvent* xKeyEvent);
 
 private:
     // XIM input method

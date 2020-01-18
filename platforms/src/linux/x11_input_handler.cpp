@@ -73,11 +73,11 @@ void X11InputHandler::Create(Display* display, Window window) {
     }
 }
 
-void X11InputHandler::Handle(XKeyEvent& xKeyEvent) {
+void X11InputHandler::Handle(XKeyEvent* xKeyEvent) {
     int count;
     if (m_ic == nullptr) {
         char strBuff[256];
-        count = XLookupString(&xKeyEvent, strBuff, sizeof(strBuff) / sizeof(strBuff[0]), nullptr, nullptr);
+        count = XLookupString(xKeyEvent, strBuff, sizeof(strBuff) / sizeof(strBuff[0]), nullptr, nullptr);
         static std::wstring_convert<std::codecvt_utf8<wchar_t>> xconv;
         m_handler->OnInputEvent(xconv.from_bytes(strBuff, strBuff + count));
         return;
@@ -89,12 +89,12 @@ void X11InputHandler::Handle(XKeyEvent& xKeyEvent) {
     static size_t bufferSize = 256;
     static TChar* buffer = reinterpret_cast<TChar*>(calloc(bufferSize, sizeof(TChar)));
 
-    count = Xutf8LookupString(m_ic, &xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
+    count = Xutf8LookupString(m_ic, xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
     if (status == XBufferOverflow) {
         free(buffer);
         bufferSize = static_cast<size_t>(count);
         buffer = reinterpret_cast<TChar*>(calloc(bufferSize, sizeof(TChar)));
-        count = Xutf8LookupString(m_ic, &xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
+        count = Xutf8LookupString(m_ic, xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
     }
 
     if (status == XLookupChars || status == XLookupBoth) {
@@ -106,12 +106,12 @@ void X11InputHandler::Handle(XKeyEvent& xKeyEvent) {
     static size_t bufferSize = 256;
     static TChar* buffer = reinterpret_cast<TChar*>(calloc(bufferSize, sizeof(TChar)));
 
-    count = XwcLookupString(m_ic, &xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
+    count = XwcLookupString(m_ic, xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
     if (status == XBufferOverflow) {
         free(buffer);
         bufferSize = static_cast<size_t>(count);
         buffer = reinterpret_cast<TChar*>(calloc(bufferSize, sizeof(TChar)));
-        count = XwcLookupString(m_ic, &xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
+        count = XwcLookupString(m_ic, xKeyEvent, buffer, static_cast<int>(bufferSize), nullptr, &status);
     }
 
     if (status == XLookupChars || status == XLookupBoth) {

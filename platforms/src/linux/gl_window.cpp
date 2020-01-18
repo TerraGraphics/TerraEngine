@@ -264,7 +264,7 @@ void WindowGLLinux::ProcessEvents() {
                 break;
             case KeyPress:
                 HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
-                m_inputParser->Handle(event.xkey);
+                m_inputParser->Handle(&event.xkey);
                 break;
             case KeyRelease:
                 HandleKeyEvent(KeyAction::Release, event.xkey.keycode, event.xkey.state);

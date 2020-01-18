@@ -5,9 +5,11 @@
 
 struct xcb_screen_t;
 struct xcb_intern_atom_reply_t;
+typedef struct _XDisplay Display;
 typedef struct xcb_connection_t xcb_connection_t;
 typedef struct _XCBKeySymbols xcb_key_symbols_t;
 typedef struct xcb_cursor_context_t xcb_cursor_context_t;
+class X11InputHandler;
 class WindowVulkanLinux : public RenderWindow {
 public:
     WindowVulkanLinux() = delete;
@@ -38,7 +40,9 @@ private:
     void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
 
 private:
+    Display* m_display = nullptr;
     uint32_t m_window = 0;
+    X11InputHandler* m_inputParser = nullptr;
     uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
     uint32_t m_hiddenCursor = 0;
     int m_windowCenterX = 0;

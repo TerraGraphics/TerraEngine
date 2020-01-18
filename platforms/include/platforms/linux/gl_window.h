@@ -34,6 +34,7 @@ private:
     void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
 
 private:
+    Display* m_display = nullptr;
     uint64_t m_window = 0;
     X11InputHandler* m_inputParser = nullptr;
     uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
@@ -46,6 +47,5 @@ private:
     int m_lastCursorPosY = 0;
     double m_virtualCursorX = 0.0;
     double m_virtualCursorY = 0.0;
-    Display* m_display = nullptr;
     uint64_t m_atomWMDeleteWindow = 0;
 };

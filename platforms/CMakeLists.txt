@@ -25,7 +25,7 @@ if(PLATFORM_LINUX)
     if(VULKAN_SUPPORTED)
         list(APPEND SOURCE_FILES src/vulkan/vulkan_graphics.cpp)
         list(APPEND SOURCE_FILES src/linux/vulkan_window.cpp)
-        list(APPEND LIBS xcb xcb-keysyms xcb-cursor GraphicsEngineVk)
+        list(APPEND LIBS xcb xcb-keysyms xcb-cursor X11-xcb GraphicsEngineVk)
     endif()
 endif()
 

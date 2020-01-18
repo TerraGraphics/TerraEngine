@@ -1,9 +1,11 @@
 #include "platforms/linux/vulkan_window.h"
 
+#include <X11/Xlib-xcb.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
 
+#include "linux/x11_input_handler.h"
 #include "platforms/linux/x11_key_map.h"
 
 
@@ -27,11 +29,16 @@ static std::string ParseXCBConnectError(int err) {
 }
 
 WindowVulkanLinux::WindowVulkanLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
-    : RenderWindow(desc, handler) {
+    : RenderWindow(desc, handler)
+    , m_inputParser(new X11InputHandler(handler)) {
 
 }
 
 WindowVulkanLinux::~WindowVulkanLinux() {
+    if (m_inputParser != nullptr) {
+        delete m_inputParser;
+        m_inputParser = nullptr;
+    }
     Destroy();
 }
 
@@ -89,14 +96,28 @@ void WindowVulkanLinux::SetCursor(CursorType value) {
 
 void WindowVulkanLinux::Create() {
     // Connect to X server
-    int preferredScreenNumber;
-    m_connection = xcb_connect(nullptr, &preferredScreenNumber);
+    m_display = XOpenDisplay(NULL);
+    if (m_display == nullptr) {
+        throw std::runtime_error("failed to open display");
+    }
+
+    m_connection = XGetXCBConnection(m_display);
+    if (m_connection == nullptr) {
+        XCloseDisplay(m_display);
+        m_display = nullptr;
+        throw std::runtime_error("could not cast the Display object to an XCBConnection object");
+    }
+
     if (int err = xcb_connection_has_error(m_connection); err != 0) {
+        XCloseDisplay(m_display);
+        m_display = nullptr;
         throw std::runtime_error("unable to make an XCB connection: " + ParseXCBConnectError(err));
     }
 
+    XSetEventQueueOwner(m_display, XCBOwnsEventQueue);
     // Get screen
     {
+        auto preferredScreenNumber = DefaultScreen(m_display);
         const xcb_setup_t* setup = xcb_get_setup(m_connection);
         xcb_screen_iterator_t screenIt = xcb_setup_roots_iterator(setup);
         while (preferredScreenNumber-- > 0) {
@@ -122,6 +143,8 @@ void WindowVulkanLinux::Create() {
     xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, m_screen->root,
                     m_desc.positionX, m_desc.positionY, m_desc.width, m_desc.height, 0,
                     XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual, valueMask, valueList);
+
+    m_inputParser->Create(m_display, static_cast<Window>(m_window));
 
     // Magic code that will send notification when window is destroyed
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_connection, 1, 12, "WM_PROTOCOLS");
@@ -208,6 +231,11 @@ void WindowVulkanLinux::Destroy() {
         m_connection = nullptr;
         m_screen = nullptr;
     }
+
+    if (m_display != nullptr) {
+        XCloseDisplay(m_display);
+        m_display = nullptr;
+    }
 }
 
 void WindowVulkanLinux::ProcessEvents() {
@@ -240,6 +268,23 @@ void WindowVulkanLinux::ProcessEvents() {
             case XCB_KEY_PRESS: {
                 const auto* typedEvent = reinterpret_cast<const xcb_key_press_event_t*>(event);
                 HandleKeyEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
+                XKeyEvent x11Event;
+                x11Event.type = KeyPress;
+                x11Event.serial = typedEvent->sequence;
+                x11Event.send_event = True;
+                x11Event.display = m_display;
+                x11Event.window = typedEvent->event;
+                x11Event.root = typedEvent->root;
+                x11Event.subwindow = typedEvent->child;
+                x11Event.time = typedEvent->time;
+                x11Event.x = typedEvent->event_x;
+                x11Event.y = typedEvent->event_y;
+                x11Event.x_root = typedEvent->root_x;
+                x11Event.y_root = typedEvent->root_y;
+                x11Event.state = typedEvent->state;
+                x11Event.keycode = typedEvent->detail;
+                x11Event.same_screen = typedEvent->same_screen;
+                m_inputParser->Handle(&x11Event);
             }
             break;
 
