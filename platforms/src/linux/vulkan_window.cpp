@@ -1,5 +1,6 @@
 #include "platforms/linux/vulkan_window.h"
 
+#include <cstring>
 #include <X11/Xlib-xcb.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xcb_cursor.h>
@@ -8,6 +9,13 @@
 #include "linux/x11_input_handler.h"
 #include "platforms/linux/x11_key_map.h"
 
+enum ATOM : uint32_t {
+    WM_PROTOCOLS = 0,
+    WM_DELETE_WINDOW = 1,
+    ATOMS_NUMBER = 2,
+};
+
+const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW"};
 
 static std::string ParseXCBConnectError(int err) {
     switch (err) {
@@ -30,7 +38,8 @@ static std::string ParseXCBConnectError(int err) {
 
 WindowVulkanLinux::WindowVulkanLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
     : RenderWindow(desc, handler)
-    , m_inputParser(new X11InputHandler(handler)) {
+    , m_inputParser(new X11InputHandler(handler))
+    , m_atoms(new uint32_t[ATOMS_NUMBER]) {
 
 }
 
@@ -38,6 +47,10 @@ WindowVulkanLinux::~WindowVulkanLinux() {
     if (m_inputParser != nullptr) {
         delete m_inputParser;
         m_inputParser = nullptr;
+    }
+    if (m_atoms != nullptr) {
+        delete[] m_atoms;
+        m_atoms = nullptr;
     }
     Destroy();
 }
@@ -59,12 +72,13 @@ std::string WindowVulkanLinux::GetClipboard() {
 void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
     xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
 				xcb_query_pointer(m_connection, m_window), nullptr);
-
-    if (pointer == nullptr) {
+    if (pointer != nullptr) {
+        x = pointer->win_x;
+        y = pointer->win_y;
+        free(pointer);
+    } else {
         std::runtime_error("failed to get cursor position");
     }
-    x = pointer->win_x;
-    y = pointer->win_y;
 }
 
 void WindowVulkanLinux::SetCursorPos(int x, int y) {
@@ -156,15 +170,10 @@ void WindowVulkanLinux::Create() {
 
     m_inputParser->Create(m_display, static_cast<Window>(m_window));
 
+    GetAtoms();
+
     // Magic code that will send notification when window is destroyed
-    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_connection, 1, 12, "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t* reply  = xcb_intern_atom_reply(m_connection, cookie, 0);
-
-    xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(m_connection, 0, 16, "WM_DELETE_WINDOW");
-    m_atomWMDeleteWindow = xcb_intern_atom_reply(m_connection, cookie2, 0);
-
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, (*reply).atom, 4, 32, 1, &(*m_atomWMDeleteWindow).atom);
-    free(reply);
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, m_atoms[WM_PROTOCOLS], 4, 32, 1, &m_atoms[WM_DELETE_WINDOW]);
 
     // Set WM_NAME property
     {
@@ -226,11 +235,6 @@ void WindowVulkanLinux::Destroy() {
 
     DestroyCursors();
 
-    if (m_atomWMDeleteWindow != nullptr) {
-        free(m_atomWMDeleteWindow);
-        m_atomWMDeleteWindow = nullptr;
-    }
-
     if (m_window != 0) {
         xcb_destroy_window(m_connection, m_window);
         m_window = 0;
@@ -255,7 +259,7 @@ void WindowVulkanLinux::ProcessEvents() {
             // 0b100001
             case XCB_CLIENT_MESSAGE: {
                 const auto* typedEvent = reinterpret_cast<const xcb_client_message_event_t*>(event);
-                if (typedEvent->data.data32[0] == m_atomWMDeleteWindow->atom) {
+                if (typedEvent->data.data32[0] == m_atoms[WM_DELETE_WINDOW]) {
                     m_eventHandler->OnWindowDestroy();
                 }
             }
@@ -376,6 +380,24 @@ void WindowVulkanLinux::ProcessEvents() {
 
     if (m_focused && (m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
         SetCursorPos(m_windowCenterX, m_windowCenterY);
+    }
+}
+
+void WindowVulkanLinux::GetAtoms() {
+    xcb_intern_atom_cookie_t cookies[ATOMS_NUMBER];
+    for (uint32_t i=0; i!=ATOMS_NUMBER; ++i) {
+        cookies[i] = xcb_intern_atom(m_connection, 0, static_cast<uint16_t>(strlen(ATOMS_STR[i])), ATOMS_STR[i]);
+    }
+
+    for (uint32_t i=0; i!=ATOMS_NUMBER; ++i) {
+        xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(m_connection, cookies[i], nullptr);
+        if (reply == nullptr) {
+            auto msg = std::string("can't create atom ") + ATOMS_STR[i];
+            throw std::runtime_error(msg);
+        }
+
+        m_atoms[i] = reply->atom;
+        free(reply);
     }
 }
 

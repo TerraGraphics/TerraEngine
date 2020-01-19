@@ -36,6 +36,7 @@ public:
     void ProcessEvents() override;
 
 private:
+    void GetAtoms();
     void CreateCursors();
     void DestroyCursors();
     void DisableCursor();
@@ -61,7 +62,7 @@ private:
     xcb_key_symbols_t *m_keySymbols = nullptr;
     xcb_connection_t* m_connection = nullptr;
     xcb_screen_t* m_screen = nullptr;
-    xcb_intern_atom_reply_t* m_atomWMDeleteWindow = nullptr;
+    uint32_t* m_atoms;
     xcb_cursor_context_t *m_cursorContext = nullptr;
     bool m_focused = true;
 };
