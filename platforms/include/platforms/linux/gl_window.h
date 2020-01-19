@@ -16,6 +16,9 @@ public:
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
     void SetTitle(const std::string& title) override;
 
+    void SetClipboard(const std::string& string) override;
+    std::string GetClipboard() override;
+
     void GetCursorPos(int& x, int& y) override;
     void SetCursorPos(int x, int y) override;
     void SetCursor(CursorType value) override;

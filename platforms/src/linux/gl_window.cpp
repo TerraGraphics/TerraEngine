@@ -46,6 +46,14 @@ void WindowGLLinux::SetTitle(const std::string& title) {
     XStoreName(m_display, m_window, title.c_str());
 }
 
+void WindowGLLinux::SetClipboard(const std::string& string) {
+
+}
+
+std::string WindowGLLinux::GetClipboard() {
+    return std::string();
+}
+
 void WindowGLLinux::GetCursorPos(int& x, int& y) {
     Window root, child;
     int rootX, rootY;

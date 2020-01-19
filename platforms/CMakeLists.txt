@@ -13,13 +13,14 @@ set(SOURCE_FILES
 )
 
 if(PLATFORM_LINUX)
+    list(APPEND LIBS X11)
     list(APPEND SOURCE_FILES src/linux/x11_key_map.cpp)
     list(APPEND SOURCE_FILES src/linux/x11_input_handler.cpp)
 
     if(GL_SUPPORTED)
         list(APPEND SOURCE_FILES src/gl/gl_graphics.cpp)
         list(APPEND SOURCE_FILES src/linux/gl_window.cpp)
-        list(APPEND LIBS GL X11 Xcursor GraphicsEngineOpenGL)
+        list(APPEND LIBS GL Xcursor GraphicsEngineOpenGL)
     endif()
 
     if(VULKAN_SUPPORTED)

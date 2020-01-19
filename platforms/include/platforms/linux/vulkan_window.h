@@ -16,11 +16,16 @@ public:
     WindowVulkanLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler);
     ~WindowVulkanLinux() override;
 
+    Display* GetDisplay() noexcept { return m_display; }
+
     uint32_t GetWindow() noexcept { return m_window; }
     xcb_connection_t* GetConnection() noexcept { return m_connection; }
 
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
     void SetTitle(const std::string& title) override;
+
+    void SetClipboard(const std::string& string) override;
+    std::string GetClipboard() override;
 
     void GetCursorPos(int& x, int& y) override;
     void SetCursorPos(int x, int y) override;

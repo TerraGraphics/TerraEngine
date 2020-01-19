@@ -48,6 +48,14 @@ void WindowVulkanLinux::SetTitle(const std::string& title) {
     xcb_flush(m_connection);
 }
 
+void WindowVulkanLinux::SetClipboard(const std::string& string) {
+
+}
+
+std::string WindowVulkanLinux::GetClipboard() {
+    return std::string();
+}
+
 void WindowVulkanLinux::GetCursorPos(int& x, int& y) {
     xcb_query_pointer_reply_t *pointer = xcb_query_pointer_reply(m_connection,
 				xcb_query_pointer(m_connection, m_window), nullptr);
@@ -114,7 +122,9 @@ void WindowVulkanLinux::Create() {
         throw std::runtime_error("unable to make an XCB connection: " + ParseXCBConnectError(err));
     }
 
+    // now queue owner is XCB
     XSetEventQueueOwner(m_display, XCBOwnsEventQueue);
+
     // Get screen
     {
         auto preferredScreenNumber = DefaultScreen(m_display);
@@ -227,7 +237,6 @@ void WindowVulkanLinux::Destroy() {
     }
 
     if (m_connection != nullptr) {
-        xcb_disconnect(m_connection);
         m_connection = nullptr;
         m_screen = nullptr;
     }
