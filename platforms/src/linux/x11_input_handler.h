@@ -13,6 +13,7 @@ public:
 
     void Create(Display* display, Window window);
     void Handle(XKeyEvent* xKeyEvent);
+    void FocusChange(bool isFocus);
 
 private:
     // XIM input method

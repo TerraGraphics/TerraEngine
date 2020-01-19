@@ -119,3 +119,13 @@ void X11InputHandler::Handle(XKeyEvent* xKeyEvent) {
     }
 #endif /*USE_UTF8*/
 }
+
+void X11InputHandler::FocusChange(bool isFocus) {
+    if (m_ic) {
+        if (isFocus) {
+            XSetICFocus(m_ic);
+        } else {
+            XUnsetICFocus(m_ic);
+        }
+    }
+}

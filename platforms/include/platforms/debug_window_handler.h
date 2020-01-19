@@ -16,4 +16,5 @@ public:
     void OnInputEvent(const std::wstring& s) override;
     void OnCursorPosition(double x, double y) override;
     void OnScroll(int delta) override;
+    void OnFocusChange(bool isFocus) override;
 };

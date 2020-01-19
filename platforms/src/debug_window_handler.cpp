@@ -58,3 +58,8 @@ void DebugWindowEventsHandler::OnScroll(int delta) {
     DefaultWindowEventsHandler::OnScroll(delta);
     std::cout << "Scroll delta = " << delta << std::endl;
 }
+
+void DebugWindowEventsHandler::OnFocusChange(bool isFocus) {
+    DefaultWindowEventsHandler::OnFocusChange(isFocus);
+    std::cout << "is focused = " << isFocus << std::endl;
+}

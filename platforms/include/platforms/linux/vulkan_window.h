@@ -63,4 +63,5 @@ private:
     xcb_screen_t* m_screen = nullptr;
     xcb_intern_atom_reply_t* m_atomWMDeleteWindow = nullptr;
     xcb_cursor_context_t *m_cursorContext = nullptr;
+    bool m_focused = true;
 };

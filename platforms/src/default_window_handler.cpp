@@ -172,3 +172,7 @@ void DefaultWindowEventsHandler::OnCursorPosition(double x, double y) {
 void DefaultWindowEventsHandler::OnScroll(int delta) {
     m_scrollOffset += delta;
 }
+
+void DefaultWindowEventsHandler::OnFocusChange(bool isFocus) {
+    m_focused = isFocus;
+}

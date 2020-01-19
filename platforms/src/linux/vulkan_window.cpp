@@ -81,7 +81,6 @@ void WindowVulkanLinux::SetCursor(CursorType value) {
 
     if (m_currentCursorType == CursorType::Disabled) {
         EnableCursor();
-        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
     }
 
     m_currentCursorType = value;
@@ -141,13 +140,14 @@ void WindowVulkanLinux::Create() {
     uint32_t valueList[32];
     valueList[0] = m_screen->black_pixel;
     valueList[1] =
-        XCB_EVENT_MASK_KEY_RELEASE |
         XCB_EVENT_MASK_KEY_PRESS |
+        XCB_EVENT_MASK_KEY_RELEASE |
+        XCB_EVENT_MASK_BUTTON_PRESS |
+        XCB_EVENT_MASK_BUTTON_RELEASE |
+        XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_EXPOSURE |
         XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-        XCB_EVENT_MASK_POINTER_MOTION |
-        XCB_EVENT_MASK_BUTTON_PRESS |
-        XCB_EVENT_MASK_BUTTON_RELEASE;
+        XCB_EVENT_MASK_FOCUS_CHANGE;
 
     m_window = xcb_generate_id(m_connection);
     xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, m_screen->root,
@@ -338,13 +338,43 @@ void WindowVulkanLinux::ProcessEvents() {
             }
             break;
 
+            // 0b1001
+            case XCB_FOCUS_IN: {
+                if (m_focused) {
+                    break;
+                }
+                m_focused = true;
+                if (m_currentCursorType == CursorType::Disabled) {
+                    DisableCursor();
+                }
+
+                m_inputParser->FocusChange(m_focused);
+                m_eventHandler->OnFocusChange(m_focused);
+            }
+            break;
+
+            // 0b1010
+            case XCB_FOCUS_OUT: {
+                if (!m_focused) {
+                    break;
+                }
+                m_focused = false;
+                if (m_currentCursorType == CursorType::Disabled) {
+                    EnableCursor();
+                }
+
+                m_inputParser->FocusChange(m_focused);
+                m_eventHandler->OnFocusChange(m_focused);
+            }
+            break;
+
             default:
                 break;
         }
         free(event);
     }
 
-    if ((m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
+    if (m_focused && (m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
         SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
 }
@@ -403,15 +433,18 @@ void WindowVulkanLinux::DisableCursor() {
         XCB_CURRENT_TIME);
 
     xcb_grab_pointer_reply_t* grabReply = xcb_grab_pointer_reply(m_connection, cookie, nullptr);
-    if ((grabReply == nullptr) || (grabReply->status != XCB_GRAB_STATUS_SUCCESS)) {
+    bool error = ((grabReply == nullptr) || (grabReply->status != XCB_GRAB_STATUS_SUCCESS));
+    if (grabReply != nullptr) {
+        free(grabReply);
+    }
+    if (error) {
         std::runtime_error("failed to disable cursor");
     }
-    xcb_flush(m_connection);
 }
 
 void WindowVulkanLinux::EnableCursor() {
     xcb_ungrab_pointer(m_connection, XCB_TIME_CURRENT_TIME);
-    xcb_flush(m_connection);
+    SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
 }
 
 void WindowVulkanLinux::HandleSizeEvent(uint32_t width, uint32_t height) {

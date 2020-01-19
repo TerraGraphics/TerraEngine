@@ -174,4 +174,5 @@ public:
     virtual void OnInputEvent(const std::wstring& s) = 0;
     virtual void OnCursorPosition(double x, double y) = 0;
     virtual void OnScroll(int delta) = 0;
+    virtual void OnFocusChange(bool isFocus) = 0;
 };

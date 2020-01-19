@@ -10,6 +10,7 @@ public:
 
 public:
     bool IsWindowShouldClose() const noexcept { return m_windowShouldClose; }
+    bool IsWindowFocused() const noexcept { return m_focused; }
 
     bool GetWindowSize(uint32_t& width, uint32_t& height) const noexcept;
 
@@ -37,10 +38,12 @@ public:
     void OnInputEvent(const std::wstring& s) override;
     void OnCursorPosition(double x, double y) override;
     void OnScroll(int delta) override;
+    void OnFocusChange(bool isFocus) override;
 
 private:
     bool m_windowShouldClose = false;
     bool m_sizeChanged = false;
+    bool m_focused = true;
     uint32_t m_width = 0;
     uint32_t m_height = 0;
     double m_cursorPosX = 0;
