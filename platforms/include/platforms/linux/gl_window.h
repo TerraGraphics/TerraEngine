@@ -51,4 +51,5 @@ private:
     double m_virtualCursorX = 0.0;
     double m_virtualCursorY = 0.0;
     uint64_t m_atomWMDeleteWindow = 0;
+    bool m_focused = true;
 };

@@ -74,7 +74,6 @@ void WindowGLLinux::SetCursor(CursorType value) {
     }
     if (m_currentCursorType == CursorType::Disabled) {
         EnableCursor();
-        SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
     }
 
     m_currentCursorType = value;
@@ -133,16 +132,18 @@ void WindowGLLinux::Create() {
     XVisualInfo* vi = glXGetVisualFromFBConfig(m_display, fbc[0]);
 
     XSetWindowAttributes swa;
-    swa.colormap     = XCreateColormap(m_display, RootWindow(m_display, vi->screen), vi->visual, AllocNone);
+    swa.colormap = XCreateColormap(m_display, RootWindow(m_display, vi->screen), vi->visual, AllocNone);
     swa.border_pixel = 0;
     swa.event_mask =
-        StructureNotifyMask |
-        ExposureMask |
         KeyPressMask |
         KeyReleaseMask |
         ButtonPressMask |
         ButtonReleaseMask |
-        PointerMotionMask;
+        PointerMotionMask |
+        ExposureMask |
+        StructureNotifyMask |
+        FocusChangeMask;
+
     uint valueMask = CWBorderPixel | CWColormap | CWEventMask;
     auto parent = RootWindow(m_display, vi->screen);
 
@@ -300,12 +301,41 @@ void WindowGLLinux::ProcessEvents() {
                 m_lastCursorPosY = event.xmotion.y;
             }
             break;
+
+            case FocusIn: {
+                if (m_focused) {
+                    break;
+                }
+                m_focused = true;
+                if (m_currentCursorType == CursorType::Disabled) {
+                    DisableCursor();
+                }
+
+                m_inputParser->FocusChange(m_focused);
+                m_eventHandler->OnFocusChange(m_focused);
+            }
+            break;
+
+            case FocusOut: {
+                if (!m_focused) {
+                    break;
+                }
+                m_focused = false;
+                if (m_currentCursorType == CursorType::Disabled) {
+                    EnableCursor();
+                }
+
+                m_inputParser->FocusChange(m_focused);
+                m_eventHandler->OnFocusChange(m_focused);
+            }
+            break;
+
             default:
                 break;
         }
     }
 
-    if ((m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
+    if (m_focused && (m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
         SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
 }
@@ -389,7 +419,7 @@ void WindowGLLinux::DisableCursor() {
 
 void WindowGLLinux::EnableCursor() {
     XUngrabPointer(m_display, CurrentTime);
-    XFlush(m_display);
+    SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
 }
 
 void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
