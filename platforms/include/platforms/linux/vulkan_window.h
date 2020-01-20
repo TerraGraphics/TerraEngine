@@ -9,6 +9,7 @@ typedef struct _XDisplay Display;
 typedef struct xcb_connection_t xcb_connection_t;
 typedef struct _XCBKeySymbols xcb_key_symbols_t;
 typedef struct xcb_cursor_context_t xcb_cursor_context_t;
+typedef struct xcb_selection_notify_event_t xcb_selection_notify_event_t;
 class X11InputHandler;
 class WindowVulkanLinux : public RenderWindow {
 public:
@@ -44,6 +45,7 @@ private:
     void HandleSizeEvent(uint32_t width, uint32_t height);
     void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
+    void HandleSelectionNotify(const xcb_selection_notify_event_t* event);
 
 private:
     Display* m_display = nullptr;

@@ -259,31 +259,23 @@ void WindowGLLinux::ProcessEvents() {
         XEvent event;
         XNextEvent(m_display, &event);
         switch (event.type) {
-            case ClientMessage: {
-                if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atomWMDeleteWindow) {
-                    m_eventHandler->OnWindowDestroy();
-                }
-            }
-            break;
-            case DestroyNotify:
-                m_eventHandler->OnWindowDestroy();
-                break;
-            case ConfigureNotify:
-                HandleSizeEvent(static_cast<uint32_t>(event.xconfigure.width), static_cast<uint32_t>(event.xconfigure.height));
-                break;
             case KeyPress:
                 HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
                 m_inputParser->Handle(&event.xkey);
                 break;
+
             case KeyRelease:
                 HandleKeyEvent(KeyAction::Release, event.xkey.keycode, event.xkey.state);
                 break;
+
             case ButtonPress:
                 HandleMouseButtonEvent(KeyAction::Press, event.xbutton.button, event.xbutton.state);
                 break;
+
             case ButtonRelease:
                 HandleMouseButtonEvent(KeyAction::Release, event.xbutton.button, event.xbutton.state);
                 break;
+
             case MotionNotify: {
                 if (m_currentCursorType == CursorType::Disabled) {
                     if ((event.xmotion.x == m_lastCursorPosX) && (event.xmotion.y == m_lastCursorPosY)) {
@@ -327,6 +319,21 @@ void WindowGLLinux::ProcessEvents() {
 
                 m_inputParser->FocusChange(m_focused);
                 m_eventHandler->OnFocusChange(m_focused);
+            }
+            break;
+
+            case DestroyNotify:
+                m_eventHandler->OnWindowDestroy();
+                break;
+
+            case ConfigureNotify:
+                HandleSizeEvent(static_cast<uint32_t>(event.xconfigure.width), static_cast<uint32_t>(event.xconfigure.height));
+                break;
+
+            case ClientMessage: {
+                if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atomWMDeleteWindow) {
+                    m_eventHandler->OnWindowDestroy();
+                }
             }
             break;
 

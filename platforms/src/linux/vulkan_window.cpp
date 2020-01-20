@@ -1,10 +1,24 @@
 #include "platforms/linux/vulkan_window.h"
 
+#include <limits>
 #include <cstring>
+
 #include <X11/Xlib-xcb.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
+
+#    ifdef Bool
+#        undef Bool
+#    endif
+#    ifdef True
+#        undef True
+#    endif
+#    ifdef False
+#        undef False
+#    endif
+
+#include <DiligentCore/Primitives/interface/Errors.h>
 
 #include "linux/x11_input_handler.h"
 #include "linux/x11_key_map.h"
@@ -12,10 +26,12 @@
 enum ATOM : uint32_t {
     WM_PROTOCOLS = 0,
     WM_DELETE_WINDOW = 1,
-    ATOMS_NUMBER = 2,
+    CLIPBOARD = 2,
+    UTF8_STRING = 3,
+    ATOMS_NUMBER = 4,
 };
 
-const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW"};
+const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW", "CLIPBOARD", "UTF8_STRING"};
 
 static std::string ParseXCBConnectError(int err) {
     switch (err) {
@@ -66,6 +82,17 @@ void WindowVulkanLinux::SetClipboard(const std::string& string) {
 }
 
 std::string WindowVulkanLinux::GetClipboard() {
+    xcb_get_selection_owner_cookie_t cookie = xcb_get_selection_owner(m_connection, m_atoms[CLIPBOARD]);
+    xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(m_connection, cookie, nullptr);
+    bool isExit = ((reply == nullptr) || (reply->owner == 0));
+    free(reply);
+    if (isExit) {
+        return std::string();
+    }
+
+    xcb_convert_selection(m_connection, m_window, m_atoms[CLIPBOARD], m_atoms[UTF8_STRING], m_atoms[CLIPBOARD], XCB_CURRENT_TIME);
+    xcb_flush(m_connection);
+
     return std::string();
 }
 
@@ -161,7 +188,8 @@ void WindowVulkanLinux::Create() {
         XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_EXPOSURE |
         XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-        XCB_EVENT_MASK_FOCUS_CHANGE;
+        XCB_EVENT_MASK_FOCUS_CHANGE |
+        XCB_EVENT_MASK_PROPERTY_CHANGE;
 
     m_window = xcb_generate_id(m_connection);
     xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_window, m_screen->root,
@@ -256,27 +284,6 @@ void WindowVulkanLinux::ProcessEvents() {
     xcb_generic_event_t* event = nullptr;
     while ((event = xcb_poll_for_event(m_connection)) != nullptr) {
         switch (event->response_type & 0x7f) { // 0b1111111
-            // 0b100001
-            case XCB_CLIENT_MESSAGE: {
-                const auto* typedEvent = reinterpret_cast<const xcb_client_message_event_t*>(event);
-                if (typedEvent->data.data32[0] == m_atoms[WM_DELETE_WINDOW]) {
-                    m_eventHandler->OnWindowDestroy();
-                }
-            }
-            break;
-
-            // 0b10001
-            case XCB_DESTROY_NOTIFY:
-                m_eventHandler->OnWindowDestroy();
-                break;
-
-            // 0b10110
-            case XCB_CONFIGURE_NOTIFY: {
-                const auto* typedEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-                HandleSizeEvent(typedEvent->width, typedEvent->height);
-            }
-            break;
-
             // 0b10
             case XCB_KEY_PRESS: {
                 const auto* typedEvent = reinterpret_cast<const xcb_key_press_event_t*>(event);
@@ -284,7 +291,7 @@ void WindowVulkanLinux::ProcessEvents() {
                 XKeyEvent x11Event;
                 x11Event.type = KeyPress;
                 x11Event.serial = typedEvent->sequence;
-                x11Event.send_event = True;
+                x11Event.send_event = 1; //True;
                 x11Event.display = m_display;
                 x11Event.window = typedEvent->event;
                 x11Event.root = typedEvent->root;
@@ -369,6 +376,44 @@ void WindowVulkanLinux::ProcessEvents() {
 
                 m_inputParser->FocusChange(m_focused);
                 m_eventHandler->OnFocusChange(m_focused);
+            }
+            break;
+
+            // 0b10001
+            case XCB_DESTROY_NOTIFY:
+                m_eventHandler->OnWindowDestroy();
+                break;
+
+            // 0b10110
+            case XCB_CONFIGURE_NOTIFY: {
+                const auto* typedEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+                HandleSizeEvent(typedEvent->width, typedEvent->height);
+            }
+            break;
+
+            // 0b11101
+            case XCB_SELECTION_CLEAR: {
+            }
+            break;
+
+            // 0b11110
+            case XCB_SELECTION_REQUEST: {
+            }
+            break;
+
+            // 0b11111
+            case XCB_SELECTION_NOTIFY: {
+                const auto* typedEvent = reinterpret_cast<const xcb_selection_notify_event_t*>(event);
+                HandleSelectionNotify(typedEvent);
+            }
+            break;
+
+            // 0b100001
+            case XCB_CLIENT_MESSAGE: {
+                const auto* typedEvent = reinterpret_cast<const xcb_client_message_event_t*>(event);
+                if (typedEvent->data.data32[0] == m_atoms[WM_DELETE_WINDOW]) {
+                    m_eventHandler->OnWindowDestroy();
+                }
             }
             break;
 
@@ -499,4 +544,54 @@ void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, u
         default:
             break;
     }
+}
+
+void WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t* event) {
+    // TODO: add support INCR
+    if (event->property != m_atoms[CLIPBOARD]) {
+        LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, wrong property for event XCB_SELECTION_NOTIFY");
+        return;
+    }
+
+    std::string clipboard;
+    size_t offset = 0;
+    uint8_t propFormat;
+    xcb_atom_t propType;
+    auto chunkSize = 1024 * 1024; // 1 MB
+
+    for (;;) {
+        xcb_get_property_cookie_t cookie = xcb_get_property(m_connection, true, m_window, event->property, XCB_ATOM_ANY,
+            static_cast<uint32_t>(offset / 4), static_cast<uint32_t>(chunkSize / 4));
+        xcb_get_property_reply_t* reply = xcb_get_property_reply(m_connection, cookie, nullptr);
+        std::shared_ptr<xcb_get_property_reply_t> autoFree(reply, free);
+
+        // reply->format should be 8, 16 or 32
+        if (reply == nullptr || (offset > 0 && (reply->format != propFormat || reply->type != propType)) || ((reply->format % 8) != 0)) {
+            LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, invalid return value from xcb_get_property_reply");
+            return;
+        }
+
+        if (int numItems = xcb_get_property_value_length(reply); numItems > 0) {
+            size_t itemSize = reply->format / 8;
+            size_t propSize = static_cast<size_t>(numItems) * itemSize;
+            offset += propSize;
+            const uint8_t* begin = reinterpret_cast<const uint8_t*>(xcb_get_property_value(reply));
+            clipboard.append(begin, begin + propSize);
+        }
+
+        if (reply->bytes_after == 0) {
+            break;
+        }
+
+        if ((offset % 4) != 0) {
+            LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, got more data but read data size is not a multiple of 4");
+            return;
+        }
+        if (offset == 0) {
+            propType = reply->type;
+            propFormat = reply->format;
+        }
+    }
+
+    LOG_INFO_MESSAGE("Clipboard = ", clipboard);
 }
