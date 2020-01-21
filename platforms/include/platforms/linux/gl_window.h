@@ -37,7 +37,7 @@ private:
     void HandleSizeEvent(uint32_t width, uint32_t height);
     void HandleKeyEvent(KeyAction action, uint code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
-    void HandleSelectionNotify(const XEvent* event);
+    std::string HandleSelectionNotify(const XEvent* event);
 
 private:
     Display* m_display = nullptr;

@@ -1,7 +1,9 @@
 #include "platforms/linux/gl_window.h"
 
-#include <GL/glx.h>
+#include <thread>
 #include <exception>
+
+#include <GL/glx.h>
 #include <X11/XKBlib.h>
 #include <X11/cursorfont.h>
 #include <X11/Xcursor/Xcursor.h>
@@ -83,6 +85,17 @@ std::string WindowGLLinux::GetClipboard() {
 
     XConvertSelection(m_display, m_atoms[CLIPBOARD], m_atoms[UTF8_STRING], m_atoms[CLIPBOARD], m_window,
                       CurrentTime);
+
+    auto now = std::chrono::high_resolution_clock().now() + std::chrono::milliseconds(500);
+    while (now > std::chrono::high_resolution_clock().now()) {
+        XPending(m_display);
+        XEvent event;
+        if (!XCheckTypedWindowEvent(m_display, m_window, SelectionNotify, &event)) {
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
+            continue;
+        }
+        return WindowGLLinux::HandleSelectionNotify(&event);
+    }
 
     return std::string();
 }
@@ -372,9 +385,7 @@ void WindowGLLinux::ProcessEvents() {
             }
             break;
 
-            case SelectionNotify: {
-                HandleSelectionNotify(&event);
-            }
+            case SelectionNotify:
             break;
 
             case ClientMessage: {
@@ -513,11 +524,11 @@ void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint sta
     }
 }
 
-void WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
+std::string WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
     // TODO: add support INCR
     if (event->xselection.property != m_atoms[CLIPBOARD]) {
         LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, wrong property for event XCB_SELECTION_NOTIFY");
-        return;
+        return std::string();
     }
 
     std::string clipboard;
@@ -540,7 +551,7 @@ void WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
         // propFormat should be 8, 16 or 32
         if (reqFormat == 0 || (offset > 0 && (reqFormat != propFormat || reqType != propType)) || ((reqFormat % 8) != 0)) {
             LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, invalid return value from XGetWindowProperty");
-            return;
+            return std::string();
         }
 
         if (numItems > 0) {
@@ -556,7 +567,7 @@ void WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
 
         if ((offset % 4) != 0) {
             LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, got more data but read data size is not a multiple of 4");
-            return;
+            return std::string();
         }
         if (offset == 0) {
             propType = reqType;
@@ -564,5 +575,5 @@ void WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
         }
     }
 
-    LOG_INFO_MESSAGE("Clipboard = ", clipboard);
+    return clipboard;
 }
