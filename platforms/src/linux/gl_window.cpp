@@ -6,9 +6,20 @@
 #include <X11/cursorfont.h>
 #include <X11/Xcursor/Xcursor.h>
 
+#    ifdef Bool
+#        undef Bool
+#    endif
+#    ifdef True
+#        undef True
+#    endif
+#    ifdef False
+#        undef False
+#    endif
+
+#include <DiligentCore/Primitives/interface/Errors.h>
+
 #include "linux/x11_input_handler.h"
 #include "linux/x11_key_map.h"
-
 
 #ifndef GLX_CONTEXT_MAJOR_VERSION_ARB
 #    define GLX_CONTEXT_MAJOR_VERSION_ARB 0x2091
@@ -28,9 +39,19 @@
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, int, const int*);
 
+enum ATOM : uint32_t {
+    WM_DELETE_WINDOW = 0,
+    CLIPBOARD = 1,
+    UTF8_STRING = 2,
+    ATOMS_NUMBER = 3,
+};
+
+static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_DELETE_WINDOW", "CLIPBOARD", "UTF8_STRING"};
+
 WindowGLLinux::WindowGLLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
     : RenderWindow(desc, handler)
-    , m_inputParser(new X11InputHandler(handler)) {
+    , m_inputParser(new X11InputHandler(handler))
+    , m_atoms(new uint64_t[ATOMS_NUMBER]) {
 
 }
 
@@ -38,6 +59,10 @@ WindowGLLinux::~WindowGLLinux() {
     if (m_inputParser != nullptr) {
         delete m_inputParser;
         m_inputParser = nullptr;
+    }
+    if (m_atoms != nullptr) {
+        delete[] m_atoms;
+        m_atoms = nullptr;
     }
     Destroy();
 }
@@ -51,6 +76,14 @@ void WindowGLLinux::SetClipboard(const std::string& string) {
 }
 
 std::string WindowGLLinux::GetClipboard() {
+    Window owner = XGetSelectionOwner(m_display, m_atoms[CLIPBOARD]);
+    if (owner == 0) {
+        return std::string();
+    }
+
+    XConvertSelection(m_display, m_atoms[CLIPBOARD], m_atoms[UTF8_STRING], m_atoms[CLIPBOARD], m_window,
+                      CurrentTime);
+
     return std::string();
 }
 
@@ -142,7 +175,8 @@ void WindowGLLinux::Create() {
         PointerMotionMask |
         ExposureMask |
         StructureNotifyMask |
-        FocusChangeMask;
+        FocusChangeMask |
+        PropertyChangeMask;
 
     uint valueMask = CWBorderPixel | CWColormap | CWEventMask;
     auto parent = RootWindow(m_display, vi->screen);
@@ -156,8 +190,9 @@ void WindowGLLinux::Create() {
 
     m_inputParser->Create(m_display, static_cast<Window>(m_window));
 
-    m_atomWMDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(m_display, m_window, &m_atomWMDeleteWindow, 1);
+    GetAtoms();
+
+    XSetWMProtocols(m_display, m_window, &m_atoms[WM_DELETE_WINDOW], 1);
 
     // Set WM_NAME property
     {
@@ -243,7 +278,6 @@ void WindowGLLinux::Destroy() {
     if (m_window != 0) {
         XDestroyWindow(m_display, m_window);
         m_window = 0;
-        m_atomWMDeleteWindow = 0;
     }
 
     if (m_display != nullptr) {
@@ -330,8 +364,21 @@ void WindowGLLinux::ProcessEvents() {
                 HandleSizeEvent(static_cast<uint32_t>(event.xconfigure.width), static_cast<uint32_t>(event.xconfigure.height));
                 break;
 
+            case SelectionClear: {
+            }
+            break;
+
+            case SelectionRequest: {
+            }
+            break;
+
+            case SelectionNotify: {
+                HandleSelectionNotify(&event);
+            }
+            break;
+
             case ClientMessage: {
-                if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atomWMDeleteWindow) {
+                if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atoms[WM_DELETE_WINDOW]) {
                     m_eventHandler->OnWindowDestroy();
                 }
             }
@@ -344,6 +391,12 @@ void WindowGLLinux::ProcessEvents() {
 
     if (m_focused && (m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
         SetCursorPos(m_windowCenterX, m_windowCenterY);
+    }
+}
+
+void WindowGLLinux::GetAtoms() {
+    for (uint32_t i=0; i!=ATOMS_NUMBER; ++i) {
+        m_atoms[i] = XInternAtom(m_display, ATOMS_STR[i], 0 /*False*/);
     }
 }
 
@@ -415,7 +468,7 @@ void WindowGLLinux::DestroyCursors() {
 }
 
 void WindowGLLinux::DisableCursor() {
-    XGrabPointer(m_display, m_window, True,
+    XGrabPointer(m_display, m_window, 1 /* True */,
                  ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
                  GrabModeAsync, GrabModeAsync,
                  m_window,
@@ -458,4 +511,58 @@ void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint sta
             m_eventHandler->OnScroll(-1);
             break;
     }
+}
+
+void WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
+    // TODO: add support INCR
+    if (event->xselection.property != m_atoms[CLIPBOARD]) {
+        LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, wrong property for event XCB_SELECTION_NOTIFY");
+        return;
+    }
+
+    std::string clipboard;
+    size_t offset = 0;
+    int propFormat;
+    Atom propType;
+    auto chunkSize = 1024 * 1024; // 1 MB
+
+    for (;;) {
+        unsigned long numItems;
+        unsigned long bytesAfter;
+        uint8_t* begin = nullptr;
+        Atom reqType;
+        int reqFormat;
+        XGetWindowProperty(m_display, m_window, event->xselection.property, static_cast<long>(offset / 4), static_cast<long>(chunkSize / 4),
+            1 /* True */, AnyPropertyType, &reqType, &reqFormat, &numItems, &bytesAfter, &begin);
+
+        std::shared_ptr<uint8_t> autoFree(begin, XFree);
+
+        // propFormat should be 8, 16 or 32
+        if (reqFormat == 0 || (offset > 0 && (reqFormat != propFormat || reqType != propType)) || ((reqFormat % 8) != 0)) {
+            LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, invalid return value from XGetWindowProperty");
+            return;
+        }
+
+        if (numItems > 0) {
+            size_t itemSize = static_cast<size_t>(reqFormat) / 8;
+            size_t propSize = static_cast<size_t>(numItems) * itemSize;
+            offset += propSize;
+            clipboard.append(begin, begin + propSize);
+        }
+
+        if (bytesAfter == 0) {
+            break;
+        }
+
+        if ((offset % 4) != 0) {
+            LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, got more data but read data size is not a multiple of 4");
+            return;
+        }
+        if (offset == 0) {
+            propType = reqType;
+            propFormat = reqFormat;
+        }
+    }
+
+    LOG_INFO_MESSAGE("Clipboard = ", clipboard);
 }

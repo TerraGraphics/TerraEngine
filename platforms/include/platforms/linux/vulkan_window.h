@@ -64,7 +64,7 @@ private:
     xcb_key_symbols_t *m_keySymbols = nullptr;
     xcb_connection_t* m_connection = nullptr;
     xcb_screen_t* m_screen = nullptr;
-    uint32_t* m_atoms;
+    uint32_t* m_atoms = nullptr;
     xcb_cursor_context_t *m_cursorContext = nullptr;
     bool m_focused = true;
 };

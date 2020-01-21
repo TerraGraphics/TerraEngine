@@ -4,6 +4,7 @@
 
 
 typedef struct _XDisplay Display;
+typedef union _XEvent XEvent;
 class X11InputHandler;
 class WindowGLLinux : public RenderWindow {
 public:
@@ -28,6 +29,7 @@ public:
     void ProcessEvents() override;
 
 private:
+    void GetAtoms();
     void CreateCursors();
     void DestroyCursors();
     void DisableCursor();
@@ -35,6 +37,7 @@ private:
     void HandleSizeEvent(uint32_t width, uint32_t height);
     void HandleKeyEvent(KeyAction action, uint code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
+    void HandleSelectionNotify(const XEvent* event);
 
 private:
     Display* m_display = nullptr;
@@ -50,6 +53,6 @@ private:
     int m_lastCursorPosY = 0;
     double m_virtualCursorX = 0.0;
     double m_virtualCursorY = 0.0;
-    uint64_t m_atomWMDeleteWindow = 0;
+    uint64_t* m_atoms = nullptr;
     bool m_focused = true;
 };

@@ -31,7 +31,7 @@ enum ATOM : uint32_t {
     ATOMS_NUMBER = 4,
 };
 
-const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW", "CLIPBOARD", "UTF8_STRING"};
+static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW", "CLIPBOARD", "UTF8_STRING"};
 
 static std::string ParseXCBConnectError(int err) {
     switch (err) {
