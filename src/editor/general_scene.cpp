@@ -1,6 +1,7 @@
 #include "editor/general_scene.h"
 
 #include <DiligentTools/TextureLoader/interface/TextureUtilities.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 
 #include "core/engine.h"
 #include "core/scene/scene.h"
@@ -64,6 +65,13 @@ static dg::LayoutElement layoutGrassElems[] = {
 
 static dg::InputLayoutDesc layoutGrassDesc(layoutGrassElems, _countof(layoutGrassElems));
 
+GeneralScene::GeneralScene() {
+
+}
+
+GeneralScene::~GeneralScene() {
+
+}
 
 void GeneralScene::Create() {
     auto& engine = Engine::Get();

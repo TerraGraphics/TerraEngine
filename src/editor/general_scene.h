@@ -10,8 +10,8 @@ class Scene;
 class Material;
 class GeneralScene : Fixed {
 public:
-    GeneralScene() = default;
-    ~GeneralScene() = default;
+    GeneralScene();
+    ~GeneralScene();
 
 public:
     void Create();

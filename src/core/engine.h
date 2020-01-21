@@ -42,10 +42,10 @@ public:
         return instance;
     }
 
-    DevicePtr GetDevice() noexcept { return m_device; }
-    SwapChainPtr GetSwapChain() noexcept { return m_swapChain; }
-    ContextPtr GetImmediateContext() noexcept { return m_immediateContext; }
-    EngineFactoryPtr GetEngineFactory() noexcept { return m_engineFactory; }
+    DevicePtr& GetDevice() noexcept { return m_device; }
+    SwapChainPtr& GetSwapChain() noexcept { return m_swapChain; }
+    ContextPtr& GetImmediateContext() noexcept { return m_immediateContext; }
+    EngineFactoryPtr& GetEngineFactory() noexcept { return m_engineFactory; }
 
     std::shared_ptr<RenderWindow> GetWindow() noexcept { return m_window; }
     std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
