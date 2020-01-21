@@ -1,6 +1,6 @@
 #include "platforms/linux/vulkan_window.h"
 
-#include <limits>
+#include <thread>
 #include <cstring>
 
 #include <X11/Xlib-xcb.h>
@@ -20,8 +20,8 @@
 
 #include <DiligentCore/Primitives/interface/Errors.h>
 
-#include "linux/x11_input_handler.h"
 #include "linux/x11_key_map.h"
+#include "linux/x11_input_handler.h"
 
 enum ATOM : uint32_t {
     WM_PROTOCOLS = 0,
@@ -92,6 +92,21 @@ std::string WindowVulkanLinux::GetClipboard() {
 
     xcb_convert_selection(m_connection, m_window, m_atoms[CLIPBOARD], m_atoms[UTF8_STRING], m_atoms[CLIPBOARD], XCB_CURRENT_TIME);
     xcb_flush(m_connection);
+
+    auto now = std::chrono::high_resolution_clock().now() + std::chrono::milliseconds(500);
+    while (now > std::chrono::high_resolution_clock().now()) {
+        xcb_generic_event_t* event = xcb_poll_for_event(m_connection);
+        if (event == nullptr) {
+            std::this_thread::sleep_for(std::chrono::microseconds(1));
+            continue;
+        }
+        if ((event->response_type & 0x7f) == XCB_SELECTION_NOTIFY) {
+            std::string clipboard = HandleSelectionNotify(reinterpret_cast<const xcb_selection_notify_event_t*>(event));
+            free(event);
+            return clipboard;
+        }
+        m_events.push_back(event);
+    }
 
     return std::string();
 }
@@ -281,150 +296,156 @@ void WindowVulkanLinux::Destroy() {
 
 void WindowVulkanLinux::ProcessEvents() {
     m_eventHandler->OnNewFrame();
+    for(auto* event: m_events) {
+        ProcessEvent(event);
+    }
+    m_events.clear();
+
     xcb_generic_event_t* event = nullptr;
     while ((event = xcb_poll_for_event(m_connection)) != nullptr) {
-        switch (event->response_type & 0x7f) { // 0b1111111
-            // 0b10
-            case XCB_KEY_PRESS: {
-                const auto* typedEvent = reinterpret_cast<const xcb_key_press_event_t*>(event);
-                HandleKeyEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
-                XKeyEvent x11Event;
-                x11Event.type = KeyPress;
-                x11Event.serial = typedEvent->sequence;
-                x11Event.send_event = 1; //True;
-                x11Event.display = m_display;
-                x11Event.window = typedEvent->event;
-                x11Event.root = typedEvent->root;
-                x11Event.subwindow = typedEvent->child;
-                x11Event.time = typedEvent->time;
-                x11Event.x = typedEvent->event_x;
-                x11Event.y = typedEvent->event_y;
-                x11Event.x_root = typedEvent->root_x;
-                x11Event.y_root = typedEvent->root_y;
-                x11Event.state = typedEvent->state;
-                x11Event.keycode = typedEvent->detail;
-                x11Event.same_screen = typedEvent->same_screen;
-                m_inputParser->Handle(&x11Event);
-            }
-            break;
-
-            // 0b11
-            case XCB_KEY_RELEASE: {
-                const auto* typedEvent = reinterpret_cast<const xcb_key_release_event_t*>(event);
-                HandleKeyEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
-            }
-            break;
-
-            // 0b100
-            case XCB_BUTTON_PRESS: {
-                const auto* typedEvent = reinterpret_cast<const xcb_button_press_event_t*>(event);
-                HandleMouseButtonEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
-            }
-            break;
-
-            // 0b101
-            case XCB_BUTTON_RELEASE: {
-                const auto* typedEvent = reinterpret_cast<const xcb_button_release_event_t*>(event);
-                HandleMouseButtonEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
-            }
-            break;
-
-            // 0b110
-            case XCB_MOTION_NOTIFY: {
-                const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-                if (m_currentCursorType == CursorType::Disabled) {
-                    if ((typedEvent->event_x == m_lastCursorPosX) && (typedEvent->event_y == m_lastCursorPosY)) {
-                        break;
-                    }
-                    auto dtX = static_cast<double>(typedEvent->event_x - m_lastCursorPosX);
-                    auto dtY = static_cast<double>(typedEvent->event_y - m_lastCursorPosY);
-                    m_virtualCursorX += dtX;
-                    m_virtualCursorY += dtY;
-                    m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
-                } else {
-                    m_eventHandler->OnCursorPosition(static_cast<double>(typedEvent->event_x), static_cast<double>(typedEvent->event_y));
-                }
-                m_lastCursorPosX = typedEvent->event_x;
-                m_lastCursorPosY = typedEvent->event_y;
-            }
-            break;
-
-            // 0b1001
-            case XCB_FOCUS_IN: {
-                if (m_focused) {
-                    break;
-                }
-                m_focused = true;
-                if (m_currentCursorType == CursorType::Disabled) {
-                    DisableCursor();
-                }
-
-                m_inputParser->FocusChange(m_focused);
-                m_eventHandler->OnFocusChange(m_focused);
-            }
-            break;
-
-            // 0b1010
-            case XCB_FOCUS_OUT: {
-                if (!m_focused) {
-                    break;
-                }
-                m_focused = false;
-                if (m_currentCursorType == CursorType::Disabled) {
-                    EnableCursor();
-                }
-
-                m_inputParser->FocusChange(m_focused);
-                m_eventHandler->OnFocusChange(m_focused);
-            }
-            break;
-
-            // 0b10001
-            case XCB_DESTROY_NOTIFY:
-                m_eventHandler->OnWindowDestroy();
-                break;
-
-            // 0b10110
-            case XCB_CONFIGURE_NOTIFY: {
-                const auto* typedEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
-                HandleSizeEvent(typedEvent->width, typedEvent->height);
-            }
-            break;
-
-            // 0b11101
-            case XCB_SELECTION_CLEAR: {
-            }
-            break;
-
-            // 0b11110
-            case XCB_SELECTION_REQUEST: {
-            }
-            break;
-
-            // 0b11111
-            case XCB_SELECTION_NOTIFY: {
-                const auto* typedEvent = reinterpret_cast<const xcb_selection_notify_event_t*>(event);
-                HandleSelectionNotify(typedEvent);
-            }
-            break;
-
-            // 0b100001
-            case XCB_CLIENT_MESSAGE: {
-                const auto* typedEvent = reinterpret_cast<const xcb_client_message_event_t*>(event);
-                if (typedEvent->data.data32[0] == m_atoms[WM_DELETE_WINDOW]) {
-                    m_eventHandler->OnWindowDestroy();
-                }
-            }
-            break;
-
-            default:
-                break;
-        }
+        ProcessEvent(event);
         free(event);
     }
 
     if (m_focused && (m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
         SetCursorPos(m_windowCenterX, m_windowCenterY);
+    }
+}
+
+void WindowVulkanLinux::ProcessEvent(xcb_generic_event_t* event) {
+    switch (event->response_type & 0x7f) { // 0b1111111
+        // 0b10
+        case XCB_KEY_PRESS: {
+            const auto* typedEvent = reinterpret_cast<const xcb_key_press_event_t*>(event);
+            HandleKeyEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
+            XKeyEvent x11Event;
+            x11Event.type = KeyPress;
+            x11Event.serial = typedEvent->sequence;
+            x11Event.send_event = 1; //True;
+            x11Event.display = m_display;
+            x11Event.window = typedEvent->event;
+            x11Event.root = typedEvent->root;
+            x11Event.subwindow = typedEvent->child;
+            x11Event.time = typedEvent->time;
+            x11Event.x = typedEvent->event_x;
+            x11Event.y = typedEvent->event_y;
+            x11Event.x_root = typedEvent->root_x;
+            x11Event.y_root = typedEvent->root_y;
+            x11Event.state = typedEvent->state;
+            x11Event.keycode = typedEvent->detail;
+            x11Event.same_screen = typedEvent->same_screen;
+            m_inputParser->Handle(&x11Event);
+        }
+        break;
+
+        // 0b11
+        case XCB_KEY_RELEASE: {
+            const auto* typedEvent = reinterpret_cast<const xcb_key_release_event_t*>(event);
+            HandleKeyEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
+        }
+        break;
+
+        // 0b100
+        case XCB_BUTTON_PRESS: {
+            const auto* typedEvent = reinterpret_cast<const xcb_button_press_event_t*>(event);
+            HandleMouseButtonEvent(KeyAction::Press, typedEvent->detail, typedEvent->state);
+        }
+        break;
+
+        // 0b101
+        case XCB_BUTTON_RELEASE: {
+            const auto* typedEvent = reinterpret_cast<const xcb_button_release_event_t*>(event);
+            HandleMouseButtonEvent(KeyAction::Release, typedEvent->detail, typedEvent->state);
+        }
+        break;
+
+        // 0b110
+        case XCB_MOTION_NOTIFY: {
+            const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
+            if (m_currentCursorType == CursorType::Disabled) {
+                if ((typedEvent->event_x == m_lastCursorPosX) && (typedEvent->event_y == m_lastCursorPosY)) {
+                    break;
+                }
+                auto dtX = static_cast<double>(typedEvent->event_x - m_lastCursorPosX);
+                auto dtY = static_cast<double>(typedEvent->event_y - m_lastCursorPosY);
+                m_virtualCursorX += dtX;
+                m_virtualCursorY += dtY;
+                m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
+            } else {
+                m_eventHandler->OnCursorPosition(static_cast<double>(typedEvent->event_x), static_cast<double>(typedEvent->event_y));
+            }
+            m_lastCursorPosX = typedEvent->event_x;
+            m_lastCursorPosY = typedEvent->event_y;
+        }
+        break;
+
+        // 0b1001
+        case XCB_FOCUS_IN: {
+            if (m_focused) {
+                break;
+            }
+            m_focused = true;
+            if (m_currentCursorType == CursorType::Disabled) {
+                DisableCursor();
+            }
+
+            m_inputParser->FocusChange(m_focused);
+            m_eventHandler->OnFocusChange(m_focused);
+        }
+        break;
+
+        // 0b1010
+        case XCB_FOCUS_OUT: {
+            if (!m_focused) {
+                break;
+            }
+            m_focused = false;
+            if (m_currentCursorType == CursorType::Disabled) {
+                EnableCursor();
+            }
+
+            m_inputParser->FocusChange(m_focused);
+            m_eventHandler->OnFocusChange(m_focused);
+        }
+        break;
+
+        // 0b10001
+        case XCB_DESTROY_NOTIFY:
+            m_eventHandler->OnWindowDestroy();
+            break;
+
+        // 0b10110
+        case XCB_CONFIGURE_NOTIFY: {
+            const auto* typedEvent = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
+            HandleSizeEvent(typedEvent->width, typedEvent->height);
+        }
+        break;
+
+        // 0b11101
+        case XCB_SELECTION_CLEAR: {
+        }
+        break;
+
+        // 0b11110
+        case XCB_SELECTION_REQUEST: {
+        }
+        break;
+
+        // 0b11111
+        case XCB_SELECTION_NOTIFY:
+        break;
+
+        // 0b100001
+        case XCB_CLIENT_MESSAGE: {
+            const auto* typedEvent = reinterpret_cast<const xcb_client_message_event_t*>(event);
+            if (typedEvent->data.data32[0] == m_atoms[WM_DELETE_WINDOW]) {
+                m_eventHandler->OnWindowDestroy();
+            }
+        }
+        break;
+
+        default:
+            break;
     }
 }
 
@@ -546,11 +567,11 @@ void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, u
     }
 }
 
-void WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t* event) {
+std::string WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t* event) {
     // TODO: add support INCR
     if (event->property != m_atoms[CLIPBOARD]) {
         LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, wrong property for event XCB_SELECTION_NOTIFY");
-        return;
+        return std::string();
     }
 
     std::string clipboard;
@@ -568,7 +589,7 @@ void WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t
         // reply->format should be 8, 16 or 32
         if (reply == nullptr || (offset > 0 && (reply->format != propFormat || reply->type != propType)) || ((reply->format % 8) != 0)) {
             LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, invalid return value from xcb_get_property_reply");
-            return;
+            return std::string();
         }
 
         if (int numItems = xcb_get_property_value_length(reply); numItems > 0) {
@@ -585,7 +606,7 @@ void WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t
 
         if ((offset % 4) != 0) {
             LOG_WARNING_MESSAGE("Receiving the clipboard cannot be performed, got more data but read data size is not a multiple of 4");
-            return;
+            return std::string();
         }
         if (offset == 0) {
             propType = reply->type;
@@ -593,5 +614,5 @@ void WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t
         }
     }
 
-    LOG_INFO_MESSAGE("Clipboard = ", clipboard);
+    return clipboard;
 }
