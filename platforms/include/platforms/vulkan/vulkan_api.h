@@ -2,15 +2,15 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
 
-#include "platforms/graphics.h"
+#include "platforms/graphic_api.h"
 
 
 struct xcb_connection_t;
-class VulkanGraphics : public Graphics {
+class VulkanAPI : public GraphicAPI {
 public:
-    VulkanGraphics() = delete;
-    VulkanGraphics(uint32_t window, xcb_connection_t* connection);
-    ~VulkanGraphics() override = default;
+    VulkanAPI() = delete;
+    VulkanAPI(uint32_t window, xcb_connection_t* connection);
+    ~VulkanAPI() override = default;
 
     Diligent::EngineVkCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
 

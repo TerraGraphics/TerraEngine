@@ -7,7 +7,7 @@
 #include <xcb/xcb_keysyms.h>
 
 #include "linux/x11_input_handler.h"
-#include "platforms/linux/x11_key_map.h"
+#include "linux/x11_key_map.h"
 
 enum ATOM : uint32_t {
     WM_PROTOCOLS = 0,

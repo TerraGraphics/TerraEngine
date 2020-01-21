@@ -42,13 +42,13 @@ if (!useOpenGL) {
     auto vulkanWindow = std::make_shared<WindowVulkanLinux>(windowDesc, engineDesc.eventHandler);
     vulkanWindow->Create();
 
-    auto vulkanGraphics = std::make_shared<VulkanGraphics>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
-    Diligent::EngineVkCreateInfo& info = vulkanGraphics->GetCreateInfo();
+    auto vulkanAPI = std::make_shared<VulkanAPI>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
+    Diligent::EngineVkCreateInfo& info = vulkanAPI->GetCreateInfo();
     info.DynamicHeapSize = 8 << 21;
     info.DebugMessageCallback = logMessageCallback;
 
     engineDesc.window = vulkanWindow;
-    engineDesc.graphics = vulkanGraphics;
+    engineDesc.gAPI = vulkanAPI;
     return;
 #endif
 }
@@ -57,12 +57,12 @@ if (!useOpenGL) {
     auto glWindow = std::make_shared<WindowGLLinux>(windowDesc, engineDesc.eventHandler);
     glWindow->Create();
 
-    auto glGraphics = std::make_shared<GLGraphics>(glWindow->GetNativeWindowHandler(), glWindow->GetDisplay());
-    Diligent::EngineGLCreateInfo& info = glGraphics->GetCreateInfo();
+    auto openGLAPI = std::make_shared<OpenGLAPI>(glWindow->GetNativeWindowHandler(), glWindow->GetDisplay());
+    Diligent::EngineGLCreateInfo& info = openGLAPI->GetCreateInfo();
     info.DebugMessageCallback = logMessageCallback;
 
     engineDesc.window = glWindow;
-    engineDesc.graphics = glGraphics;
+    engineDesc.gAPI = openGLAPI;
     return;
 #endif
 
@@ -118,7 +118,7 @@ static bool Run(bool useOpenGL, spdlog::level::level_enum logLevel, bool logToFi
     auto& engine = Engine::Get();
     try {
         int validationLevel = -1;
-        engineDesc.graphics->Create(validationLevel);
+        engineDesc.gAPI->Create(validationLevel);
         engine.Create(std::move(engineDesc));
     } catch(const std::exception& e) {
         spdlog::error("Engine initialization error: {}", e.what());

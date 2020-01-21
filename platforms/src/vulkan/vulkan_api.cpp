@@ -1,14 +1,14 @@
-#include "platforms/vulkan/vulkan_graphics.h"
+#include "platforms/vulkan/vulkan_api.h"
 
 #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
 
 
-VulkanGraphics::VulkanGraphics(uint32_t window, xcb_connection_t* connection)
+VulkanAPI::VulkanAPI(uint32_t window, xcb_connection_t* connection)
     : m_window(window)
     , m_connection(connection) {
 }
 
-void VulkanGraphics::Create(int validationLevel) {
+void VulkanAPI::Create(int validationLevel) {
 #ifdef DEVELOPMENT
     m_createInfo.EnableValidation = true;
 #endif

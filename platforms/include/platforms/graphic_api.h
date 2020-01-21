@@ -7,10 +7,10 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 
 
-class Graphics {
+class GraphicAPI {
 public:
-    Graphics() = default;
-    virtual ~Graphics();
+    GraphicAPI() = default;
+    virtual ~GraphicAPI();
 
     Diligent::RefCntAutoPtr<Diligent::IEngineFactory> GetEngineFactory() noexcept { return m_engineFactory; }
     Diligent::RefCntAutoPtr<Diligent::IRenderDevice> GetDevice() noexcept { return m_device; }

@@ -18,13 +18,13 @@ public:
     virtual void Destroy() = 0;
 };
 
-class Graphics;
+class GraphicAPI;
 class RenderWindow;
 class DefaultWindowEventsHandler;
 struct EngineDesc {
     std::shared_ptr<RenderWindow> window = nullptr;
     std::shared_ptr<DefaultWindowEventsHandler> eventHandler = nullptr;
-    std::shared_ptr<Graphics> graphics = nullptr;
+    std::shared_ptr<GraphicAPI> gAPI = nullptr;
     std::unique_ptr<Application> application = nullptr;
     bool isVSync = true;
 };
@@ -64,7 +64,7 @@ public:
 private:
     std::shared_ptr<RenderWindow> m_window = nullptr;
     std::shared_ptr<DefaultWindowEventsHandler> m_eventHandler = nullptr;
-    std::shared_ptr<Graphics> m_graphics = nullptr;
+    std::shared_ptr<GraphicAPI> m_gAPI = nullptr;
     std::unique_ptr<Application> m_application = nullptr;
 
     std::shared_ptr<FileManager> m_fileManager;

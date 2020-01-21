@@ -2,15 +2,15 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
 
-#include "platforms/graphics.h"
+#include "platforms/graphic_api.h"
 
 
 typedef struct _XDisplay Display;
-class GLGraphics : public Graphics {
+class OpenGLAPI : public GraphicAPI {
 public:
-    GLGraphics() = delete;
-    GLGraphics(void* nativeWindowHandler, Display* display);
-    ~GLGraphics() override = default;
+    OpenGLAPI() = delete;
+    OpenGLAPI(void* nativeWindowHandler, Display* display);
+    ~OpenGLAPI() override = default;
 
     Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
 

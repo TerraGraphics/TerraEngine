@@ -7,7 +7,7 @@
 #include <X11/Xcursor/Xcursor.h>
 
 #include "linux/x11_input_handler.h"
-#include "platforms/linux/x11_key_map.h"
+#include "linux/x11_key_map.h"
 
 
 #ifndef GLX_CONTEXT_MAJOR_VERSION_ARB

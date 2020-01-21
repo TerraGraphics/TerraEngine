@@ -1,11 +1,11 @@
-#include "platforms/graphics.h"
+#include "platforms/graphic_api.h"
 
 
-Graphics::~Graphics() {
+GraphicAPI::~GraphicAPI() {
     Destroy();
 }
 
-void Graphics::Destroy() {
+void GraphicAPI::Destroy() {
     if (m_immediateContext) {
         m_immediateContext->Flush();
     }

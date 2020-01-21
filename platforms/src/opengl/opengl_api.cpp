@@ -1,16 +1,16 @@
-#include "platforms/gl/gl_graphics.h"
+#include "platforms/opengl/opengl_api.h"
 
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
 
 
-GLGraphics::GLGraphics(void* nativeWindowHandler, Display* display) {
+OpenGLAPI::OpenGLAPI(void* nativeWindowHandler, Display* display) {
     m_createInfo.pNativeWndHandle = nativeWindowHandler;
 #if PLATFORM_LINUX
     m_createInfo.pDisplay = display;
 #endif
 }
 
-void GLGraphics::Create(int /* validationLevel */) {
+void OpenGLAPI::Create(int /* validationLevel */) {
 #if !PLATFORM_MACOS
     if (m_createInfo.pNativeWndHandle == nullptr) {
         throw std::runtime_error("nativeWindowHandle for GL init is equal null");

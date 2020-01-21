@@ -1,4 +1,4 @@
-#include "platforms/linux/x11_key_map.h"
+#include "linux/x11_key_map.h"
 
 #include <X11/X.h>
 #include <X11/keysym.h>

@@ -18,7 +18,7 @@ Engine::~Engine() {
 void Engine::Create(EngineDesc&& desc) {
     m_window = desc.window;
     m_eventHandler = desc.eventHandler;
-    m_graphics = desc.graphics;
+    m_gAPI = desc.gAPI;
     m_application = std::move(desc.application);
     m_isVSync = desc.isVSync;
 
@@ -28,17 +28,17 @@ void Engine::Create(EngineDesc&& desc) {
     if (!m_eventHandler) {
         throw EngineError("eventHandler is not set");
     }
-    if (!m_graphics) {
+    if (!m_gAPI) {
         throw EngineError("graphics is not set");
     }
     if (!m_application) {
         throw EngineError("application is not set");
     }
 
-    m_device = m_graphics->GetDevice();
-    m_swapChain = m_graphics->GetSwapChain();
-    m_immediateContext = m_graphics->GetImmediateContext();
-    m_engineFactory = m_graphics->GetEngineFactory();
+    m_device = m_gAPI->GetDevice();
+    m_swapChain = m_gAPI->GetSwapChain();
+    m_immediateContext = m_gAPI->GetImmediateContext();
+    m_engineFactory = m_gAPI->GetEngineFactory();
     m_materialBuilder = std::make_shared<MaterialBuilder>(m_device, m_immediateContext, m_swapChain, m_engineFactory);
 
     m_application->Create();
@@ -81,13 +81,13 @@ void Engine::Destroy() {
         m_application = nullptr;
     }
 
-    if (m_graphics) {
+    if (m_gAPI) {
         m_device.Release();
         m_swapChain.Release();
         m_immediateContext.Release();
         m_engineFactory.Release();
-        m_graphics->Destroy();
-        m_graphics = nullptr;
+        m_gAPI->Destroy();
+        m_gAPI = nullptr;
     }
 
     if (m_window) {
