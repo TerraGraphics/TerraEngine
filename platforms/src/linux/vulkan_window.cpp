@@ -71,23 +71,24 @@ WindowVulkanLinux::~WindowVulkanLinux() {
     Destroy();
 }
 
-void WindowVulkanLinux::SetTitle(const std::string& title) {
-    auto titleLen = static_cast<uint32_t>(title.length());
-    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, titleLen, title.c_str());
+void WindowVulkanLinux::SetTitle(const char* text) {
+    auto textLen = static_cast<uint32_t>(strlen(text));
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, m_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, textLen, text);
     xcb_flush(m_connection);
 }
 
-void WindowVulkanLinux::SetClipboard(const std::string& string) {
+void WindowVulkanLinux::SetClipboard(const char* value) {
 
 }
 
-std::string WindowVulkanLinux::GetClipboard() {
+const char* WindowVulkanLinux::GetClipboard() {
+    m_clipboard.clear();
     xcb_get_selection_owner_cookie_t cookie = xcb_get_selection_owner(m_connection, m_atoms[CLIPBOARD]);
     xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(m_connection, cookie, nullptr);
     bool isExit = ((reply == nullptr) || (reply->owner == 0));
     free(reply);
     if (isExit) {
-        return std::string();
+        return m_clipboard.c_str();
     }
 
     xcb_convert_selection(m_connection, m_window, m_atoms[CLIPBOARD], m_atoms[UTF8_STRING], m_atoms[CLIPBOARD], XCB_CURRENT_TIME);
@@ -101,14 +102,14 @@ std::string WindowVulkanLinux::GetClipboard() {
             continue;
         }
         if ((event->response_type & 0x7f) == XCB_SELECTION_NOTIFY) {
-            std::string clipboard = HandleSelectionNotify(reinterpret_cast<const xcb_selection_notify_event_t*>(event));
+            m_clipboard = HandleSelectionNotify(reinterpret_cast<const xcb_selection_notify_event_t*>(event));
             free(event);
-            return clipboard;
+            break;
         }
         m_events.push_back(event);
     }
 
-    return std::string();
+    return m_clipboard.c_str();
 }
 
 void WindowVulkanLinux::GetCursorPos(int& x, int& y) {

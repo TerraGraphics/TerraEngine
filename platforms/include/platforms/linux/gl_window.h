@@ -15,10 +15,10 @@ public:
     Display* GetDisplay() noexcept { return m_display; }
 
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
-    void SetTitle(const std::string& title) override;
+    void SetTitle(const char* text) override;
 
-    void SetClipboard(const std::string& string) override;
-    std::string GetClipboard() override;
+    void SetClipboard(const char* text) override;
+    const char* GetClipboard() override;
 
     void GetCursorPos(int& x, int& y) override;
     void SetCursorPos(int x, int y) override;
@@ -54,5 +54,6 @@ private:
     double m_virtualCursorX = 0.0;
     double m_virtualCursorY = 0.0;
     uint64_t* m_atoms = nullptr;
+    std::string m_clipboard;
     bool m_focused = true;
 };

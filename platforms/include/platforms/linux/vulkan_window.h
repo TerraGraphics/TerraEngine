@@ -21,10 +21,10 @@ public:
     xcb_connection_t* GetConnection() noexcept { return m_connection; }
 
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
-    void SetTitle(const std::string& title) override;
+    void SetTitle(const char* text) override;
 
-    void SetClipboard(const std::string& string) override;
-    std::string GetClipboard() override;
+    void SetClipboard(const char* text) override;
+    const char* GetClipboard() override;
 
     void GetCursorPos(int& x, int& y) override;
     void SetCursorPos(int x, int y) override;
@@ -64,6 +64,7 @@ private:
     xcb_connection_t* m_connection = nullptr;
     xcb_screen_t* m_screen = nullptr;
     uint32_t* m_atoms = nullptr;
+    std::string m_clipboard;
     std::vector<xcb_generic_event_t*> m_events;
     xcb_cursor_context_t *m_cursorContext = nullptr;
     bool m_focused = true;

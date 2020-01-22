@@ -69,18 +69,19 @@ WindowGLLinux::~WindowGLLinux() {
     Destroy();
 }
 
-void WindowGLLinux::SetTitle(const std::string& title) {
-    XStoreName(m_display, m_window, title.c_str());
+void WindowGLLinux::SetTitle(const char* text) {
+    XStoreName(m_display, m_window, text);
 }
 
-void WindowGLLinux::SetClipboard(const std::string& string) {
+void WindowGLLinux::SetClipboard(const char* text) {
 
 }
 
-std::string WindowGLLinux::GetClipboard() {
+const char* WindowGLLinux::GetClipboard() {
+    m_clipboard.clear();
     Window owner = XGetSelectionOwner(m_display, m_atoms[CLIPBOARD]);
     if (owner == 0) {
-        return std::string();
+        return m_clipboard.c_str();
     }
 
     XConvertSelection(m_display, m_atoms[CLIPBOARD], m_atoms[UTF8_STRING], m_atoms[CLIPBOARD], m_window,
@@ -94,10 +95,11 @@ std::string WindowGLLinux::GetClipboard() {
             std::this_thread::sleep_for(std::chrono::microseconds(1));
             continue;
         }
-        return WindowGLLinux::HandleSelectionNotify(&event);
+        m_clipboard = WindowGLLinux::HandleSelectionNotify(&event);
+        break;
     }
 
-    return std::string();
+    return m_clipboard.c_str();
 }
 
 void WindowGLLinux::GetCursorPos(int& x, int& y) {
