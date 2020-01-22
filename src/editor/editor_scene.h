@@ -8,10 +8,10 @@
 
 class Scene;
 class Material;
-class GeneralScene : Fixed {
+class EditorScene : Fixed {
 public:
-    GeneralScene() = default;
-    ~GeneralScene() = default;
+    EditorScene() = default;
+    ~EditorScene() = default;
 
 public:
     void Create();
@@ -21,19 +21,11 @@ public:
 private:
     void CreateTextures();
     void CreateMaterials();
-    void GenerateGround();
-    void GenerateTrees();
-    void GenerateGrass();
-    void GenerateGrassBillboard();
+    void GenerateCube();
 
 private:
     // textures
-    TextureViewPtr m_TextureGround;
-    TextureViewPtr m_TextureGrass0;
-    TextureViewPtr m_TextureGrass1;
-    TextureViewPtr m_TextureFlower0;
-    TextureViewPtr m_TextureGrassBlade0;
-    TextureViewPtr m_TextureGrassBlade1;
+    TextureViewPtr m_TextureCube;
 
     // materials
     std::shared_ptr<Material> m_matTexNoLight;
@@ -41,8 +33,6 @@ private:
     std::shared_ptr<Material> m_matTexPhong;
     std::shared_ptr<Material> m_matClrNoLight;
     std::shared_ptr<Material> m_matClrPhong;
-    std::shared_ptr<Material> m_matGrass;
-    std::shared_ptr<Material> m_matGrassAlpha;
 
     std::shared_ptr<Scene> m_scene;
 

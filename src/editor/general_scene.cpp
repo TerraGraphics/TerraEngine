@@ -65,13 +65,6 @@ static dg::LayoutElement layoutGrassElems[] = {
 
 static dg::InputLayoutDesc layoutGrassDesc(layoutGrassElems, _countof(layoutGrassElems));
 
-GeneralScene::GeneralScene() {
-
-}
-
-GeneralScene::~GeneralScene() {
-
-}
 
 void GeneralScene::Create() {
     auto& engine = Engine::Get();
