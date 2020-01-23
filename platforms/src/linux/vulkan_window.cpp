@@ -19,6 +19,7 @@
 #    endif
 
 #include <DiligentCore/Primitives/interface/Errors.h>
+#include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
 
 #include "linux/x11_key_map.h"
 #include "linux/x11_input_handler.h"
@@ -26,12 +27,14 @@
 enum ATOM : uint32_t {
     WM_PROTOCOLS = 0,
     WM_DELETE_WINDOW = 1,
-    CLIPBOARD = 2,
-    UTF8_STRING = 3,
-    ATOMS_NUMBER = 4,
+    TARGETS = 2,
+    TIMESTAMP = 3,
+    CLIPBOARD = 4,
+    UTF8_STRING = 5,
+    ATOMS_NUMBER = 6,
 };
 
-static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW", "CLIPBOARD", "UTF8_STRING"};
+static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_PROTOCOLS", "WM_DELETE_WINDOW", "TARGETS", "TIMESTAMP", "CLIPBOARD", "UTF8_STRING"};
 
 static std::string ParseXCBConnectError(int err) {
     switch (err) {
@@ -77,8 +80,14 @@ void WindowVulkanLinux::SetTitle(const char* text) {
     xcb_flush(m_connection);
 }
 
-void WindowVulkanLinux::SetClipboard(const char* value) {
-
+void WindowVulkanLinux::SetClipboard(const char* text) {
+    auto cookie = xcb_set_selection_owner(m_connection, m_window, m_atoms[CLIPBOARD], XCB_CURRENT_TIME);
+    xcb_generic_error_t* err = xcb_request_check(m_connection, cookie);
+    if (err == nullptr) {
+        m_clipboard = text;
+    } else {
+        free(err);
+    }
 }
 
 const char* WindowVulkanLinux::GetClipboard() {
@@ -423,18 +432,18 @@ void WindowVulkanLinux::ProcessEvent(xcb_generic_event_t* event) {
         break;
 
         // 0b11101
-        case XCB_SELECTION_CLEAR: {
-        }
-        break;
+        case XCB_SELECTION_CLEAR:
+            m_clipboard.clear();
+            break;
 
         // 0b11110
-        case XCB_SELECTION_REQUEST: {
-        }
-        break;
+        case XCB_SELECTION_REQUEST:
+            HandleSelectionRequest(reinterpret_cast<const xcb_selection_request_event_t*>(event));
+            break;
 
         // 0b11111
         case XCB_SELECTION_NOTIFY:
-        break;
+            break;
 
         // 0b100001
         case XCB_CLIENT_MESSAGE: {
@@ -616,4 +625,43 @@ std::string WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_
     }
 
     return clipboard;
+}
+
+void WindowVulkanLinux::HandleSelectionRequest(const xcb_selection_request_event_t* event) {
+    xcb_atom_t target = event->target;
+    xcb_atom_t property = event->property;
+    if (event->property == XCB_NONE) {
+        property = event->target;
+    }
+
+    if (target == m_atoms[TARGETS]) {
+        xcb_atom_t targets[] = {
+            m_atoms[TIMESTAMP],
+            m_atoms[TARGETS],
+            m_atoms[UTF8_STRING]
+        };
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, XCB_ATOM_ATOM,
+            sizeof(xcb_atom_t) * 8, _countof(targets), targets);
+    } else if (target == m_atoms[TIMESTAMP]) {
+        xcb_timestamp_t cur = XCB_CURRENT_TIME;
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, XCB_ATOM_INTEGER,
+            sizeof(cur) * 8, 1, &cur);
+    } else if ((target == m_atoms[UTF8_STRING]) && (event->selection == m_atoms[CLIPBOARD]) && !m_clipboard.empty()) {
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, target,
+            8, static_cast<uint32_t>(m_clipboard.length()), m_clipboard.c_str());
+    } else {
+        property = XCB_NONE;
+    }
+
+    xcb_selection_notify_event_t notify;
+    notify.response_type = XCB_SELECTION_NOTIFY;
+    notify.pad0 = 0;
+    notify.sequence = 0;
+    notify.time = XCB_CURRENT_TIME;
+    notify.requestor = event->requestor;
+    notify.selection = event->selection;
+    notify.target = target;
+    notify.property = property;
+    xcb_send_event(m_connection, false, event->requestor, XCB_EVENT_MASK_PROPERTY_CHANGE, reinterpret_cast<char *>(&notify));
+    xcb_flush(m_connection);
 }

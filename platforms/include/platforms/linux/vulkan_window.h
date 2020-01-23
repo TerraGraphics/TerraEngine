@@ -45,6 +45,7 @@ private:
     void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
     std::string HandleSelectionNotify(const xcb_selection_notify_event_t* event);
+    void HandleSelectionRequest(const xcb_selection_request_event_t* event);
 
 private:
     Display* m_display = nullptr;
