@@ -54,6 +54,10 @@ enum ATOM : uint32_t {
 
 static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_DELETE_WINDOW", "TARGETS", "TIMESTAMP", "CLIPBOARD", "UTF8_STRING"};
 
+// see http://tronche.com/gui/x/xlib/appendix/b
+static const char* CURSOR_NAME[static_cast<uint>(CursorType::CountStandartCursor)] = {
+    "left_ptr", "xterm", "fleur", "sb_v_double_arrow", "sb_h_double_arrow", "fd_double_arrow", "bd_double_arrow", "hand2", "not-allowed"};
+
 
 WindowGLLinux::WindowGLLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
     : RenderWindow(desc, handler)
@@ -136,12 +140,10 @@ void WindowGLLinux::SetCursor(CursorType value) {
     }
 
     m_currentCursorType = value;
-    if (value <= CursorType::LastStandartCursor) {
+    if (value != CursorType::Disabled) {
         XDefineCursor(m_display, m_window, m_cursors[static_cast<uint>(value)]);
-    } else if (value == CursorType::Hidden) {
-        XDefineCursor(m_display, m_window, m_hiddenCursor);
-    } else if (value == CursorType::Disabled) {
-        XDefineCursor(m_display, m_window, m_hiddenCursor);
+    } else {
+        XDefineCursor(m_display, m_window, m_cursors[static_cast<uint>(CursorType::Empty)]);
         GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
         DisableCursor();
         SetCursorPos(m_windowCenterX, m_windowCenterY);
@@ -425,49 +427,25 @@ void WindowGLLinux::GetAtoms() {
 }
 
 void WindowGLLinux::CreateCursors() {
-    for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
-        auto type = static_cast<CursorType>(i);
-        uint nativeType = 0;
-        // see http://tronche.com/gui/x/xlib/appendix/b
-        switch (type) {
-            case CursorType::Arrow:
-                nativeType = XC_left_ptr;
-                break;
-            case CursorType::TextInput:
-                nativeType = XC_xterm;
-                break;
-            case CursorType::ResizeAll:
-                nativeType = XC_fleur;
-                break;
-            case CursorType::ResizeNS:
-                nativeType = XC_sb_v_double_arrow;
-                break;
-            case CursorType::ResizeEW:
-                nativeType = XC_sb_h_double_arrow;
-                break;
-            case CursorType::ResizeNESW:
-                nativeType = XC_fleur;
-                break;
-            case CursorType::ResizeNWSE:
-                nativeType = XC_fleur;
-                break;
-            case CursorType::Hand:
-                nativeType = XC_hand2;
-                break;
-            case CursorType::NotAllowed:
-                nativeType = XC_pirate;
-                break;
-            default:
-                throw std::runtime_error("unknown cursor type id");
-        }
-
-        m_cursors[i] = static_cast<uint32_t>(XCreateFontCursor(m_display, nativeType));
-        if (!m_cursors[i]) {
-            throw std::runtime_error("failed to create standard cursor");
-        }
+    std::string theme = XcursorGetTheme(m_display);
+    if (theme.empty()) {
+        LOG_INFO_MESSAGE("XcursorGetTheme could not get cursor theme");
+		theme = "default";
     }
 
-    // create hidden cursor
+    int size = XcursorGetDefaultSize(m_display);
+    for (size_t i=0; i!=static_cast<uint>(CursorType::CountStandartCursor); ++i) {
+        XcursorImage* image = XcursorLibraryLoadImage(CURSOR_NAME[i], theme.c_str(), size);
+
+		if (image) {
+			m_cursors[i] = XcursorImageLoadCursor(m_display, image);
+            XcursorImageDestroy(image);
+		} else {
+            throw std::runtime_error("failed to create cursor: " + std::string(CURSOR_NAME[i]));
+		}
+    }
+
+    // create empty cursor
     const uint width = 16;
     const uint height = 16;
 
@@ -484,20 +462,16 @@ void WindowGLLinux::CreateCursors() {
         *target = 0;
     }
 
-    m_hiddenCursor = static_cast<uint32_t>(XcursorImageLoadCursor(m_display, image));
+    m_cursors[static_cast<size_t>(CursorType::Empty)] = XcursorImageLoadCursor(m_display, image);
     XcursorImageDestroy(image);
 }
 
 void WindowGLLinux::DestroyCursors() {
-    for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
+    for (uint i=0; i!=static_cast<uint>(CursorType::CountRealCursor); ++i) {
         if (m_cursors[i] != 0) {
             XFreeCursor(m_display, m_cursors[i]);
             m_cursors[i] = 0;
         }
-    }
-    if (m_hiddenCursor != 0) {
-        XFreeCursor(m_display, m_hiddenCursor);
-        m_hiddenCursor = 0;
     }
 }
 
@@ -506,7 +480,7 @@ void WindowGLLinux::DisableCursor() {
                  ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
                  GrabModeAsync, GrabModeAsync,
                  m_window,
-                 m_hiddenCursor,
+                 m_cursors[static_cast<uint>(CursorType::Empty)],
                  CurrentTime);
     XFlush(m_display);
 }

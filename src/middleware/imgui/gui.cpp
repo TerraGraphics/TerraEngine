@@ -151,7 +151,7 @@ void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& 
             switch (imgui_cursor)
             {
             case ImGuiMouseCursor_None:
-                m_window->SetCursor(CursorType::Hidden);
+                m_window->SetCursor(CursorType::Empty);
                 break;
             case ImGuiMouseCursor_Arrow:
                 m_window->SetCursor(CursorType::Arrow);
@@ -403,7 +403,7 @@ void Gui::CreateGraphics() {
     };
 
     dg::ShaderResourceVariableDesc vars[] = {
-        {dg::SHADER_TYPE_PIXEL, "texBase", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}
+        {dg::SHADER_TYPE_PIXEL, "texBase", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}
     };
 
     dg::SamplerDesc samplerDesc;

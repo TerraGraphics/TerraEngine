@@ -44,8 +44,7 @@ private:
     Display* m_display = nullptr;
     uint64_t m_window = 0;
     X11InputHandler* m_inputParser = nullptr;
-    uint32_t m_cursors[static_cast<uint>(CursorType::LastStandartCursor) + 1] = { 0 };
-    uint32_t m_hiddenCursor = 0;
+    uint64_t m_cursors[static_cast<uint>(CursorType::CountRealCursor)] = { 0 };
     int m_windowCenterX = 0;
     int m_windowCenterY = 0;
     int m_visibleCursorPosX = 0;

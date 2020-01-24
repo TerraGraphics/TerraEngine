@@ -13,12 +13,13 @@ enum class CursorType : uint8_t {
     ResizeNWSE = 6,
     Hand = 7,
     NotAllowed = 8,
+    Empty = 9,
 
-    Hidden = 9,
     Disabled = 10,
     Undefined = 11,
 
-    LastStandartCursor = NotAllowed,
+    CountStandartCursor = NotAllowed + 1,
+    CountRealCursor = Empty + 1,
 };
 
 struct WindowDesc {
@@ -81,6 +82,6 @@ protected:
     WindowDesc m_desc;
     uint16_t m_monitorWidth = 0;
     uint16_t m_monitorHeight = 0;
-    CursorType m_currentCursorType = CursorType::Hidden;
+    CursorType m_currentCursorType = CursorType::Empty;
     std::shared_ptr<WindowEventsHandler> m_eventHandler;
 };

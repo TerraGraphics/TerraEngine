@@ -154,18 +154,17 @@ void WindowVulkanLinux::SetCursor(CursorType value) {
     m_currentCursorType = value;
 
     uint32_t cursor[1];
-    if (value <= CursorType::LastStandartCursor) {
+    if (value != CursorType::Disabled) {
         cursor[0] = m_cursors[static_cast<uint>(value)];
+        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, reinterpret_cast<const void*>(&cursor));
     } else {
-        cursor[0] = m_hiddenCursor;
-    }
-
-    xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, reinterpret_cast<const void*>(&cursor));
-    if (value == CursorType::Disabled) {
+        cursor[0] = m_cursors[static_cast<uint>(CursorType::Empty)];
+        xcb_change_window_attributes(m_connection, m_window, XCB_CW_CURSOR, reinterpret_cast<const void*>(&cursor));
         GetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
         DisableCursor();
         SetCursorPos(m_windowCenterX, m_windowCenterY);
     }
+
     xcb_flush(m_connection);
 }
 
@@ -495,7 +494,7 @@ void WindowVulkanLinux::CreateCursors() {
     m_cursors[static_cast<uint>(CursorType::NotAllowed)] = xcb_cursor_load_cursor(m_cursorContext, "not-allowed");
 
     const xcb_pixmap_t pixmap = xcb_generate_id(m_connection);
-    m_hiddenCursor = xcb_generate_id(m_connection);
+    m_cursors[static_cast<uint>(CursorType::Empty)] = xcb_generate_id(m_connection);
     xcb_create_pixmap(m_connection,
         1, // bits per pixel
         pixmap,
@@ -504,7 +503,7 @@ void WindowVulkanLinux::CreateCursors() {
         1  // height
     );
 
-    xcb_create_cursor(m_connection, m_hiddenCursor, pixmap, pixmap, 0, 0, 0, 0, 0, 0, 0, 0);
+    xcb_create_cursor(m_connection, m_cursors[static_cast<uint>(CursorType::Empty)], pixmap, pixmap, 0, 0, 0, 0, 0, 0, 0, 0);
     xcb_free_pixmap(m_connection, pixmap);
 }
 
@@ -513,15 +512,11 @@ void WindowVulkanLinux::DestroyCursors() {
         return;
     }
 
-    for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
+    for (uint i=0; i!=static_cast<uint>(CursorType::CountRealCursor); ++i) {
         if (m_cursors[i] != 0) {
             xcb_free_cursor(m_connection, m_cursors[i]);
             m_cursors[i] = 0;
         }
-    }
-
-    if (m_hiddenCursor != 0) {
-        xcb_free_cursor(m_connection, m_hiddenCursor);
     }
 
     xcb_cursor_context_free(m_cursorContext);
@@ -533,7 +528,7 @@ void WindowVulkanLinux::DisableCursor() {
         XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION,
         XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC,
         m_window,
-        m_hiddenCursor,
+        m_cursors[static_cast<uint>(CursorType::Empty)],
         XCB_CURRENT_TIME);
 
     xcb_grab_pointer_reply_t* grabReply = xcb_grab_pointer_reply(m_connection, cookie, nullptr);
