@@ -8,15 +8,15 @@
 #include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
 
-#    ifdef Bool
-#        undef Bool
-#    endif
-#    ifdef True
-#        undef True
-#    endif
-#    ifdef False
-#        undef False
-#    endif
+#ifdef Bool
+#    undef Bool
+#endif
+#ifdef True
+#    undef True
+#endif
+#ifdef False
+#    undef False
+#endif
 
 #include <DiligentCore/Primitives/interface/Errors.h>
 #include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
@@ -91,12 +91,14 @@ void WindowVulkanLinux::SetClipboard(const char* text) {
 }
 
 const char* WindowVulkanLinux::GetClipboard() {
-    m_clipboard.clear();
     xcb_get_selection_owner_cookie_t cookie = xcb_get_selection_owner(m_connection, m_atoms[CLIPBOARD]);
     xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(m_connection, cookie, nullptr);
-    bool isExit = ((reply == nullptr) || (reply->owner == 0));
-    free(reply);
-    if (isExit) {
+    std::shared_ptr<xcb_get_selection_owner_reply_t> autoFree(reply, free);
+    if ((reply != nullptr) && (reply->owner == m_window)) {
+        return m_clipboard.c_str();
+    }
+    m_clipboard.clear();
+    if ((reply == nullptr) || (reply->owner == 0)) {
         return m_clipboard.c_str();
     }
 

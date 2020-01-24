@@ -9,15 +9,15 @@
 #include <X11/cursorfont.h>
 #include <X11/Xcursor/Xcursor.h>
 
-#    ifdef Bool
-#        undef Bool
-#    endif
-#    ifdef True
-#        undef True
-#    endif
-#    ifdef False
-#        undef False
-#    endif
+#ifdef Bool
+#    undef Bool
+#endif
+#ifdef True
+#    undef True
+#endif
+#ifdef False
+#    undef False
+#endif
 
 #include <DiligentCore/Primitives/interface/Errors.h>
 #include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
@@ -86,8 +86,11 @@ void WindowGLLinux::SetClipboard(const char* text) {
 }
 
 const char* WindowGLLinux::GetClipboard() {
-    m_clipboard.clear();
     Window owner = XGetSelectionOwner(m_display, m_atoms[CLIPBOARD]);
+    if (owner == m_window) {
+        return m_clipboard.c_str();
+    }
+    m_clipboard.clear();
     if (owner == 0) {
         return m_clipboard.c_str();
     }
