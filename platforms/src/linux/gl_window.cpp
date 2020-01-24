@@ -4,6 +4,7 @@
 #include <exception>
 
 #include <GL/glx.h>
+#include <X11/Xatom.h>
 #include <X11/XKBlib.h>
 #include <X11/cursorfont.h>
 #include <X11/Xcursor/Xcursor.h>
@@ -19,6 +20,7 @@
 #    endif
 
 #include <DiligentCore/Primitives/interface/Errors.h>
+#include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
 
 #include "linux/x11_input_handler.h"
 #include "linux/x11_key_map.h"
@@ -43,12 +45,15 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 
 enum ATOM : uint32_t {
     WM_DELETE_WINDOW = 0,
-    CLIPBOARD = 1,
-    UTF8_STRING = 2,
-    ATOMS_NUMBER = 3,
+    TARGETS = 1,
+    TIMESTAMP = 2,
+    CLIPBOARD = 3,
+    UTF8_STRING = 4,
+    ATOMS_NUMBER = 5,
 };
 
-static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_DELETE_WINDOW", "CLIPBOARD", "UTF8_STRING"};
+static const char* ATOMS_STR[ATOMS_NUMBER] = {"WM_DELETE_WINDOW", "TARGETS", "TIMESTAMP", "CLIPBOARD", "UTF8_STRING"};
+
 
 WindowGLLinux::WindowGLLinux(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
     : RenderWindow(desc, handler)
@@ -74,7 +79,10 @@ void WindowGLLinux::SetTitle(const char* text) {
 }
 
 void WindowGLLinux::SetClipboard(const char* text) {
-
+    XSetSelectionOwner(m_display, m_atoms[CLIPBOARD], m_window, CurrentTime);
+    if (XGetSelectionOwner(m_display, m_atoms[CLIPBOARD]) == m_window) {
+        m_clipboard = text;
+    }
 }
 
 const char* WindowGLLinux::GetClipboard() {
@@ -379,16 +387,16 @@ void WindowGLLinux::ProcessEvents() {
                 HandleSizeEvent(static_cast<uint32_t>(event.xconfigure.width), static_cast<uint32_t>(event.xconfigure.height));
                 break;
 
-            case SelectionClear: {
-            }
-            break;
+            case SelectionClear:
+                m_clipboard.clear();
+                break;
 
-            case SelectionRequest: {
-            }
-            break;
+            case SelectionRequest:
+                HandleSelectionRequest(&event);
+                break;
 
             case SelectionNotify:
-            break;
+                break;
 
             case ClientMessage: {
                 if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atoms[WM_DELETE_WINDOW]) {
@@ -578,4 +586,44 @@ std::string WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
     }
 
     return clipboard;
+}
+
+void WindowGLLinux::HandleSelectionRequest(const XEvent* event) {
+    XSelectionRequestEvent e = event->xselectionrequest;
+    Atom target = e.target;
+    Atom property = e.property;
+    if (e.property == None) {
+        property = e.target;
+    }
+
+    if (target == m_atoms[TARGETS]) {
+        Atom targets[] = {
+            m_atoms[TIMESTAMP],
+            m_atoms[TARGETS],
+            m_atoms[UTF8_STRING]
+        };
+        XChangeProperty(m_display, e.requestor, property, XA_ATOM, sizeof(Atom) * 8, PropModeReplace,
+            reinterpret_cast<const unsigned char*>(targets), _countof(targets));
+    } else if (target == m_atoms[TIMESTAMP]) {
+        Time cur = CurrentTime;
+        XChangeProperty(m_display, e.requestor, property, XA_INTEGER, sizeof(cur) * 8, PropModeReplace,
+            reinterpret_cast<const unsigned char*>(&cur), 1);
+    } else if ((target == m_atoms[UTF8_STRING]) && (e.selection == m_atoms[CLIPBOARD]) && !m_clipboard.empty()) {
+        XChangeProperty(m_display, e.requestor, property, target, 8, PropModeReplace,
+            reinterpret_cast<const unsigned char*>(m_clipboard.c_str()), static_cast<int>(m_clipboard.length()));
+    } else {
+        property = None;
+    }
+
+    XSelectionEvent notify;
+    notify.type = SelectionNotify;
+    notify.serial = 0;
+    notify.send_event = 0;
+    notify.display = m_display;
+    notify.requestor = e.requestor;
+    notify.selection = e.selection;
+    notify.target = target;
+    notify.property = property;
+    notify.time = CurrentTime;
+    XSendEvent(m_display, e.requestor, 0/* False */, PropertyChangeMask, reinterpret_cast<XEvent *>(&notify));
 }

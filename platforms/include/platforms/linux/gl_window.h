@@ -3,8 +3,8 @@
 #include "platforms/window.h"
 
 
-typedef struct _XDisplay Display;
 typedef union _XEvent XEvent;
+typedef struct _XDisplay Display;
 class X11InputHandler;
 class WindowGLLinux : public RenderWindow {
 public:
@@ -38,6 +38,7 @@ private:
     void HandleKeyEvent(KeyAction action, uint code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
     std::string HandleSelectionNotify(const XEvent* event);
+    void HandleSelectionRequest(const XEvent* event);
 
 private:
     Display* m_display = nullptr;
