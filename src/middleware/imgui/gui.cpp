@@ -28,7 +28,7 @@ struct PSInput {
 
 void main(in VSInput vsIn, out PSInput psIn) {
     psIn.position = mul(matProj, float4(vsIn.position.xy, 0.0, 1.0));
-    psIn.color = vsIn.color;
+    psIn.color = float4(pow(abs(vsIn.color.xyz), float3(2.2)), vsIn.color.w);
     psIn.uv = vsIn.uv;
 }
 )";
@@ -80,14 +80,13 @@ void Gui::Create() {
     io.BackendPlatformName = "terra";
     io.BackendRendererName = "terra engine";
     io.MouseDrawCursor = false;
-    // TODO: add clipboard
-    // io.SetClipboardTextFn = Window::SetClipboardText;
-    // io.GetClipboardTextFn = Window::GetClipboardText;
-    // io.ClipboardUserData = nullptr;
-
-    // TODO: check flags
-    // io.ConfigViewportsNoAutoMerge = true;
-    // io.ConfigViewportsNoTaskBarIcon = true;
+    io.ClipboardUserData = reinterpret_cast<void*>(m_window.get());
+    io.SetClipboardTextFn = [](void* window, const char* text) {
+        reinterpret_cast<RenderWindow*>(window)->SetClipboard(text);
+    };
+    io.GetClipboardTextFn = [](void* window) -> const char* {
+        return reinterpret_cast<RenderWindow*>(window)->GetClipboard();
+    };
 
     io.KeyMap[ImGuiKey_Tab] = static_cast<int>(Key::Tab);
     io.KeyMap[ImGuiKey_LeftArrow] = static_cast<int>(Key::ArrowLeft);
@@ -128,6 +127,88 @@ void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& 
     uint32_t w, h;
     handler->GetWindowSize(w, h);
     io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
+
+    if (m_enableInput) {
+        if (handler->IsWindowFocused()) {
+            io.MouseWheel += handler->GetScrollOffset();
+
+            if (io.WantSetMousePos) {
+                m_window->SetCursorPos(static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
+            } else {
+                float posX, posY;
+                handler->GetCursorPosition(posX, posY);
+                io.MousePos = ImVec2(posX, posY);
+            }
+        } else {
+            io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+        }
+
+        if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0) {
+            ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+            if (io.MouseDrawCursor) {
+                imgui_cursor = ImGuiMouseCursor_None;
+            }
+            switch (imgui_cursor)
+            {
+            case ImGuiMouseCursor_None:
+                m_window->SetCursor(CursorType::Hidden);
+                break;
+            case ImGuiMouseCursor_Arrow:
+                m_window->SetCursor(CursorType::Arrow);
+                break;
+            case ImGuiMouseCursor_TextInput:
+                m_window->SetCursor(CursorType::TextInput);
+                break;
+            case ImGuiMouseCursor_ResizeAll:
+                m_window->SetCursor(CursorType::ResizeAll);
+                break;
+            case ImGuiMouseCursor_ResizeNS:
+                m_window->SetCursor(CursorType::ResizeNS);
+                break;
+            case ImGuiMouseCursor_ResizeEW:
+                m_window->SetCursor(CursorType::ResizeEW);
+                break;
+            case ImGuiMouseCursor_ResizeNESW:
+                m_window->SetCursor(CursorType::ResizeNESW);
+                break;
+            case ImGuiMouseCursor_ResizeNWSE:
+                m_window->SetCursor(CursorType::ResizeNWSE);
+                break;
+            case ImGuiMouseCursor_Hand:
+                m_window->SetCursor(CursorType::Hand);
+                break;
+            case ImGuiMouseCursor_NotAllowed:
+                m_window->SetCursor(CursorType::NotAllowed);
+                break;
+            default:
+                m_window->SetCursor(CursorType::Arrow);
+                break;
+            }
+        }
+
+        handler->FillKeyboardKeysDown(io.KeysDown);
+        io.KeyCtrl = handler->IsKeyDown(Key::Control);
+        io.KeyShift = handler->IsKeyDown(Key::Shift);
+        io.KeyAlt = handler->IsKeyDown(Key::Alt);
+        io.KeySuper = handler->IsKeyDown(Key::Super);
+        io.MouseDown[0] = handler->IsKeyStickyDown(Key::MouseLeft);
+        io.MouseDown[1] = handler->IsKeyStickyDown(Key::MouseRight);
+        io.MouseDown[2] = handler->IsKeyStickyDown(Key::MouseMiddle);
+
+        for(const auto ch : handler->GetInput()) {
+            io.AddInputCharacter(static_cast<wchar_t>(ch));
+        }
+    } else {
+        std::fill(std::begin(io.KeysDown), std::end(io.KeysDown), false);
+
+        io.KeyCtrl = false;
+        io.KeyShift = false;
+        io.KeyAlt = false;
+        io.KeySuper = false;
+        io.MouseDown[0] = false;
+        io.MouseDown[1] = false;
+        io.MouseDown[2] = false;
+    }
 }
 
 void Gui::NewFrame() {
@@ -263,7 +344,7 @@ void Gui::EndFrame() {
 
                 auto* textureSrv = reinterpret_cast<dg::ITextureView*>(pcmd->TextureId);
                 if (textureSrv != m_fontTex) {
-                    throw EngineError("wrong texture set in imgui");
+                    CreateFontsTexture();
                 }
                 dg::DrawIndexedAttribs DrawAttrs(pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? dg::VT_UINT16 : dg::VT_UINT32, dg::DRAW_FLAG_VERIFY_STATES);
                 DrawAttrs.FirstIndexLocation = pcmd->IdxOffset + globalIdxOffset;
@@ -371,6 +452,7 @@ void Gui::CreateGraphics() {
     m_device->CreatePipelineState(desc, &m_ps);
 
     m_ps->GetStaticVariableByName(dg::SHADER_TYPE_VERTEX, "Camera")->Set(m_cameraCB);
+    m_ps->CreateShaderResourceBinding(&m_binding, true);
 
     CreateFontsTexture();
 }
@@ -401,8 +483,6 @@ void Gui::CreateFontsTexture() {
     m_device->CreateTexture(fontTexDesc, &data, &fontTex);
     m_fontTex = fontTex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 
-    m_binding.Release();
-    m_ps->CreateShaderResourceBinding(&m_binding, true);
     m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(m_fontTex);
     io.Fonts->TexID = (ImTextureID)m_fontTex;
 }
