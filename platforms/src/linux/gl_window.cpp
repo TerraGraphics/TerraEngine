@@ -428,24 +428,34 @@ void WindowGLLinux::CreateCursors() {
     for (uint i=0; i!=static_cast<uint>(CursorType::LastStandartCursor) + 1; ++i) {
         auto type = static_cast<CursorType>(i);
         uint nativeType = 0;
+        // see http://tronche.com/gui/x/xlib/appendix/b
         switch (type) {
             case CursorType::Arrow:
                 nativeType = XC_left_ptr;
                 break;
-            case CursorType::IBeam:
+            case CursorType::TextInput:
                 nativeType = XC_xterm;
                 break;
-            case CursorType::Crosshair:
-                nativeType = XC_crosshair;
+            case CursorType::ResizeAll:
+                nativeType = XC_fleur;
+                break;
+            case CursorType::ResizeNS:
+                nativeType = XC_sb_v_double_arrow;
+                break;
+            case CursorType::ResizeEW:
+                nativeType = XC_sb_h_double_arrow;
+                break;
+            case CursorType::ResizeNESW:
+                nativeType = XC_fleur;
+                break;
+            case CursorType::ResizeNWSE:
+                nativeType = XC_fleur;
                 break;
             case CursorType::Hand:
                 nativeType = XC_hand2;
                 break;
-            case CursorType::ResizeH:
-                nativeType = XC_sb_h_double_arrow;
-                break;
-            case CursorType::ResizeV:
-                nativeType = XC_sb_v_double_arrow;
+            case CursorType::NotAllowed:
+                nativeType = XC_pirate;
                 break;
             default:
                 throw std::runtime_error("unknown cursor type id");

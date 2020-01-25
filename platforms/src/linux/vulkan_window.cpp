@@ -483,12 +483,16 @@ void WindowVulkanLinux::CreateCursors() {
     if (xcb_cursor_context_new(m_connection, m_screen, &m_cursorContext) < 0) {
         throw std::runtime_error("failed create xbc cursor context");
     }
+    // see http://tronche.com/gui/x/xlib/appendix/b
     m_cursors[static_cast<uint>(CursorType::Arrow)] = xcb_cursor_load_cursor(m_cursorContext, "left_ptr");
-    m_cursors[static_cast<uint>(CursorType::IBeam)] = xcb_cursor_load_cursor(m_cursorContext, "xterm");
-    m_cursors[static_cast<uint>(CursorType::Crosshair)] = xcb_cursor_load_cursor(m_cursorContext, "crosshair");
+    m_cursors[static_cast<uint>(CursorType::TextInput)] = xcb_cursor_load_cursor(m_cursorContext, "xterm");
+    m_cursors[static_cast<uint>(CursorType::ResizeAll)] = xcb_cursor_load_cursor(m_cursorContext, "fleur");
+    m_cursors[static_cast<uint>(CursorType::ResizeNS)] = xcb_cursor_load_cursor(m_cursorContext, "sb_v_double_arrow");
+    m_cursors[static_cast<uint>(CursorType::ResizeEW)] = xcb_cursor_load_cursor(m_cursorContext, "sb_h_double_arrow");
+    m_cursors[static_cast<uint>(CursorType::ResizeNESW)] = xcb_cursor_load_cursor(m_cursorContext, "fd_double_arrow"); // nesw-resize
+    m_cursors[static_cast<uint>(CursorType::ResizeNWSE)] = xcb_cursor_load_cursor(m_cursorContext, "bd_double_arrow"); // nwse-resize
     m_cursors[static_cast<uint>(CursorType::Hand)] = xcb_cursor_load_cursor(m_cursorContext, "hand2");
-    m_cursors[static_cast<uint>(CursorType::ResizeH)] = xcb_cursor_load_cursor(m_cursorContext, "sb_h_double_arrow");
-    m_cursors[static_cast<uint>(CursorType::ResizeV)] = xcb_cursor_load_cursor(m_cursorContext, "sb_v_double_arrow");
+    m_cursors[static_cast<uint>(CursorType::NotAllowed)] = xcb_cursor_load_cursor(m_cursorContext, "not-allowed");
 
     const xcb_pixmap_t pixmap = xcb_generate_id(m_connection);
     m_hiddenCursor = xcb_generate_id(m_connection);

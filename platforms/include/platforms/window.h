@@ -5,17 +5,20 @@
 
 enum class CursorType : uint8_t {
     Arrow = 0,
-    IBeam = 1,
-    Crosshair = 2,
-    Hand = 3,
-    ResizeH = 4,
-    ResizeV = 5,
+    TextInput = 1,
+    ResizeAll = 2,
+    ResizeNS = 3,
+    ResizeEW = 4,
+    ResizeNESW = 5,
+    ResizeNWSE = 6,
+    Hand = 7,
+    NotAllowed = 8,
 
-    Hidden = 6,
-    Disabled = 7,
-    Undefined = 8,
+    Hidden = 9,
+    Disabled = 10,
+    Undefined = 11,
 
-    LastStandartCursor = ResizeV,
+    LastStandartCursor = NotAllowed,
 };
 
 struct WindowDesc {
