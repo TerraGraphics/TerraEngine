@@ -1,6 +1,7 @@
 #include "editor/editor_scene_controller.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
@@ -77,7 +78,10 @@ void EditorSceneController::Draw() {
     m_editorScene->Draw();
     m_gui->NewFrame();
     DockSpace();
-    ImGui::ShowDemoWindow(nullptr);
+    ViewWindow();
+    PropertyWindow();
+    FooterWindow();
+    // ImGui::ShowDemoWindow(nullptr);
     m_gui->EndFrame();
 }
 
@@ -90,13 +94,55 @@ void EditorSceneController::DockSpace() {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
+    bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    ImGui::Begin("Root", nullptr, windowFlags);
+    ImGui::Begin("Root", pOpen, windowFlags);
     ImGui::PopStyleVar(3);
 
-    ImGuiID dockspaceID = ImGui::GetID("RootSpace");
+    static bool first = true;
+    auto dockspaceID = ImGui::GetID("RootSpace");
+    if (first) {
+        first = false;
+        ImGui::DockBuilderRemoveNode(dockspaceID);
+        ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_None);
+        ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
+
+        ImGuiID dockCentral = dockspaceID;
+        ImGuiID dockRight = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Right, 0.20f, NULL, &dockCentral);
+        ImGuiID dockBottom = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Down, 0.20f, NULL, &dockCentral);
+
+        ImGui::DockBuilderDockWindow("View", dockCentral);
+        ImGui::DockBuilderDockWindow("Property", dockRight);
+        ImGui::DockBuilderDockWindow("Footer", dockBottom);
+        ImGui::DockBuilderFinish(dockspaceID);
+    }
+
     ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
     ImGui::End();
+}
+
+void EditorSceneController::ViewWindow() {
+    bool* pOpen = nullptr;
+    ImGuiWindowFlags windowFlags = 0;
+    if (ImGui::Begin("View", pOpen, windowFlags)) {
+        ImGui::End();
+    }
+}
+
+void EditorSceneController::PropertyWindow() {
+    bool* pOpen = nullptr;
+    ImGuiWindowFlags windowFlags = 0;
+    if (ImGui::Begin("Property", pOpen, windowFlags)) {
+        ImGui::End();
+    }
+}
+
+void EditorSceneController::FooterWindow() {
+    bool* pOpen = nullptr;
+    ImGuiWindowFlags windowFlags = 0;
+    if (ImGui::Begin("Footer", pOpen, windowFlags)) {
+        ImGui::End();
+    }
 }

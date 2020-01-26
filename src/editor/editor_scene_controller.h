@@ -26,6 +26,9 @@ public:
 
 private:
     void DockSpace();
+    void ViewWindow();
+    void PropertyWindow();
+    void FooterWindow();
 
 private:
     uint32_t m_vsCameraVarId = 0;
