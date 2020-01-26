@@ -139,6 +139,7 @@ enum class Key : uint8_t {
         Unknown        = 127,
 
         FirstMod       = LeftShift,
+        LastMod        = RightSuper,
         LastKeyboard   = RightSuper,
         FirstMouse     = MouseLeft,
         LastMouse      = MouseMiddle,

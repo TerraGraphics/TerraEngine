@@ -19,21 +19,22 @@ void DebugWindowEventsHandler::OnWindowSizeEvent(uint32_t width, uint32_t height
 
 void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t modifiers) {
     DefaultWindowEventsHandler::OnKeyEvent(action, key, modifiers);
+    bool noPrintModifiers = (key >= Key::FirstMod && key <= Key::LastMod);
     std::string delimiter;
     std::string strModifiers;
-    if (modifiers & KeyModifier::Shift) {
+    if (!noPrintModifiers && (modifiers & KeyModifier::Shift)) {
         strModifiers += delimiter + ToString(KeyModifier::Shift);
         delimiter = "+";
     }
-    if (modifiers & KeyModifier::Control) {
+    if (!noPrintModifiers && (modifiers & KeyModifier::Control)) {
         strModifiers += delimiter + ToString(KeyModifier::Control);
         delimiter = "+";
     }
-    if (modifiers & KeyModifier::Alt) {
+    if (!noPrintModifiers && (modifiers & KeyModifier::Alt)) {
         strModifiers += delimiter + ToString(KeyModifier::Alt);
         delimiter = "+";
     }
-    if (modifiers & KeyModifier::Super) {
+    if (!noPrintModifiers && (modifiers & KeyModifier::Super)) {
         strModifiers += delimiter + ToString(KeyModifier::Super);
         delimiter = "+";
     }

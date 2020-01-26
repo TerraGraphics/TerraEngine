@@ -128,19 +128,15 @@ void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& 
     handler->GetWindowSize(w, h);
     io.DisplaySize = ImVec2(static_cast<float>(w), static_cast<float>(h));
 
-    if (m_enableInput) {
-        if (handler->IsWindowFocused()) {
-            io.MouseWheel += handler->GetScrollOffset();
+    if (m_enableInput && handler->IsWindowFocused()) {
+        io.MouseWheel += handler->GetScrollOffset();
 
-            if (io.WantSetMousePos) {
-                m_window->SetCursorPos(static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
-            } else {
-                float posX, posY;
-                handler->GetCursorPosition(posX, posY);
-                io.MousePos = ImVec2(posX, posY);
-            }
+        if (io.WantSetMousePos) {
+            m_window->SetCursorPos(static_cast<int>(io.MousePos.x), static_cast<int>(io.MousePos.y));
         } else {
-            io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+            float posX, posY;
+            handler->GetCursorPosition(posX, posY);
+            io.MousePos = ImVec2(posX, posY);
         }
 
         if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) == 0) {
@@ -199,6 +195,8 @@ void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& 
             io.AddInputCharacter(static_cast<wchar_t>(ch));
         }
     } else {
+        io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+
         std::fill(std::begin(io.KeysDown), std::end(io.KeysDown), false);
 
         io.KeyCtrl = false;

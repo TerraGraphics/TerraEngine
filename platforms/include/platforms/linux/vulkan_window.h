@@ -16,9 +16,8 @@ public:
     ~WindowVulkanLinux() override;
 
     Display* GetDisplay() noexcept { return m_display; }
-
-    uint32_t GetWindow() noexcept { return m_window; }
     xcb_connection_t* GetConnection() noexcept { return m_connection; }
+    uint32_t GetWindow() noexcept { return m_window; }
 
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
     void SetTitle(const char* text) override;
@@ -41,6 +40,8 @@ private:
     void DestroyCursors();
     void DisableCursor();
     void EnableCursor();
+    void HandleFocusIn();
+    void HandleFocusOut();
     void HandleSizeEvent(uint32_t width, uint32_t height);
     void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
     void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
@@ -51,6 +52,7 @@ private:
     Display* m_display = nullptr;
     uint32_t m_window = 0;
     X11InputHandler* m_inputParser = nullptr;
+    bool m_isKeyDown[static_cast<size_t>(Key::LastKeyboard) + 1] = { false };
     uint32_t m_cursors[static_cast<uint>(CursorType::CountRealCursor)] = { 0 };
     int m_windowCenterX = 0;
     int m_windowCenterY = 0;

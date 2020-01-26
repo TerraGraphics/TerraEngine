@@ -391,34 +391,14 @@ void WindowVulkanLinux::ProcessEvent(xcb_generic_event_t* event) {
         break;
 
         // 0b1001
-        case XCB_FOCUS_IN: {
-            if (m_focused) {
-                break;
-            }
-            m_focused = true;
-            if (m_currentCursorType == CursorType::Disabled) {
-                DisableCursor();
-            }
-
-            m_inputParser->FocusChange(m_focused);
-            m_eventHandler->OnFocusChange(m_focused);
-        }
-        break;
+        case XCB_FOCUS_IN:
+            HandleFocusIn();
+            break;
 
         // 0b1010
-        case XCB_FOCUS_OUT: {
-            if (!m_focused) {
-                break;
-            }
-            m_focused = false;
-            if (m_currentCursorType == CursorType::Disabled) {
-                EnableCursor();
-            }
-
-            m_inputParser->FocusChange(m_focused);
-            m_eventHandler->OnFocusChange(m_focused);
-        }
-        break;
+        case XCB_FOCUS_OUT:
+            HandleFocusOut();
+            break;
 
         // 0b10001
         case XCB_DESTROY_NOTIFY:
@@ -546,6 +526,40 @@ void WindowVulkanLinux::EnableCursor() {
     SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
 }
 
+void WindowVulkanLinux::HandleFocusIn() {
+    if (m_focused) {
+        return;
+    }
+    m_focused = true;
+    if (m_currentCursorType == CursorType::Disabled) {
+        DisableCursor();
+    }
+
+    m_inputParser->FocusChange(m_focused);
+    m_eventHandler->OnFocusChange(m_focused);
+}
+
+void WindowVulkanLinux::HandleFocusOut() {
+    if (!m_focused) {
+        return;
+    }
+    m_focused = false;
+    if (m_currentCursorType == CursorType::Disabled) {
+        EnableCursor();
+    }
+
+    for (size_t i=0; i!=static_cast<size_t>(Key::LastKeyboard) + 1; ++i) {
+        if (m_isKeyDown[i]) {
+            m_eventHandler->OnKeyEvent(KeyAction::Release, static_cast<Key>(i), 0);
+            m_isKeyDown[i] = false;
+        }
+    }
+
+    m_inputParser->FocusChange(m_focused);
+    m_eventHandler->OnFocusChange(m_focused);
+
+}
+
 void WindowVulkanLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
     m_windowCenterX = width / 2;
     m_windowCenterY = height / 2;
@@ -553,7 +567,9 @@ void WindowVulkanLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
 }
 
 void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
-    m_eventHandler->OnKeyEvent(action, KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0)), StateToModifiers(state));
+    auto key = KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0));
+    m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
+    m_isKeyDown[static_cast<size_t>(key)] = (action == KeyAction::Press);
 }
 
 void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state) {

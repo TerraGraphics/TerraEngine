@@ -356,33 +356,13 @@ void WindowGLLinux::ProcessEvents() {
             }
             break;
 
-            case FocusIn: {
-                if (m_focused) {
-                    break;
-                }
-                m_focused = true;
-                if (m_currentCursorType == CursorType::Disabled) {
-                    DisableCursor();
-                }
+            case FocusIn:
+                HandleFocusIn();
+                break;
 
-                m_inputParser->FocusChange(m_focused);
-                m_eventHandler->OnFocusChange(m_focused);
-            }
-            break;
-
-            case FocusOut: {
-                if (!m_focused) {
-                    break;
-                }
-                m_focused = false;
-                if (m_currentCursorType == CursorType::Disabled) {
-                    EnableCursor();
-                }
-
-                m_inputParser->FocusChange(m_focused);
-                m_eventHandler->OnFocusChange(m_focused);
-            }
-            break;
+            case FocusOut:
+                HandleFocusOut();
+                break;
 
             case DestroyNotify:
                 m_eventHandler->OnWindowDestroy();
@@ -490,6 +470,39 @@ void WindowGLLinux::EnableCursor() {
     SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
 }
 
+void WindowGLLinux::HandleFocusIn() {
+    if (m_focused) {
+        return;
+    }
+    m_focused = true;
+    if (m_currentCursorType == CursorType::Disabled) {
+        DisableCursor();
+    }
+
+    m_inputParser->FocusChange(m_focused);
+    m_eventHandler->OnFocusChange(m_focused);
+}
+
+void WindowGLLinux::HandleFocusOut() {
+    if (!m_focused) {
+        return;
+    }
+    m_focused = false;
+    if (m_currentCursorType == CursorType::Disabled) {
+        EnableCursor();
+    }
+
+    for (size_t i=0; i!=static_cast<size_t>(Key::LastKeyboard) + 1; ++i) {
+        if (m_isKeyDown[i]) {
+            m_eventHandler->OnKeyEvent(KeyAction::Release, static_cast<Key>(i), 0);
+            m_isKeyDown[i] = false;
+        }
+    }
+
+    m_inputParser->FocusChange(m_focused);
+    m_eventHandler->OnFocusChange(m_focused);
+}
+
 void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
     m_windowCenterX = width / 2;
     m_windowCenterY = height / 2;
@@ -499,6 +512,7 @@ void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
 void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
     auto key = KeySymToKey(static_cast<uint32_t>(XkbKeycodeToKeysym(m_display, static_cast<KeyCode>(code), 0, 0)));
     m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
+    m_isKeyDown[static_cast<size_t>(key)] = (action == KeyAction::Press);
 }
 
 void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint state) {
