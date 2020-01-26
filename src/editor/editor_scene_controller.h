@@ -13,7 +13,7 @@ namespace Diligent {
 class Gui;
 class Camera;
 class EditorScene;
-class FlyCameraController;
+class EditorCameraController;
 class EditorSceneController : Fixed {
 public:
     EditorSceneController();
@@ -31,7 +31,7 @@ private:
 
     dg::ShaderCamera m_shaderCamera;
     std::shared_ptr<Camera> m_camera;
-    FlyCameraController* m_flyController = nullptr;
+    EditorCameraController* m_controller = nullptr;
 
     std::shared_ptr<Gui> m_gui = nullptr;
     EditorScene* m_editorScene = nullptr;

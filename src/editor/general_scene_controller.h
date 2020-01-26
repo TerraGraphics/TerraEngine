@@ -30,7 +30,7 @@ private:
 
     dg::ShaderCamera m_shaderCamera;
     std::shared_ptr<Camera> m_camera;
-    FlyCameraController* m_flyController = nullptr;
+    FlyCameraController* m_controller = nullptr;
 
     GeneralScene* m_generalScene = nullptr;
 };

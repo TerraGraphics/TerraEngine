@@ -10,18 +10,18 @@
 #include "editor/editor_scene.h"
 #include "middleware/imgui/gui.h"
 #include "core/material/material_builder.h"
-#include "middleware/camera/fly_controller.h"
+#include "middleware/camera/editor_controller.h"
 
 
 EditorSceneController::EditorSceneController()
     : m_editorScene(new EditorScene())
-    , m_flyController(new FlyCameraController()) {
+    , m_controller(new EditorCameraController()) {
 
 }
 
 EditorSceneController::~EditorSceneController() {
-    if (m_flyController != nullptr) {
-        delete m_flyController;
+    if (m_controller != nullptr) {
+        delete m_controller;
     }
 
     if (m_editorScene != nullptr) {
@@ -40,7 +40,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
 
     m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, device->GetDeviceCaps().IsGLDevice(), true);
     m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
-    m_flyController->AttachCamera(m_camera);
+    m_controller->SetCamera(m_camera);
 
     m_editorScene->Create();
 }
@@ -51,7 +51,7 @@ void EditorSceneController::Update(double deltaTime) {
     auto handler = engine.GetEventHandler();
     const auto& desc = engine.GetSwapChain()->GetDesc();
 
-    m_flyController->Update(handler, desc.Width, desc.Height, deltaTime);
+    m_controller->Update(handler, desc.Width, desc.Height, deltaTime);
     m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
     m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
