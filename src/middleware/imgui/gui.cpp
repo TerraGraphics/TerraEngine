@@ -77,9 +77,21 @@ void Gui::Create() {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableSetMousePos | ImGuiConfigFlags_DockingEnable;
     io.BackendFlags = ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos | ImGuiBackendFlags_RendererHasVtxOffset;
+
+    // Docking options
+    io.ConfigDockingNoSplit = false;
+    io.ConfigDockingWithShift = false;
+    io.ConfigDockingAlwaysTabBar = false;
+    io.ConfigDockingTransparentPayload = false;
+
+    // Platform
     io.BackendPlatformName = "terra";
     io.BackendRendererName = "terra engine";
-    io.MouseDrawCursor = false;
+    io.BackendPlatformUserData = nullptr;
+    io.BackendRendererUserData = nullptr;
+    io.BackendLanguageUserData = nullptr;
+
+    // Clipboard
     io.ClipboardUserData = reinterpret_cast<void*>(m_window.get());
     io.SetClipboardTextFn = [](void* window, const char* text) {
         reinterpret_cast<RenderWindow*>(window)->SetClipboard(text);
@@ -87,6 +99,7 @@ void Gui::Create() {
     io.GetClipboardTextFn = [](void* window) -> const char* {
         return reinterpret_cast<RenderWindow*>(window)->GetClipboard();
     };
+
 
     io.KeyMap[ImGuiKey_Tab] = static_cast<int>(Key::Tab);
     io.KeyMap[ImGuiKey_LeftArrow] = static_cast<int>(Key::ArrowLeft);

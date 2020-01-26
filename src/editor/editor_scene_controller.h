@@ -25,6 +25,9 @@ public:
     void Draw();
 
 private:
+    void DockSpace();
+
+private:
     uint32_t m_vsCameraVarId = 0;
     uint32_t m_psCameraVarId = 0;
     uint32_t m_gsCameraVarId = 0;

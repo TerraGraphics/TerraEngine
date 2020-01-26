@@ -20,9 +20,11 @@ void EditorCameraController::Update(const std::shared_ptr<DefaultWindowEventsHan
 
     if (m_enableInput) {
         bool update = false;
+        // TODO: add settings
         if (eventHandler->IsKeyDown(Key::MouseMiddle)) {
             dg::float2 dtRotation;
             eventHandler->GetCursorOffet(dtRotation.x, dtRotation.y);
+            // TODO: add settings
             m_rotation += dtRotation * 0.01f;
             m_rotation.x = std::fmod(m_rotation.x, TwoPI<float>());
             m_rotation.y = dg::clamp(m_rotation.y, pitchMin, pitchMax);
@@ -40,6 +42,7 @@ void EditorCameraController::Update(const std::shared_ptr<DefaultWindowEventsHan
 
         auto radiusDt = eventHandler->GetScrollOffset();
         if (std::abs(radiusDt) > 0.1f) {
+            // TODO: add settings
             m_radius = dg::clamp(m_radius + radiusDt * -0.1f, 1.f, 100.f);
             update = true;
         }
