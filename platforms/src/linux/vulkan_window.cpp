@@ -373,20 +373,7 @@ void WindowVulkanLinux::ProcessEvent(xcb_generic_event_t* event) {
         // 0b110
         case XCB_MOTION_NOTIFY: {
             const auto* typedEvent = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
-            if (m_currentCursorType == CursorType::Disabled) {
-                if ((typedEvent->event_x == m_lastCursorPosX) && (typedEvent->event_y == m_lastCursorPosY)) {
-                    break;
-                }
-                auto dtX = static_cast<double>(typedEvent->event_x - m_lastCursorPosX);
-                auto dtY = static_cast<double>(typedEvent->event_y - m_lastCursorPosY);
-                m_virtualCursorX += dtX;
-                m_virtualCursorY += dtY;
-                m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
-            } else {
-                m_eventHandler->OnCursorPosition(static_cast<double>(typedEvent->event_x), static_cast<double>(typedEvent->event_y));
-            }
-            m_lastCursorPosX = typedEvent->event_x;
-            m_lastCursorPosY = typedEvent->event_y;
+            HandleMouseMotion(typedEvent->event_x, typedEvent->event_y);
         }
         break;
 
@@ -526,6 +513,51 @@ void WindowVulkanLinux::EnableCursor() {
     SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
 }
 
+void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
+    auto key = KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0));
+    m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
+    m_isKeyDown[static_cast<size_t>(key)] = (action == KeyAction::Press);
+}
+
+void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state) {
+    switch (code) {
+        case XCB_BUTTON_INDEX_1:
+            m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
+            break;
+        case XCB_BUTTON_INDEX_2:
+            m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
+            break;
+        case XCB_BUTTON_INDEX_3:
+            m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
+            break;
+        case XCB_BUTTON_INDEX_4:
+            m_eventHandler->OnScroll(1);
+            break;
+        case XCB_BUTTON_INDEX_5:
+            m_eventHandler->OnScroll(-1);
+            break;
+        default:
+            break;
+    }
+}
+
+void WindowVulkanLinux::HandleMouseMotion(int16_t eventX, int16_t eventY) {
+    if (m_currentCursorType == CursorType::Disabled) {
+        if ((eventX == m_lastCursorPosX) && (eventY == m_lastCursorPosY)) {
+            return;
+        }
+        auto dtX = static_cast<double>(eventX - m_lastCursorPosX);
+        auto dtY = static_cast<double>(eventY - m_lastCursorPosY);
+        m_virtualCursorX += dtX;
+        m_virtualCursorY += dtY;
+        m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
+    } else {
+        m_eventHandler->OnCursorPosition(static_cast<double>(eventX), static_cast<double>(eventY));
+    }
+    m_lastCursorPosX = eventX;
+    m_lastCursorPosY = eventY;
+}
+
 void WindowVulkanLinux::HandleFocusIn() {
     if (m_focused) {
         return;
@@ -566,32 +598,43 @@ void WindowVulkanLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
     m_eventHandler->OnWindowSizeEvent(width, height);
 }
 
-void WindowVulkanLinux::HandleKeyEvent(KeyAction action, uint8_t code, uint state) {
-    auto key = KeySymToKey(xcb_key_symbols_get_keysym(m_keySymbols, code, 0));
-    m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
-    m_isKeyDown[static_cast<size_t>(key)] = (action == KeyAction::Press);
-}
-
-void WindowVulkanLinux::HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state) {
-    switch (code) {
-        case XCB_BUTTON_INDEX_1:
-            m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
-            break;
-        case XCB_BUTTON_INDEX_2:
-            m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
-            break;
-        case XCB_BUTTON_INDEX_3:
-            m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
-            break;
-        case XCB_BUTTON_INDEX_4:
-            m_eventHandler->OnScroll(1);
-            break;
-        case XCB_BUTTON_INDEX_5:
-            m_eventHandler->OnScroll(-1);
-            break;
-        default:
-            break;
+void WindowVulkanLinux::HandleSelectionRequest(const xcb_selection_request_event_t* event) {
+    xcb_atom_t target = event->target;
+    xcb_atom_t property = event->property;
+    if (event->property == XCB_NONE) {
+        property = event->target;
     }
+
+    if (target == m_atoms[TARGETS]) {
+        xcb_atom_t targets[] = {
+            m_atoms[TIMESTAMP],
+            m_atoms[TARGETS],
+            m_atoms[UTF8_STRING]
+        };
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, XCB_ATOM_ATOM,
+            sizeof(xcb_atom_t) * 8, _countof(targets), targets);
+    } else if (target == m_atoms[TIMESTAMP]) {
+        xcb_timestamp_t cur = XCB_CURRENT_TIME;
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, XCB_ATOM_INTEGER,
+            sizeof(cur) * 8, 1, &cur);
+    } else if ((target == m_atoms[UTF8_STRING]) && (event->selection == m_atoms[CLIPBOARD]) && !m_clipboard.empty()) {
+        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, target,
+            8, static_cast<uint32_t>(m_clipboard.length()), m_clipboard.c_str());
+    } else {
+        property = XCB_NONE;
+    }
+
+    xcb_selection_notify_event_t notify;
+    notify.response_type = XCB_SELECTION_NOTIFY;
+    notify.pad0 = 0;
+    notify.sequence = 0;
+    notify.time = XCB_CURRENT_TIME;
+    notify.requestor = event->requestor;
+    notify.selection = event->selection;
+    notify.target = target;
+    notify.property = property;
+    xcb_send_event(m_connection, false, event->requestor, XCB_EVENT_MASK_PROPERTY_CHANGE, reinterpret_cast<char *>(&notify));
+    xcb_flush(m_connection);
 }
 
 std::string WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_event_t* event) {
@@ -642,43 +685,4 @@ std::string WindowVulkanLinux::HandleSelectionNotify(const xcb_selection_notify_
     }
 
     return clipboard;
-}
-
-void WindowVulkanLinux::HandleSelectionRequest(const xcb_selection_request_event_t* event) {
-    xcb_atom_t target = event->target;
-    xcb_atom_t property = event->property;
-    if (event->property == XCB_NONE) {
-        property = event->target;
-    }
-
-    if (target == m_atoms[TARGETS]) {
-        xcb_atom_t targets[] = {
-            m_atoms[TIMESTAMP],
-            m_atoms[TARGETS],
-            m_atoms[UTF8_STRING]
-        };
-        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, XCB_ATOM_ATOM,
-            sizeof(xcb_atom_t) * 8, _countof(targets), targets);
-    } else if (target == m_atoms[TIMESTAMP]) {
-        xcb_timestamp_t cur = XCB_CURRENT_TIME;
-        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, XCB_ATOM_INTEGER,
-            sizeof(cur) * 8, 1, &cur);
-    } else if ((target == m_atoms[UTF8_STRING]) && (event->selection == m_atoms[CLIPBOARD]) && !m_clipboard.empty()) {
-        xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, property, target,
-            8, static_cast<uint32_t>(m_clipboard.length()), m_clipboard.c_str());
-    } else {
-        property = XCB_NONE;
-    }
-
-    xcb_selection_notify_event_t notify;
-    notify.response_type = XCB_SELECTION_NOTIFY;
-    notify.pad0 = 0;
-    notify.sequence = 0;
-    notify.time = XCB_CURRENT_TIME;
-    notify.requestor = event->requestor;
-    notify.selection = event->selection;
-    notify.target = target;
-    notify.property = property;
-    xcb_send_event(m_connection, false, event->requestor, XCB_EVENT_MASK_PROPERTY_CHANGE, reinterpret_cast<char *>(&notify));
-    xcb_flush(m_connection);
 }

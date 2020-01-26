@@ -315,88 +315,78 @@ void WindowGLLinux::Destroy() {
 }
 
 void WindowGLLinux::ProcessEvents() {
-    m_eventHandler->OnNewFrame();
+m_eventHandler->OnNewFrame();
     XPending(m_display);
     while (XQLength(m_display)) {
         XEvent event;
         XNextEvent(m_display, &event);
-        switch (event.type) {
-            case KeyPress:
-                HandleKeyEvent(KeyAction::Press, event.xkey.keycode, event.xkey.state);
-                m_inputParser->Handle(&event.xkey);
-                break;
-
-            case KeyRelease:
-                HandleKeyEvent(KeyAction::Release, event.xkey.keycode, event.xkey.state);
-                break;
-
-            case ButtonPress:
-                HandleMouseButtonEvent(KeyAction::Press, event.xbutton.button, event.xbutton.state);
-                break;
-
-            case ButtonRelease:
-                HandleMouseButtonEvent(KeyAction::Release, event.xbutton.button, event.xbutton.state);
-                break;
-
-            case MotionNotify: {
-                if (m_currentCursorType == CursorType::Disabled) {
-                    if ((event.xmotion.x == m_lastCursorPosX) && (event.xmotion.y == m_lastCursorPosY)) {
-                        break;
-                    }
-                    auto dtX = static_cast<double>(event.xmotion.x - m_lastCursorPosX);
-                    auto dtY = static_cast<double>(event.xmotion.y - m_lastCursorPosY);
-                    m_virtualCursorX += dtX;
-                    m_virtualCursorY += dtY;
-                    m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
-                } else {
-                    m_eventHandler->OnCursorPosition(static_cast<double>(event.xmotion.x), static_cast<double>(event.xmotion.y));
-                }
-                m_lastCursorPosX = event.xmotion.x;
-                m_lastCursorPosY = event.xmotion.y;
-            }
-            break;
-
-            case FocusIn:
-                HandleFocusIn();
-                break;
-
-            case FocusOut:
-                HandleFocusOut();
-                break;
-
-            case DestroyNotify:
-                m_eventHandler->OnWindowDestroy();
-                break;
-
-            case ConfigureNotify:
-                HandleSizeEvent(static_cast<uint32_t>(event.xconfigure.width), static_cast<uint32_t>(event.xconfigure.height));
-                break;
-
-            case SelectionClear:
-                m_clipboard.clear();
-                break;
-
-            case SelectionRequest:
-                HandleSelectionRequest(&event);
-                break;
-
-            case SelectionNotify:
-                break;
-
-            case ClientMessage: {
-                if (static_cast<uint64_t>(event.xclient.data.l[0]) == m_atoms[WM_DELETE_WINDOW]) {
-                    m_eventHandler->OnWindowDestroy();
-                }
-            }
-            break;
-
-            default:
-                break;
-        }
+        ProcessEvent(&event);
     }
 
     if (m_focused && (m_currentCursorType == CursorType::Disabled) && ((m_lastCursorPosX != m_windowCenterX) || (m_lastCursorPosY != m_windowCenterY))) {
         SetCursorPos(m_windowCenterX, m_windowCenterY);
+    }
+}
+
+void WindowGLLinux::ProcessEvent(XEvent* event) {
+    switch (event->type) {
+        case KeyPress:
+            HandleKeyEvent(KeyAction::Press, event->xkey.keycode, event->xkey.state);
+            m_inputParser->Handle(&event->xkey);
+            break;
+
+        case KeyRelease:
+            HandleKeyEvent(KeyAction::Release, event->xkey.keycode, event->xkey.state);
+            break;
+
+        case ButtonPress:
+            HandleMouseButtonEvent(KeyAction::Press, event->xbutton.button, event->xbutton.state);
+            break;
+
+        case ButtonRelease:
+            HandleMouseButtonEvent(KeyAction::Release, event->xbutton.button, event->xbutton.state);
+            break;
+
+        case MotionNotify:
+            HandleMouseMotion(event->xmotion.x, event->xmotion.y);
+            break;
+
+        case FocusIn:
+            HandleFocusIn();
+            break;
+
+        case FocusOut:
+            HandleFocusOut();
+            break;
+
+        case DestroyNotify:
+            m_eventHandler->OnWindowDestroy();
+            break;
+
+        case ConfigureNotify:
+            HandleSizeEvent(static_cast<uint32_t>(event->xconfigure.width), static_cast<uint32_t>(event->xconfigure.height));
+            break;
+
+        case SelectionClear:
+            m_clipboard.clear();
+            break;
+
+        case SelectionRequest:
+            HandleSelectionRequest(event);
+            break;
+
+        case SelectionNotify:
+            break;
+
+        case ClientMessage: {
+            if (static_cast<uint64_t>(event->xclient.data.l[0]) == m_atoms[WM_DELETE_WINDOW]) {
+                m_eventHandler->OnWindowDestroy();
+            }
+        }
+        break;
+
+        default:
+            break;
     }
 }
 
@@ -470,6 +460,49 @@ void WindowGLLinux::EnableCursor() {
     SetCursorPos(m_visibleCursorPosX, m_visibleCursorPosY);
 }
 
+void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
+    auto key = KeySymToKey(static_cast<uint32_t>(XkbKeycodeToKeysym(m_display, static_cast<KeyCode>(code), 0, 0)));
+    m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
+    m_isKeyDown[static_cast<size_t>(key)] = (action == KeyAction::Press);
+}
+
+void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint state) {
+    switch (code) {
+        case Button1:
+            m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
+            break;
+        case Button2:
+            m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
+            break;
+        case Button3:
+            m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
+            break;
+        case Button4:
+            m_eventHandler->OnScroll(1);
+            break;
+        case Button5:
+            m_eventHandler->OnScroll(-1);
+            break;
+    }
+}
+
+void WindowGLLinux::HandleMouseMotion(int eventX, int eventY) {
+    if (m_currentCursorType == CursorType::Disabled) {
+        if ((eventX == m_lastCursorPosX) && (eventY == m_lastCursorPosY)) {
+            return;
+        }
+        auto dtX = static_cast<double>(eventX - m_lastCursorPosX);
+        auto dtY = static_cast<double>(eventY - m_lastCursorPosY);
+        m_virtualCursorX += dtX;
+        m_virtualCursorY += dtY;
+        m_eventHandler->OnCursorPosition(m_virtualCursorX, m_virtualCursorY);
+    } else {
+        m_eventHandler->OnCursorPosition(static_cast<double>(eventX), static_cast<double>(eventY));
+    }
+    m_lastCursorPosX = eventX;
+    m_lastCursorPosY = eventY;
+}
+
 void WindowGLLinux::HandleFocusIn() {
     if (m_focused) {
         return;
@@ -509,30 +542,44 @@ void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
     m_eventHandler->OnWindowSizeEvent(width, height);
 }
 
-void WindowGLLinux::HandleKeyEvent(KeyAction action, uint code, uint state) {
-    auto key = KeySymToKey(static_cast<uint32_t>(XkbKeycodeToKeysym(m_display, static_cast<KeyCode>(code), 0, 0)));
-    m_eventHandler->OnKeyEvent(action, key, StateToModifiers(state));
-    m_isKeyDown[static_cast<size_t>(key)] = (action == KeyAction::Press);
-}
-
-void WindowGLLinux::HandleMouseButtonEvent(KeyAction action, uint code, uint state) {
-    switch (code) {
-        case Button1:
-            m_eventHandler->OnKeyEvent(action, Key::MouseLeft, StateToModifiers(state));
-            break;
-        case Button2:
-            m_eventHandler->OnKeyEvent(action, Key::MouseMiddle, StateToModifiers(state));
-            break;
-        case Button3:
-            m_eventHandler->OnKeyEvent(action, Key::MouseRight, StateToModifiers(state));
-            break;
-        case Button4:
-            m_eventHandler->OnScroll(1);
-            break;
-        case Button5:
-            m_eventHandler->OnScroll(-1);
-            break;
+void WindowGLLinux::HandleSelectionRequest(const XEvent* event) {
+    XSelectionRequestEvent e = event->xselectionrequest;
+    Atom target = e.target;
+    Atom property = e.property;
+    if (e.property == None) {
+        property = e.target;
     }
+
+    if (target == m_atoms[TARGETS]) {
+        Atom targets[] = {
+            m_atoms[TIMESTAMP],
+            m_atoms[TARGETS],
+            m_atoms[UTF8_STRING]
+        };
+        XChangeProperty(m_display, e.requestor, property, XA_ATOM, sizeof(Atom) * 8, PropModeReplace,
+            reinterpret_cast<const unsigned char*>(targets), _countof(targets));
+    } else if (target == m_atoms[TIMESTAMP]) {
+        Time cur = CurrentTime;
+        XChangeProperty(m_display, e.requestor, property, XA_INTEGER, sizeof(cur) * 8, PropModeReplace,
+            reinterpret_cast<const unsigned char*>(&cur), 1);
+    } else if ((target == m_atoms[UTF8_STRING]) && (e.selection == m_atoms[CLIPBOARD]) && !m_clipboard.empty()) {
+        XChangeProperty(m_display, e.requestor, property, target, 8, PropModeReplace,
+            reinterpret_cast<const unsigned char*>(m_clipboard.c_str()), static_cast<int>(m_clipboard.length()));
+    } else {
+        property = None;
+    }
+
+    XSelectionEvent notify;
+    notify.type = SelectionNotify;
+    notify.serial = 0;
+    notify.send_event = 0;
+    notify.display = m_display;
+    notify.requestor = e.requestor;
+    notify.selection = e.selection;
+    notify.target = target;
+    notify.property = property;
+    notify.time = CurrentTime;
+    XSendEvent(m_display, e.requestor, 0/* False */, PropertyChangeMask, reinterpret_cast<XEvent *>(&notify));
 }
 
 std::string WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
@@ -587,44 +634,4 @@ std::string WindowGLLinux::HandleSelectionNotify(const XEvent* event) {
     }
 
     return clipboard;
-}
-
-void WindowGLLinux::HandleSelectionRequest(const XEvent* event) {
-    XSelectionRequestEvent e = event->xselectionrequest;
-    Atom target = e.target;
-    Atom property = e.property;
-    if (e.property == None) {
-        property = e.target;
-    }
-
-    if (target == m_atoms[TARGETS]) {
-        Atom targets[] = {
-            m_atoms[TIMESTAMP],
-            m_atoms[TARGETS],
-            m_atoms[UTF8_STRING]
-        };
-        XChangeProperty(m_display, e.requestor, property, XA_ATOM, sizeof(Atom) * 8, PropModeReplace,
-            reinterpret_cast<const unsigned char*>(targets), _countof(targets));
-    } else if (target == m_atoms[TIMESTAMP]) {
-        Time cur = CurrentTime;
-        XChangeProperty(m_display, e.requestor, property, XA_INTEGER, sizeof(cur) * 8, PropModeReplace,
-            reinterpret_cast<const unsigned char*>(&cur), 1);
-    } else if ((target == m_atoms[UTF8_STRING]) && (e.selection == m_atoms[CLIPBOARD]) && !m_clipboard.empty()) {
-        XChangeProperty(m_display, e.requestor, property, target, 8, PropModeReplace,
-            reinterpret_cast<const unsigned char*>(m_clipboard.c_str()), static_cast<int>(m_clipboard.length()));
-    } else {
-        property = None;
-    }
-
-    XSelectionEvent notify;
-    notify.type = SelectionNotify;
-    notify.serial = 0;
-    notify.send_event = 0;
-    notify.display = m_display;
-    notify.requestor = e.requestor;
-    notify.selection = e.selection;
-    notify.target = target;
-    notify.property = property;
-    notify.time = CurrentTime;
-    XSendEvent(m_display, e.requestor, 0/* False */, PropertyChangeMask, reinterpret_cast<XEvent *>(&notify));
 }

@@ -32,21 +32,23 @@ public:
     void Create() override;
     void Destroy() override;
     void ProcessEvents() override;
-    void ProcessEvent(xcb_generic_event_t* event);
+    virtual void ProcessEvent(xcb_generic_event_t* event);
 
-private:
+protected:
     void GetAtoms();
     void CreateCursors();
     void DestroyCursors();
     void DisableCursor();
     void EnableCursor();
+
+    void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
+    void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
+    void HandleMouseMotion(int16_t eventX, int16_t eventY);
     void HandleFocusIn();
     void HandleFocusOut();
     void HandleSizeEvent(uint32_t width, uint32_t height);
-    void HandleKeyEvent(KeyAction action, uint8_t code, uint state);
-    void HandleMouseButtonEvent(KeyAction action, uint8_t code, uint state);
-    std::string HandleSelectionNotify(const xcb_selection_notify_event_t* event);
     void HandleSelectionRequest(const xcb_selection_request_event_t* event);
+    std::string HandleSelectionNotify(const xcb_selection_notify_event_t* event);
 
 private:
     Display* m_display = nullptr;

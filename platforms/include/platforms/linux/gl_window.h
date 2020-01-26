@@ -27,20 +27,23 @@ public:
     void Create() override;
     void Destroy() override;
     void ProcessEvents() override;
+    virtual void ProcessEvent(XEvent* event);
 
-private:
+protected:
     void GetAtoms();
     void CreateCursors();
     void DestroyCursors();
     void DisableCursor();
     void EnableCursor();
+
+    void HandleKeyEvent(KeyAction action, uint code, uint state);
+    void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
+    void HandleMouseMotion(int eventX, int eventY);
     void HandleFocusIn();
     void HandleFocusOut();
     void HandleSizeEvent(uint32_t width, uint32_t height);
-    void HandleKeyEvent(KeyAction action, uint code, uint state);
-    void HandleMouseButtonEvent(KeyAction action, uint code, uint state);
-    std::string HandleSelectionNotify(const XEvent* event);
     void HandleSelectionRequest(const XEvent* event);
+    std::string HandleSelectionNotify(const XEvent* event);
 
 private:
     Display* m_display = nullptr;
