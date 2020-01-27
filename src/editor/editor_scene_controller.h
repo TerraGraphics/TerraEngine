@@ -12,6 +12,7 @@ namespace Diligent {
 
 class Gui;
 class Camera;
+class Target;
 class EditorScene;
 class EditorCameraController;
 class EditorSceneController : Fixed {
@@ -41,4 +42,7 @@ private:
 
     std::shared_ptr<Gui> m_gui = nullptr;
     EditorScene* m_editorScene = nullptr;
+    uint32_t m_viewWidht = 1.f;
+    uint32_t m_viewHeight = 1.f;
+    std::unique_ptr<Target> m_target;
 };

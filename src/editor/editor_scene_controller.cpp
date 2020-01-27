@@ -3,11 +3,11 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 
 #include "core/engine.h"
+#include "core/render/target.h"
 #include "editor/editor_scene.h"
 #include "middleware/imgui/gui.h"
 #include "core/material/material_builder.h"
@@ -15,8 +15,9 @@
 
 
 EditorSceneController::EditorSceneController()
-    : m_editorScene(new EditorScene())
-    , m_controller(new EditorCameraController()) {
+    : m_controller(new EditorCameraController())
+    , m_editorScene(new EditorScene())
+    , m_target(new Target()) {
 
 }
 
@@ -28,6 +29,8 @@ EditorSceneController::~EditorSceneController() {
     if (m_editorScene != nullptr) {
         delete m_editorScene;
     }
+
+    m_target.reset();
 }
 
 void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui) {
@@ -44,31 +47,33 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_controller->SetCamera(m_camera);
 
     m_editorScene->Create();
+    m_target->CreateColorTarget(device, "rt::color::preview");
+    m_target->CreateDepthTarget(device, "rt::depth::preview");
 }
 
 void EditorSceneController::Update(double deltaTime) {
     auto& engine = Engine::Get();
+    auto& handler = engine.GetEventHandler();
+    auto& device = engine.GetDevice();
 
-    auto handler = engine.GetEventHandler();
-    const auto& desc = engine.GetSwapChain()->GetDesc();
-
-    m_controller->Update(handler, desc.Width, desc.Height, deltaTime);
+    m_controller->Update(handler, m_viewWidht, m_viewHeight, deltaTime);
     m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
     m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
     m_editorScene->Update(deltaTime);
+    m_target->SetSize(device, m_viewWidht, m_viewHeight);
 }
 
 void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
+    auto& context = engine.GetImmediateContext();
 
     dg::ITextureView* pRTV = engine.GetSwapChain()->GetCurrentBackBufferRTV();
     dg::ITextureView* pDSV = engine.GetSwapChain()->GetDepthBufferDSV();
 
-    const float ClearColor[] = {1.f, 1.f, 1.f, 1.f};
-    engine.GetImmediateContext()->ClearRenderTarget(pRTV, ClearColor, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    engine.GetImmediateContext()->ClearDepthStencil(pDSV, dg::CLEAR_DEPTH_FLAG, 1.f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    const float clearColor[] = {1.f, 1.f, 1.f, 1.f};
+    m_target->Set(context, clearColor);
 
     auto builder = engine.GetMaterialBuilder();
     builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
@@ -76,13 +81,18 @@ void EditorSceneController::Draw() {
     builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
 
     m_editorScene->Draw();
-    m_gui->NewFrame();
+
+    context->SetRenderTargets(1, &pRTV, pDSV, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    engine.GetImmediateContext()->ClearRenderTarget(pRTV, clearColor, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    engine.GetImmediateContext()->ClearDepthStencil(pDSV, dg::CLEAR_DEPTH_FLAG, 1.f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    m_gui->StartFrame();
     DockSpace();
     ViewWindow();
     PropertyWindow();
     FooterWindow();
     // ImGui::ShowDemoWindow(nullptr);
-    m_gui->EndFrame();
+    m_gui->RenderFrame();
 }
 
 void EditorSceneController::DockSpace() {
@@ -127,6 +137,11 @@ void EditorSceneController::ViewWindow() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
     if (ImGui::Begin("View", pOpen, windowFlags)) {
+        auto size = ImGui::GetContentRegionAvail();
+        m_viewWidht = static_cast<uint32_t>(size.x);
+        m_viewHeight = static_cast<uint32_t>(size.y);
+
+        ImGui::Image((ImTextureID)m_target->GetColorTexture(), ImVec2(m_viewWidht, m_viewHeight));
         ImGui::End();
     }
 }

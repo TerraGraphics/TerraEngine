@@ -47,11 +47,11 @@ public:
     ContextPtr& GetImmediateContext() noexcept { return m_immediateContext; }
     EngineFactoryPtr& GetEngineFactory() noexcept { return m_engineFactory; }
 
-    std::shared_ptr<RenderWindow> GetWindow() noexcept { return m_window; }
-    std::shared_ptr<DefaultWindowEventsHandler> GetEventHandler() noexcept { return m_eventHandler; }
+    std::shared_ptr<RenderWindow>& GetWindow() noexcept { return m_window; }
+    std::shared_ptr<DefaultWindowEventsHandler>& GetEventHandler() noexcept { return m_eventHandler; }
 
-    std::shared_ptr<FileManager> GetFileManager() noexcept { return m_fileManager; }
-    std::shared_ptr<MaterialBuilder> GetMaterialBuilder() noexcept { return m_materialBuilder; }
+    std::shared_ptr<FileManager>& GetFileManager() noexcept { return m_fileManager; }
+    std::shared_ptr<MaterialBuilder>& GetMaterialBuilder() noexcept { return m_materialBuilder; }
 
     float GetFps() const noexcept {
         return static_cast<double>(m_fpsCounter.Size()) / m_fpsCounter.Sum();
