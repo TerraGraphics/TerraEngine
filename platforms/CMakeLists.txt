@@ -30,16 +30,7 @@ if(PLATFORM_LINUX)
     endif()
 endif()
 
-list(APPEND LIBS
-    Diligent-Common
-    Diligent-GraphicsTools
-    Diligent-TextureLoader
-    LibJpeg
-    LibPng
-    LibTiff
-    ZLib
-    DiligentCore
-)
+list(APPEND LIBS DiligentTools DiligentCore)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME}
