@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "core/common/dg.h"
 #include "core/common/ctor.h"
@@ -16,8 +17,8 @@ public:
 
     void Create();
     void Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& handler);
-    void NewFrame();
-    void EndFrame();
+    void StartFrame();
+    void RenderFrame();
 
 private:
     void CreateGraphics();
@@ -34,7 +35,9 @@ private:
     PipelineStatePtr m_ps;
     BufferPtr m_cameraCB;
     TextureViewPtr m_fontTex;
-    ShaderResourceBindingPtr m_binding;
+    ShaderResourceBindingPtr m_fontBinding;
+    std::vector<ShaderResourceBindingPtr> m_bindings;
+    uint32_t m_numberUsedBindings = 0;
     BufferPtr m_vb;
     BufferPtr m_ib;
     uint32_t m_vbSize = 1024;

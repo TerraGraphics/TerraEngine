@@ -222,7 +222,7 @@ void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& 
     }
 }
 
-void Gui::NewFrame() {
+void Gui::StartFrame() {
     if (!m_ps) {
         CreateGraphics();
     }
@@ -230,7 +230,7 @@ void Gui::NewFrame() {
     ImGui::NewFrame();
 }
 
-void Gui::EndFrame() {
+void Gui::RenderFrame() {
     ImGui::Render();
     ImDrawData* drawData = ImGui::GetDrawData();
     if (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f) {
@@ -310,7 +310,7 @@ void Gui::EndFrame() {
         m_context->SetVertexBuffers(0, 1, vbBuffers, offsets, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, dg::SET_VERTEX_BUFFERS_FLAG_RESET);
         m_context->SetIndexBuffer(m_ib, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         m_context->SetPipelineState(m_ps);
-        m_context->CommitShaderResources(m_binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        m_context->CommitShaderResources(m_fontBinding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
         m_context->SetBlendFactors(blend_factor);
@@ -331,6 +331,8 @@ void Gui::EndFrame() {
     int globalIdxOffset = 0;
     int globalVtxOffset = 0;
 
+    m_numberUsedBindings = 0;
+    auto lastUsedTexture = m_fontTex;
     ImVec2 clip_off = drawData->DisplayPos;
     for (int n = 0; n < drawData->CmdListsCount; ++n) {
         const ImDrawList* cmdList = drawData->CmdLists[n];
@@ -341,6 +343,7 @@ void Gui::EndFrame() {
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState) {
                     setupRenderState();
+                    lastUsedTexture = m_fontTex;
                 } else {
                     pcmd->UserCallback(cmdList, pcmd);
                 }
@@ -353,9 +356,27 @@ void Gui::EndFrame() {
                     static_cast<int32_t>(pcmd->ClipRect.w - clip_off.y)};
                 m_context->SetScissorRects(1, &r, displayWidth, displayHeight);
 
-                auto* textureSrv = reinterpret_cast<dg::ITextureView*>(pcmd->TextureId);
-                if (textureSrv != m_fontTex) {
+                auto* texture = reinterpret_cast<dg::ITextureView*>(pcmd->TextureId);
+                if (texture == nullptr) {
                     CreateFontsTexture();
+                    lastUsedTexture = m_fontTex;
+                    m_fontBinding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(lastUsedTexture);
+                    m_context->CommitShaderResources(m_fontBinding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                } else if (lastUsedTexture != texture) {
+                    lastUsedTexture = texture;
+                    ShaderResourceBindingPtr binding = m_fontBinding;
+
+                    if (texture != m_fontTex) {
+                        if (m_numberUsedBindings == m_bindings.size()) {
+                            m_ps->CreateShaderResourceBinding(&binding, true);
+                            m_bindings.push_back(binding);
+                        } else {
+                            binding = m_bindings[m_numberUsedBindings];
+                        }
+                        ++m_numberUsedBindings;
+                        binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(lastUsedTexture);
+                    }
+                    m_context->CommitShaderResources(binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 }
                 dg::DrawIndexedAttribs DrawAttrs(pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? dg::VT_UINT16 : dg::VT_UINT32, dg::DRAW_FLAG_VERIFY_STATES);
                 DrawAttrs.FirstIndexLocation = pcmd->IdxOffset + globalIdxOffset;
@@ -463,7 +484,7 @@ void Gui::CreateGraphics() {
     m_device->CreatePipelineState(desc, &m_ps);
 
     m_ps->GetStaticVariableByName(dg::SHADER_TYPE_VERTEX, "Camera")->Set(m_cameraCB);
-    m_ps->CreateShaderResourceBinding(&m_binding, true);
+    m_ps->CreateShaderResourceBinding(&m_fontBinding, true);
 
     CreateFontsTexture();
 }
@@ -493,8 +514,7 @@ void Gui::CreateFontsTexture() {
     TexturePtr fontTex;
     m_device->CreateTexture(fontTexDesc, &data, &fontTex);
     m_fontTex = fontTex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
-
-    m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(m_fontTex);
+    m_fontBinding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(m_fontTex);
     io.Fonts->TexID = (ImTextureID)m_fontTex;
 }
 
@@ -503,6 +523,9 @@ void Gui::DestroyGraphics() {
     m_ib.Release();
     m_ps.Release();
     m_cameraCB.Release();
-    m_binding.Release();
+    m_fontBinding.Release();
+    for(auto& binding: m_bindings) {
+        binding.Release();
+    }
     m_fontTex.Release();
 }
