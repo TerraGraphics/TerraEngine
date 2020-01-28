@@ -21,6 +21,7 @@ public:
 private:
     uint32_t m_width = 1;
     uint32_t m_height = 1;
+
     TexturePtr m_color;
     TextureViewPtr m_colorTexture;
     TextureViewPtr m_colorRenderTarget;
