@@ -6,6 +6,12 @@
 class SphereShape : public Shape {
 public:
     SphereShape() = delete;
+    /*!
+        Creates a sphere with a center at the beginning of coordinates and a diameter equal to 1.
+        The axis of the sphere is directed along axisUp.
+        The number of segments along the meridian equals segments.x (segments.x >= 3)
+        The number of segments along the axisUp equals segments.y (segments.y >= 3)
+    */
     SphereShape(const UInt2& segments, const Axis& axisUp);
     ~SphereShape() = default;
 
