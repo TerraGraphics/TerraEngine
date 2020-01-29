@@ -6,7 +6,7 @@
 class SphereShape : public Shape {
 public:
     SphereShape() = delete;
-    SphereShape(uint32_t cntCirclePoints);
+    SphereShape(const UInt2& segments, const Axis& axisUp);
     ~SphereShape() = default;
 
 protected:
@@ -14,5 +14,6 @@ protected:
     void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
 
 private:
-    uint32_t m_cntCirclePoints;
+    UInt2 m_segments;
+    Axis m_axisUp;
 };

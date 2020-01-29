@@ -8,7 +8,6 @@ CylinderShape::CylinderShape(const UInt2& segments, const Axis& axisUp)
     , m_segments(segments)
     , m_axisUp(axisUp) {
 
-
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in CylinderShape is 3");
     }

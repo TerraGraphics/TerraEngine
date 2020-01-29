@@ -37,7 +37,9 @@ protected:
 
     using VertexCallback = std::function<void (const dg::float2&, VertexPNC&)>;
     void FlatGenerator(VertexBufferRange<VertexPNC>& vb, const UInt2& segments, const VertexCallback& callback) const;
+    void FlatGenerator(VertexBufferRange<VertexPNC>& vb, const UInt2& segments, bool downVertexGlued, bool upVertexGlued, const VertexCallback& callback) const;
     void FlatGenerator(IndexBufferRange<uint32_t>& ib, const UInt2& segments, uint32_t vertexStartIndex) const;
+    void FlatGenerator(IndexBufferRange<uint32_t>& ib, const UInt2& segments, bool downVertexGlued, bool upVertexGlued, uint32_t vertexStartIndex) const;
 
     static dg::float2 ToDXTexCoord(const dg::float2& coord);
 
