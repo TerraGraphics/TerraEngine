@@ -11,8 +11,9 @@
 #include "core/scene/geometry_node.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/plane_shape.h"
+#include "middleware/generator/sphere_shape.h"
 #include "middleware/generator/shape_builder.h"
-#include "middleware/generator/mesh_generator.h"
+#include "middleware/generator/cylinder_shape.h"
 
 
 static dg::LayoutElement layoutElems[] = {
@@ -171,7 +172,9 @@ void GeneralScene::CreateMaterials() {
 }
 
 void GeneralScene::GenerateGround() {
-    auto plane = MeshGenerator::CreateSolidPlaneXZ(m_device, 2, 2, 128.0f, 128.0f);
+    PlaneShape shape({1, 1}, {Axis::X, Axis::Z});
+    shape.SetTexScale({128, 128});
+    auto plane = ShapeBuilder(m_device).Join({&shape}, "Ground");
 
     auto groundNode = std::make_shared<MaterialNode>(m_matTexNoLight, plane);
     groundNode->SetPixelShaderVar("texBase", m_TextureGround);
@@ -184,19 +187,21 @@ void GeneralScene::GenerateTrees() {
     RandSeed(17);
     auto tree = std::make_shared<TransformNode>();
 
-    auto trunkMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, MeshGenerator::CreateSolidCylinder(m_device, 5));
+    CylinderShape trunkShape({5, 1}, Axis::Y);
+    auto trunkMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, ShapeBuilder(m_device).Join({&trunkShape}, "trunk"));
     trunkMatNode->Params().crlBase = dg::float4(139.f, 69.f, 19.f, 255.f) / 255.f;
 
     auto matModelTrunk = dg::float4x4::Scale(0.5, 4, 0.5) * dg::float4x4::Translation(0, 2, 0);
     tree->NewChild(trunkMatNode, matModelTrunk);
 
-    auto crownMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, MeshGenerator::CreateSolidSphere(m_device, 10));
+    SphereShape crownShape({10, 5}, Axis::Y);
+    auto crownMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, ShapeBuilder(m_device).Join({&crownShape}, "crown"));
     crownMatNode->Params().crlBase = dg::float4(0, 128.f, 0, 255.f) / 255.f;
 
     auto matModelCrown = dg::float4x4::Scale(4, 8, 4) * dg::float4x4::Translation(0, 7, 0);
     tree->NewChild(crownMatNode, matModelCrown);
 
-    std::srand(5);
+    RandSeed(5);
     for (auto i=0; i!=100; ++i) {
         auto matModelPosition = dg::float4x4::Translation(LinearRand(dg::float3(-100, 0, -100), dg::float3(100, 0, 100)));
         m_scene->AddChild(tree->Clone(matModelPosition));
@@ -235,13 +240,13 @@ void GeneralScene::GenerateGrassBillboard() {
     float angleY = ThirdPI<float>() * 2.0f;
     auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(ThirdPI<float>() / 3.f);
 
-    PlaneShape plane1(2, 2, 1.0f, 1.0f, Axis::Z);
+    PlaneShape plane1({1, 1}, {Axis::X, Axis::Y});
     plane1.SetTranform(matBase);
 
-    PlaneShape plane2(2, 2, 1.0f, 1.0f, Axis::Z);
+    PlaneShape plane2({1, 1}, {Axis::X, Axis::Y});
     plane2.SetTranform(matBase * dg::float4x4::RotationY(angleY));
 
-    PlaneShape plane3(2, 2, 1.0f, 1.0f, Axis::Z);
+    PlaneShape plane3({1, 1}, {Axis::X, Axis::Y});
     plane3.SetTranform(matBase * dg::float4x4::RotationY(angleY * 2.f));
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");

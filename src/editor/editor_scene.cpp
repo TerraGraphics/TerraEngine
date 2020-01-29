@@ -7,7 +7,9 @@
 #include "core/scene/scene.h"
 #include "core/scene/material_node.h"
 #include "core/material/material_builder.h"
-#include "middleware/generator/mesh_generator.h"
+#include "middleware/generator/plane_shape.h"
+#include "middleware/generator/sphere_shape.h"
+#include "middleware/generator/shape_builder.h"
 
 
 static dg::LayoutElement layoutElems[] = {
@@ -102,11 +104,14 @@ void EditorScene::CreateMaterials() {
 }
 
 void EditorScene::GenerateCube() {
-    auto cube = MeshGenerator::CreateSolidCube(m_device);
+    SphereShape shape({30, 30}, Axis::Y);
+    // PlaneShape shape(UInt2(1, 1), {Axis::X, Axis::Z});
+    // shape.SetTexScale({1, 1});
+    auto model = ShapeBuilder(m_device).Join({&shape}, "Model");
 
-    auto cubeNode = std::make_shared<MaterialNode>(m_matTexPhong, cube);
-    cubeNode->SetPixelShaderVar("texBase", m_TextureCube);
+    auto modelNode = std::make_shared<MaterialNode>(m_matTexPhong, model);
+    modelNode->SetPixelShaderVar("texBase", m_TextureCube);
 
     auto matModel = dg::float4x4::Scale(1, 1, 1);
-    m_scene->NewChild(cubeNode, matModel);
+    m_scene->NewChild(modelNode, matModel);
 }

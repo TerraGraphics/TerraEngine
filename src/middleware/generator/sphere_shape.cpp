@@ -4,7 +4,7 @@
 
 
 SphereShape::SphereShape(const UInt2& segments, const Axis& axisUp)
-    : Shape((segments.x + 1) * (segments.y - 1) + 2, segments.x * (segments.y - 1) * 6)
+    : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
     , m_segments(segments)
     , m_axisUp(axisUp) {
 
@@ -29,7 +29,7 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         axis1 = static_cast<uint32_t>(Axis::Y);
         axis2 = static_cast<uint32_t>(Axis::X);
     }
-    FlatGenerator(vb, m_segments, true, true, [axis0, axis1, axis2](const dg::float2& c, VertexPNC& out) {
+    FlatGenerator(vb, m_segments, [axis0, axis1, axis2](const dg::float2& c, VertexPNC& out) {
         float angleA = TwoPI<float>() * c.x;
         float angleB = PI<float>() * c.y - HalfPI<float>();
 
@@ -47,5 +47,5 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 }
 
 void SphereShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    FlatGenerator(ib, m_segments, true, true, vertexStartIndex);
+    FlatGenerator(ib, m_segments, vertexStartIndex);
 }
