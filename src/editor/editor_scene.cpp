@@ -7,6 +7,7 @@
 #include "core/scene/scene.h"
 #include "core/scene/material_node.h"
 #include "core/material/material_builder.h"
+#include "middleware/generator/cone_shape.h"
 #include "middleware/generator/plane_shape.h"
 #include "middleware/generator/sphere_shape.h"
 #include "middleware/generator/shape_builder.h"
@@ -74,7 +75,6 @@ void EditorScene::CreateMaterials() {
     const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
-    const auto GRASS = materialBuilder->GetShaderMask("GRASS");
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
@@ -104,7 +104,8 @@ void EditorScene::CreateMaterials() {
 }
 
 void EditorScene::GenerateCube() {
-    SphereShape shape({30, 30}, Axis::Y);
+    ConeShape shape({30, 30}, Axis::Y);
+    // SphereShape shape({30, 30}, Axis::Y);
     // PlaneShape shape(UInt2(1, 1), {Axis::X, Axis::Z});
     // shape.SetTexScale({1, 1});
     auto model = ShapeBuilder(m_device).Join({&shape}, "Model");

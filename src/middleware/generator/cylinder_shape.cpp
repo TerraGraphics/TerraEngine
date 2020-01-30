@@ -18,17 +18,8 @@ CylinderShape::CylinderShape(const UInt2& segments, const Axis& axisUp)
 
 void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t axis0 = static_cast<uint32_t>(m_axisUp);
-    uint32_t axis1, axis2;
-    if (m_axisUp == Axis::X) {
-        axis1 = static_cast<uint32_t>(Axis::Z);
-        axis2 = static_cast<uint32_t>(Axis::Y);
-    } else if(m_axisUp == Axis::Y) {
-        axis1 = static_cast<uint32_t>(Axis::X);
-        axis2 = static_cast<uint32_t>(Axis::Z);
-    } else {
-        axis1 = static_cast<uint32_t>(Axis::Y);
-        axis2 = static_cast<uint32_t>(Axis::X);
-    }
+    uint32_t axis1 = (axis0 + 2) % 3;
+    uint32_t axis2 = (axis0 + 1) % 3;
     FlatGenerator(vb, m_segments, [axis0, axis1, axis2](const dg::float2& c, VertexPNC& out) {
         auto angle = TwoPI<float>() * c.x;
         auto circleX = std::cos(angle) * 0.5f;
