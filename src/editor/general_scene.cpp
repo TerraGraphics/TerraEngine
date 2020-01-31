@@ -10,10 +10,7 @@
 #include "core/scene/material_node.h"
 #include "core/scene/geometry_node.h"
 #include "core/material/material_builder.h"
-#include "middleware/generator/plane_shape.h"
-#include "middleware/generator/sphere_shape.h"
-#include "middleware/generator/shape_builder.h"
-#include "middleware/generator/cylinder_shape.h"
+#include "middleware/generator/generator.h"
 
 
 static dg::LayoutElement layoutElems[] = {
