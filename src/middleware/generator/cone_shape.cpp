@@ -3,10 +3,12 @@
 #include "core/common/exception.h"
 
 
-ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp)
+ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp, float height, float radius)
     : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
     , m_segments(segments)
-    , m_axisUp(axisUp) {
+    , m_axisUp(axisUp)
+    , m_height(height)
+    , m_radius(radius) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in ConeShape is 3");
@@ -14,23 +16,31 @@ ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp)
     if (segments.y < 1) {
         throw EngineError("minimum value for segments.y in ConeShape is 1");
     }
+    if (height <= 0.f) {
+        throw EngineError("height value in ConeShape must be greater than zero");
+    }
+    if (radius <= 0.f) {
+        throw EngineError("radius value in ConeShape must be greater than zero");
+    }
 }
 
 void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t axis0 = static_cast<uint32_t>(m_axisUp);
     uint32_t axis1 = (axis0 + 2) % 3;
     uint32_t axis2 = (axis0 + 1) % 3;
-    // tan(coneAngle) == radius (0.5) / height (1.0) = sin(coneAngle) / cos(coneAngle)
-    auto coneAngle = std::atan(0.5f);
-    auto radiusNorm = std::cos(coneAngle);
-    auto normUp = radiusNorm * 0.5f; // sin(coneAngle)
-    FlatGenerator(vb, m_segments, [axis0, axis1, axis2, radiusNorm, normUp](const dg::float2& c, VertexPNC& out) {
-        float angle = TwoPI<float>() * c.x;
+    // tan(coneAngle) == radius / height
+    // sizeCone = sqrt(radius * radius + height * height)
+    auto oneOverSizeCone = 1.f / std::hypot(m_radius, m_height);
+    auto radiusNorm = m_height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
+    auto normUp = m_radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
+    auto halfHeight = m_height * 0.5f;
+    FlatGenerator(vb, m_segments, [axis0, axis1, axis2, radiusNorm, normUp, height = m_height, radius = m_radius](const dg::float2& c, VertexPNC& out) {
+        float circleAngle = TwoPI<float>() * c.x;
 
-        float posUp = c.y - 0.5f;
-        float radiusPos = (1.f - c.y) * 0.5;
-        auto cosA = std::cos(angle);
-        auto sinA = std::sin(angle);
+        float posUp = (c.y - 0.5f) * height;
+        float radiusPos = (1.f - c.y) * radius;
+        auto cosA = std::cos(circleAngle);
+        auto sinA = std::sin(circleAngle);
 
         out.position[axis0] = posUp;
         out.position[axis1] = cosA * radiusPos;
