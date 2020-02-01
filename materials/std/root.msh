@@ -1,0 +1,73 @@
+name = "ROOT"
+group = "ROOT"
+root = true
+pixel {
+    entrypoint = "Root"
+    order = 0
+    PSOutput {
+        color: SV_TARGET0
+    }
+    PSInput {
+        svposition: [float4, SV_POSITION]
+    }
+    PSLocal {
+        baseColor: float4
+    }
+    source = <<SHADER
+void Root(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+    psLocal.baseColor = float4(0.0, 0.0, 0.0, 1.0);
+    psOut.color = float4(0.0, 0.0, 0.0, 1.0);
+}
+SHADER
+}
+vertex {
+    entrypoint = "RootSVPosition"
+    order = 0
+    include = ["structures.fxh"]
+    VSOutput = "svposition"
+    VSInput = ["position", "WorldRow0", "WorldRow1", "WorldRow2", "WorldRow3"]
+    cbuffers {
+        camera: ShaderCamera
+    }
+    source = <<SHADER
+void RootSVPosition(in VSInput vsIn, inout VSOutput vsOut) {
+    float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
+    vsOut.svposition = mul(camera.matViewProj, mul(float4(vsIn.position,1.0), matWorld));
+}
+SHADER
+}
+vertex {
+    entrypoint = "RootPosition"
+    order = 0
+    VSOutput = "position"
+    VSInput = ["position", "WorldRow0", "WorldRow1", "WorldRow2", "WorldRow3"]
+    source = <<SHADER
+void RootPosition(in VSInput vsIn, inout VSOutput vsOut) {
+    float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
+    vsOut.position = mul(float4(vsIn.position,1.0), matWorld);
+}
+SHADER
+}
+vertex {
+    entrypoint = "RootNormal"
+    order = 0
+    VSOutput = "normal"
+    VSInput = ["normal", "NormalRow0", "NormalRow1", "NormalRow2"]
+    source = <<SHADER
+void RootNormal(in VSInput vsIn, inout VSOutput vsOut) {
+    float3x3 matNormal = MatrixFromRows(vsIn.NormalRow0, vsIn.NormalRow1, vsIn.NormalRow2);
+    psIn.normal = mul(vsIn.normal, matNormal);
+}
+SHADER
+}
+vertex {
+    entrypoint = "RootUV"
+    order = 0
+    VSOutput = "uv"
+    VSInput = ["uv"]
+    source = <<SHADER
+void RootUV(in VSInput vsIn, inout VSOutput vsOut) {
+    psIn.uv = vsIn.uv;
+}
+SHADER
+}

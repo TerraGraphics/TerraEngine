@@ -1,0 +1,96 @@
+name = "GRASS"
+group = "GRASS"
+geometry {
+    include = ["structures.fxh", "math.fxh"]
+    GSOutput = ["svposition", "normal", "uv"]
+    GSInput = ["position"]
+    cbuffers {
+        camera: ShaderCamera
+    }
+    source = <<SHADER
+[maxvertexcount(9)]
+void main(point GSInput gsIn[1], inout TriangleStream<GSOutput> gsOutStream) {
+    float3 pos = gsIn[0].position;
+    float4x4 matRotate = mul(RotationY(randomFast(pos.xz)), RotationX(ThirdPI * 0.5 * random01(pos.xz)));
+    float4x4 matFull =
+    mul(camera.matViewProj,
+        mul(Translation(pos),
+            mul(Scale(float3(1.0, 1.0 + 0.3 * random01(pos.xz), 1.0)),
+                matRotate)));
+
+    static const float halfWidth = 0.015;
+    static const float heightDt = 0.4 / 4.0;
+
+    GSOutput gsOut;
+    gsOut.normal = mul(float3(0.0, 0.0, 1.0), float3x3(matRotate));
+
+    float3 posNoX = float3(0.0, 0.0, 1.0);
+    // 0
+    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.uv = float2(1, 1);
+    gsOutStream.Append(gsOut);
+
+    // 1
+    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.uv.x = 0.0;
+    gsOutStream.Append(gsOut);
+
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 1.0;
+    // 2
+    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.uv = float2(1, 0.75);
+    gsOutStream.Append(gsOut);
+
+    // 3
+    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.uv.x = 0.0;
+    gsOutStream.Append(gsOut);
+
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 3.0;
+    // 4
+    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.uv = float2(1, 0.5);
+    gsOutStream.Append(gsOut);
+
+    // 5
+    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.uv.x = 0.0;
+    gsOutStream.Append(gsOut);
+
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 6.0;
+    // 6
+    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.uv = float2(1, 0.25);
+    gsOutStream.Append(gsOut);
+
+    // 7
+    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.uv.x = 0.0;
+    gsOutStream.Append(gsOut);
+
+    posNoX.x += heightDt;
+    posNoX.y = halfWidth * 10.0;
+    // 8
+    gsOut.position = mul(matFull, float4(0.0, posNoX.xyz));
+    gsOut.uv = float2(0.5, 0.0);
+    gsOutStream.Append(gsOut);
+}
+SHADER
+}
+vertex {
+    entrypoint = "GrassPosition"
+    order = 100
+    override = true
+    VSOutput = "position"
+    VSInput = ["position", "WorldRow0", "WorldRow1", "WorldRow2", "WorldRow3"]
+    source = <<SHADER
+void GrassPosition(in VSInput vsIn, inout VSOutput vsOut) {
+    // float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
+    // vsOut.position = mul(float4(vsIn.position,1.0), matWorld);
+    vsOut.position = vsIn.position;
+}
+SHADER
+}

@@ -1,0 +1,21 @@
+name = "BASE_COLOR_MATERIAL"
+group = "BASE_COLOR_VALUE"
+pixel {
+    entrypoint = "BaseColorCalc"
+    order = 10
+    PSOutput {
+        color: SV_TARGET0
+    }
+    PSLocal {
+        baseColor: float4
+    }
+    cbuffers {
+        material: ShaderMaterial
+    }
+    source = <<SHADER
+void BaseColorCalc(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+    psLocal.baseColor = material.crlBase;
+    psOut.color = material.crlBase;
+}
+SHADER
+}

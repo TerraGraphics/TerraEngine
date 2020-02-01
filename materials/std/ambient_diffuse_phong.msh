@@ -1,0 +1,30 @@
+name = "AMBIENT_DIFFUSE_PHONG"
+group = "AMBIENT_DIFFUSE_LIGHT"
+pixel {
+    entrypoint = "AmbientDiffuseLight"
+    order = 30
+    PSOutput {
+        color: SV_TARGET0
+    }
+    PSInput {
+        normal: [float3, NORMAL]
+    }
+    PSLocal {
+        baseColor: float4
+    }
+    source = <<SHADER
+void AmbientDiffuseLight(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+	const float3 lightColor = float3(1, 1, 1);
+    const float3 toLightDirection = float3(0, 1, 0);
+    const float ambientIntensity = 0.7;
+
+    float3 normal = normalize(psIn.normal);
+    float cosNL = dot(normal, toLightDirection);
+
+    float3 ambient = psLocal.baseColor.rgb * ambientIntensity * lightColor;
+    float3 diffuse = psLocal.baseColor.rgb * cosNL * lightColor;
+
+    psOut.color.rgb = psOut.color.rgb + ambient + diffuse;
+}
+SHADER
+}

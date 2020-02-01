@@ -1,0 +1,20 @@
+name = "ALPHA_TEST"
+group = "ALPHA_TEST"
+pixel {
+    entrypoint = "AlphaTest"
+    order = 20
+    include = ["structures.fxh"]
+    PSLocal {
+        baseColor: float4
+    }
+    cbuffers {
+        material: ShaderMaterial
+    }
+    source = <<SHADER
+void AlphaTest(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+    if (psLocal.baseColor.a  < material.alphaThreshold) {
+        discard;
+    }
+}
+SHADER
+}

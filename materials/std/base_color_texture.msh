@@ -1,0 +1,23 @@
+name = "BASE_COLOR_TEXTURE"
+group = "BASE_COLOR_VALUE"
+pixel {
+    entrypoint = "BaseColorCalc"
+    order = 10
+    include = ["structures.fxh"]
+    PSOutput {
+        color: SV_TARGET0
+    }
+    PSInput {
+        uv: [float2, TEX_COORD]
+    }
+    PSLocal {
+        baseColor: float4
+    }
+    textures2D = ["texBase"]
+    source = <<SHADER
+void BaseColorCalc(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+    psLocal.baseColor = texBase.Sample(texBaseSampler, psIn.uv);
+    psOut.color = psLocal.baseColor;
+}
+SHADER
+}

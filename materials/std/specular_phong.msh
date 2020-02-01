@@ -1,0 +1,36 @@
+name = "SPECULAR_PHONG"
+group = "SPECULAR_LIGHT"
+pixel {
+    entrypoint = "SpecularLight"
+    order = 40
+    include = ["structures.fxh"]
+    PSOutput {
+        color: SV_TARGET0
+    }
+    PSInput {
+        normal: [float3, NORMAL]
+    }
+    PSLocal {
+        baseColor: float4
+    }
+    cbuffers {
+        camera: ShaderCamera
+    }
+    source = <<SHADER
+void SpecularLight(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+    const float3 lightColor = float3(1, 1, 1);
+    const float3 toLightDirection = float3(0, 1, 0);
+    // shininess > 0
+	const float shininess = 100.0;
+
+    float3 normal = normalize(psIn.normal); // duplcate in AmbientDiffuseLight
+    float cosNL = dot(normal, toLightDirection); // duplicate in AmbientDiffuseLight
+    float3 reflection = 2.0f * normal * cosNL - toLightDirection;
+    float3 toEyeDirection = -camera.vecViewDirection.xyz;
+    float cosRV = max(0, dot(reflection, toEyeDirection));
+    float powSpecular = pow(cosRV, shininess);
+
+    psOut.color.rgb = psOut.color.rgb + powSpecular * psLocal.baseColor.rgb;
+}
+SHADER
+}
