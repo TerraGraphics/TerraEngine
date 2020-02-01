@@ -6,9 +6,18 @@
 #include "core/engine.h"
 #include "core/scene/scene.h"
 #include "core/scene/material_node.h"
+#include "middleware/gizmo/gizmo_3d.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
 
+
+EditorScene::EditorScene() {
+
+}
+
+EditorScene::~EditorScene() {
+
+}
 
 void EditorScene::Create() {
     auto& engine = Engine::Get();
@@ -18,6 +27,7 @@ void EditorScene::Create() {
     CreateTextures();
     CreateMaterials();
     GenerateCube();
+    GenerateGizmo();
 }
 
 void EditorScene::Update(double deltaTime) {
@@ -85,4 +95,9 @@ void EditorScene::GenerateCube() {
 
     auto matModel = dg::float4x4::Scale(1, 1, 1);
     m_scene->NewChild(modelNode, matModel);
+}
+
+void EditorScene::GenerateGizmo() {
+    m_gizmo = std::make_unique<Gizmo3D>();
+    m_scene->AddChild(m_gizmo->Create(m_device, Engine::Get().GetMaterialBuilder()));
 }

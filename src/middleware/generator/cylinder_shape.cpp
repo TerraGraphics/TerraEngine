@@ -7,7 +7,8 @@ CylinderShape::CylinderShape(const UInt2& segments, const Axis& axisUp, float ra
     : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
     , m_segments(segments)
     , m_axisUp(axisUp)
-    , m_radius(radius) {
+    , m_radius(radius)
+    , m_height(height) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in CylinderShape is 3");

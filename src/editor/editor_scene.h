@@ -7,11 +7,12 @@
 
 
 class Scene;
+class Gizmo3D;
 class Material;
 class EditorScene : Fixed {
 public:
-    EditorScene() = default;
-    ~EditorScene() = default;
+    EditorScene();
+    ~EditorScene();
 
 public:
     void Create();
@@ -22,6 +23,7 @@ private:
     void CreateTextures();
     void CreateMaterials();
     void GenerateCube();
+    void GenerateGizmo();
 
 private:
     // textures
@@ -34,6 +36,7 @@ private:
     std::shared_ptr<Material> m_matClrNoLight;
     std::shared_ptr<Material> m_matClrPhong;
 
+    std::unique_ptr<Gizmo3D> m_gizmo;
     std::shared_ptr<Scene> m_scene;
 
     DevicePtr m_device;

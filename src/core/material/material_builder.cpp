@@ -36,6 +36,12 @@ MaterialBuilder::Builder::Builder(MaterialBuilder* builder, ShaderPtr& shaderVS,
 
 }
 
+MaterialBuilder::Builder& MaterialBuilder::Builder::DepthEnable(bool value) noexcept {
+    m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable = value;
+
+    return *this;
+}
+
 MaterialBuilder::Builder& MaterialBuilder::Builder::CullMode(dg::CULL_MODE value) noexcept {
     m_desc.GraphicsPipeline.RasterizerDesc.CullMode = value;
 

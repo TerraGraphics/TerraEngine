@@ -33,6 +33,7 @@ public:
         Builder(MaterialBuilder* builder, ShaderPtr& shaderVS, ShaderPtr& shaderPS, ShaderPtr& shaderGS, const dg::InputLayoutDesc& layoutDesc);
         ~Builder() = default;
 
+        Builder& DepthEnable(bool value) noexcept;
         Builder& CullMode(dg::CULL_MODE value) noexcept;
         Builder& Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
         Builder& Var(dg::SHADER_TYPE shaderType, const dg::String& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
