@@ -3,12 +3,12 @@
 #include "core/common/exception.h"
 
 
-ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp, float height, float radius)
+ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp, float radius, float height)
     : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
     , m_segments(segments)
     , m_axisUp(axisUp)
-    , m_height(height)
-    , m_radius(radius) {
+    , m_radius(radius)
+    , m_height(height) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in ConeShape is 3");
@@ -16,11 +16,11 @@ ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp, float height, fl
     if (segments.y < 1) {
         throw EngineError("minimum value for segments.y in ConeShape is 1");
     }
-    if (height <= 0.f) {
-        throw EngineError("height value in ConeShape must be greater than zero");
-    }
     if (radius <= 0.f) {
         throw EngineError("radius value in ConeShape must be greater than zero");
+    }
+    if (height <= 0.f) {
+        throw EngineError("height value in ConeShape must be greater than zero");
     }
 }
 
@@ -34,7 +34,7 @@ void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     auto radiusNorm = m_height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
     auto normUp = m_radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
     auto halfHeight = m_height * 0.5f;
-    FlatGenerator(vb, m_segments, [axis0, axis1, axis2, radiusNorm, normUp, height = m_height, radius = m_radius](const dg::float2& c, VertexPNC& out) {
+    FlatGenerator(vb, m_segments, [axis0, axis1, axis2, radiusNorm, normUp, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
         float circleAngle = TwoPI<float>() * c.x;
 
         float posUp = (c.y - 0.5f) * height;
