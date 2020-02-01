@@ -1,7 +1,6 @@
 #include "core/material/material_vars.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 #include "core/common/exception.h"
@@ -29,7 +28,13 @@ uint32_t StaticVarsStorage::Add(dg::SHADER_TYPE shaderType, const std::string& n
     }
 
     dg::IBuffer* buffer;
-    dg::CreateUniformBuffer(m_device, size, name.c_str(), &buffer);
+    dg::BufferDesc desc;
+    desc.Name = name.c_str();
+    desc.uiSizeInBytes = size;
+    desc.Usage = dg::USAGE_DYNAMIC;
+    desc.BindFlags = dg::BIND_UNIFORM_BUFFER;
+    desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
+    m_device->CreateBuffer(desc, nullptr, &buffer);
 
     auto id = static_cast<uint32_t>(m_infoList.size());
     m_buffers.push_back(buffer);

@@ -28,7 +28,7 @@ public:
     const dg::float4x4& GetBaseTransform() const noexcept { return m_baseTransform; }
     const dg::float4x4& GetWorldMatrix() const noexcept { return m_world; }
     const dg::float3x3& GetNormalMatrix() const noexcept { return m_normal; }
-    const std::shared_ptr<MaterialNode> GetMaterialNode() const noexcept { return m_materialNode; }
+    std::shared_ptr<MaterialNode>& GetMaterialNode() noexcept { return m_materialNode; }
 
     void Update(std::vector<std::shared_ptr<TransformNode>>& nodeList);
 

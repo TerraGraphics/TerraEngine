@@ -5,10 +5,10 @@
 
 #include "core/engine.h"
 #include "core/scene/scene.h"
-#include "core/scene/material_node.h"
 #include "middleware/gizmo/gizmo_3d.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
+#include "middleware/std_material/std_material.h"
 
 
 EditorScene::EditorScene() {
@@ -90,8 +90,8 @@ void EditorScene::GenerateCube() {
     // shape.SetTexScale({1, 1});
     auto model = ShapeBuilder(m_device).Join({&shape}, "Model");
 
-    auto modelNode = std::make_shared<MaterialNode>(m_matTexPhong, model);
-    modelNode->SetPixelShaderVar("texBase", m_TextureCube);
+    auto modelNode = std::make_shared<StdMaterial>(m_matTexPhong, model);
+    modelNode->SetBaseTexture(m_TextureCube);
 
     auto matModel = dg::float4x4::Scale(1, 1, 1);
     m_scene->NewChild(modelNode, matModel);

@@ -32,6 +32,9 @@ void Scene::Update() {
         data += 9;
     }
     m_transformBuffer->Unmap(m_context);
+    for (const auto& node: m_nodeListForDraw) {
+        node->GetMaterialNode()->Update(m_device, m_context);
+    }
 }
 
 uint32_t Scene::Draw() {
@@ -40,10 +43,7 @@ uint32_t Scene::Draw() {
     uint32_t ind = 0;
     m_transformBuffer->BindExclusively(m_context, 1);
     for (const auto& node: m_nodeListForDraw) {
-        auto materialNode = node->GetMaterialNode();
-        std::shared_ptr<GeometryNode> geometry = materialNode->GetGeometry();
-        materialNode->Bind(m_device, m_context);
-        primitiveCount += materialNode->Draw(m_context, ind);
+        primitiveCount += node->GetMaterialNode()->Draw(m_context, ind);
         ++ind;
     }
 

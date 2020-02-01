@@ -7,10 +7,10 @@
 #include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "platforms/platforms.h"
-#include "core/scene/material_node.h"
 #include "core/scene/geometry_node.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
+#include "middleware/std_material/std_material.h"
 
 
 void GeneralScene::Create() {
@@ -124,8 +124,8 @@ void GeneralScene::GenerateGround() {
     shape.SetTexScale({128, 128});
     auto plane = ShapeBuilder(m_device).Join({&shape}, "Ground");
 
-    auto groundNode = std::make_shared<MaterialNode>(m_matTexNoLight, plane);
-    groundNode->SetPixelShaderVar("texBase", m_TextureGround);
+    auto groundNode = std::make_shared<StdMaterial>(m_matTexNoLight, plane);
+    groundNode->SetBaseTexture(m_TextureGround);
 
     auto matModel = dg::float4x4::Scale(256, 1, 256);
     m_scene->NewChild(groundNode, matModel);
@@ -136,15 +136,15 @@ void GeneralScene::GenerateTrees() {
     auto tree = std::make_shared<TransformNode>();
 
     CylinderShape trunkShape({5, 1}, Axis::Y);
-    auto trunkMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, ShapeBuilder(m_device).Join({&trunkShape}, "trunk"));
-    trunkMatNode->Params().crlBase = dg::float4(139.f, 69.f, 19.f, 255.f) / 255.f;
+    auto trunkMatNode = std::make_shared<StdMaterial>(m_matClrPhong, ShapeBuilder(m_device).Join({&trunkShape}, "trunk"));
+    trunkMatNode->SetBaseColor(139, 69, 19);
 
     auto matModelTrunk = dg::float4x4::Scale(0.5, 4, 0.5) * dg::float4x4::Translation(0, 2, 0);
     tree->NewChild(trunkMatNode, matModelTrunk);
 
     SphereShape crownShape({10, 5}, Axis::Y);
-    auto crownMatNode = std::make_shared<MaterialClrNode>(m_matClrPhong, ShapeBuilder(m_device).Join({&crownShape}, "crown"));
-    crownMatNode->Params().crlBase = dg::float4(0, 128.f, 0, 255.f) / 255.f;
+    auto crownMatNode = std::make_shared<StdMaterial>(m_matClrPhong, ShapeBuilder(m_device).Join({&crownShape}, "crown"));
+    crownMatNode->SetBaseColor(0, 128, 0);
 
     auto matModelCrown = dg::float4x4::Scale(4, 8, 4) * dg::float4x4::Translation(0, 7, 0);
     tree->NewChild(crownMatNode, matModelCrown);
@@ -170,12 +170,12 @@ void GeneralScene::GenerateGrass() {
     uint32_t vbOffsetBytes = 0;
     auto geometryNode = std::make_shared<GeometryNodeUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
 
-    auto grassMatNode = std::make_shared<MaterialNode>(m_matGrass, geometryNode);
-    grassMatNode->SetPixelShaderVar("texBase", m_TextureGrassBlade1);
+    auto grassMatNode = std::make_shared<StdMaterial>(m_matGrass, geometryNode);
+    grassMatNode->SetBaseTexture(m_TextureGrassBlade1);
 
-    // auto grassMatNode = std::make_shared<MaterialClrNode>(m_matGrassAlpha, geometryNode);
-    // grassMatNode->Params().alphaThreshold = 0.2f;
-    // grassMatNode->SetPixelShaderVar("texBase", m_TextureGrassBlade0);
+    // auto grassMatNode = std::make_shared<StdMaterial>(m_matGrassAlpha, geometryNode);
+    // grassMatNode->SetAlphaThreshold(0.2f);
+    // grassMatNode->SetBaseTexture(m_TextureGrassBlade0);
 
     m_scene->NewChild(grassMatNode);
 }
@@ -195,17 +195,17 @@ void GeneralScene::GenerateGrassBillboard() {
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 
-    auto grass0MatNode = std::make_shared<MaterialClrNode>(m_matTexDiscardNoLight, bush);
-    grass0MatNode->Params().alphaThreshold = 0.2f;
-    grass0MatNode->SetPixelShaderVar("texBase", m_TextureGrass0);
+    auto grass0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight, bush);
+    grass0MatNode->SetAlphaThreshold(0.2f);
+    grass0MatNode->SetBaseTexture(m_TextureGrass0);
 
-    auto grass1MatNode = std::make_shared<MaterialClrNode>(m_matTexDiscardNoLight, bush);
-    grass1MatNode->Params().alphaThreshold = 0.2f;
-    grass1MatNode->SetPixelShaderVar("texBase", m_TextureGrass1);
+    auto grass1MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight, bush);
+    grass1MatNode->SetAlphaThreshold(0.2f);
+    grass1MatNode->SetBaseTexture(m_TextureGrass1);
 
-    auto flower0MatNode = std::make_shared<MaterialClrNode>(m_matTexDiscardNoLight, bush);
-    flower0MatNode->Params().alphaThreshold = 0.2f;
-    flower0MatNode->SetPixelShaderVar("texBase", m_TextureFlower0);
+    auto flower0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight, bush);
+    flower0MatNode->SetAlphaThreshold(0.2f);
+    flower0MatNode->SetBaseTexture(m_TextureFlower0);
 
     RandSeed(15);
     auto materialNode = grass0MatNode;

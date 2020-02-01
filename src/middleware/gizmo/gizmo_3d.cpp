@@ -1,9 +1,9 @@
 #include "middleware/gizmo/gizmo_3d.h"
 
-#include "core/scene/material_node.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
+#include "middleware/std_material/std_material.h"
 
 
 std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder) {
@@ -30,10 +30,10 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
         translation[static_cast<uint>(axis)] = cylinderSpacing + cylinderHeight * 0.5f;
         cylinderShape.SetTranform(dg::float4x4::Translation(translation));
 
-        auto arrowNode = std::make_shared<MaterialClrNode>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "arrow"));
+        auto arrowNode = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "arrow"));
         auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
         color[static_cast<uint>(axis)] = 1.0f;
-        arrowNode->Params().crlBase = color;
+        arrowNode->SetBaseColor(color);
 
         m_transformNode->NewChild(arrowNode);
     }
