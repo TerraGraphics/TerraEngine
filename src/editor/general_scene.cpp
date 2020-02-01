@@ -13,57 +13,6 @@
 #include "middleware/generator/generator.h"
 
 
-static dg::LayoutElement layoutElems[] = {
-    // vertex position
-    dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
-    // normal
-    dg::LayoutElement{1, 0, 3, dg::VT_FLOAT32, dg::False},
-    // texture coordinates
-    dg::LayoutElement{2, 0, 2, dg::VT_FLOAT32, dg::False},
-
-    // Per-instance data - second buffer slot
-    // WorldRow0
-    dg::LayoutElement{3, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow1
-    dg::LayoutElement{4, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow2
-    dg::LayoutElement{5, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow3
-    dg::LayoutElement{6, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow0
-    dg::LayoutElement{7, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow1
-    dg::LayoutElement{8, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow2
-    dg::LayoutElement{9, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-};
-
-static dg::InputLayoutDesc layoutDesc(layoutElems, _countof(layoutElems));
-
-static dg::LayoutElement layoutGrassElems[] = {
-    // vertex position
-    dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
-
-    // Per-instance data - second buffer slot
-    // WorldRow0
-    dg::LayoutElement{1, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow1
-    dg::LayoutElement{2, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow2
-    dg::LayoutElement{3, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow3
-    dg::LayoutElement{4, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow0
-    dg::LayoutElement{5, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow1
-    dg::LayoutElement{6, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow2
-    dg::LayoutElement{7, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-};
-
-static dg::InputLayoutDesc layoutGrassDesc(layoutGrassElems, _countof(layoutGrassElems));
-
-
 void GeneralScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
@@ -127,6 +76,8 @@ void GeneralScene::CreateMaterials() {
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
     const auto GRASS = materialBuilder->GetShaderMask("GRASS");
+    const auto& layoutDesc = VertexPNC::GetStandartLayoutDesc();
+    const auto& layoutGrassDesc = VertexP::GetStandartLayoutDesc();
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
@@ -204,10 +155,6 @@ void GeneralScene::GenerateTrees() {
         m_scene->AddChild(tree->Clone(matModelPosition));
     }
 }
-
-struct VertexP {
-	dg::float3 position;
-};
 
 void GeneralScene::GenerateGrass() {
     RandSeed(177);

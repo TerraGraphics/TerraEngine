@@ -10,34 +10,6 @@
 #include "middleware/generator/generator.h"
 
 
-static dg::LayoutElement layoutElems[] = {
-    // vertex position
-    dg::LayoutElement{0, 0, 3, dg::VT_FLOAT32, dg::False},
-    // normal
-    dg::LayoutElement{1, 0, 3, dg::VT_FLOAT32, dg::False},
-    // texture coordinates
-    dg::LayoutElement{2, 0, 2, dg::VT_FLOAT32, dg::False},
-
-    // Per-instance data - second buffer slot
-    // WorldRow0
-    dg::LayoutElement{3, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow1
-    dg::LayoutElement{4, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow2
-    dg::LayoutElement{5, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // WorldRow3
-    dg::LayoutElement{6, 1, 4, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow0
-    dg::LayoutElement{7, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow1
-    dg::LayoutElement{8, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-    // NormalRow2
-    dg::LayoutElement{9, 1, 3, dg::VT_FLOAT32, dg::False, dg::LayoutElement::FREQUENCY_PER_INSTANCE},
-};
-
-static dg::InputLayoutDesc layoutDesc(layoutElems, _countof(layoutElems));
-
-
 void EditorScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
@@ -72,6 +44,7 @@ void EditorScene::CreateMaterials() {
     const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
+    const auto& layoutDesc = VertexPNC::GetStandartLayoutDesc();
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, layoutDesc).
         CullMode(dg::CULL_MODE_NONE).
