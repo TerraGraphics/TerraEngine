@@ -12,5 +12,6 @@ struct MaterialBuilderDesc {
 
     std::filesystem::path shadersDirOld;
     std::filesystem::path shadersDir;
+    std::filesystem::path shadersSchemaPath;
     std::string shaderFilesExtension;
 };

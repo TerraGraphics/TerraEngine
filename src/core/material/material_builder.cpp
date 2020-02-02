@@ -6,6 +6,7 @@
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 #include "core/material/shader_builder.h"
+#include "core/material/micro_shader_loader.h"
 #include "core/material/micro_shader_loader_old.h"
 
 
@@ -120,11 +121,16 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     , m_swapChain(swapChain)
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_staticVarsStorage(new StaticVarsStorage(device, context))
+    , m_microShaderLoader(new MicroShaderLoader())
     , m_microShaderLoaderOld(new MicroShaderLoaderOld()) {
 
 }
 
 MaterialBuilder::~MaterialBuilder() {
+    if (m_microShaderLoader) {
+        delete m_microShaderLoader;
+        m_microShaderLoader = nullptr;
+    }
     if (m_microShaderLoaderOld) {
         delete m_microShaderLoaderOld;
         m_microShaderLoaderOld = nullptr;
@@ -144,6 +150,7 @@ uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {
 }
 
 void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
+    m_microShaderLoader->Load(desc);
     m_microShaderLoaderOld->Load(desc);
     m_shaderBuilder->Create(desc);
 }
