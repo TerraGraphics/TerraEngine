@@ -10,6 +10,7 @@ struct MaterialBuilderDesc {
     std::string psInputStructName = "PSInput";
     std::function<std::string (const std::string&)> cbufferGenerator;
 
+    std::filesystem::path shadersDirOld;
     std::filesystem::path shadersDir;
     std::string shaderFilesExtension;
 };

@@ -1,9 +1,9 @@
-#include "core/material/micro_shader_loader.h"
+#include "core/material/micro_shader_loader_old.h"
 
 #include "core/common/exception.h"
 
 
-void MicroShaderLoader::ShaderData::Append(const MicroShaderLoader::ShaderData& other) {
+void MicroShaderLoaderOld::ShaderData::Append(const MicroShaderLoaderOld::ShaderData& other) {
     if ((other.mixing == Mixing::Replace) && (mixing == Mixing::Replace)) {
         throw EngineError("double 'mixing' value in microshaders");
     }
@@ -44,7 +44,7 @@ void MicroShaderLoader::ShaderData::Append(const MicroShaderLoader::ShaderData& 
     source += other.source;
 }
 
-std::string MicroShaderLoader::ShaderData::GenParametersToStr(const MaterialBuilderDesc& desc) {
+std::string MicroShaderLoaderOld::ShaderData::GenParametersToStr(const MaterialBuilderDesc& desc) {
     std::string s;
     for (const auto& file: includes) {
         s += "#include \"" + file + "\"\n";
@@ -66,7 +66,7 @@ std::string MicroShaderLoader::ShaderData::GenParametersToStr(const MaterialBuil
     return s;
 }
 
-void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
+void MicroShaderLoaderOld::Load(const MaterialBuilderDesc& desc) {
     m_desc = desc;
     m_root = Microshader();
     m_namedMicroShaders.clear();
@@ -74,8 +74,8 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
     m_defaultMicroShaders.clear();
     m_groupIDs.clear();
 
-    if (!std::filesystem::is_directory(m_desc.shadersDir)) {
-        throw EngineError("failed load microshader files, load path {} is not a directory", m_desc.shadersDir.c_str());
+    if (!std::filesystem::is_directory(m_desc.shadersDirOld)) {
+        throw EngineError("failed load microshader files, load path {} is not a directory", m_desc.shadersDirOld.c_str());
     }
 
     auto fullExtension = m_desc.shaderFilesExtension;
@@ -83,7 +83,7 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
         fullExtension = "." + fullExtension;
     }
 
-    for(auto& it: std::filesystem::directory_iterator(m_desc.shadersDir)) {
+    for(auto& it: std::filesystem::directory_iterator(m_desc.shadersDirOld)) {
         const auto path = it.path();
         if (!std::filesystem::is_regular_file(it.path())) {
             continue;
@@ -115,7 +115,7 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
     }
 }
 
-uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
+uint64_t MicroShaderLoaderOld::GetMask(const std::string& name) const {
     auto it = m_namedMicroShaderIDs.find(name);
     if (it == m_namedMicroShaderIDs.cend()) {
         throw EngineError("not found microshader with name {}", name);
@@ -124,7 +124,7 @@ uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
     return 1 << it->second;
 }
 
-MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
+MicroShaderLoaderOld::Source MicroShaderLoaderOld::GetSources(uint64_t mask) const {
     Source src;
 
     std::vector<Microshader> microshaders(m_defaultMicroShaders);
@@ -157,7 +157,7 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
     return src;
 }
 
-void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
+void MicroShaderLoaderOld::ParseMicroshader(const ucl::Ucl& section) {
     Microshader ms;
     ms.isEmpty = false;
     bool isRoot = false;
@@ -226,7 +226,7 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
     }
 }
 
-void MicroShaderLoader::ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+void MicroShaderLoaderOld::ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     shader.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "parameters") {
@@ -248,7 +248,7 @@ void MicroShaderLoader::ParseShader(const ucl::Ucl& section, const std::string& 
     }
 }
 
-void MicroShaderLoader::ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+void MicroShaderLoaderOld::ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     for (const auto &it: section) {
         if (it.key() == "includes") {
             for (const auto& fileIt: it) {
@@ -270,7 +270,7 @@ void MicroShaderLoader::ParseParameters(const ucl::Ucl& section, const std::stri
     }
 }
 
-void MicroShaderLoader::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+void MicroShaderLoaderOld::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     for (const auto& inputIt: section) {
         if (inputIt.size() != 2) {
             throw EngineError("section with types (for '{}.{}') shall be of two elements, in fact it is equal to {}",

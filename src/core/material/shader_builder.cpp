@@ -26,10 +26,10 @@ ShaderBuilder::ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& en
 
 void ShaderBuilder::Create(const MaterialBuilderDesc& desc) {
     m_desc = desc;
-    m_engineFactory->CreateDefaultShaderSourceStreamFactory(m_desc.shadersDir.c_str(), &m_shaderSourceFactory);
+    m_engineFactory->CreateDefaultShaderSourceStreamFactory(m_desc.shadersDirOld.c_str(), &m_shaderSourceFactory);
 }
 
-ShaderBuilder::Shaders ShaderBuilder::Build(const MicroShaderLoader::Source& source) {
+ShaderBuilder::Shaders ShaderBuilder::Build(const MicroShaderLoaderOld::Source& source) {
     Shaders result;
     result.vs = BuildSource(CacheKey{dg::SHADER_TYPE_VERTEX, source.vs}, source.name);
     result.ps = BuildSource(CacheKey{dg::SHADER_TYPE_PIXEL, source.ps}, source.name);
