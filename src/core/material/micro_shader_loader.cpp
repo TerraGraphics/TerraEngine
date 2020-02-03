@@ -222,7 +222,7 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
         } else if (it.key() == "vertex") {
         //     ParseShader(it, it.key(), ms.vs);
         } else if (it.key() == "pixel") {
-        //     ParseShader(it, it.key(), ms.ps);
+            ParsePixel(it, it.key(), ms.ps);
         } else if (it.key() == "geometry") {
         //     ParseShader(it, it.key(), ms.gs);
         } else {
@@ -277,71 +277,76 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
     // }
 }
 
-// void MicroShaderLoader::ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
-//     shader.isEmpty = false;
-//     for (const auto &it: section) {
-//         if (it.key() == "parameters") {
-//             ParseParameters(it, sectionName + ".parameters", shader);
-//         } else if (it.key() == "mixing") {
-//             auto mixingStr = it.string_value();
-//             if (mixingStr == "replace") {
-//                 shader.mixing = Mixing::Replace;
-//             } else if (mixingStr == "add") {
-//                 shader.mixing = Mixing::Add;
-//             } else {
-//                 throw EngineError("unknown value in section: {}.{} with data: {}", sectionName, it.key(), it.dump());
-//             }
-//         } else if (it.key() == "source") {
-//             shader.source = "\n" + it.string_value() + "\n";
-//         } else {
-//             throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
-//         }
-//     }
-// }
+void MicroShaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data) {
+    data.isEmpty = false;
+    for (const auto &it: section) {
+        if (it.key() == "entrypoint") {
+            data.entrypoint = it.string_value();
+        } else if (it.key() == "order") {
+            data.order = it.int_value();
+        } else if (it.key() == "override") {
+            data.isOverride = it.bool_value();
+        } else if (it.key() == "include") {
+            for (const auto& fileIt: it) {
+                data.includes.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "PSOutput") {
+            ParseKV(it, sectionName + ".PSOutput", data.psOutput);
+        } else if (it.key() == "PSInput") {
+            ParseInputs(it, sectionName + ".PSInput", data.psInput);
+        } else if (it.key() == "PSLocal") {
+            ParseKV(it, sectionName + ".PSLocal", data.psLocal);
+        } else if (it.key() == "cbuffers") {
+            ParseKV(it, sectionName + ".cbuffers", data.cbuffers);
+        } else if (it.key() == "textures2D") {
+            for (const auto& fileIt: it) {
+                data.textures2D.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "source") {
+            data.source = it.string_value();
+        } else {
+            throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
+        }
+    }
+}
 
-// void MicroShaderLoader::ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
-//     for (const auto &it: section) {
-//         if (it.key() == "includes") {
-//             for (const auto& fileIt: it) {
-//                 shader.includes.insert(fileIt.string_value());
-//             }
-//         } else if (it.key() == "textures2D") {
-//             for (const auto& texIt: it) {
-//                 shader.textures2D.insert(texIt.string_value());
-//             }
-//         } else if (it.key() == "cbuffers") {
-//             for (const auto& nameIt: it) {
-//                 shader.cbuffers.insert(nameIt.string_value());
-//             }
-//         } else if (it.key() == "inputs") {
-//             ParseInputs(it, sectionName + ".inputs", shader);
-//         } else {
-//             throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
-//         }
-//     }
-// }
+void MicroShaderLoader::ParseKV(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, std::string>& data) {
+    for (const auto& inputIt: section) {
+        const auto name = inputIt.key();
+        const auto value = inputIt.string_value();
+        auto it = data.find(name);
+        if (it != data.cend()) {
+            if (it->second != value) {
+                throw EngineError("different types for one key '{}.{}', current type: {}, previous: {}",
+                    sectionName, name, it->second, value);
+            }
+        } else {
+            data[name] = value;
+        }
+    }
+}
 
-// void MicroShaderLoader::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
-//     for (const auto& inputIt: section) {
-//         if (inputIt.size() != 2) {
-//             throw EngineError("section with types (for '{}.{}') shall be of two elements, in fact it is equal to {}",
-//                     sectionName, inputIt.key(), inputIt.dump());
-//         }
-//         InputType inputType{inputIt[0].string_value(), inputIt[1].string_value()};
-//         const auto name = inputIt.key();
+void MicroShaderLoader::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, InputType>& data) {
+    for (const auto& inputIt: section) {
+        if (inputIt.size() != 2) {
+            throw EngineError("section with types (for '{}.{}') shall be of two elements, in fact it is equal to {}",
+                    sectionName, inputIt.key(), inputIt.dump());
+        }
+        InputType inputType{inputIt[0].string_value(), inputIt[1].string_value()};
+        const auto name = inputIt.key();
 
-//         auto it = shader.inputs.find(name);
-//         if (it != shader.inputs.cend()) {
-//             if (it->second.type != inputType.type) {
-//                 throw EngineError("different types for one inputs key '{}.{}', current type: {}, previous: {}",
-//                     sectionName, inputIt.key(), inputType.type, it->second.type);
-//             }
-//             if (it->second.semantic != inputType.semantic) {
-//                 throw EngineError("different semantics for one inputs key '{}.{}', current type: {}, previous: {}",
-//                     sectionName, inputIt.key(), inputType.semantic, it->second.semantic);
-//             }
-//         } else {
-//             shader.inputs[name] = inputType;
-//         }
-//     }
-// }
+        auto it = data.find(name);
+        if (it != data.cend()) {
+            if (it->second.type != inputType.type) {
+                throw EngineError("different types for one inputs key '{}.{}', current type: {}, previous: {}",
+                    sectionName, inputIt.key(), inputType.type, it->second.type);
+            }
+            if (it->second.semantic != inputType.semantic) {
+                throw EngineError("different semantics for one inputs key '{}.{}', current type: {}, previous: {}",
+                    sectionName, inputIt.key(), inputType.semantic, it->second.semantic);
+            }
+        } else {
+            data[name] = inputType;
+        }
+    }
+}

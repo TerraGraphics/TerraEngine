@@ -15,10 +15,10 @@ public:
 //     };
 
 private:
-//     struct InputType {
-//         std::string type;
-//         std::string semantic;
-//     };
+    struct InputType {
+        std::string type;
+        std::string semantic;
+    };
 
 //     enum class Mixing : uint8_t {
 //         Add,
@@ -37,6 +37,19 @@ private:
 //         bool isEmpty = true;
 //         std::string source;
 //     };
+    struct PixelData {
+        bool isEmpty = true;
+        std::string entrypoint;
+        int64_t order = 0;
+        bool isOverride = false;
+        std::vector<std::string> includes;
+        std::vector<std::string> textures2D;
+        std::map<std::string, InputType> psInput;
+        std::map<std::string, std::string> psOutput;
+        std::map<std::string, std::string> psLocal;
+        std::map<std::string, std::string> cbuffers;
+        std::string source;
+    };
 
     struct Microshader {
         bool isEmpty = true;
@@ -46,7 +59,7 @@ private:
 //         uint32_t groupID = 0;
 
 //         ShaderData vs;
-//         ShaderData ps;
+        PixelData ps;
 //         ShaderData gs;
     };
 
@@ -60,9 +73,9 @@ public:
 
 private:
     void ParseMicroshader(const ucl::Ucl& section);
-    // void ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
-    // void ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
-    // void ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader);
+    void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
+    void ParseKV(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, std::string>& data);
+    void ParseInputs(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, InputType>& data);
 
 private:
     MaterialBuilderDesc m_desc;
