@@ -20,11 +20,6 @@ private:
         std::string semantic;
     };
 
-//     enum class Mixing : uint8_t {
-//         Add,
-//         Replace,
-//     };
-
 //     struct ShaderData {
 //         void Append(const ShaderData& other);
 //         std::string GenParametersToStr(const MaterialBuilderDesc& desc);
@@ -37,6 +32,7 @@ private:
 //         bool isEmpty = true;
 //         std::string source;
 //     };
+
     struct PixelData {
         bool isEmpty = true;
         std::string entrypoint;
@@ -51,6 +47,16 @@ private:
         std::string source;
     };
 
+    struct GeometryData {
+        bool isEmpty = true;
+        std::vector<std::string> includes;
+        std::vector<std::string> gsOutput;
+        std::vector<std::string> gsInput;
+        std::vector<std::string> textures2D;
+        std::map<std::string, std::string> cbuffers;
+        std::string source;
+    };
+
     struct Microshader {
         bool isEmpty = true;
 //         bool autogen = false;
@@ -60,7 +66,7 @@ private:
 
 //         ShaderData vs;
         PixelData ps;
-//         ShaderData gs;
+        GeometryData gs;
     };
 
 public:
@@ -74,6 +80,7 @@ public:
 private:
     void ParseMicroshader(const ucl::Ucl& section);
     void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
+    void ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data);
     void ParseKV(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, std::string>& data);
     void ParseInputs(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, InputType>& data);
 

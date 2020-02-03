@@ -224,7 +224,7 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
         } else if (it.key() == "pixel") {
             ParsePixel(it, it.key(), ms.ps);
         } else if (it.key() == "geometry") {
-        //     ParseShader(it, it.key(), ms.gs);
+            ParseGeometry(it, it.key(), ms.gs);
         } else {
             throw EngineError("unknown section: {} with data: {}", it.key(), it.dump());
         }
@@ -296,6 +296,35 @@ void MicroShaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& s
             ParseInputs(it, sectionName + ".PSInput", data.psInput);
         } else if (it.key() == "PSLocal") {
             ParseKV(it, sectionName + ".PSLocal", data.psLocal);
+        } else if (it.key() == "cbuffers") {
+            ParseKV(it, sectionName + ".cbuffers", data.cbuffers);
+        } else if (it.key() == "textures2D") {
+            for (const auto& fileIt: it) {
+                data.textures2D.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "source") {
+            data.source = it.string_value();
+        } else {
+            throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
+        }
+    }
+}
+
+void MicroShaderLoader::ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data) {
+    data.isEmpty = false;
+    for (const auto &it: section) {
+        if (it.key() == "include") {
+            for (const auto& fileIt: it) {
+                data.includes.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "GSOutput") {
+            for (const auto& fileIt: it) {
+                data.gsOutput.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "GSInput") {
+            for (const auto& fileIt: it) {
+                data.gsInput.push_back(fileIt.string_value());
+            }
         } else if (it.key() == "cbuffers") {
             ParseKV(it, sectionName + ".cbuffers", data.cbuffers);
         } else if (it.key() == "textures2D") {
