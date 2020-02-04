@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "group": {
+      "type": "string",
+      "minLength": 1
+    },
+    "root": {
+      "type": "boolean"
+    },
+    "pixel": {
+      "type": "object",
+      "properties": {
+        "entrypoint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "order": {
+          "type": "integer"
+        },
+        "override": {
+          "type": "boolean"
+        },
+        "include": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "PSOutput": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "PSInput": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "PSLocal": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "cbuffers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "textures2D": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "source": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "entrypoint",
+        "order",
+        "source"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "group"
+  ]
+}
