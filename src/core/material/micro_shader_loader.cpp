@@ -3,73 +3,46 @@
 #include "core/common/exception.h"
 
 
-// void MicroShaderLoader::ShaderData::Append(const MicroShaderLoader::ShaderData& other) {
-//     if ((other.mixing == Mixing::Replace) && (mixing == Mixing::Replace)) {
-//         throw EngineError("double 'mixing' value in microshaders");
-//     }
-
-//     if ((other.mixing == Mixing::Replace) && (mixing == Mixing::Add)) {
-//         includes.clear();
-//         textures2D.clear();
-//         cbuffers.clear();
-//         inputs.clear();
-//         mixing = Mixing::Replace;
-//         source.clear();
-//     } else if ((other.mixing == Mixing::Add) && (mixing == Mixing::Replace)) {
-//         return;
-//     } else if ((other.mixing != Mixing::Add) || (mixing != Mixing::Add)) {
-//         throw EngineError("unknown 'mixing' value for microshader: {}", static_cast<uint8_t>(other.mixing));
-//     }
-
-//     includes.insert(other.includes.begin(), other.includes.end());
-//     textures2D.insert(other.textures2D.begin(), other.textures2D.end());
-//     cbuffers.insert(other.cbuffers.begin(), other.cbuffers.end());
-
-//     for (const auto& [name, itype]: other.inputs) {
-//         const auto it = inputs.find(name);
-//         if (it != inputs.cend()) {
-//             if (it->second.type != itype.type) {
-//                 throw EngineError("different types for one input key '{}': '{}' and '{}'",
-//                     name, it->second.type, itype.type);
-//             }
-//             if (it->second.semantic != itype.semantic) {
-//                 throw EngineError("different semantics for one input key '{}': '{}' and '{}'",
-//                     name, it->second.semantic, itype.semantic);
-//             }
-//         } else {
-//             inputs[name] = itype;
-//         }
-//     }
-
-//     source += other.source;
-// }
-
-// std::string MicroShaderLoader::ShaderData::GenParametersToStr(const MaterialBuilderDesc& desc) {
-//     std::string s;
-//     for (const auto& file: includes) {
-//         s += "#include \"" + file + "\"\n";
-//     }
-//     for (const auto& t: textures2D) {
-//         s += fmt::format("Texture2D {0};\nSamplerState {0}{1};\n", t, desc.samplerSuffix);
-//     }
-//     for (const auto& cb: cbuffers) {
-//         s += desc.cbufferGenerator(cb) + "\n";
-//     }
-//     if (!inputs.empty()) {
-//         s += fmt::format("struct {} {{\n", desc.psInputStructName);
-//         for (const auto& [key, inputType]: inputs) {
-//             s += fmt::format("{} {}: {};\n", inputType.type, key, inputType.semantic);
-//         }
-//         s += "};\n";
-//     }
-
-//     return s;
-// }
+static void JoinUniq(std::vector<std::string>& arr, std::string& out) {
+    std::sort(arr.begin(), arr.end());
+    std::string last;
+    for (const auto& it: arr) {
+        if (it != last) {
+            out.append(it + "\n");
+            last = it;
+        }
+    }
+}
 
 MicroShaderLoader::Decl::Decl(const std::string& name, const std::string& type)
     : name(name)
     , type(type) {
 
+}
+
+bool MicroShaderLoader::Decl::operator <(const Decl& other) const {
+    return (std::tie(name, type) < std::tie(other.name, other.type));
+}
+
+void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out) {
+    return JoinUniq(arr, out, [](const Decl& d) {
+        return fmt::format("{} {};\n", d.type, d.name);
+    });
+}
+
+void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator) {
+    std::sort(arr.begin(), arr.end());
+    std::string lastName;
+    std::string lastType;
+    for (const auto& it: arr) {
+        if (it.name != lastName) {
+            out.append(generator(it));
+            lastName = it.name;
+            lastType = it.type;
+        } else if (it.type != lastType) {
+            throw EngineError("different types for one name '{}': '{}' and '{}'", it.name, it.type, lastType);
+        }
+    }
 }
 
 MicroShaderLoader::DeclWithSemantic::DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic)
@@ -79,12 +52,60 @@ MicroShaderLoader::DeclWithSemantic::DeclWithSemantic(const std::string& name, c
 
 }
 
-void MicroShaderLoader::PixelData::Append(const PixelData& other) {
-    if (other.isEmpty) {
-        return;
-    }
+bool MicroShaderLoader::DeclWithSemantic::operator <(const DeclWithSemantic& other) const {
+    return (std::tie(name, type, semantic) < std::tie(other.name, other.type, other.semantic));
+}
 
-    includes.insert(includes.cend(), other.includes.cbegin(), other.includes.cend());
+void MicroShaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out) {
+    std::sort(arr.begin(), arr.end());
+    std::string lastName;
+    std::string lastType;
+    std::string lastSemantic;
+    for (const auto& it: arr) {
+        if (it.name != lastName) {
+            out.append(fmt::format("{} {} : {};\n", it.type, it.name, it.semantic));
+            lastName = it.name;
+            lastType = it.type;
+            lastSemantic = it.semantic;
+        } else if (it.type != lastType) {
+            throw EngineError("different types for one name '{}': '{}' and '{}'", it.name, it.type, lastType);
+        } else if (it.semantic != lastSemantic) {
+            throw EngineError("different semantics for one name '{}': '{}' and '{}'", it.name, it.semantic, lastSemantic);
+        }
+    }
+}
+
+void MicroShaderLoader::PixelData::Append(const PixelData* other, std::vector<std::string>& entrypoints) {
+    entrypoints.push_back(other->entrypoint);
+    includes.insert(includes.cend(), other->includes.cbegin(), other->includes.cend());
+    textures2D.insert(textures2D.cend(), other->textures2D.cbegin(), other->textures2D.cend());
+    psInput.insert(psInput.cend(), other->psInput.cbegin(), other->psInput.cend());
+    psOutput.insert(psOutput.cend(), other->psOutput.cbegin(), other->psOutput.cend());
+    psLocal.insert(psLocal.cend(), other->psLocal.cbegin(), other->psLocal.cend());
+    cbuffers.insert(cbuffers.cend(), other->cbuffers.cbegin(), other->cbuffers.cend());
+    source.append(other->source + "\n");
+}
+
+std::string MicroShaderLoader::PixelData::Generate(const std::vector<std::string>& entrypoints, const MaterialBuilderDesc& desc) {
+    std::string res;
+
+    JoinUniq(includes, res);
+    Decl::JoinUniq(psOutput, res);
+    DeclWithSemantic::JoinUniq(psInput, res);
+    Decl::JoinUniq(psLocal, res);
+    Decl::JoinUniq(cbuffers, res, [&desc](const Decl& d) {
+        return fmt::format("cbuffer {} {{ {} {}; }};\n", desc.cbufferNameGenerator(d.name), d.type, d.name);
+    });
+    JoinUniq(textures2D, res);
+    res.append(source);
+
+    res.append("void main(in PSInput psIn, PSOutput psOut) {\nPSLocal psLocal;\n");
+    for (const auto& ep: entrypoints) {
+        res.append(ep + "(psIn, psLocal, psOut);\n");
+    }
+    res.append("}");
+
+    return res;
 }
 
 namespace {
@@ -236,40 +257,62 @@ uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
 MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
     Source src;
 
+    bool psIsOverride = false;
+    std::vector<const PixelData*> psArr;
+    std::vector<const Microshader*> msArr;
     bool groups[sizeof(decltype(mask)) << 3] = {false};
-    std::vector<Microshader> microshaders;
-    PixelData ps;
-    microshaders.push_back(m_root);
+
+    if (!m_root.ps.isEmpty) {
+        psArr.push_back(&m_root.ps);
+    }
+    msArr.push_back(&m_root);
     for (uint64_t id=0; id!=64; ++id) {
         if ((mask & (uint64_t(1) << id)) != 0) {
            if (id >= m_microshaders.size()) {
-               throw EngineError("invalid microshaders mask for get sources, id = {} not exists", id);
+               throw EngineError("invalid microshaders mask {} for get sources, id = {} not exists", mask, id);
             }
             const auto& ms = m_microshaders[id];
             if (groups[ms.groupID]) {
-                throw EngineError("invalid microshaders mask for get sources, group {} is duplicated", id);
+                throw EngineError("invalid microshaders mask {} for get sources, group {} is duplicated", mask, id);
             }
             groups[ms.groupID] = true;
+
+            if (!ms.ps.isEmpty) {
+                if (ms.ps.isOverride && psIsOverride) {
+                    throw EngineError("invalid microshaders mask {} for get sources, flag 'isOverride' for pixel shader is duplicated", mask, id);
+                }
+                if (ms.ps.isOverride) {
+                    psArr = {&ms.ps};
+                    psIsOverride = true;
+                } else if (!psIsOverride) {
+                    psArr.push_back(&ms.ps);
+                }
+            }
 
             if (!src.name.empty()) {
                 src.name += ".";
             }
             src.name += ms.name;
-            microshaders.push_back(ms);
-            ps.Append(ms.ps);
+            msArr.push_back(&ms);
         }
     }
 
-//     ShaderData vs, ps, gs;
-//     for (const auto& ms: microshaders) {
-//         vs.Append(ms.vs);
-//         ps.Append(ms.ps);
-//         gs.Append(ms.gs);
-//     }
+    if (psArr.empty()) {
+        throw EngineError("invalid microshaders mask {} for get sources, not found pixel microshaders", mask);
+    }
+    std::sort(psArr.begin(), psArr.end(), [](const PixelData* a, const PixelData* b) -> bool { return a->order > b->order; });
+    PixelData psBase;
+    std::vector<std::string> entrypoints;
+    entrypoints.reserve(psArr.size());
+    for (const auto* ps: psArr) {
+        psBase.Append(ps, entrypoints);
+    }
 
-//     src.vs = vs.GenParametersToStr(m_desc) + vs.source;
-//     src.ps = ps.GenParametersToStr(m_desc) + ps.source;
-//     src.gs = gs.GenParametersToStr(m_desc) + gs.source;
+    try {
+        src.ps = psBase.Generate(entrypoints, m_desc);
+    } catch(const std::exception& e) {
+        throw EngineError("invalid microshaders mask {} for get sources, can't generate pixel shader: {}", e.what());
+    }
 
     return src;
 }

@@ -53,7 +53,7 @@ std::string MicroShaderLoaderOld::ShaderData::GenParametersToStr(const MaterialB
         s += fmt::format("Texture2D {0};\nSamplerState {0}{1};\n", t, desc.samplerSuffix);
     }
     for (const auto& cb: cbuffers) {
-        s += desc.cbufferGenerator(cb) + "\n";
+        s += desc.cbufferGeneratorOld(cb) + "\n";
     }
     if (!inputs.empty()) {
         s += fmt::format("struct {} {{\n", desc.psInputStructName);

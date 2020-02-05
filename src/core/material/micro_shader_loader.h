@@ -17,6 +17,9 @@ public:
 private:
     struct Decl {
         Decl(const std::string& name, const std::string& type);
+        bool operator <(const Decl& other) const;
+        static void JoinUniq(std::vector<Decl>& arr, std::string& out);
+        static void JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator);
 
         std::string name;
         std::string type;
@@ -24,6 +27,8 @@ private:
 
     struct DeclWithSemantic {
         DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic);
+        bool operator <(const DeclWithSemantic& other) const;
+        static void JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out);
 
         std::string name;
         std::string type;
@@ -43,6 +48,9 @@ private:
     };
 
     struct PixelData {
+        void Append(const PixelData* other, std::vector<std::string>& entrypoints);
+        std::string Generate(const std::vector<std::string>& entrypoints, const MaterialBuilderDesc& desc);
+
         bool isEmpty = true;
         std::string entrypoint;
         int64_t order = 0;
@@ -54,8 +62,6 @@ private:
         std::vector<Decl> psLocal;
         std::vector<Decl> cbuffers;
         std::string source;
-
-        void Append(const PixelData& other);
     };
 
     struct GeometryData {

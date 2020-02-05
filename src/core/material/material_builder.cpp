@@ -156,6 +156,7 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
 }
 
 MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc) {
+    m_microShaderLoader->GetSources(mask);
     auto src = m_microShaderLoaderOld->GetSources(mask);
     auto shaders = m_shaderBuilder->Build(src);
 
