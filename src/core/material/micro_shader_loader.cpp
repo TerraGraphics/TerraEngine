@@ -85,10 +85,8 @@ namespace {
 void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
     m_desc = desc;
     m_root = Microshader();
-    // m_namedMicroShaders.clear();
-    // m_namedMicroShaderIDs.clear();
-    // m_defaultMicroShaders.clear();
-    // m_groupIDs.clear();
+    m_microshaders.clear();
+    m_microshaderIDs.clear();
 
     if (!std::filesystem::is_regular_file(m_desc.shadersSchemaPath)) {
         throw EngineError("failed load microshader files, schema path {} not found", m_desc.shadersSchemaPath.c_str());
@@ -98,9 +96,9 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
         throw EngineError("failed load microshader files, load path {} is not a directory", m_desc.shadersDir.c_str());
     }
 
-    auto fullExtension = m_desc.shaderFilesExtension;
-    if (fullExtension.empty() || (fullExtension[0] != '.')) {
-        fullExtension = "." + fullExtension;
+    auto requiredExtension = m_desc.shaderFilesExtension;
+    if (requiredExtension.empty() || (requiredExtension[0] != '.')) {
+        requiredExtension = "." + requiredExtension;
     }
 
     ParserPtr parser;
@@ -117,58 +115,97 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
         throw EngineError("failed open microshader schema file {}, error: unknown", m_desc.shadersSchemaPath.c_str());
     }
 
+    // groupName => groupID
+    std::map<std::string, uint32_t> groupIDs;
+    // entrypoint => groupName
+    std::map<std::string, std::string> psEntrypoints;
+    std::set<std::string> vsEntrypoints;
+    // order => groupName
+    std::map<int64_t, std::string> psOrder;
+    // order => groupName
+    std::map<int64_t, std::string> vsOrder;
+
     for(auto& it: std::filesystem::directory_iterator(m_desc.shadersDir)) {
+        ucl::Ucl root;
         const auto path = it.path();
-        if (!std::filesystem::is_regular_file(it.path())) {
-            continue;
-        }
-        if (path.extension() != fullExtension) {
+        if (!ReadMicroshader(path, requiredExtension, schema.get(), root)) {
             continue;
         }
 
-        ucl_object_t* rootRaw = nullptr;
-        parser.reset(ucl_parser_new(UCL_PARSER_DEFAULT));
-        if (ucl_parser_add_file(parser.get(), path.c_str())) {
-            rootRaw = ucl_parser_get_object(parser.get());
-        } else if(const char *error = ucl_parser_get_error(parser.get()); error != nullptr) {
-            throw EngineError("failed open microshader file {}, error: {}", path.c_str(), error);
-        }
-
-        auto root = ucl::Ucl(rootRaw);
-        if (!root) {
-            throw EngineError("failed open microshader file {}, error: unknown", path.c_str());
-        }
-
+        Microshader ms;
         try {
-            ucl_schema_error schemaErr;
-            if (!ucl_object_validate(schema.get(), rootRaw, &schemaErr)) {
-                throw EngineError("failed validate microshader file {}, key: '{}', value: '{}', error: '{}'",
-                    path.c_str(),
-                    schemaErr.obj->key,
-                    ucl_object_emit(schemaErr.obj, UCL_EMIT_CONFIG),
-                    schemaErr.msg);
-            }
-        } catch(const std::exception& e) {
-            throw EngineError("failed validate microshader file {}, error: {}", path.c_str(), e.what());
-        }
-
-        try {
-            ParseMicroshader(root);
+            ParseMicroshader(root, ms);
         } catch(const std::exception& e) {
             throw EngineError("failed parse microshader file {}, error: {}", path.c_str(), e.what());
         }
+
+        if (!ms.ps.isEmpty) {
+            const auto itEp = psEntrypoints.find(ms.ps.entrypoint);
+            if (itEp == psEntrypoints.cend()) {
+                psEntrypoints[ms.ps.entrypoint] = ms.group;
+            } else if (itEp->second != ms.group) {
+                throw EngineError("name of the pixel microshader entrypoint ({}) is duplicated", ms.ps.entrypoint);
+            }
+
+            const auto itOrder = psOrder.find(ms.ps.order);
+            if (itOrder == psOrder.cend()) {
+                psOrder[ms.ps.order] = ms.group;
+            } else if (itOrder->second != ms.group) {
+                throw EngineError("value of the pixel microshader order ({}) is duplicated", ms.ps.order);
+            }
+        }
+
+        for (const auto& [_, vs]: ms.vs) {
+            if (vsEntrypoints.find(vs.entrypoint) == vsEntrypoints.cend()) {
+                vsEntrypoints.insert(vs.entrypoint);
+            } else {
+                throw EngineError("name of the vertex microshader entrypoint ({}) is duplicated", vs.entrypoint);
+            }
+
+            const auto it = vsOrder.find(vs.order);
+            if (it == vsOrder.cend()) {
+                vsOrder[vs.order] = ms.group;
+            } else if (it->second != ms.group) {
+                throw EngineError("value of the vertex microshader order ({}) is duplicated", vs.order);
+            }
+        }
+
+        if (ms.isRoot) {
+            if (!m_root.isEmpty) {
+                throw EngineError("found second root shader, curren has name {}, previous - {}", ms.name, m_root.name);
+            } else {
+                m_root = ms;
+                continue;
+            }
+        }
+
+        auto groupIt = groupIDs.find(ms.group);
+        if (groupIt == groupIDs.cend()) {
+            ms.groupID = groupIDs.size();
+            groupIDs[ms.group] = ms.groupID;
+        } else {
+            ms.groupID = groupIt->second;
+        }
+
+        auto id = static_cast<uint32_t>(m_microshaders.size());
+        if (id >= 64) {
+            throw EngineError("microshaders type number are over the limit (64)");
+        }
+        if (m_microshaderIDs.find(ms.name) != m_microshaderIDs.cend()) {
+            throw EngineError("name of the microshader ({}) is duplicated", ms.name);
+        }
+        m_microshaders.push_back(ms);
+        m_microshaderIDs[ms.name] = id;
     }
 
-    // for (const auto& sh: m_defaultMicroShaders) {
-    //     if (sh.isEmpty) {
-    //         throw EngineError("not found default microshader for group {}", sh.group);
-    //     }
-    // }
+    if (m_root.isEmpty) {
+        throw EngineError("failed load microshader files, root microshader not found");
+    }
 }
 
 // uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
-//     auto it = m_namedMicroShaderIDs.find(name);
-//     if (it == m_namedMicroShaderIDs.cend()) {
+//     auto it = m_microshaderIDs.find(name);
+//     if (it == m_microshaderIDs.cend()) {
 //         throw EngineError("not found microshader with name {}", name);
 //     }
 
@@ -182,11 +219,11 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
 //     microshaders.push_back(m_root);
 //     for (uint64_t id=0; id!=64; ++id) {
 //         if ((mask & (uint64_t(1) << id)) != 0) {
-//             if (id >= m_namedMicroShaders.size()) {
-//                 throw EngineError("invalid microshaders mask for get sources, id = {} not exists", id);
+//            if (id >= m_microshaders.size()) {
+//                throw EngineError("invalid microshaders mask for get sources, id = {} not exists", id);
 //             }
-//             const auto& ms = m_namedMicroShaders[id];
-//             if (!src.name.empty()) {
+//            const auto& ms = m_microshaders[id];
+//            if (!src.name.empty()) {
 //                 src.name += ".";
 //             }
 //             src.name += ms.name;
@@ -208,17 +245,54 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
 //     return src;
 // }
 
-void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
-    Microshader ms;
+
+bool MicroShaderLoader::ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section) {
+    if (!std::filesystem::is_regular_file(filepath)) {
+        return false;
+    }
+
+    if (filepath.extension() != requiredExtension) {
+        return false;
+    }
+
+    ucl_object_t* rootRaw = nullptr;
+    auto parser = ParserPtr(ucl_parser_new(UCL_PARSER_DEFAULT));
+    if (ucl_parser_add_file(parser.get(), filepath.c_str())) {
+        rootRaw = ucl_parser_get_object(parser.get());
+    } else if(const char *error = ucl_parser_get_error(parser.get()); error != nullptr) {
+        throw EngineError("failed open microshader file {}, error: {}", filepath.c_str(), error);
+    }
+
+    section = ucl::Ucl(rootRaw);
+    if (!section) {
+        throw EngineError("failed open microshader file {}, error: unknown", filepath.c_str());
+    }
+
+    try {
+        ucl_schema_error schemaErr;
+        if (!ucl_object_validate(schema, rootRaw, &schemaErr)) {
+            throw EngineError("failed validate microshader file {}, key: '{}', value: '{}', error: '{}'",
+                filepath.c_str(),
+                schemaErr.obj->key,
+                ucl_object_emit(schemaErr.obj, UCL_EMIT_CONFIG),
+                schemaErr.msg);
+        }
+    } catch(const std::exception& e) {
+        throw EngineError("failed validate microshader file {}, error: {}", filepath.c_str(), e.what());
+    }
+
+    return true;
+}
+
+void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section, Microshader& ms) {
     ms.isEmpty = false;
-    bool isRoot = false;
     for (const auto &it: section) {
         if (it.key() == "name") {
             ms.name = it.string_value();
         } else if (it.key() == "group") {
             ms.group = it.string_value();
         } else if (it.key() == "root") {
-            isRoot = it.bool_value();
+            ms.isRoot = it.bool_value();
         } else if (it.key() == "vertex") {
             ParseVertex(it, it.key(), ms.vs);
         } else if (it.key() == "pixel") {
@@ -229,52 +303,6 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
             throw EngineError("unknown section: {} with data: {}", it.key(), it.dump());
         }
     }
-
-    if (isRoot) {
-        m_root = ms;
-        return;
-    }
-
-    // if (ms.group.empty()) {
-    //     throw EngineError("required section 'group' was not found");
-    // }
-    // auto groupIt = m_groupIDs.find(ms.group);
-    // if (groupIt == m_groupIDs.cend()) {
-    //     ms.groupID = m_groupIDs.size();
-    //     m_groupIDs[ms.group] = ms.groupID;
-    //     Microshader def;
-    //     def.isEmpty = true;
-    //     def.groupID = ms.groupID;
-    //     def.group = ms.group;
-    //     m_defaultMicroShaders.push_back(def);
-    // } else {
-    //     ms.groupID = groupIt->second;
-    // }
-
-    // if (!ms.name.empty()) {
-    //     // named microshader
-    //     auto id = static_cast<uint32_t>(m_namedMicroShaders.size());
-    //     if (id >= 64) {
-    //         throw EngineError("microshaders type number are over the limit (64)");
-    //     }
-    //     if (m_namedMicroShaderIDs.find(ms.name) != m_namedMicroShaderIDs.cend()) {
-    //         throw EngineError("name of the microshader ({}) is duplicated", ms.name);
-    //     }
-    //     if (m_defaultMicroShaders[ms.groupID].isEmpty &&
-    //         (ms.vs.isEmpty || (ms.vs.mixing == Mixing::Replace)) &&
-    //         (ms.ps.isEmpty || (ms.ps.mixing == Mixing::Replace)) &&
-    //         (ms.gs.isEmpty || (ms.gs.mixing == Mixing::Replace))) {
-    //         m_defaultMicroShaders[ms.groupID].isEmpty = false;
-    //         m_defaultMicroShaders[ms.groupID].autogen = true;
-    //     }
-    //     m_namedMicroShaders.push_back(ms);
-    //     m_namedMicroShaderIDs[ms.name] = id;
-    // } else {
-    //     if (!m_defaultMicroShaders[ms.groupID].isEmpty && !m_defaultMicroShaders[ms.groupID].autogen) {
-    //         throw EngineError("default microshader for group {} already exists", ms.group);
-    //     }
-    //     m_defaultMicroShaders[ms.groupID] = ms;
-    // }
 }
 
 void MicroShaderLoader::ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data) {
@@ -290,6 +318,9 @@ void MicroShaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::stri
     for (const auto &it: section) {
         if (it.key() == "entrypoint") {
             data.entrypoint = it.string_value();
+            if (data.entrypoint == "main") {
+                throw EngineError("entrypoints with the name 'main' is disabled");
+            }
         } else if (it.key() == "order") {
             data.order = it.int_value();
         } else if (it.key() == "override") {
@@ -321,6 +352,9 @@ void MicroShaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& s
     for (const auto &it: section) {
         if (it.key() == "entrypoint") {
             data.entrypoint = it.string_value();
+            if (data.entrypoint == "main") {
+                throw EngineError("entrypoints with the name 'main' is disabled");
+            }
         } else if (it.key() == "order") {
             data.order = it.int_value();
         } else if (it.key() == "override") {

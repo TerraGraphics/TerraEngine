@@ -71,12 +71,12 @@ private:
 
     struct Microshader {
         bool isEmpty = true;
-//         bool autogen = false;
+        bool isRoot = false;
         std::string name;
         std::string group;
-//         uint32_t groupID = 0;
+        uint32_t groupID = 0;
 
-        // VSOutput <-> VertexData
+        // VSOutput => VertexData
         std::map<std::string, VertexData> vs;
         PixelData ps;
         GeometryData gs;
@@ -91,7 +91,8 @@ public:
     // Source GetSources(uint64_t mask) const;
 
 private:
-    void ParseMicroshader(const ucl::Ucl& section);
+    bool ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section);
+    void ParseMicroshader(const ucl::Ucl& section, Microshader& ms);
     void ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data);
     void ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data);
     void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
@@ -103,12 +104,8 @@ private:
     MaterialBuilderDesc m_desc;
 
     Microshader m_root;
-    // namedMicroShaderID => namedMicroShader
-    // std::vector<Microshader> m_namedMicroShaders;
-    // // namedMicroShaderName => namedMicroShaderID
-    // std::map<std::string, uint32_t> m_namedMicroShaderIDs;
-    // // groupID => defaultMicroShader
-    // std::vector<Microshader> m_defaultMicroShaders;
-    // // groupName => groupID
-    // std::map<std::string, uint32_t> m_groupIDs;
+    // microshaderID => microshader
+    std::vector<Microshader> m_microshaders;
+    // MicroshaderName => MicroshaderID
+    std::map<std::string, uint32_t> m_microshaderIDs;
 };
