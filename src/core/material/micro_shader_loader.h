@@ -7,31 +7,28 @@
 
 class MicroShaderLoader : Fixed {
 public:
-//     struct Source {
-//         std::string name;
-//         std::string vs;
-//         std::string ps;
-//         std::string gs;
-//     };
+    struct Source {
+        std::string name;
+        std::string vs;
+        std::string ps;
+        std::string gs;
+    };
 
 private:
-    struct InputType {
+    struct Decl {
+        Decl(const std::string& name, const std::string& type);
+
+        std::string name;
+        std::string type;
+    };
+
+    struct DeclWithSemantic {
+        DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic);
+
+        std::string name;
         std::string type;
         std::string semantic;
     };
-
-//     struct ShaderData {
-//         void Append(const ShaderData& other);
-//         std::string GenParametersToStr(const MaterialBuilderDesc& desc);
-
-//         std::set<std::string> includes;
-//         std::set<std::string> textures2D;
-//         std::set<std::string> cbuffers;
-//         std::map<std::string, InputType> inputs;
-//         Mixing mixing = Mixing::Add;
-//         bool isEmpty = true;
-//         std::string source;
-//     };
 
     struct VertexData {
         bool isEmpty = true;
@@ -41,7 +38,7 @@ private:
         std::vector<std::string> includes;
         std::vector<std::string> vsInput;
         std::vector<std::string> textures2D;
-        std::map<std::string, std::string> cbuffers;
+        std::vector<Decl> cbuffers;
         std::string source;
     };
 
@@ -52,11 +49,13 @@ private:
         bool isOverride = false;
         std::vector<std::string> includes;
         std::vector<std::string> textures2D;
-        std::map<std::string, InputType> psInput;
-        std::map<std::string, std::string> psOutput;
-        std::map<std::string, std::string> psLocal;
-        std::map<std::string, std::string> cbuffers;
+        std::vector<DeclWithSemantic> psInput;
+        std::vector<Decl> psOutput;
+        std::vector<Decl> psLocal;
+        std::vector<Decl> cbuffers;
         std::string source;
+
+        void Append(const PixelData& other);
     };
 
     struct GeometryData {
@@ -65,7 +64,7 @@ private:
         std::vector<std::string> gsOutput;
         std::vector<std::string> gsInput;
         std::vector<std::string> textures2D;
-        std::map<std::string, std::string> cbuffers;
+        std::vector<Decl> cbuffers;
         std::string source;
     };
 
@@ -87,8 +86,8 @@ public:
     ~MicroShaderLoader() = default;
 
     void Load(const MaterialBuilderDesc& desc);
-    // uint64_t GetMask(const std::string& name) const;
-    // Source GetSources(uint64_t mask) const;
+    uint64_t GetMask(const std::string& name) const;
+    Source GetSources(uint64_t mask) const;
 
 private:
     bool ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section);
@@ -97,8 +96,9 @@ private:
     void ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data);
     void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
     void ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data);
-    void ParseKV(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, std::string>& data);
-    void ParseInputs(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, InputType>& data);
+    void ParseArray(const ucl::Ucl& section, std::vector<std::string>& data);
+    void ParseDecl(const ucl::Ucl& section, std::vector<Decl>& data);
+    void ParseDeclWithSemantic(const ucl::Ucl& section, std::vector<DeclWithSemantic>& data);
 
 private:
     MaterialBuilderDesc m_desc;
