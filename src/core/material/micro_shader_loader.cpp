@@ -220,7 +220,7 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
         } else if (it.key() == "root") {
             isRoot = it.bool_value();
         } else if (it.key() == "vertex") {
-        //     ParseShader(it, it.key(), ms.vs);
+            ParseVertex(it, it.key(), ms.vs);
         } else if (it.key() == "pixel") {
             ParsePixel(it, it.key(), ms.ps);
         } else if (it.key() == "geometry") {
@@ -275,6 +275,45 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section) {
     //     }
     //     m_defaultMicroShaders[ms.groupID] = ms;
     // }
+}
+
+void MicroShaderLoader::ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data) {
+    for (const auto &it: section) {
+        VertexData vs;
+        ParseVertexItem(it, sectionName + "." + it.key(), vs);
+        data[it.key()] = vs;
+    }
+}
+
+void MicroShaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data) {
+    data.isEmpty = false;
+    for (const auto &it: section) {
+        if (it.key() == "entrypoint") {
+            data.entrypoint = it.string_value();
+        } else if (it.key() == "order") {
+            data.order = it.int_value();
+        } else if (it.key() == "override") {
+            data.isOverride = it.bool_value();
+        } else if (it.key() == "include") {
+            for (const auto& fileIt: it) {
+                data.includes.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "VSInput") {
+            for (const auto& fileIt: it) {
+                data.vsInput.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "cbuffers") {
+            ParseKV(it, sectionName + ".cbuffers", data.cbuffers);
+        } else if (it.key() == "textures2D") {
+            for (const auto& fileIt: it) {
+                data.textures2D.push_back(fileIt.string_value());
+            }
+        } else if (it.key() == "source") {
+            data.source = it.string_value();
+        } else {
+            throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
+        }
+    }
 }
 
 void MicroShaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data) {

@@ -13,6 +13,64 @@
     "root": {
       "type": "boolean"
     },
+    "vertex": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "entrypoint": {
+            "type": "string",
+            "minLength": 1
+          },
+          "order": {
+            "type": "integer"
+          },
+          "override": {
+            "type": "boolean"
+          },
+          "include": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "VSInput": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "cbuffers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "textures2D": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entrypoint",
+          "order",
+          "VSInput",
+          "source"
+        ]
+      }
+    },
     "pixel": {
       "type": "object",
       "properties": {

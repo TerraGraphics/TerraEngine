@@ -33,6 +33,18 @@ private:
 //         std::string source;
 //     };
 
+    struct VertexData {
+        bool isEmpty = true;
+        std::string entrypoint;
+        int64_t order = 0;
+        bool isOverride = false;
+        std::vector<std::string> includes;
+        std::vector<std::string> vsInput;
+        std::vector<std::string> textures2D;
+        std::map<std::string, std::string> cbuffers;
+        std::string source;
+    };
+
     struct PixelData {
         bool isEmpty = true;
         std::string entrypoint;
@@ -64,7 +76,8 @@ private:
         std::string group;
 //         uint32_t groupID = 0;
 
-//         ShaderData vs;
+        // VSOutput <-> VertexData
+        std::map<std::string, VertexData> vs;
         PixelData ps;
         GeometryData gs;
     };
@@ -79,6 +92,8 @@ public:
 
 private:
     void ParseMicroshader(const ucl::Ucl& section);
+    void ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data);
+    void ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data);
     void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
     void ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data);
     void ParseKV(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, std::string>& data);
