@@ -88,7 +88,7 @@ struct PixelMicroshader {
     Items includes;
     Items textures2D;
     SemanticDecls psInput;
-    Decls psOutput;
+    SemanticDecls psOutput;
     Decls psLocal;
     Decls cbuffers;
     std::string source;

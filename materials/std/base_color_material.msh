@@ -4,7 +4,7 @@ pixel {
     entrypoint = "BaseColorCalc"
     order = 10
     PSOutput {
-        color: SV_TARGET0
+        color: [float4, SV_TARGET0]
     }
     PSLocal {
         baseColor: float4

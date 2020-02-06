@@ -4,7 +4,7 @@ pixel {
     entrypoint = "AmbientDiffuseLight"
     order = 30
     PSOutput {
-        color: SV_TARGET0
+        color: [float4, SV_TARGET0]
     }
     PSInput {
         normal: [float3, NORMAL]

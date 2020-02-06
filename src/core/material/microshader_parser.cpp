@@ -92,7 +92,7 @@ void Decls::GenerateStruct(const std::string& name, std::string& out) {
     Generate([](const Decl& d, std::string& out){
         out.append(fmt::format("    {} {};\n", d.type, d.name));
     }, out);
-    out.append("}\n");
+    out.append("};\n");
 }
 
 void Decls::GenerateCbuffer(const std::function<std::string (const std::string&)>& cbufferNameGenerator, std::string& out) {
@@ -160,7 +160,7 @@ void SemanticDecls::GenerateStruct(const std::string& name, std::string& out) {
     Generate([](const SemanticDecl& d, std::string& out){
         out.append(fmt::format("    {} {} : {};\n", d.type, d.name, d.semantic));
     }, out);
-    out.append("}\n");
+    out.append("};\n");
 }
 
 

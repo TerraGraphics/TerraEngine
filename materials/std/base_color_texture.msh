@@ -5,7 +5,7 @@ pixel {
     order = 10
     include = ["structures.fxh"]
     PSOutput {
-        color: SV_TARGET0
+        color: [float4, SV_TARGET0]
     }
     PSInput {
         uv: [float2, TEX_COORD]
