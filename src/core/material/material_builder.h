@@ -9,8 +9,8 @@
 
 
 class ShaderBuilder;
-class MicroShaderLoader;
-class MicroShaderLoaderOld;
+class MicroshaderLoader;
+class MicroshaderLoaderOld;
 class MaterialBuilder : Fixed {
 public:
     struct Builder : Fixed {
@@ -78,7 +78,7 @@ private:
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
     ShaderBuilder* m_shaderBuilder = nullptr;
-    MicroShaderLoader* m_microShaderLoader = nullptr;
-    MicroShaderLoaderOld* m_microShaderLoaderOld = nullptr;
+    MicroshaderLoader* m_microShaderLoader = nullptr;
+    MicroshaderLoaderOld* m_microShaderLoaderOld = nullptr;
     StaticVarsStorage* m_staticVarsStorage = nullptr;
 };

@@ -5,7 +5,7 @@
 #include "core/material/material_builder_desc.h"
 
 
-class MicroShaderLoaderOld : Fixed {
+class MicroshaderLoaderOld : Fixed {
 public:
     struct Source {
         std::string name;
@@ -51,8 +51,8 @@ private:
     };
 
 public:
-    MicroShaderLoaderOld() = default;
-    ~MicroShaderLoaderOld() = default;
+    MicroshaderLoaderOld() = default;
+    ~MicroshaderLoaderOld() = default;
 
     void Load(const MaterialBuilderDesc& desc);
     uint64_t GetMask(const std::string& name) const;

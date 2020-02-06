@@ -1,9 +1,9 @@
-#include "core/material/micro_shader_loader_old.h"
+#include "core/material/microshader_loader_old.h"
 
 #include "core/common/exception.h"
 
 
-void MicroShaderLoaderOld::ShaderData::Append(const MicroShaderLoaderOld::ShaderData& other) {
+void MicroshaderLoaderOld::ShaderData::Append(const MicroshaderLoaderOld::ShaderData& other) {
     if ((other.mixing == Mixing::Replace) && (mixing == Mixing::Replace)) {
         throw EngineError("double 'mixing' value in microshaders");
     }
@@ -44,7 +44,7 @@ void MicroShaderLoaderOld::ShaderData::Append(const MicroShaderLoaderOld::Shader
     source += other.source;
 }
 
-std::string MicroShaderLoaderOld::ShaderData::GenParametersToStr(const MaterialBuilderDesc& desc) {
+std::string MicroshaderLoaderOld::ShaderData::GenParametersToStr(const MaterialBuilderDesc& desc) {
     std::string s;
     for (const auto& file: includes) {
         s += "#include \"" + file + "\"\n";
@@ -66,7 +66,7 @@ std::string MicroShaderLoaderOld::ShaderData::GenParametersToStr(const MaterialB
     return s;
 }
 
-void MicroShaderLoaderOld::Load(const MaterialBuilderDesc& desc) {
+void MicroshaderLoaderOld::Load(const MaterialBuilderDesc& desc) {
     m_desc = desc;
     m_root = Microshader();
     m_namedMicroShaders.clear();
@@ -115,7 +115,7 @@ void MicroShaderLoaderOld::Load(const MaterialBuilderDesc& desc) {
     }
 }
 
-uint64_t MicroShaderLoaderOld::GetMask(const std::string& name) const {
+uint64_t MicroshaderLoaderOld::GetMask(const std::string& name) const {
     auto it = m_namedMicroShaderIDs.find(name);
     if (it == m_namedMicroShaderIDs.cend()) {
         throw EngineError("not found microshader with name {}", name);
@@ -124,7 +124,7 @@ uint64_t MicroShaderLoaderOld::GetMask(const std::string& name) const {
     return 1 << it->second;
 }
 
-MicroShaderLoaderOld::Source MicroShaderLoaderOld::GetSources(uint64_t mask) const {
+MicroshaderLoaderOld::Source MicroshaderLoaderOld::GetSources(uint64_t mask) const {
     Source src;
 
     std::vector<Microshader> microshaders(m_defaultMicroShaders);
@@ -157,7 +157,7 @@ MicroShaderLoaderOld::Source MicroShaderLoaderOld::GetSources(uint64_t mask) con
     return src;
 }
 
-void MicroShaderLoaderOld::ParseMicroshader(const ucl::Ucl& section) {
+void MicroshaderLoaderOld::ParseMicroshader(const ucl::Ucl& section) {
     Microshader ms;
     ms.isEmpty = false;
     bool isRoot = false;
@@ -226,7 +226,7 @@ void MicroShaderLoaderOld::ParseMicroshader(const ucl::Ucl& section) {
     }
 }
 
-void MicroShaderLoaderOld::ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+void MicroshaderLoaderOld::ParseShader(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     shader.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "parameters") {
@@ -248,7 +248,7 @@ void MicroShaderLoaderOld::ParseShader(const ucl::Ucl& section, const std::strin
     }
 }
 
-void MicroShaderLoaderOld::ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+void MicroshaderLoaderOld::ParseParameters(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     for (const auto &it: section) {
         if (it.key() == "includes") {
             for (const auto& fileIt: it) {
@@ -270,7 +270,7 @@ void MicroShaderLoaderOld::ParseParameters(const ucl::Ucl& section, const std::s
     }
 }
 
-void MicroShaderLoaderOld::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
+void MicroshaderLoaderOld::ParseInputs(const ucl::Ucl& section, const std::string& sectionName, ShaderData& shader) {
     for (const auto& inputIt: section) {
         if (inputIt.size() != 2) {
             throw EngineError("section with types (for '{}.{}') shall be of two elements, in fact it is equal to {}",

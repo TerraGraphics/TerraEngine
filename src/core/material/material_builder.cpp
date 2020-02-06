@@ -6,8 +6,8 @@
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 #include "core/material/shader_builder.h"
-#include "core/material/micro_shader_loader.h"
-#include "core/material/micro_shader_loader_old.h"
+#include "core/material/microshader_loader.h"
+#include "core/material/microshader_loader_old.h"
 
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
@@ -121,8 +121,8 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     , m_swapChain(swapChain)
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_staticVarsStorage(new StaticVarsStorage(device, context))
-    , m_microShaderLoader(new MicroShaderLoader())
-    , m_microShaderLoaderOld(new MicroShaderLoaderOld()) {
+    , m_microShaderLoader(new MicroshaderLoader())
+    , m_microShaderLoaderOld(new MicroshaderLoaderOld()) {
 
 }
 
@@ -156,9 +156,9 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
 }
 
 MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc) {
-    m_microShaderLoader->GetSources(mask);
-    auto src = m_microShaderLoaderOld->GetSources(mask);
-    auto shaders = m_shaderBuilder->Build(src);
+    auto src = m_microShaderLoader->GetSources(mask);
+    auto srcOld = m_microShaderLoaderOld->GetSources(mask);
+    auto shaders = m_shaderBuilder->Build(srcOld);
 
     return Builder(this, shaders.vs, shaders.ps, shaders.gs, layoutDesc);
 }

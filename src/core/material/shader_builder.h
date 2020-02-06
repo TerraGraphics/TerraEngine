@@ -3,7 +3,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 
 #include "core/common/dg.h"
-#include "core/material/micro_shader_loader_old.h"
+#include "core/material/microshader_loader_old.h"
 
 
 class ShaderBuilder : Fixed {
@@ -30,7 +30,7 @@ public:
     ~ShaderBuilder() = default;
 
     void Create(const MaterialBuilderDesc& desc);
-    Shaders Build(const MicroShaderLoaderOld::Source& source);
+    Shaders Build(const MicroshaderLoaderOld::Source& source);
 
 private:
     ShaderPtr BuildSource(const CacheKey& shaderSrc, const std::string& name);

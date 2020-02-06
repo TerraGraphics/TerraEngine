@@ -1,4 +1,4 @@
-#include "core/material/micro_shader_loader.h"
+#include "core/material/microshader_loader.h"
 
 #include "core/common/exception.h"
 
@@ -17,23 +17,23 @@ static void JoinUniq(std::vector<std::string>& arr, std::string& out) {
     }
 }
 
-MicroShaderLoader::Decl::Decl(const std::string& name, const std::string& type)
+MicroshaderLoader::Decl::Decl(const std::string& name, const std::string& type)
     : name(name)
     , type(type) {
 
 }
 
-bool MicroShaderLoader::Decl::operator <(const Decl& other) const {
+bool MicroshaderLoader::Decl::operator <(const Decl& other) const {
     return (std::tie(name, type) < std::tie(other.name, other.type));
 }
 
-void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out) {
+void MicroshaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out) {
     return JoinUniq(arr, out, [](const Decl& d) {
         return fmt::format("{} {};\n", d.type, d.name);
     });
 }
 
-void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator) {
+void MicroshaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator) {
     if (arr.empty()) {
         return;
     }
@@ -51,18 +51,18 @@ void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out,
     }
 }
 
-MicroShaderLoader::DeclWithSemantic::DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic)
+MicroshaderLoader::DeclWithSemantic::DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic)
     : name(name)
     , type(type)
     , semantic(semantic) {
 
 }
 
-bool MicroShaderLoader::DeclWithSemantic::operator <(const DeclWithSemantic& other) const {
+bool MicroshaderLoader::DeclWithSemantic::operator <(const DeclWithSemantic& other) const {
     return (std::tie(name, type, semantic) < std::tie(other.name, other.type, other.semantic));
 }
 
-void MicroShaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out, bool removeDuplicates) {
+void MicroshaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out, bool removeDuplicates) {
     if (arr.empty()) {
         return;
     }
@@ -94,7 +94,7 @@ void MicroShaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>
     }
 }
 
-void MicroShaderLoader::PixelData::Append(const PixelData* other, std::vector<std::string>& entrypoints) {
+void MicroshaderLoader::PixelData::Append(const PixelData* other, std::vector<std::string>& entrypoints) {
     entrypoints.push_back(other->entrypoint);
     includes.insert(includes.cend(), other->includes.cbegin(), other->includes.cend());
     textures2D.insert(textures2D.cend(), other->textures2D.cbegin(), other->textures2D.cend());
@@ -105,7 +105,7 @@ void MicroShaderLoader::PixelData::Append(const PixelData* other, std::vector<st
     source.append(other->source + "\n");
 }
 
-std::string MicroShaderLoader::PixelData::Generate(const std::vector<std::string>& entrypoints, const MaterialBuilderDesc& desc) {
+std::string MicroshaderLoader::PixelData::Generate(const std::vector<std::string>& entrypoints, const MaterialBuilderDesc& desc) {
     std::string res;
 
     JoinUniq(includes, res);
@@ -127,7 +127,7 @@ std::string MicroShaderLoader::PixelData::Generate(const std::vector<std::string
     return res;
 }
 
-std::string MicroShaderLoader::GeometryData::Generate(const std::vector<DeclWithSemantic>& psInput) {
+std::string MicroshaderLoader::GeometryData::Generate(const std::vector<DeclWithSemantic>& psInput) {
     return std::string();
 }
 
@@ -147,7 +147,7 @@ namespace {
     };
 }
 
-void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
+void MicroshaderLoader::Load(const MaterialBuilderDesc& desc) {
     m_desc = desc;
     m_root = Microshader();
     m_microshaders.clear();
@@ -268,7 +268,7 @@ void MicroShaderLoader::Load(const MaterialBuilderDesc& desc) {
     }
 }
 
-uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
+uint64_t MicroshaderLoader::GetMask(const std::string& name) const {
     auto it = m_microshaderIDs.find(name);
     if (it == m_microshaderIDs.cend()) {
         throw EngineError("not found microshader with name {}", name);
@@ -277,7 +277,7 @@ uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
     return 1 << it->second;
 }
 
-MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
+MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
     Source src;
 
     GeometryData gs;
@@ -356,7 +356,7 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
 }
 
 
-bool MicroShaderLoader::ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section) {
+bool MicroshaderLoader::ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section) {
     if (!std::filesystem::is_regular_file(filepath)) {
         return false;
     }
@@ -394,7 +394,7 @@ bool MicroShaderLoader::ReadMicroshader(const std::filesystem::path& filepath, c
     return true;
 }
 
-void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section, Microshader& ms) {
+void MicroshaderLoader::ParseMicroshader(const ucl::Ucl& section, Microshader& ms) {
     ms.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "name") {
@@ -415,7 +415,7 @@ void MicroShaderLoader::ParseMicroshader(const ucl::Ucl& section, Microshader& m
     }
 }
 
-void MicroShaderLoader::ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data) {
+void MicroshaderLoader::ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data) {
     for (const auto &it: section) {
         VertexData vs;
         ParseVertexItem(it, sectionName + "." + it.key(), vs);
@@ -423,7 +423,7 @@ void MicroShaderLoader::ParseVertex(const ucl::Ucl& section, const std::string& 
     }
 }
 
-void MicroShaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data) {
+void MicroshaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data) {
     data.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "entrypoint") {
@@ -451,7 +451,7 @@ void MicroShaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::stri
     }
 }
 
-void MicroShaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data) {
+void MicroshaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data) {
     data.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "entrypoint") {
@@ -483,7 +483,7 @@ void MicroShaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& s
     }
 }
 
-void MicroShaderLoader::ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data) {
+void MicroshaderLoader::ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data) {
     data.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "include") {
@@ -504,19 +504,19 @@ void MicroShaderLoader::ParseGeometry(const ucl::Ucl& section, const std::string
     }
 }
 
-void MicroShaderLoader::ParseArray(const ucl::Ucl& section, std::vector<std::string>& data) {
+void MicroshaderLoader::ParseArray(const ucl::Ucl& section, std::vector<std::string>& data) {
     for (const auto& it: section) {
         data.push_back(it.string_value());
     }
 }
 
-void MicroShaderLoader::ParseDecl(const ucl::Ucl& section, std::vector<Decl>& data) {
+void MicroshaderLoader::ParseDecl(const ucl::Ucl& section, std::vector<Decl>& data) {
     for (const auto& it: section) {
         data.emplace_back(it.key(), it.string_value());
     }
 }
 
-void MicroShaderLoader::ParseDeclWithSemantic(const ucl::Ucl& section, std::vector<DeclWithSemantic>& data) {
+void MicroshaderLoader::ParseDeclWithSemantic(const ucl::Ucl& section, std::vector<DeclWithSemantic>& data) {
     for (const auto& it: section) {
         data.emplace_back(it.key(), it[0].string_value(), it[1].string_value());
     }
