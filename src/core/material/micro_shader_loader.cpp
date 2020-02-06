@@ -4,6 +4,9 @@
 
 
 static void JoinUniq(std::vector<std::string>& arr, std::string& out) {
+    if (arr.empty()) {
+        return;
+    }
     std::sort(arr.begin(), arr.end());
     std::string last;
     for (const auto& it: arr) {
@@ -31,6 +34,9 @@ void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out)
 }
 
 void MicroShaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator) {
+    if (arr.empty()) {
+        return;
+    }
     std::sort(arr.begin(), arr.end());
     std::string lastName;
     std::string lastType;
@@ -56,22 +62,35 @@ bool MicroShaderLoader::DeclWithSemantic::operator <(const DeclWithSemantic& oth
     return (std::tie(name, type, semantic) < std::tie(other.name, other.type, other.semantic));
 }
 
-void MicroShaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out) {
+void MicroShaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out, bool removeDuplicates) {
+    if (arr.empty()) {
+        return;
+    }
     std::sort(arr.begin(), arr.end());
-    std::string lastName;
-    std::string lastType;
-    std::string lastSemantic;
-    for (const auto& it: arr) {
-        if (it.name != lastName) {
-            out.append(fmt::format("{} {} : {};\n", it.type, it.name, it.semantic));
-            lastName = it.name;
-            lastType = it.type;
-            lastSemantic = it.semantic;
-        } else if (it.type != lastType) {
-            throw EngineError("different types for one name '{}': '{}' and '{}'", it.name, it.type, lastType);
-        } else if (it.semantic != lastSemantic) {
-            throw EngineError("different semantics for one name '{}': '{}' and '{}'", it.name, it.semantic, lastSemantic);
+
+    auto last = arr.begin();
+    out.append(fmt::format("{} {} : {};\n", last->type, last->name, last->semantic));
+
+    for(auto it=arr.begin(); it!=arr.end(); ++it) {
+        if (it->name != last->name) {
+            out.append(fmt::format("{} {} : {};\n", it->type, it->name, it->semantic));
+            if (removeDuplicates) {
+                last++;
+                if (last != it) {
+                    std::swap(*last, *it);
+                }
+            } else {
+                last = it;
+            }
+        } else if (it->type != last->type) {
+            throw EngineError("different types for one name '{}': '{}' and '{}'", it->name, it->type, last->type);
+        } else if (it->semantic != last->semantic) {
+            throw EngineError("different semantics for one name '{}': '{}' and '{}'", it->name, it->semantic, last->semantic);
         }
+    }
+
+    if (removeDuplicates) {
+        arr.resize(std::distance(arr.begin(), last) + 1);
     }
 }
 
@@ -91,7 +110,7 @@ std::string MicroShaderLoader::PixelData::Generate(const std::vector<std::string
 
     JoinUniq(includes, res);
     Decl::JoinUniq(psOutput, res);
-    DeclWithSemantic::JoinUniq(psInput, res);
+    DeclWithSemantic::JoinUniq(psInput, res, true);
     Decl::JoinUniq(psLocal, res);
     Decl::JoinUniq(cbuffers, res, [&desc](const Decl& d) {
         return fmt::format("cbuffer {} {{ {} {}; }};\n", desc.cbufferNameGenerator(d.name), d.type, d.name);
@@ -106,6 +125,10 @@ std::string MicroShaderLoader::PixelData::Generate(const std::vector<std::string
     res.append("}");
 
     return res;
+}
+
+std::string MicroShaderLoader::GeometryData::Generate(const std::vector<DeclWithSemantic>& psInput) {
+    return std::string();
 }
 
 namespace {
@@ -257,6 +280,7 @@ uint64_t MicroShaderLoader::GetMask(const std::string& name) const {
 MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
     Source src;
 
+    GeometryData gs;
     bool psIsOverride = false;
     std::vector<const PixelData*> psArr;
     std::vector<const Microshader*> msArr;
@@ -288,6 +312,12 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
                     psArr.push_back(&ms.ps);
                 }
             }
+            if (!ms.gs.isEmpty) {
+                if (!gs.isEmpty) {
+                    throw EngineError("invalid microshaders mask {} for get sources, found double geometry shader", mask);
+                }
+                gs = ms.gs;
+            }
 
             if (!src.name.empty()) {
                 src.name += ".";
@@ -312,6 +342,14 @@ MicroShaderLoader::Source MicroShaderLoader::GetSources(uint64_t mask) const {
         src.ps = psBase.Generate(entrypoints, m_desc);
     } catch(const std::exception& e) {
         throw EngineError("invalid microshaders mask {} for get sources, can't generate pixel shader: {}", e.what());
+    }
+
+    if (!gs.isEmpty) {
+        try {
+            src.gs = gs.Generate(psBase.psInput);
+        } catch(const std::exception& e) {
+            throw EngineError("invalid microshaders mask {} for get sources, can't generate geometry shader: {}", e.what());
+        }
     }
 
     return src;

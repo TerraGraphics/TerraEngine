@@ -16,6 +16,7 @@ public:
 
 private:
     struct Decl {
+        Decl() = default;
         Decl(const std::string& name, const std::string& type);
         bool operator <(const Decl& other) const;
         static void JoinUniq(std::vector<Decl>& arr, std::string& out);
@@ -26,9 +27,10 @@ private:
     };
 
     struct DeclWithSemantic {
+        DeclWithSemantic() = default;
         DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic);
         bool operator <(const DeclWithSemantic& other) const;
-        static void JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out);
+        static void JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out, bool removeDuplicates);
 
         std::string name;
         std::string type;
@@ -65,6 +67,8 @@ private:
     };
 
     struct GeometryData {
+        std::string Generate(const std::vector<DeclWithSemantic>& psInput);
+
         bool isEmpty = true;
         std::vector<std::string> includes;
         std::vector<std::string> gsOutput;
