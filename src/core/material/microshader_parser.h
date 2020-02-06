@@ -1,9 +1,8 @@
 #pragma once
 
-#include <string>
 #include <vector>
 #include <ucl++.h>
-#include <functional>
+#include "core/material/material_builder_desc.h"
 
 
 namespace msh {
@@ -75,6 +74,37 @@ public:
 
 private:
     std::vector<SemanticDecl> m_data;
+};
+
+struct PixelMicroshader {
+    void Parse(const ucl::Ucl& section);
+    void Append(const PixelMicroshader* value);
+    void Generate(const MaterialBuilderDesc& desc, std::string& out);
+
+    bool isEmpty = true;
+    std::string entrypoint;
+    int64_t order = 0;
+    bool isOverride = false;
+    Items includes;
+    Items textures2D;
+    SemanticDecls psInput;
+    Decls psOutput;
+    Decls psLocal;
+    Decls cbuffers;
+    std::string source;
+};
+
+class PixelShader {
+public:
+    PixelShader() = default;
+    ~PixelShader() = default;
+
+    void Append(const PixelMicroshader* value);
+    std::string Generate(const MaterialBuilderDesc& desc);
+
+private:
+    bool m_isOverrideFound = false;
+    std::vector<const PixelMicroshader*> m_data;
 };
 
 }

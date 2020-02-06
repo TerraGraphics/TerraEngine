@@ -162,3 +162,96 @@ void SemanticDecls::GenerateStruct(const std::string& name, std::string& out) {
     }, out);
     out.append("}\n");
 }
+
+
+void PixelMicroshader::Parse(const ucl::Ucl& section) {
+    isEmpty = false;
+    for (const auto &it: section) {
+        if (it.key() == "entrypoint") {
+            entrypoint = it.string_value();
+            if (entrypoint == "main") {
+                throw EngineError("entrypoints with the name 'main' is disabled");
+            }
+        } else if (it.key() == "order") {
+            order = it.int_value();
+        } else if (it.key() == "override") {
+            isOverride = it.bool_value();
+        } else if (it.key() == "include") {
+            includes.Parse(it);
+        } else if (it.key() == "PSOutput") {
+            psOutput.Parse(it);
+        } else if (it.key() == "PSInput") {
+            psInput.Parse(it);
+        } else if (it.key() == "PSLocal") {
+            psLocal.Parse(it);
+        } else if (it.key() == "cbuffers") {
+            cbuffers.Parse(it);
+        } else if (it.key() == "textures2D") {
+            textures2D.Parse(it);
+        } else if (it.key() == "source") {
+            source = it.string_value();
+        } else {
+            throw EngineError("unknown section: {}.{} with data: {}", section.key(), it.key(), it.dump());
+        }
+    }
+}
+
+void PixelMicroshader::Append(const PixelMicroshader* other) {
+    includes.Append(other->includes);
+    textures2D.Append(other->textures2D);
+    psInput.Append(other->psInput);
+    psOutput.Append(other->psOutput);
+    psLocal.Append(other->psLocal);
+    cbuffers.Append(other->cbuffers);
+    source.append(other->source + "\n");
+}
+
+void PixelMicroshader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
+    includes.GenerateIncludes(out);
+    psOutput.GenerateStruct("PSOutput", out);
+    psInput.GenerateStruct("PSInput", out);
+    psLocal.GenerateStruct("PSLocal", out);
+    cbuffers.GenerateCbuffer(desc.cbufferNameGenerator, out);
+    textures2D.GenerateTextures(desc.samplerSuffix, out);
+    out.append(source);
+}
+
+void PixelShader::Append(const PixelMicroshader* value) {
+    if (value->isEmpty) {
+        return;
+    }
+    if (value->isOverride && m_isOverrideFound) {
+        throw EngineError("flag 'isOverride' for pixel shader is duplicated");
+    }
+    if (value->isOverride) {
+        m_data = {value};
+        m_isOverrideFound = true;
+    } else if (!m_isOverrideFound) {
+        m_data.push_back(value);
+    }
+}
+
+std::string PixelShader::Generate(const MaterialBuilderDesc& desc) {
+    if (m_data.empty()) {
+        throw EngineError("not found pixel microshaders");
+    }
+
+    std::sort(m_data.begin(), m_data.end(),
+        [](const PixelMicroshader* a, const PixelMicroshader* b) -> bool { return a->order > b->order; });
+
+    PixelMicroshader base;
+    std::string entrypointsCall;
+    for (const auto* ps: m_data) {
+        entrypointsCall.append("    " + ps->entrypoint + "(psIn, psLocal, psOut);\n");
+        base.Append(ps);
+    }
+
+
+    std::string out;
+    base.Generate(desc, out);
+    out.append("void main(in PSInput psIn, PSOutput psOut) {\nPSLocal psLocal;\n");
+    out.append(entrypointsCall);
+    out.append("}");
+
+    return out;
+}
