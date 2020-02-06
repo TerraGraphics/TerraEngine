@@ -3,131 +3,38 @@
 #include "core/common/exception.h"
 
 
-static void JoinUniq(std::vector<std::string>& arr, std::string& out) {
-    if (arr.empty()) {
-        return;
-    }
-    std::sort(arr.begin(), arr.end());
-    std::string last;
-    for (const auto& it: arr) {
-        if (it != last) {
-            out.append(it + "\n");
-            last = it;
-        }
-    }
-}
-
-MicroshaderLoader::Decl::Decl(const std::string& name, const std::string& type)
-    : name(name)
-    , type(type) {
-
-}
-
-bool MicroshaderLoader::Decl::operator <(const Decl& other) const {
-    return (std::tie(name, type) < std::tie(other.name, other.type));
-}
-
-void MicroshaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out) {
-    return JoinUniq(arr, out, [](const Decl& d) {
-        return fmt::format("{} {};\n", d.type, d.name);
-    });
-}
-
-void MicroshaderLoader::Decl::JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator) {
-    if (arr.empty()) {
-        return;
-    }
-    std::sort(arr.begin(), arr.end());
-    std::string lastName;
-    std::string lastType;
-    for (const auto& it: arr) {
-        if (it.name != lastName) {
-            out.append(generator(it));
-            lastName = it.name;
-            lastType = it.type;
-        } else if (it.type != lastType) {
-            throw EngineError("different types for one name '{}': '{}' and '{}'", it.name, it.type, lastType);
-        }
-    }
-}
-
-MicroshaderLoader::DeclWithSemantic::DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic)
-    : name(name)
-    , type(type)
-    , semantic(semantic) {
-
-}
-
-bool MicroshaderLoader::DeclWithSemantic::operator <(const DeclWithSemantic& other) const {
-    return (std::tie(name, type, semantic) < std::tie(other.name, other.type, other.semantic));
-}
-
-void MicroshaderLoader::DeclWithSemantic::JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out, bool removeDuplicates) {
-    if (arr.empty()) {
-        return;
-    }
-    std::sort(arr.begin(), arr.end());
-
-    auto last = arr.begin();
-    out.append(fmt::format("{} {} : {};\n", last->type, last->name, last->semantic));
-
-    for(auto it=arr.begin(); it!=arr.end(); ++it) {
-        if (it->name != last->name) {
-            out.append(fmt::format("{} {} : {};\n", it->type, it->name, it->semantic));
-            if (removeDuplicates) {
-                last++;
-                if (last != it) {
-                    std::swap(*last, *it);
-                }
-            } else {
-                last = it;
-            }
-        } else if (it->type != last->type) {
-            throw EngineError("different types for one name '{}': '{}' and '{}'", it->name, it->type, last->type);
-        } else if (it->semantic != last->semantic) {
-            throw EngineError("different semantics for one name '{}': '{}' and '{}'", it->name, it->semantic, last->semantic);
-        }
-    }
-
-    if (removeDuplicates) {
-        arr.resize(std::distance(arr.begin(), last) + 1);
-    }
-}
-
 void MicroshaderLoader::PixelData::Append(const PixelData* other, std::vector<std::string>& entrypoints) {
     entrypoints.push_back(other->entrypoint);
-    includes.insert(includes.cend(), other->includes.cbegin(), other->includes.cend());
-    textures2D.insert(textures2D.cend(), other->textures2D.cbegin(), other->textures2D.cend());
-    psInput.insert(psInput.cend(), other->psInput.cbegin(), other->psInput.cend());
-    psOutput.insert(psOutput.cend(), other->psOutput.cbegin(), other->psOutput.cend());
-    psLocal.insert(psLocal.cend(), other->psLocal.cbegin(), other->psLocal.cend());
-    cbuffers.insert(cbuffers.cend(), other->cbuffers.cbegin(), other->cbuffers.cend());
+    includes.Append(other->includes);
+    textures2D.Append(other->textures2D);
+    psInput.Append(other->psInput);
+    psOutput.Append(other->psOutput);
+    psLocal.Append(other->psLocal);
+    cbuffers.Append(other->cbuffers);
     source.append(other->source + "\n");
 }
 
 std::string MicroshaderLoader::PixelData::Generate(const std::vector<std::string>& entrypoints, const MaterialBuilderDesc& desc) {
     std::string res;
 
-    JoinUniq(includes, res);
-    Decl::JoinUniq(psOutput, res);
-    DeclWithSemantic::JoinUniq(psInput, res, true);
-    Decl::JoinUniq(psLocal, res);
-    Decl::JoinUniq(cbuffers, res, [&desc](const Decl& d) {
-        return fmt::format("cbuffer {} {{ {} {}; }};\n", desc.cbufferNameGenerator(d.name), d.type, d.name);
-    });
-    JoinUniq(textures2D, res);
+    includes.GenerateIncludes(res);
+    psOutput.GenerateStruct("PSOutput", res);
+    psInput.GenerateStruct("PSInput", res);
+    psLocal.GenerateStruct("PSLocal", res);
+    cbuffers.GenerateCbuffer(desc.cbufferNameGenerator, res);
+    textures2D.GenerateTextures(desc.samplerSuffix, res);
     res.append(source);
 
     res.append("void main(in PSInput psIn, PSOutput psOut) {\nPSLocal psLocal;\n");
     for (const auto& ep: entrypoints) {
-        res.append(ep + "(psIn, psLocal, psOut);\n");
+        res.append("    " + ep + "(psIn, psLocal, psOut);\n");
     }
     res.append("}");
 
     return res;
 }
 
-std::string MicroshaderLoader::GeometryData::Generate(const std::vector<DeclWithSemantic>& psInput) {
+std::string MicroshaderLoader::GeometryData::Generate(const msh::SemanticDecls& psInput) {
     return std::string();
 }
 
@@ -436,13 +343,13 @@ void MicroshaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::stri
         } else if (it.key() == "override") {
             data.isOverride = it.bool_value();
         } else if (it.key() == "include") {
-            ParseArray(it, data.includes);
+            data.includes.Parse(it);
         } else if (it.key() == "VSInput") {
-            ParseArray(it, data.vsInput);
+            data.vsInput.Parse(it);
         } else if (it.key() == "cbuffers") {
-            ParseDecl(it, data.cbuffers);
+            data.cbuffers.Parse(it);
         } else if (it.key() == "textures2D") {
-            ParseArray(it, data.textures2D);
+            data.textures2D.Parse(it);
         } else if (it.key() == "source") {
             data.source = it.string_value();
         } else {
@@ -464,17 +371,17 @@ void MicroshaderLoader::ParsePixel(const ucl::Ucl& section, const std::string& s
         } else if (it.key() == "override") {
             data.isOverride = it.bool_value();
         } else if (it.key() == "include") {
-            ParseArray(it, data.includes);
+            data.includes.Parse(it);
         } else if (it.key() == "PSOutput") {
-            ParseDecl(it, data.psOutput);
+            data.psOutput.Parse(it);
         } else if (it.key() == "PSInput") {
-            ParseDeclWithSemantic(it, data.psInput);
+            data.psInput.Parse(it);
         } else if (it.key() == "PSLocal") {
-            ParseDecl(it, data.psLocal);
+            data.psLocal.Parse(it);
         } else if (it.key() == "cbuffers") {
-            ParseDecl(it, data.cbuffers);
+            data.cbuffers.Parse(it);
         } else if (it.key() == "textures2D") {
-            ParseArray(it, data.textures2D);
+            data.textures2D.Parse(it);
         } else if (it.key() == "source") {
             data.source = it.string_value();
         } else {
@@ -487,37 +394,19 @@ void MicroshaderLoader::ParseGeometry(const ucl::Ucl& section, const std::string
     data.isEmpty = false;
     for (const auto &it: section) {
         if (it.key() == "include") {
-            ParseArray(it, data.includes);
+            data.includes.Parse(it);
         } else if (it.key() == "GSOutput") {
-            ParseArray(it, data.gsOutput);
+            data.gsOutput.Parse(it);
         } else if (it.key() == "GSInput") {
-            ParseArray(it, data.gsInput);
+            data.gsInput.Parse(it);
         } else if (it.key() == "cbuffers") {
-            ParseDecl(it, data.cbuffers);
+            data.cbuffers.Parse(it);
         } else if (it.key() == "textures2D") {
-            ParseArray(it, data.textures2D);
+            data.textures2D.Parse(it);
         } else if (it.key() == "source") {
             data.source = it.string_value();
         } else {
             throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
         }
-    }
-}
-
-void MicroshaderLoader::ParseArray(const ucl::Ucl& section, std::vector<std::string>& data) {
-    for (const auto& it: section) {
-        data.push_back(it.string_value());
-    }
-}
-
-void MicroshaderLoader::ParseDecl(const ucl::Ucl& section, std::vector<Decl>& data) {
-    for (const auto& it: section) {
-        data.emplace_back(it.key(), it.string_value());
-    }
-}
-
-void MicroshaderLoader::ParseDeclWithSemantic(const ucl::Ucl& section, std::vector<DeclWithSemantic>& data) {
-    for (const auto& it: section) {
-        data.emplace_back(it.key(), it[0].string_value(), it[1].string_value());
     }
 }

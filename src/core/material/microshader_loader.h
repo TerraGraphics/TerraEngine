@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ucl++.h>
 #include "core/common/ctor.h"
+#include "core/material/microshader_parser.h"
 #include "core/material/material_builder_desc.h"
 
 
@@ -15,37 +15,15 @@ public:
     };
 
 private:
-    struct Decl {
-        Decl() = default;
-        Decl(const std::string& name, const std::string& type);
-        bool operator <(const Decl& other) const;
-        static void JoinUniq(std::vector<Decl>& arr, std::string& out);
-        static void JoinUniq(std::vector<Decl>& arr, std::string& out, const std::function<std::string (const Decl&)>& generator);
-
-        std::string name;
-        std::string type;
-    };
-
-    struct DeclWithSemantic {
-        DeclWithSemantic() = default;
-        DeclWithSemantic(const std::string& name, const std::string& type, const std::string& semantic);
-        bool operator <(const DeclWithSemantic& other) const;
-        static void JoinUniq(std::vector<DeclWithSemantic>& arr, std::string& out, bool removeDuplicates);
-
-        std::string name;
-        std::string type;
-        std::string semantic;
-    };
-
     struct VertexData {
         bool isEmpty = true;
         std::string entrypoint;
         int64_t order = 0;
         bool isOverride = false;
-        std::vector<std::string> includes;
-        std::vector<std::string> vsInput;
-        std::vector<std::string> textures2D;
-        std::vector<Decl> cbuffers;
+        msh::Items includes;
+        msh::Items vsInput;
+        msh::Items textures2D;
+        msh::Decls cbuffers;
         std::string source;
     };
 
@@ -57,24 +35,24 @@ private:
         std::string entrypoint;
         int64_t order = 0;
         bool isOverride = false;
-        std::vector<std::string> includes;
-        std::vector<std::string> textures2D;
-        std::vector<DeclWithSemantic> psInput;
-        std::vector<Decl> psOutput;
-        std::vector<Decl> psLocal;
-        std::vector<Decl> cbuffers;
+        msh::Items includes;
+        msh::Items textures2D;
+        msh::SemanticDecls psInput;
+        msh::Decls psOutput;
+        msh::Decls psLocal;
+        msh::Decls cbuffers;
         std::string source;
     };
 
     struct GeometryData {
-        std::string Generate(const std::vector<DeclWithSemantic>& psInput);
+        std::string Generate(const msh::SemanticDecls& psInput);
 
         bool isEmpty = true;
-        std::vector<std::string> includes;
-        std::vector<std::string> gsOutput;
-        std::vector<std::string> gsInput;
-        std::vector<std::string> textures2D;
-        std::vector<Decl> cbuffers;
+        msh::Items includes;
+        msh::Items gsOutput;
+        msh::Items gsInput;
+        msh::Items textures2D;
+        msh::Decls cbuffers;
         std::string source;
     };
 
@@ -106,9 +84,6 @@ private:
     void ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data);
     void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
     void ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data);
-    void ParseArray(const ucl::Ucl& section, std::vector<std::string>& data);
-    void ParseDecl(const ucl::Ucl& section, std::vector<Decl>& data);
-    void ParseDeclWithSemantic(const ucl::Ucl& section, std::vector<DeclWithSemantic>& data);
 
 private:
     MaterialBuilderDesc m_desc;
