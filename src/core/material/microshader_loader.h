@@ -26,16 +26,6 @@ private:
         std::string source;
     };
 
-    struct GeometryData {
-        bool isEmpty = true;
-        msh::Items includes;
-        msh::Items gsOutput;
-        msh::Items gsInput;
-        msh::Items textures2D;
-        msh::Decls cbuffers;
-        std::string source;
-    };
-
     struct Microshader {
         bool isEmpty = true;
         bool isRoot = false;
@@ -46,7 +36,7 @@ private:
         // VSOutput => VertexData
         std::map<std::string, VertexData> vs;
         msh::PixelMicroshader ps;
-        GeometryData gs;
+        msh::GeometryMicroshader gs;
     };
 
 public:
@@ -62,8 +52,6 @@ private:
     void ParseMicroshader(const ucl::Ucl& section, Microshader& ms);
     void ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data);
     void ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data);
-    // void ParsePixel(const ucl::Ucl& section, const std::string& sectionName, PixelData& data);
-    void ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data);
 
 private:
     MaterialBuilderDesc m_desc;

@@ -100,11 +100,35 @@ public:
     ~PixelShader() = default;
 
     void Append(const PixelMicroshader* value);
-    std::string Generate(const MaterialBuilderDesc& desc);
+    void Generate(const MaterialBuilderDesc& desc, std::string& out);
 
 private:
     bool m_isOverrideFound = false;
     std::vector<const PixelMicroshader*> m_data;
+};
+
+struct GeometryMicroshader {
+    void Parse(const ucl::Ucl& section);
+
+    bool isEmpty = true;
+    Items includes;
+    Items gsOutput;
+    Items gsInput;
+    Items textures2D;
+    Decls cbuffers;
+    std::string source;
+};
+
+class GeometryShader {
+public:
+    GeometryShader() = default;
+    ~GeometryShader() = default;
+
+    void Append(const GeometryMicroshader* value);
+    void Generate(const MaterialBuilderDesc& desc, std::string& out);
+
+private:
+    GeometryMicroshader m_data;
 };
 
 }

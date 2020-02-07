@@ -231,7 +231,7 @@ void PixelShader::Append(const PixelMicroshader* value) {
     }
 }
 
-std::string PixelShader::Generate(const MaterialBuilderDesc& desc) {
+void PixelShader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
     if (m_data.empty()) {
         throw EngineError("not found pixel microshaders");
     }
@@ -246,12 +246,44 @@ std::string PixelShader::Generate(const MaterialBuilderDesc& desc) {
         base.Append(ps);
     }
 
-
-    std::string out;
     base.Generate(desc, out);
     out.append("void main(in PSInput psIn, PSOutput psOut) {\nPSLocal psLocal;\n");
     out.append(entrypointsCall);
     out.append("}");
+}
 
-    return out;
+void GeometryMicroshader::Parse(const ucl::Ucl& section) {
+    isEmpty = false;
+    for (const auto &it: section) {
+        if (it.key() == "include") {
+            includes.Parse(it);
+        } else if (it.key() == "GSOutput") {
+            gsOutput.Parse(it);
+        } else if (it.key() == "GSInput") {
+            gsInput.Parse(it);
+        } else if (it.key() == "cbuffers") {
+            cbuffers.Parse(it);
+        } else if (it.key() == "textures2D") {
+            textures2D.Parse(it);
+        } else if (it.key() == "source") {
+            source = it.string_value();
+        } else {
+            throw EngineError("unknown section: {}.{} with data: {}", section.key(), it.key(), it.dump());
+        }
+    }
+}
+
+void GeometryShader::Append(const GeometryMicroshader* value) {
+    if (value->isEmpty) {
+        return;
+    }
+
+    if (!m_data.isEmpty) {
+        throw EngineError("found double geometry shader");
+    }
+
+    m_data = *value;
+}
+
+void GeometryShader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
 }

@@ -152,50 +152,43 @@ uint64_t MicroshaderLoader::GetMask(const std::string& name) const {
 MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
     Source src;
 
-    GeometryData gs;
-    bool psIsOverride = false;
     msh::PixelShader ps;
-    std::vector<const Microshader*> msArr;
+    msh::GeometryShader gs;
     bool groups[sizeof(decltype(mask)) << 3] = {false};
 
     try {
         ps.Append(&m_root.ps);
-        msArr.push_back(&m_root);
+        gs.Append(&m_root.gs);
         for (uint64_t id=0; id!=64; ++id) {
-            if ((mask & (uint64_t(1) << id)) != 0) {
+            if ((mask & (uint64_t(1) << id)) == 0) {
+                continue;
+            }
             if (id >= m_microshaders.size()) {
                 throw EngineError("id = {} not exists", id);
-                }
-                const auto& ms = m_microshaders[id];
-                if (groups[ms.groupID]) {
-                    throw EngineError("group {} is duplicated", id);
-                }
-                groups[ms.groupID] = true;
-
-                ps.Append(&ms.ps);
-                if (!ms.gs.isEmpty) {
-                    if (!gs.isEmpty) {
-                        throw EngineError("found double geometry shader");
-                    }
-                    gs = ms.gs;
-                }
-
-                if (!src.name.empty()) {
-                    src.name += ".";
-                }
-                src.name += ms.name;
-                msArr.push_back(&ms);
             }
+            const auto& ms = m_microshaders[id];
+            if (groups[ms.groupID]) {
+                throw EngineError("group {} is duplicated", id);
+            }
+            groups[ms.groupID] = true;
+
+            ps.Append(&ms.ps);
+            gs.Append(&ms.gs);
+
+            if (!src.name.empty()) {
+                src.name += ".";
+            }
+            src.name += ms.name;
         }
 
-        src.ps = ps.Generate(m_desc);
+        ps.Generate(m_desc, src.ps);
+        gs.Generate(m_desc, src.gs);
     } catch(const std::exception& e) {
         throw EngineError("invalid microshaders mask {} for get sources, {}", mask, e.what());
     }
 
     return src;
 }
-
 
 bool MicroshaderLoader::ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section) {
     if (!std::filesystem::is_regular_file(filepath)) {
@@ -249,7 +242,7 @@ void MicroshaderLoader::ParseMicroshader(const ucl::Ucl& section, Microshader& m
         } else if (it.key() == "pixel") {
             ms.ps.Parse(it);
         } else if (it.key() == "geometry") {
-            ParseGeometry(it, it.key(), ms.gs);
+            ms.gs.Parse(it);
         } else {
             throw EngineError("unknown section: {} with data: {}", it.key(), it.dump());
         }
@@ -280,27 +273,6 @@ void MicroshaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::stri
             data.includes.Parse(it);
         } else if (it.key() == "VSInput") {
             data.vsInput.Parse(it);
-        } else if (it.key() == "cbuffers") {
-            data.cbuffers.Parse(it);
-        } else if (it.key() == "textures2D") {
-            data.textures2D.Parse(it);
-        } else if (it.key() == "source") {
-            data.source = it.string_value();
-        } else {
-            throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
-        }
-    }
-}
-
-void MicroshaderLoader::ParseGeometry(const ucl::Ucl& section, const std::string& sectionName, GeometryData& data) {
-    data.isEmpty = false;
-    for (const auto &it: section) {
-        if (it.key() == "include") {
-            data.includes.Parse(it);
-        } else if (it.key() == "GSOutput") {
-            data.gsOutput.Parse(it);
-        } else if (it.key() == "GSInput") {
-            data.gsInput.Parse(it);
         } else if (it.key() == "cbuffers") {
             data.cbuffers.Parse(it);
         } else if (it.key() == "textures2D") {
