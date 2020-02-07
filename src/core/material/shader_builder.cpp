@@ -29,7 +29,16 @@ void ShaderBuilder::Create(const MaterialBuilderDesc& desc) {
     m_engineFactory->CreateDefaultShaderSourceStreamFactory(m_desc.shadersDirOld.c_str(), &m_shaderSourceFactory);
 }
 
-ShaderBuilder::Shaders ShaderBuilder::Build(const MicroshaderLoaderOld::Source& source) {
+ShaderBuilder::Shaders ShaderBuilder::Build(const MicroshaderLoader::Source& source) {
+    Shaders result;
+    result.vs = BuildSource(CacheKey{dg::SHADER_TYPE_VERTEX, source.vs}, source.name);
+    result.ps = BuildSource(CacheKey{dg::SHADER_TYPE_PIXEL, source.ps}, source.name);
+    result.gs = BuildSource(CacheKey{dg::SHADER_TYPE_GEOMETRY, source.gs}, source.name);
+
+    return  result;
+}
+
+ShaderBuilder::Shaders ShaderBuilder::BuildOld(const MicroshaderLoaderOld::Source& source) {
     Shaders result;
     result.vs = BuildSource(CacheKey{dg::SHADER_TYPE_VERTEX, source.vs}, source.name);
     result.ps = BuildSource(CacheKey{dg::SHADER_TYPE_PIXEL, source.ps}, source.name);

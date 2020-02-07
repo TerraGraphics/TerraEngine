@@ -158,9 +158,10 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
 MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc) {
     auto src = m_microShaderLoader->GetSources(mask);
     auto srcOld = m_microShaderLoaderOld->GetSources(mask);
-    auto shaders = m_shaderBuilder->Build(srcOld);
+    auto shaders = m_shaderBuilder->Build(src);
+    auto shadersOld = m_shaderBuilder->BuildOld(srcOld);
 
-    return Builder(this, shaders.vs, shaders.ps, shaders.gs, layoutDesc);
+    return Builder(this, shadersOld.vs, shadersOld.ps, shadersOld.gs, layoutDesc);
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
