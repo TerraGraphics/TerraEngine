@@ -86,7 +86,6 @@ vertex {
 position {
     entrypoint = "GrassPosition"
     order = 100
-    override = true
     VSInput = ["position", "WorldRow0", "WorldRow1", "WorldRow2", "WorldRow3"]
     source = <<SHADER
 void GrassPosition(in VSInput vsIn, inout VSOutput vsOut) {

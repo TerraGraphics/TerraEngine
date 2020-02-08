@@ -25,9 +25,6 @@
           "order": {
             "type": "integer"
           },
-          "override": {
-            "type": "boolean"
-          },
           "include": {
             "type": "array",
             "uniqueItems": true,

@@ -42,9 +42,8 @@ position {
     VSInput = ["position", "WorldRow0", "WorldRow1", "WorldRow2", "WorldRow3"]
     source = <<SHADER
 void RootPosition(in VSInput vsIn, inout VSOutput vsOut) {
-    // float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
-    // vsOut.position = mul(float4(vsIn.position,1.0), matWorld);
-    vsOut.position = vsIn.position;
+    float4x4 matWorld = MatrixFromRows(vsIn.WorldRow0, vsIn.WorldRow1, vsIn.WorldRow2, vsIn.WorldRow3);
+    vsOut.position = mul(float4(vsIn.position,1.0), matWorld).xyz;
 }
 SHADER
 }

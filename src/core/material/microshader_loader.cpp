@@ -153,12 +153,14 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
     Source src;
 
     msh::PixelShader ps;
+    msh::VertexShader vs;
     msh::GeometryShader gs;
     bool groups[sizeof(decltype(mask)) << 3] = {false};
 
     try {
         ps.Append(&m_root.ps);
-        gs.Append(&m_root.gs);
+        vs.Append(m_root.vs);
+        gs.Append(m_root.gs);
         for (uint64_t id=0; id!=64; ++id) {
             if ((mask & (uint64_t(1) << id)) == 0) {
                 continue;
@@ -173,7 +175,8 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
             groups[ms.groupID] = true;
 
             ps.Append(&ms.ps);
-            gs.Append(&ms.gs);
+            vs.Append(ms.vs);
+            gs.Append(ms.gs);
 
             if (!src.name.empty()) {
                 src.name += ".";
@@ -182,7 +185,12 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
         }
 
         ps.Generate(m_desc, src.ps);
-        gs.Generate(m_desc, ps.GetInput(), src.gs);
+        if (gs.IsEmpty()) {
+            vs.Generate(m_desc, ps.GetInput(), src.vs);
+        } else {
+            gs.Generate(m_desc, ps.GetInput(), src.gs);
+            vs.Generate(m_desc, gs.GetInput(), src.vs);
+        }
     } catch(const std::exception& e) {
         throw EngineError("invalid microshaders mask {} for get sources, {}", mask, e.what());
     }

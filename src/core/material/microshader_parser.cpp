@@ -254,14 +254,14 @@ void PixelMicroshader::Parse(const ucl::Ucl& section) {
     }
 }
 
-void PixelMicroshader::Append(const PixelMicroshader* other) {
-    includes.Append(other->includes);
-    textures2D.Append(other->textures2D);
-    psInput.Append(other->psInput);
-    psOutput.Append(other->psOutput);
-    psLocal.Append(other->psLocal);
-    cbuffers.Append(other->cbuffers);
-    source.append(other->source + "\n");
+void PixelMicroshader::Append(const PixelMicroshader* value) {
+    includes.Append(value->includes);
+    textures2D.Append(value->textures2D);
+    psInput.Append(value->psInput);
+    psOutput.Append(value->psOutput);
+    psLocal.Append(value->psLocal);
+    cbuffers.Append(value->cbuffers);
+    source.append(value->source + "\n");
 }
 
 void PixelMicroshader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
@@ -342,8 +342,8 @@ void GeometryMicroshader::Generate(const MaterialBuilderDesc& desc, SemanticDecl
     out.append(source);
 }
 
-void GeometryShader::Append(const GeometryMicroshader* value) {
-    if (value->isEmpty) {
+void GeometryShader::Append(const GeometryMicroshader& value) {
+    if (value.isEmpty) {
         return;
     }
 
@@ -351,7 +351,7 @@ void GeometryShader::Append(const GeometryMicroshader* value) {
         throw EngineError("found double geometry shader");
     }
 
-    m_data = *value;
+    m_data = value;
 }
 
 void GeometryShader::Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out) {
@@ -379,8 +379,6 @@ void VertexMicroshader::Parse(const ucl::Ucl& section, const std::string& baseNa
             }
         } else if (it.key() == "order") {
             order = it.int_value();
-        } else if (it.key() == "override") {
-            isOverride = it.bool_value();
         } else if (it.key() == "include") {
             includes.Parse(it);
         } else if (it.key() == "VSInput") {
@@ -395,4 +393,67 @@ void VertexMicroshader::Parse(const ucl::Ucl& section, const std::string& baseNa
             throw EngineError("unknown section: {}.{}.{} with data: {}", baseName, section.key(), it.key(), it.dump());
         }
     }
+}
+
+void VertexMicroshader::Append(const VertexMicroshader* value) {
+    includes.Append(value->includes);
+    vsInput.Append(value->vsInput);
+    textures2D.Append(value->textures2D);
+    cbuffers.Append(value->cbuffers);
+    source.append(value->source + "\n");
+}
+
+void VertexMicroshader::Generate(const MaterialBuilderDesc& desc, SemanticDecls output, std::string& out) {
+    includes.GenerateIncludes(out);
+    output.GenerateStruct("VSOutput", out);
+    // TODO: get from layout
+    // vsInput.GenerateStruct("VSInput", out);
+    cbuffers.GenerateCbuffer(desc.cbufferNameGenerator, out);
+    textures2D.GenerateTextures(desc.samplerSuffix, out);
+    out.append(source);
+}
+
+void VertexShader::Append(const std::map<std::string, VertexMicroshader>& value) {
+    for (const auto& [key, vs]: value) {
+        if (vs.isEmpty) {
+            continue;
+        }
+        const auto it = m_data.find(key);
+        if (it == m_data.cend()) {
+            m_data[key] = vs;
+        } else if (it->second.order < vs.order) {
+            m_data[key] = vs;
+        }
+    }
+}
+
+void VertexShader::Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out) {
+    std::vector<const VertexMicroshader*> gendata;
+    for (const auto& item : output.GetData()) {
+        const auto it = m_data.find(item.name);
+        if (it == m_data.cend()) {
+            throw EngineError("vertex and pixel or geometric shaders are not data-compatible");
+        }
+        gendata.push_back(&it->second);
+    }
+
+    if (gendata.empty()) {
+        throw EngineError("not found vertex microshaders");
+    }
+
+    std::sort(gendata.begin(), gendata.end(),
+        [](const VertexMicroshader* a, const VertexMicroshader* b) -> bool { return a->order > b->order; });
+
+
+    VertexMicroshader base;
+    for (const auto* vs: gendata) {
+        base.Append(vs);
+    }
+
+    base.Generate(desc, output, out);
+    out.append("void main(in VSInput vsIn, VSOutput vsOut) {\n");
+    for (const auto* vs: gendata) {
+        out.append("    " + vs->entrypoint + "(vsIn, vsOut);\n");
+    }
+    out.append("}");
 }

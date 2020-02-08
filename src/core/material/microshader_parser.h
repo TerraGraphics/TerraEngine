@@ -72,6 +72,8 @@ public:
     SemanticDecls() = default;
     ~SemanticDecls() = default;
 
+    const std::vector<SemanticDecl> GetData() const { return m_data; }
+
     void Parse(const ucl::Ucl& section);
     void Append(const SemanticDecls& other);
     void Generate(const std::function<void (const SemanticDecl&, std::string&)>& func, std::string& out);
@@ -136,8 +138,9 @@ public:
     ~GeometryShader() = default;
 
     const SemanticDecls& GetInput() const { return m_input; }
+    bool IsEmpty() const { return m_data.isEmpty; }
 
-    void Append(const GeometryMicroshader* value);
+    void Append(const GeometryMicroshader& value);
     void Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out);
 
 private:
@@ -147,16 +150,30 @@ private:
 
 struct VertexMicroshader {
     void Parse(const ucl::Ucl& section, const std::string& baseName);
+    void Append(const VertexMicroshader* value);
+    void Generate(const MaterialBuilderDesc& desc, SemanticDecls output, std::string& out);
 
     bool isEmpty = true;
     std::string entrypoint;
     int64_t order = 0;
-    bool isOverride = false;
     Items includes;
     Items vsInput;
     Items textures2D;
     Decls cbuffers;
     std::string source;
+};
+
+class VertexShader {
+public:
+    VertexShader() = default;
+    ~VertexShader() = default;
+
+    void Append(const std::map<std::string, VertexMicroshader>& value);
+    void Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out);
+
+private:
+    // VSOutput => VertexMicroshader
+    std::map<std::string, VertexMicroshader> m_data;
 };
 
 }
