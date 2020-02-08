@@ -169,12 +169,15 @@
           }
         },
         "GSInput": {
-          "type": "array",
-          "uniqueItems": true,
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "minLength": 1
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "PSOutput": {

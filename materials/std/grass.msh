@@ -3,7 +3,9 @@ group = "GRASS"
 geometry {
     include = ["structures.fxh", "math.fxh"]
     GSOutput = ["svposition", "normal", "uv"]
-    GSInput = ["position"]
+    GSInput {
+        position: [float3, POSITION]
+    }
     cbuffers {
         camera: ShaderCamera
     }
@@ -26,55 +28,55 @@ void main(point GSInput gsIn[1], inout TriangleStream<GSOutput> gsOutStream) {
 
     float3 posNoX = float3(0.0, 0.0, 1.0);
     // 0
-    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4( halfWidth, posNoX.xyz));
     gsOut.uv = float2(1, 1);
     gsOutStream.Append(gsOut);
 
     // 1
-    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4(-halfWidth, posNoX.xyz));
     gsOut.uv.x = 0.0;
     gsOutStream.Append(gsOut);
 
     posNoX.x += heightDt;
     posNoX.y = halfWidth * 1.0;
     // 2
-    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4( halfWidth, posNoX.xyz));
     gsOut.uv = float2(1, 0.75);
     gsOutStream.Append(gsOut);
 
     // 3
-    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4(-halfWidth, posNoX.xyz));
     gsOut.uv.x = 0.0;
     gsOutStream.Append(gsOut);
 
     posNoX.x += heightDt;
     posNoX.y = halfWidth * 3.0;
     // 4
-    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4( halfWidth, posNoX.xyz));
     gsOut.uv = float2(1, 0.5);
     gsOutStream.Append(gsOut);
 
     // 5
-    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4(-halfWidth, posNoX.xyz));
     gsOut.uv.x = 0.0;
     gsOutStream.Append(gsOut);
 
     posNoX.x += heightDt;
     posNoX.y = halfWidth * 6.0;
     // 6
-    gsOut.position = mul(matFull, float4( halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4( halfWidth, posNoX.xyz));
     gsOut.uv = float2(1, 0.25);
     gsOutStream.Append(gsOut);
 
     // 7
-    gsOut.position = mul(matFull, float4(-halfWidth, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4(-halfWidth, posNoX.xyz));
     gsOut.uv.x = 0.0;
     gsOutStream.Append(gsOut);
 
     posNoX.x += heightDt;
     posNoX.y = halfWidth * 10.0;
     // 8
-    gsOut.position = mul(matFull, float4(0.0, posNoX.xyz));
+    gsOut.svposition = mul(matFull, float4(0.0, posNoX.xyz));
     gsOut.uv = float2(0.5, 0.0);
     gsOutStream.Append(gsOut);
 }

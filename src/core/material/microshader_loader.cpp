@@ -182,7 +182,7 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
         }
 
         ps.Generate(m_desc, src.ps);
-        gs.Generate(m_desc, src.gs);
+        gs.Generate(m_desc, ps.GetInput(), src.gs);
     } catch(const std::exception& e) {
         throw EngineError("invalid microshaders mask {} for get sources, {}", mask, e.what());
     }

@@ -14,14 +14,19 @@ public:
     Items() = default;
     ~Items() = default;
 
+    const std::vector<Item> GetData() const { return m_data; }
+    bool IsPreProcessed() const { return m_isPreProcessed; }
+
     void Parse(const ucl::Ucl& section);
     void Append(const Items& other);
     void Generate(const std::function<void (const Item&, std::string&)>& func, std::string& out);
+    void GenerateNone();
     void GenerateIncludes(std::string& out);
     void GenerateTextures(const std::string& samplerSuffix, std::string& out);
 
 private:
-    std::vector<std::string> m_data;
+    bool m_isPreProcessed = false;
+    std::vector<Item> m_data;
 };
 
 struct Decl {
@@ -71,8 +76,10 @@ public:
     void Append(const SemanticDecls& other);
     void Generate(const std::function<void (const SemanticDecl&, std::string&)>& func, std::string& out);
     void GenerateStruct(const std::string& name, std::string& out);
+    bool IsEqual(const Items& value) const;
 
 private:
+    bool m_isPreProcessed = false;
     std::vector<SemanticDecl> m_data;
 };
 
@@ -99,21 +106,25 @@ public:
     PixelShader() = default;
     ~PixelShader() = default;
 
+    const SemanticDecls& GetInput() const { return m_input; }
+
     void Append(const PixelMicroshader* value);
     void Generate(const MaterialBuilderDesc& desc, std::string& out);
 
 private:
     bool m_isOverrideFound = false;
+    SemanticDecls m_input;
     std::vector<const PixelMicroshader*> m_data;
 };
 
 struct GeometryMicroshader {
     void Parse(const ucl::Ucl& section);
+    void Generate(const MaterialBuilderDesc& desc, SemanticDecls output, std::string& out);
 
     bool isEmpty = true;
     Items includes;
     Items gsOutput;
-    Items gsInput;
+    SemanticDecls gsInput;
     Items textures2D;
     Decls cbuffers;
     std::string source;
@@ -124,10 +135,13 @@ public:
     GeometryShader() = default;
     ~GeometryShader() = default;
 
+    const SemanticDecls& GetInput() const { return m_input; }
+
     void Append(const GeometryMicroshader* value);
-    void Generate(const MaterialBuilderDesc& desc, std::string& out);
+    void Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out);
 
 private:
+    SemanticDecls m_input;
     GeometryMicroshader m_data;
 };
 
