@@ -6,6 +6,20 @@
 
 using namespace msh;
 
+std::string Items::JoinNames(const std::string& sep) const {
+    std::string result;
+    bool isFirst = true;
+    for (const auto& it: m_data) {
+        if (!isFirst) {
+            result.append(sep);
+        }
+        isFirst = false;
+        result.append(it);
+    }
+
+    return result;
+}
+
 void Items::SetData(std::vector<Item>&& data) {
     m_isPreProcessed = false;
     m_data.swap(data);
@@ -136,9 +150,27 @@ void SemanticDecl::Swap(SemanticDecl& other) {
     std::swap(semantic, other.semantic);
 }
 
+std::string SemanticDecls::JoinNames(const std::string& sep) const {
+    std::string result;
+    bool isFirst = true;
+    for (const auto& it: m_data) {
+        if (!isFirst) {
+            result.append(sep);
+        }
+        isFirst = false;
+        result.append(it.name);
+    }
+
+    return result;
+}
+
 void SemanticDecls::SetData(std::vector<SemanticDecl>&& data) {
     m_isPreProcessed = false;
     m_data.swap(data);
+}
+
+void SemanticDecls::SetIsPreProcessed(bool value) {
+    m_isPreProcessed = value;
 }
 
 void SemanticDecls::Append(const SemanticDecls& other) {

@@ -14,8 +14,9 @@ public:
     Items() = default;
     ~Items() = default;
 
-    const std::vector<Item> GetData() const { return m_data; }
     bool IsPreProcessed() const { return m_isPreProcessed; }
+    const std::vector<Item> GetData() const { return m_data; }
+    std::string JoinNames(const std::string& sep) const;
 
     void SetData(std::vector<Item>&& data);
     void Append(const Items& other);
@@ -73,8 +74,10 @@ public:
     ~SemanticDecls() = default;
 
     const std::vector<SemanticDecl> GetData() const { return m_data; }
+    std::string JoinNames(const std::string& sep) const;
 
     void SetData(std::vector<SemanticDecl>&& data);
+    void SetIsPreProcessed(bool value);
     void Append(const SemanticDecls& other);
     void Generate(const std::function<void (const SemanticDecl&, std::string&)>& func, std::string& out);
     void GenerateStruct(const std::string& name, std::string& out);

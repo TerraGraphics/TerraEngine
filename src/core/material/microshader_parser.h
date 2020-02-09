@@ -73,7 +73,7 @@ private:
 struct VertexMicroshader {
     void Parse(const ucl::Ucl& section, const std::string& baseName);
     void Append(const VertexMicroshader* value);
-    void Generate(const MaterialBuilderDesc& desc, SemanticDecls output, std::string& out);
+    void Generate(const MaterialBuilderDesc& desc, SemanticDecls input, SemanticDecls output, std::string& out);
 
     bool isEmpty = true;
     std::string entrypoint;
@@ -91,7 +91,7 @@ public:
     ~VertexShader() = default;
 
     void Append(const std::map<std::string, VertexMicroshader>& value);
-    void Generate(const MaterialBuilderDesc& desc, const msh::SemanticDecls& vertexInput, const SemanticDecls& output, std::string& out);
+    void Generate(const MaterialBuilderDesc& desc, const SemanticDecls& input, const SemanticDecls& output, std::string& out);
 
 private:
     // VSOutput => VertexMicroshader

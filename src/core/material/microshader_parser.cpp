@@ -104,7 +104,7 @@ void PixelShader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
     }
 
     std::sort(m_data.begin(), m_data.end(),
-        [](const PixelMicroshader* a, const PixelMicroshader* b) -> bool { return a->order > b->order; });
+        [](const PixelMicroshader* a, const PixelMicroshader* b) -> bool { return a->order < b->order; });
 
     PixelMicroshader base;
     for (const auto* ps: m_data) {
@@ -112,7 +112,7 @@ void PixelShader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
     }
 
     base.Generate(desc, out);
-    out.append("void main(in PSInput psIn, PSOutput psOut) {\nPSLocal psLocal;\n");
+    out.append("void main(in PSInput psIn, out PSOutput psOut) {\n    PSLocal psLocal;\n");
     for (const auto* ps: m_data) {
         out.append("    " + ps->entrypoint + "(psIn, psLocal, psOut);\n");
     }
@@ -212,11 +212,11 @@ void VertexMicroshader::Append(const VertexMicroshader* value) {
     source.append(value->source + "\n");
 }
 
-void VertexMicroshader::Generate(const MaterialBuilderDesc& desc, SemanticDecls output, std::string& out) {
+void VertexMicroshader::Generate(const MaterialBuilderDesc& desc, SemanticDecls input, SemanticDecls output, std::string& out) {
     includes.GenerateIncludes(out);
     output.GenerateStruct("VSOutput", out);
-    // TODO: get from layout
-    // vsInput.GenerateStruct("VSInput", out);
+    input.SetIsPreProcessed(true);
+    input.GenerateStruct("VSInput", out);
     cbuffers.GenerateCbuffer(desc.cbufferNameGenerator, out);
     textures2D.GenerateTextures(desc.samplerSuffix, out);
     out.append(source);
@@ -236,7 +236,7 @@ void VertexShader::Append(const std::map<std::string, VertexMicroshader>& value)
     }
 }
 
-void VertexShader::Generate(const MaterialBuilderDesc& desc, const msh::SemanticDecls& vertexInput, const SemanticDecls& output, std::string& out) {
+void VertexShader::Generate(const MaterialBuilderDesc& desc, const SemanticDecls& input, const SemanticDecls& output, std::string& out) {
     std::vector<const VertexMicroshader*> gendata;
     for (const auto& item : output.GetData()) {
         const auto it = m_data.find(item.name);
@@ -251,16 +251,29 @@ void VertexShader::Generate(const MaterialBuilderDesc& desc, const msh::Semantic
     }
 
     std::sort(gendata.begin(), gendata.end(),
-        [](const VertexMicroshader* a, const VertexMicroshader* b) -> bool { return a->order > b->order; });
-
+        [](const VertexMicroshader* a, const VertexMicroshader* b) -> bool { return a->order < b->order; });
 
     VertexMicroshader base;
     for (const auto* vs: gendata) {
         base.Append(vs);
     }
 
-    base.Generate(desc, output, out);
-    out.append("void main(in VSInput vsIn, VSOutput vsOut) {\n");
+    for (const auto& name : base.vsInput.GetData()) {
+        bool isFound = false;
+        for (const auto& item : input.GetData()) {
+            if (name == item.name) {
+                isFound = true;
+                break;
+            }
+        }
+        if (!isFound) {
+            throw EngineError("vertex shaders input ({}) and layoutInput ({}) are not data-compatible",
+                base.vsInput.JoinNames(", "), input.JoinNames(", "));
+        }
+    }
+
+    base.Generate(desc, input, output, out);
+    out.append("void main(in VSInput vsIn, out VSOutput vsOut) {\n");
     for (const auto* vs: gendata) {
         out.append("    " + vs->entrypoint + "(vsIn, vsOut);\n");
     }

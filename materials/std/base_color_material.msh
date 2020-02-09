@@ -3,6 +3,7 @@ group = "BASE_COLOR_VALUE"
 pixel {
     entrypoint = "BaseColorCalc"
     order = 10
+    include = ["structures.fxh"]
     PSOutput {
         color: [float4, SV_TARGET0]
     }
