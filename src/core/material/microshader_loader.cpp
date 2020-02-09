@@ -238,49 +238,17 @@ void MicroshaderLoader::ParseMicroshader(const ucl::Ucl& section, Microshader& m
         } else if (it.key() == "root") {
             ms.isRoot = it.bool_value();
         } else if (it.key() == "vertex") {
-            ParseVertex(it, it.key(), ms.vs);
+            for (const auto &itVertex: it) {
+                msh::VertexMicroshader vs;
+                vs.Parse(itVertex, it.key());
+                ms.vs[itVertex.key()] = vs;
+            }
         } else if (it.key() == "pixel") {
             ms.ps.Parse(it);
         } else if (it.key() == "geometry") {
             ms.gs.Parse(it);
         } else {
             throw EngineError("unknown section: {} with data: {}", it.key(), it.dump());
-        }
-    }
-}
-
-void MicroshaderLoader::ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data) {
-    for (const auto &it: section) {
-        VertexData vs;
-        ParseVertexItem(it, sectionName + "." + it.key(), vs);
-        data[it.key()] = vs;
-    }
-}
-
-void MicroshaderLoader::ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data) {
-    data.isEmpty = false;
-    for (const auto &it: section) {
-        if (it.key() == "entrypoint") {
-            data.entrypoint = it.string_value();
-            if (data.entrypoint == "main") {
-                throw EngineError("entrypoints with the name 'main' is disabled");
-            }
-        } else if (it.key() == "order") {
-            data.order = it.int_value();
-        } else if (it.key() == "override") {
-            data.isOverride = it.bool_value();
-        } else if (it.key() == "include") {
-            data.includes.Parse(it);
-        } else if (it.key() == "VSInput") {
-            data.vsInput.Parse(it);
-        } else if (it.key() == "cbuffers") {
-            data.cbuffers.Parse(it);
-        } else if (it.key() == "textures2D") {
-            data.textures2D.Parse(it);
-        } else if (it.key() == "source") {
-            data.source = it.string_value();
-        } else {
-            throw EngineError("unknown section: {}.{} with data: {}", sectionName, it.key(), it.dump());
         }
     }
 }

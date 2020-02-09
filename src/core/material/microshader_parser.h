@@ -145,4 +145,18 @@ private:
     GeometryMicroshader m_data;
 };
 
+struct VertexMicroshader {
+    void Parse(const ucl::Ucl& section, const std::string& baseName);
+
+    bool isEmpty = true;
+    std::string entrypoint;
+    int64_t order = 0;
+    bool isOverride = false;
+    Items includes;
+    Items vsInput;
+    Items textures2D;
+    Decls cbuffers;
+    std::string source;
+};
+
 }

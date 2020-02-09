@@ -14,18 +14,6 @@ public:
     };
 
 private:
-    struct VertexData {
-        bool isEmpty = true;
-        std::string entrypoint;
-        int64_t order = 0;
-        bool isOverride = false;
-        msh::Items includes;
-        msh::Items vsInput;
-        msh::Items textures2D;
-        msh::Decls cbuffers;
-        std::string source;
-    };
-
     struct Microshader {
         bool isEmpty = true;
         bool isRoot = false;
@@ -33,8 +21,8 @@ private:
         std::string group;
         uint32_t groupID = 0;
 
-        // VSOutput => VertexData
-        std::map<std::string, VertexData> vs;
+        // VSOutput => VertexMicroshader
+        std::map<std::string, msh::VertexMicroshader> vs;
         msh::PixelMicroshader ps;
         msh::GeometryMicroshader gs;
     };
@@ -50,8 +38,6 @@ public:
 private:
     bool ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section);
     void ParseMicroshader(const ucl::Ucl& section, Microshader& ms);
-    void ParseVertex(const ucl::Ucl& section, const std::string& sectionName, std::map<std::string, VertexData>& data);
-    void ParseVertexItem(const ucl::Ucl& section, const std::string& sectionName, VertexData& data);
 
 private:
     MaterialBuilderDesc m_desc;

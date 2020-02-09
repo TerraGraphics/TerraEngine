@@ -368,3 +368,31 @@ void GeometryShader::Generate(const MaterialBuilderDesc& desc, const SemanticDec
 
     m_input = m_data.gsInput;
 }
+
+void VertexMicroshader::Parse(const ucl::Ucl& section, const std::string& baseName) {
+    isEmpty = false;
+    for (const auto &it: section) {
+        if (it.key() == "entrypoint") {
+            entrypoint = it.string_value();
+            if (entrypoint == "main") {
+                throw EngineError("entrypoints with the name 'main' is disabled");
+            }
+        } else if (it.key() == "order") {
+            order = it.int_value();
+        } else if (it.key() == "override") {
+            isOverride = it.bool_value();
+        } else if (it.key() == "include") {
+            includes.Parse(it);
+        } else if (it.key() == "VSInput") {
+            vsInput.Parse(it);
+        } else if (it.key() == "cbuffers") {
+            cbuffers.Parse(it);
+        } else if (it.key() == "textures2D") {
+            textures2D.Parse(it);
+        } else if (it.key() == "source") {
+            source = it.string_value();
+        } else {
+            throw EngineError("unknown section: {}.{}.{} with data: {}", baseName, section.key(), it.key(), it.dump());
+        }
+    }
+}
