@@ -1,8 +1,6 @@
 #include "core/material/material_builder.h"
 
-#include <fmt/format.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 #include "core/material/shader_builder.h"
@@ -122,11 +120,16 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_staticVarsStorage(new StaticVarsStorage(device, context))
     , m_microShaderLoader(new MicroshaderLoader())
-    , m_microShaderLoaderOld(new MicroshaderLoaderOld()) {
+    , m_microShaderLoaderOld(new MicroshaderLoaderOld())
+    , m_vertexDeclCache(new VertexDeclCache()) {
 
 }
 
 MaterialBuilder::~MaterialBuilder() {
+    if (m_vertexDeclCache) {
+        delete m_vertexDeclCache;
+        m_vertexDeclCache = nullptr;
+    }
     if (m_microShaderLoader) {
         delete m_microShaderLoader;
         m_microShaderLoader = nullptr;
@@ -150,18 +153,19 @@ uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {
 }
 
 void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
+    m_vertexDeclCache->SetAdditionalVertexDecl(desc.additionalVertexDecl);
     m_microShaderLoader->Load(desc);
     m_microShaderLoaderOld->Load(desc);
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const dg::InputLayoutDesc& layoutDesc) {
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl& vertexDecl) {
     auto src = m_microShaderLoader->GetSources(mask);
     auto srcOld = m_microShaderLoaderOld->GetSources(mask);
     auto shaders = m_shaderBuilder->Build(src);
     auto shadersOld = m_shaderBuilder->BuildOld(srcOld);
 
-    return Builder(this, shadersOld.vs, shadersOld.ps, shadersOld.gs, layoutDesc);
+    return Builder(this, shadersOld.vs, shadersOld.ps, shadersOld.gs, m_vertexDeclCache->GetFullVertexDecl(vertexDecl).GetInputLayoutDesc());
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {

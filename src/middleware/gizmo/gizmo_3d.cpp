@@ -7,7 +7,7 @@
 
 
 std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder) {
-    auto material = materialBuilder->Create(0, VertexPNC::GetStandartLayoutDesc()).
+    auto material = materialBuilder->Create(0, VertexPNC::GetDecl()).
         DepthEnable(false).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
