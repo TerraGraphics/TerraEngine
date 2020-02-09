@@ -236,7 +236,7 @@ void VertexShader::Append(const std::map<std::string, VertexMicroshader>& value)
     }
 }
 
-void VertexShader::Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out) {
+void VertexShader::Generate(const MaterialBuilderDesc& desc, const msh::SemanticDecls& vertexInput, const SemanticDecls& output, std::string& out) {
     std::vector<const VertexMicroshader*> gendata;
     for (const auto& item : output.GetData()) {
         const auto it = m_data.find(item.name);

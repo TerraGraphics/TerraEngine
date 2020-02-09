@@ -160,12 +160,13 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
 }
 
 MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl& vertexDecl) {
-    auto src = m_microShaderLoader->GetSources(mask);
+    auto& vDecl = m_vertexDeclCache->GetFullVertexDecl(vertexDecl);
+    auto src = m_microShaderLoader->GetSources(mask, vDecl.GetVertexInput());
     auto srcOld = m_microShaderLoaderOld->GetSources(mask);
     auto shaders = m_shaderBuilder->Build(src);
     auto shadersOld = m_shaderBuilder->BuildOld(srcOld);
 
-    return Builder(this, shadersOld.vs, shadersOld.ps, shadersOld.gs, m_vertexDeclCache->GetFullVertexDecl(vertexDecl).GetInputLayoutDesc());
+    return Builder(this, shadersOld.vs, shadersOld.ps, shadersOld.gs, vDecl.GetInputLayoutDesc());
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {

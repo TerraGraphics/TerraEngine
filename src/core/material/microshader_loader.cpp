@@ -149,7 +149,7 @@ uint64_t MicroshaderLoader::GetMask(const std::string& name) const {
     return 1 << it->second;
 }
 
-MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
+MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh::SemanticDecls& vertexInput) const {
     Source src;
 
     msh::PixelShader ps;
@@ -186,10 +186,10 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask) const {
 
         ps.Generate(m_desc, src.ps);
         if (gs.IsEmpty()) {
-            vs.Generate(m_desc, ps.GetInput(), src.vs);
+            vs.Generate(m_desc, vertexInput, ps.GetInput(), src.vs);
         } else {
             gs.Generate(m_desc, ps.GetInput(), src.gs);
-            vs.Generate(m_desc, gs.GetInput(), src.vs);
+            vs.Generate(m_desc, vertexInput, gs.GetInput(), src.vs);
         }
     } catch(const std::exception& e) {
         throw EngineError("invalid microshaders mask {} for get sources, {}", mask, e.what());

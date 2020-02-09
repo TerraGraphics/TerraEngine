@@ -33,7 +33,7 @@ public:
 
     void Load(const MaterialBuilderDesc& desc);
     uint64_t GetMask(const std::string& name) const;
-    Source GetSources(uint64_t mask) const;
+    Source GetSources(uint64_t mask, const msh::SemanticDecls& vertexInput) const;
 
 private:
     bool ReadMicroshader(const std::filesystem::path& filepath, const std::string& requiredExtension, ucl_object_t* schema, ucl::Ucl& section);

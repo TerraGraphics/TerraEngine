@@ -91,7 +91,7 @@ public:
     ~VertexShader() = default;
 
     void Append(const std::map<std::string, VertexMicroshader>& value);
-    void Generate(const MaterialBuilderDesc& desc, const SemanticDecls& output, std::string& out);
+    void Generate(const MaterialBuilderDesc& desc, const msh::SemanticDecls& vertexInput, const SemanticDecls& output, std::string& out);
 
 private:
     // VSOutput => VertexMicroshader

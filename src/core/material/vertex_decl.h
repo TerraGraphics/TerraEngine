@@ -39,13 +39,13 @@ public:
     VertexDecl(const VertexDecl& first, const VertexDecl& second);
     ~VertexDecl() = default;
 
-    const msh::Decls& GetVertexInput() const { return m_vertexInputDecl; }
+    const msh::SemanticDecls& GetVertexInput() const { return m_vertexInputDecl; }
     dg::InputLayoutDesc GetInputLayoutDesc() const {
         return dg::InputLayoutDesc(m_inputLayoutDesc.data(), m_inputLayoutDesc.size());
     }
 
 private:
-    msh::Decls m_vertexInputDecl;
+    msh::SemanticDecls m_vertexInputDecl;
     std::vector<dg::LayoutElement> m_inputLayoutDesc;
 };
 
