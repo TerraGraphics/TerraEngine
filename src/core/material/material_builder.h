@@ -11,7 +11,6 @@
 
 class ShaderBuilder;
 class MicroshaderLoader;
-class MicroshaderLoaderOld;
 class MaterialBuilder : Fixed {
 public:
     struct Builder : Fixed {
@@ -80,7 +79,6 @@ private:
     SwapChainPtr m_swapChain;
     ShaderBuilder* m_shaderBuilder = nullptr;
     MicroshaderLoader* m_microShaderLoader = nullptr;
-    MicroshaderLoaderOld* m_microShaderLoaderOld = nullptr;
     StaticVarsStorage* m_staticVarsStorage = nullptr;
     VertexDeclCache* m_vertexDeclCache = nullptr;
 };

@@ -5,7 +5,6 @@
 
 #include "core/material/shader_builder.h"
 #include "core/material/microshader_loader.h"
-#include "core/material/microshader_loader_old.h"
 
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
@@ -120,7 +119,6 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_staticVarsStorage(new StaticVarsStorage(device, context))
     , m_microShaderLoader(new MicroshaderLoader())
-    , m_microShaderLoaderOld(new MicroshaderLoaderOld())
     , m_vertexDeclCache(new VertexDeclCache()) {
 
 }
@@ -134,10 +132,6 @@ MaterialBuilder::~MaterialBuilder() {
         delete m_microShaderLoader;
         m_microShaderLoader = nullptr;
     }
-    if (m_microShaderLoaderOld) {
-        delete m_microShaderLoaderOld;
-        m_microShaderLoaderOld = nullptr;
-    }
     if (m_staticVarsStorage) {
         delete m_staticVarsStorage;
         m_staticVarsStorage = nullptr;
@@ -149,24 +143,21 @@ MaterialBuilder::~MaterialBuilder() {
 }
 
 uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {
-    return m_microShaderLoaderOld->GetMask(name);
+    return m_microShaderLoader->GetMask(name);
 }
 
 void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     m_vertexDeclCache->SetAdditionalVertexDecl(desc.additionalVertexDecl);
     m_microShaderLoader->Load(desc);
-    m_microShaderLoaderOld->Load(desc);
     m_shaderBuilder->Create(desc);
 }
 
 MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl& vertexDecl) {
     auto& vDecl = m_vertexDeclCache->GetFullVertexDecl(vertexDecl);
     auto src = m_microShaderLoader->GetSources(mask, vDecl.GetVertexInput());
-    auto srcOld = m_microShaderLoaderOld->GetSources(mask);
     auto shaders = m_shaderBuilder->Build(src);
-    auto shadersOld = m_shaderBuilder->BuildOld(srcOld);
 
-    return Builder(this, shadersOld.vs, shadersOld.ps, shadersOld.gs, vDecl.GetInputLayoutDesc());
+    return Builder(this, shaders.vs, shaders.ps, shaders.gs, vDecl.GetInputLayoutDesc());
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {

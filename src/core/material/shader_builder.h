@@ -4,7 +4,6 @@
 
 #include "core/common/dg.h"
 #include "core/material/microshader_loader.h"
-#include "core/material/microshader_loader_old.h"
 
 
 class ShaderBuilder : Fixed {
@@ -32,7 +31,6 @@ public:
 
     void Create(const MaterialBuilderDesc& desc);
     Shaders Build(const MicroshaderLoader::Source& source);
-    Shaders BuildOld(const MicroshaderLoaderOld::Source& source);
 
 private:
     ShaderPtr BuildSource(const CacheKey& shaderSrc, const std::string& name);

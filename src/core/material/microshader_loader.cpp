@@ -143,7 +143,7 @@ void MicroshaderLoader::Load(const MaterialBuilderDesc& desc) {
 uint64_t MicroshaderLoader::GetMask(const std::string& name) const {
     auto it = m_microshaderIDs.find(name);
     if (it == m_microshaderIDs.cend()) {
-        throw EngineError("not found microshader with name {}", name);
+        throw EngineError("not found microshader with name '{}'", name);
     }
 
     return 1 << it->second;
@@ -183,7 +183,11 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh
             }
             src.name += ms.name;
         }
+    } catch(const std::exception& e) {
+        throw EngineError("invalid microshaders with mask {} for get sources, {}", mask, e.what());
+    }
 
+    try {
         ps.Generate(m_desc, src.ps);
         if (gs.IsEmpty()) {
             vs.Generate(m_desc, vertexInput, ps.GetInput(), src.vs);
@@ -192,7 +196,7 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh
             vs.Generate(m_desc, vertexInput, gs.GetInput(), src.vs);
         }
     } catch(const std::exception& e) {
-        throw EngineError("invalid microshaders mask {} for get sources, {}", mask, e.what());
+        throw EngineError("invalid microshaders '{}' (mask {}) for get sources, {}", src.name, mask, e.what());
     }
 
     return src;

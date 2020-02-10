@@ -38,15 +38,6 @@ ShaderBuilder::Shaders ShaderBuilder::Build(const MicroshaderLoader::Source& sou
     return  result;
 }
 
-ShaderBuilder::Shaders ShaderBuilder::BuildOld(const MicroshaderLoaderOld::Source& source) {
-    Shaders result;
-    result.vs = BuildSource(CacheKey{dg::SHADER_TYPE_VERTEX, source.vs}, source.name);
-    result.ps = BuildSource(CacheKey{dg::SHADER_TYPE_PIXEL, source.ps}, source.name);
-    result.gs = BuildSource(CacheKey{dg::SHADER_TYPE_GEOMETRY, source.gs}, source.name);
-
-    return  result;
-}
-
 static void ProcessBuildError(const std::string& text, const std::string& name, dg::SHADER_TYPE shaderType, dg::IDataBlob* compilerOutput, const char* exceptionMsg) {
     const char* typeStr = dg::GetShaderTypeLiteralName(shaderType);
 
