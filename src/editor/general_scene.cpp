@@ -72,6 +72,7 @@ void GeneralScene::CreateTextures() {
 
 void GeneralScene::CreateMaterials() {
     auto materialBuilder = Engine::Get().GetMaterialBuilder();
+    const auto BASE_COLOR_MATERIAL = materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL");
     const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
@@ -95,12 +96,12 @@ void GeneralScene::CreateMaterials() {
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::phong");
 
-    m_matClrNoLight = materialBuilder->Create(0, vDecl).
+    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL, vDecl).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::noLight");
 
-    m_matClrPhong = materialBuilder->Create(AMBIENT_DIFFUSE_PHONG, vDecl).
+    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG, vDecl).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");

@@ -14,9 +14,9 @@ pixel {
     }
     source = <<SHADER
 void AmbientDiffuseLight(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
-	const float3 lightColor = float3(1, 1, 1);
+    const float3 lightColor = float3(1, 1, 1);
     const float3 toLightDirection = float3(0, 1, 0);
-    const float ambientIntensity = 0.7;
+    const float ambientIntensity = 0.2;
 
     float3 normal = normalize(psIn.normal);
     float cosNL = dot(normal, toLightDirection);
