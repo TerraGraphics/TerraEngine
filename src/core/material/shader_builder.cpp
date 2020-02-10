@@ -26,7 +26,7 @@ ShaderBuilder::ShaderBuilder(const DevicePtr& device, const EngineFactoryPtr& en
 
 void ShaderBuilder::Create(const MaterialBuilderDesc& desc) {
     m_desc = desc;
-    m_engineFactory->CreateDefaultShaderSourceStreamFactory(m_desc.shadersDirOld.c_str(), &m_shaderSourceFactory);
+    m_engineFactory->CreateDefaultShaderSourceStreamFactory(m_desc.shadersDir.c_str(), &m_shaderSourceFactory);
 }
 
 ShaderBuilder::Shaders ShaderBuilder::Build(const MicroshaderLoader::Source& source) {

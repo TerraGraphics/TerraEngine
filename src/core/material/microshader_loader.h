@@ -47,4 +47,6 @@ private:
     std::vector<Microshader> m_microshaders;
     // MicroshaderName => MicroshaderID
     std::map<std::string, uint32_t> m_microshaderIDs;
+    // Mask => Source
+    mutable std::map<uint64_t, Source> m_cache;
 };

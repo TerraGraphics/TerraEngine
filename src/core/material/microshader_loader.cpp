@@ -150,8 +150,11 @@ uint64_t MicroshaderLoader::GetMask(const std::string& name) const {
 }
 
 MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh::SemanticDecls& vertexInput) const {
-    Source src;
+    if (const auto it=m_cache.find(mask); it != m_cache.cend()) {
+        return it->second;
+    }
 
+    Source src;
     msh::PixelShader ps;
     msh::VertexShader vs;
     msh::GeometryShader gs;
@@ -199,6 +202,7 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh
         throw EngineError("invalid microshaders '{}' (mask {}) for get sources, {}", src.name, mask, e.what());
     }
 
+    m_cache[mask] = src;
     return src;
 }
 
