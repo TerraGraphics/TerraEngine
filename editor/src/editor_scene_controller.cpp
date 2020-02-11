@@ -1,4 +1,4 @@
-#include "editor/editor_scene_controller.h"
+#include "editor_scene_controller.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -8,7 +8,7 @@
 
 #include "core/engine.h"
 #include "core/render/target.h"
-#include "editor/editor_scene.h"
+#include "editor_scene.h"
 #include "middleware/imgui/gui.h"
 #include "core/material/material_builder.h"
 #include "middleware/camera/editor_controller.h"
@@ -69,9 +69,6 @@ void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
     auto& context = engine.GetImmediateContext();
 
-    dg::ITextureView* pRTV = engine.GetSwapChain()->GetCurrentBackBufferRTV();
-    dg::ITextureView* pDSV = engine.GetSwapChain()->GetDepthBufferDSV();
-
     const float clearColor[] = {1.f, 1.f, 1.f, 1.f};
     m_target->Set(context, clearColor);
 
@@ -82,9 +79,11 @@ void EditorSceneController::Draw() {
 
     m_editorScene->Draw();
 
+    dg::ITextureView* pRTV = engine.GetSwapChain()->GetCurrentBackBufferRTV();
+    dg::ITextureView* pDSV = engine.GetSwapChain()->GetDepthBufferDSV();
     context->SetRenderTargets(1, &pRTV, pDSV, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    engine.GetImmediateContext()->ClearRenderTarget(pRTV, clearColor, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    engine.GetImmediateContext()->ClearDepthStencil(pDSV, dg::CLEAR_DEPTH_FLAG, 1.f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    context->ClearRenderTarget(pRTV, clearColor, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    context->ClearDepthStencil(pDSV, dg::CLEAR_DEPTH_FLAG, 1.f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     m_gui->StartFrame();
     DockSpace();

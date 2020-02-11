@@ -1,4 +1,4 @@
-#include "editor/general_scene.h"
+#include "general_scene.h"
 
 #include <DiligentTools/TextureLoader/interface/TextureUtilities.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
