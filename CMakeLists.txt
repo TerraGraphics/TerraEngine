@@ -14,6 +14,7 @@ conan_basic_setup()
 
 add_subdirectory(platforms)
 add_subdirectory(core)
+add_subdirectory(middleware)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -24,6 +25,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE "src" "materials/std")
-target_link_libraries(${PROJECT_NAME} PRIVATE platforms core ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
+target_include_directories(${PROJECT_NAME} PRIVATE "src" ${CMAKE_SOURCE_DIR}/materials/std)
+target_link_libraries(${PROJECT_NAME} PRIVATE platforms core middleware ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
 set_common_project_properties(${PROJECT_NAME})
