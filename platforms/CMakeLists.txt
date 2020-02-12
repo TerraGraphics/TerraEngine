@@ -69,18 +69,4 @@ target_compile_options(${PROJECT_NAME}
         -Wno-gnu-zero-variadic-macro-arguments
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
-
-target_compile_definitions(${PROJECT_NAME}
-PUBLIC
-    GL_SUPPORTED=$<BOOL:${GL_SUPPORTED}>
-    VULKAN_SUPPORTED=$<BOOL:${VULKAN_SUPPORTED}>
-)
-
-if(PLATFORM_LINUX)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC PLATFORM_LINUX=1)
-endif()
+set_common_project_properties(${PROJECT_NAME})

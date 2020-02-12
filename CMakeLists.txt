@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(terra VERSION 0.2 LANGUAGES CXX)
 
+include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
 conan_cmake_run(CONANFILE conanfile.txt
     BASIC_SETUP CMAKE_TARGETS
@@ -12,6 +13,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
 add_subdirectory(platforms)
+add_subdirectory(core)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -23,10 +25,5 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE "src" "materials/std")
-target_link_libraries(${PROJECT_NAME} PRIVATE platforms ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
+target_link_libraries(${PROJECT_NAME} PRIVATE platforms core ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
+set_common_project_properties(${PROJECT_NAME})
