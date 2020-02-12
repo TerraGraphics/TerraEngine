@@ -13,3 +13,15 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE platforms ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL})
 set_common_project_properties(${PROJECT_NAME})
+
+
+file(GLOB_RECURSE SOURCE_TEST_FILES "${PROJECT_SOURCE_DIR}/test/*.cpp")
+
+set(PROJECT_TEST_NAME ${PROJECT_NAME}_test)
+add_executable(${PROJECT_TEST_NAME} ${SOURCE_TEST_FILES})
+target_include_directories(${PROJECT_TEST_NAME}
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/platforms/include
+)
+target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})
