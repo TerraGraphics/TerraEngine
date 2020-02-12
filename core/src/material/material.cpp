@@ -1,6 +1,6 @@
 #include "core/material/material.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include "core/dg/device_context.h"
 
 
 Material::Material(const PipelineStatePtr& pipelineState)

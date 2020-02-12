@@ -1,9 +1,9 @@
 #pragma once
 
 #include <map>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h>
 
 #include "core/material/material.h"
+#include "core/dg/pipeline_state.h"
 #include "core/material/vertex_decl.h"
 #include "core/material/material_vars.h"
 #include "core/material/material_builder_desc.h"
@@ -77,8 +77,8 @@ private:
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
+    VertexDeclCache* m_vertexDeclCache = nullptr;
     ShaderBuilder* m_shaderBuilder = nullptr;
     MicroshaderLoader* m_microShaderLoader = nullptr;
     StaticVarsStorage* m_staticVarsStorage = nullptr;
-    VertexDeclCache* m_vertexDeclCache = nullptr;
 };

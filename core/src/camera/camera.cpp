@@ -34,7 +34,7 @@ void Camera::SetViewParams(const dg::float3& position, const dg::float3& directi
 
 // see glm::perspectiveRH_ZO
 static dg::float4x4 PerspectiveRH_ZO(float fovy, float aspect, float zNear, float zFar) {
-	float const tanHalfFovy = tan(fovy / 2.f);
+	float const tanHalfFovy = tanf(fovy / 2.f);
 
 	dg::float4x4 m(0.f);
 	m.m00 = 1.f / (aspect * tanHalfFovy);
@@ -47,7 +47,7 @@ static dg::float4x4 PerspectiveRH_ZO(float fovy, float aspect, float zNear, floa
 
 // see glm::perspectiveRH_NO
 static dg::float4x4 PerspectiveRH_NO(float fovy, float aspect, float zNear, float zFar) {
-	float const tanHalfFovy = tan(fovy / 2.f);
+	float const tanHalfFovy = tanf(fovy / 2.f);
 
 	dg::float4x4 m(0.f);
 	m.m00 = 1.f / (aspect * tanHalfFovy);
@@ -60,7 +60,7 @@ static dg::float4x4 PerspectiveRH_NO(float fovy, float aspect, float zNear, floa
 
 // see glm::perspectiveLH_ZO
 static dg::float4x4 PerspectiveLH_ZO(float fovy, float aspect, float zNear, float zFar) {
-	float const tanHalfFovy = tan(fovy / 2.f);
+	float const tanHalfFovy = tanf(fovy / 2.f);
 
 	dg::float4x4 m(0.f);
 	m.m00 = 1.f / (aspect * tanHalfFovy);
@@ -73,7 +73,7 @@ static dg::float4x4 PerspectiveLH_ZO(float fovy, float aspect, float zNear, floa
 
 // see glm::perspectiveLH_NO
 static dg::float4x4 PerspectiveLH_NO(float fovy, float aspect, float zNear, float zFar) {
-	float const tanHalfFovy = tan(fovy / 2.f);
+	float const tanHalfFovy = tanf(fovy / 2.f);
 
 	dg::float4x4 m(0.f);
 	m.m00 = 1.f / (aspect * tanHalfFovy);

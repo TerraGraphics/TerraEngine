@@ -1,9 +1,8 @@
 #include "core/material/shader_builder.h"
 
-#include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
-
 #include "core/common/exception.h"
 #include "core/common/hash_combine.h"
+#include "core/dg/graphics_accessories.h"
 
 
 std::size_t ShaderBuilder::CacheKey::operator()(const ShaderBuilder::CacheKey& value) const {

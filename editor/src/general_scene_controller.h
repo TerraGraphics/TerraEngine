@@ -3,7 +3,7 @@
 #include <memory>
 #include <DiligentCore/Common/interface/BasicMath.h>
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
 #include "core/common/ctor.h"
 
 namespace Diligent {

@@ -57,7 +57,7 @@ void Items::Generate(const std::function<void (const Item&, std::string&)>& func
         }
     }
 
-    m_data.resize(std::distance(m_data.begin(), last) + 1);
+    m_data.resize(static_cast<size_t>(std::distance(m_data.begin(), last)) + 1);
     m_isPreProcessed = true;
 }
 
@@ -209,7 +209,7 @@ void SemanticDecls::Generate(const std::function<void (const SemanticDecl&, std:
         }
     }
 
-    m_data.resize(std::distance(m_data.begin(), last) + 1);
+    m_data.resize(static_cast<size_t>(std::distance(m_data.begin(), last)) + 1);
     m_isPreProcessed = true;
 }
 

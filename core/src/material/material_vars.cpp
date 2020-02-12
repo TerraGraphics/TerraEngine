@@ -1,9 +1,8 @@
 #include "core/material/material_vars.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
-
 #include "core/common/exception.h"
+#include "core/dg/device_context.h"
+#include "core/dg/graphics_accessories.h"
 
 
 StaticVarsStorage::StaticVarsStorage(const DevicePtr& device, const ContextPtr& context)
@@ -30,7 +29,7 @@ uint32_t StaticVarsStorage::Add(dg::SHADER_TYPE shaderType, const std::string& n
     dg::IBuffer* buffer;
     dg::BufferDesc desc;
     desc.Name = name.c_str();
-    desc.uiSizeInBytes = size;
+    desc.uiSizeInBytes = static_cast<uint32_t>(size);
     desc.Usage = dg::USAGE_DYNAMIC;
     desc.BindFlags = dg::BIND_UNIFORM_BUFFER;
     desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;

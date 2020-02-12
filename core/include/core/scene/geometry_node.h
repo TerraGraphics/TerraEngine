@@ -1,9 +1,9 @@
 #pragma once
 
-#include <DiligentCore/Common/interface/BasicMath.h>
 #include <DiligentCore/Primitives/interface/BasicTypes.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
 
+#include "core/dg/math.h"
 #include "core/scene/index_buffer.h"
 #include "core/scene/vertex_buffer.h"
 

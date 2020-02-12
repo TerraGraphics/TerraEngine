@@ -2,7 +2,7 @@
 
 template<typename T>
 static T MakeNormalMatrix(const Diligent::float4x4& m) {
-    float inverseDet = 1. / (
+    float inverseDet = 1.f / (
         + m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
         - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
         + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]));

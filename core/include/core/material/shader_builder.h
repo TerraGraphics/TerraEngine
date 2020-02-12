@@ -2,7 +2,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
 #include "core/material/microshader_loader.h"
 
 

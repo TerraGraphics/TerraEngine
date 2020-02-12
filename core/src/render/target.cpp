@@ -1,7 +1,7 @@
 #include "core/render/target.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include "core/dg/render_device.h"
+#include "core/dg/device_context.h"
 
 
 Target::Target(uint32_t width, uint32_t height)

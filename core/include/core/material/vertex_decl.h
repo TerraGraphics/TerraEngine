@@ -1,10 +1,10 @@
 #pragma once
 
 #include <unordered_map>
-#include <DiligentCore/Common/interface/BasicMath.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
+#include "core/dg/math.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 #include "core/common/exception.h"
@@ -41,7 +41,7 @@ public:
 
     const msh::SemanticDecls& GetVertexInput() const { return m_vertexInputDecl; }
     dg::InputLayoutDesc GetInputLayoutDesc() const {
-        return dg::InputLayoutDesc(m_inputLayoutDesc.data(), m_inputLayoutDesc.size());
+        return dg::InputLayoutDesc(m_inputLayoutDesc.data(), static_cast<uint32_t>(m_inputLayoutDesc.size()));
     }
 
 private:

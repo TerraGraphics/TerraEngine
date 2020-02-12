@@ -118,7 +118,7 @@ void MicroshaderLoader::Load(const MaterialBuilderDesc& desc) {
 
         auto groupIt = groupIDs.find(ms.group);
         if (groupIt == groupIDs.cend()) {
-            ms.groupID = groupIDs.size();
+            ms.groupID = static_cast<uint32_t>(groupIDs.size());
             groupIDs[ms.group] = ms.groupID;
         } else {
             ms.groupID = groupIt->second;

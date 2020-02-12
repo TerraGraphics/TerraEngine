@@ -1,7 +1,7 @@
 #pragma once
 
-#include <DiligentCore/Common/interface/BasicMath.h>
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
+#include "core/dg/math.h"
 
 
 using UInt2 = dg::Vector2<uint32_t>;

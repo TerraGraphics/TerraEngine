@@ -1,7 +1,8 @@
 #pragma once
 
 #include <random>
-#include <DiligentCore/Common/interface/BasicMath.h>
+#include "core/dg/math.h"
+
 
 extern std::mt19937_64 randomGenerator;
 

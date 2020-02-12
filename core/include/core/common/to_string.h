@@ -1,9 +1,9 @@
 #pragma once
 
 #include <string>
-#include <DiligentCore/Common/interface/BasicMath.h>
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
+#include "core/dg/math.h"
 
 
 std::string ToString(const dg::float4x4& x);

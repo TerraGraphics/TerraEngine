@@ -1,6 +1,6 @@
 #pragma once
 
-#include <DiligentCore/Common/interface/BasicMath.h>
+#include "core/dg/math.h"
 
 
 // convert m to dg::float3x3, inverse, transpose and convert to dg::float4x4

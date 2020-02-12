@@ -3,7 +3,7 @@
 #include <memory>
 #include <initializer_list>
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
 
 
 class Shape;

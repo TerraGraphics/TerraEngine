@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 
@@ -54,7 +54,7 @@ public:
     std::shared_ptr<MaterialBuilder>& GetMaterialBuilder() noexcept { return m_materialBuilder; }
 
     float GetFps() const noexcept {
-        return static_cast<double>(m_fpsCounter.Size()) / m_fpsCounter.Sum();
+        return static_cast<float>(static_cast<double>(m_fpsCounter.Size()) / m_fpsCounter.Sum());
     }
 
     void Create(EngineDesc&& desc);

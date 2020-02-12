@@ -1,9 +1,8 @@
 #include "core/scene/vertex_buffer.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-
 #include "core/common/exception.h"
+#include "core/dg/render_device.h"
+#include "core/dg/device_context.h"
 
 
 VertexBuffer::VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const dg::Char* name) {

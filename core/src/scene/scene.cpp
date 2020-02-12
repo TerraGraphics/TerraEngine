@@ -1,10 +1,9 @@
 #include "core/scene/scene.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
-
+#include "core/dg/device_context.h"
 #include "core/scene/material_node.h"
 #include "core/scene/vertex_buffer.h"
+#include "core/dg/graphics_utilities.h"
 
 
 Scene::Scene(DevicePtr device, ContextPtr context)
@@ -21,7 +20,6 @@ void Scene::Update() {
         m_transformBuffer = std::make_shared<WriteableVertexBuffer>(m_device, m_nodeListForDraw.size() * (sizeof(dg::float4x4) + sizeof(dg::float3x3)), dg::USAGE_STAGING, "transform vb");
     }
 
-    uint32_t ind = 0;
     float* data = m_transformBuffer->Map<float>(m_context);
     for (const auto& node: m_nodeListForDraw) {
         auto* data4x4 = reinterpret_cast<dg::float4x4*>(data);

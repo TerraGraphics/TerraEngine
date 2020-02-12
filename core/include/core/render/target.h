@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/common/dg.h"
+#include "core/dg/dg.h"
 #include "core/common/ctor.h"
 
 

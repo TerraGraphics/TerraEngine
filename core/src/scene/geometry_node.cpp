@@ -1,6 +1,6 @@
 #include "core/scene/geometry_node.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include "core/dg/device_context.h"
 
 
 GeometryNodeUnindexed::GeometryNodeUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount)

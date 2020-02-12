@@ -1,8 +1,7 @@
 #include "core/scene/material_node.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-
 #include "core/common/exception.h"
+#include "core/dg/device_context.h"
 #include "core/material/material.h"
 #include "core/scene/geometry_node.h"
 

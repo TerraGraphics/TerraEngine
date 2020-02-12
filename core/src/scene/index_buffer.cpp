@@ -1,7 +1,7 @@
 #include "core/scene/index_buffer.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include "core/dg/render_device.h"
+#include "core/dg/device_context.h"
 
 
 IndexBuffer::IndexBuffer(DevicePtr& device, const void* data, uint32_t size, const dg::Char* name) {

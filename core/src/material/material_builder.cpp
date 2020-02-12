@@ -1,9 +1,9 @@
 #include "core/material/material_builder.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h>
 
 #include "core/material/shader_builder.h"
+#include "core/dg/graphics_accessories.h"
 #include "core/material/microshader_loader.h"
 
 
@@ -94,7 +94,7 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
     }
 
     m_desc.ResourceLayout.Variables = vars.get();
-    m_desc.ResourceLayout.NumVariables = m_vars.size();
+    m_desc.ResourceLayout.NumVariables = static_cast<uint32_t>(m_vars.size());
 
 
     std::unique_ptr<dg::StaticSamplerDesc[]> samplers;
@@ -108,7 +108,7 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
 
         m_desc.ResourceLayout.StaticSamplers = samplers.get();
     }
-    m_desc.ResourceLayout.NumStaticSamplers = m_samplers.size();
+    m_desc.ResourceLayout.NumStaticSamplers = static_cast<uint32_t>(m_samplers.size());
 
     return m_builder->Build(m_desc);
 }
@@ -116,18 +116,16 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) 
 MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory)
     : m_device(device)
     , m_swapChain(swapChain)
+    , m_vertexDeclCache(new VertexDeclCache())
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
-    , m_staticVarsStorage(new StaticVarsStorage(device, context))
     , m_microShaderLoader(new MicroshaderLoader())
-    , m_vertexDeclCache(new VertexDeclCache()) {
+    , m_staticVarsStorage(new StaticVarsStorage(device, context))
+
+    {
 
 }
 
 MaterialBuilder::~MaterialBuilder() {
-    if (m_vertexDeclCache) {
-        delete m_vertexDeclCache;
-        m_vertexDeclCache = nullptr;
-    }
     if (m_microShaderLoader) {
         delete m_microShaderLoader;
         m_microShaderLoader = nullptr;
@@ -139,6 +137,10 @@ MaterialBuilder::~MaterialBuilder() {
     if (m_shaderBuilder) {
         delete m_shaderBuilder;
         m_shaderBuilder = nullptr;
+    }
+    if (m_vertexDeclCache) {
+        delete m_vertexDeclCache;
+        m_vertexDeclCache = nullptr;
     }
 }
 

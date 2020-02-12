@@ -1,6 +1,6 @@
 #pragma once
 
-#include <DiligentCore/Common/interface/BasicMath.h>
+#include "core/dg/math.h"
 
 
 namespace Diligent {
