@@ -5,6 +5,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma clang diagnostic ignored "-Wunused-parameter"
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 #pragma clang diagnostic pop

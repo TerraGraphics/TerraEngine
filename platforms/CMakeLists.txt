@@ -63,8 +63,6 @@ target_compile_options(${PROJECT_NAME}
         -Wsign-promo
 
         # Diligent
-        -Wno-non-virtual-dtor
-        -Wno-float-equal
         -Wno-unused-parameter
         -Wno-gnu-zero-variadic-macro-arguments
 )

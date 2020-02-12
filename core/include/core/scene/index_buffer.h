@@ -4,9 +4,8 @@
 #include <vector>
 #include <stdexcept>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Buffer.h>
-
 #include "core/dg/dg.h"
+#include "core/dg/buffer.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 

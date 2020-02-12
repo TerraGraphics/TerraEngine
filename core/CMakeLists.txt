@@ -44,15 +44,6 @@ target_compile_options(${PROJECT_NAME}
         -Wsign-conversion
         -Wctor-dtor-privacy
         -Woverloaded-virtual
-
-        # terra
-        -Wno-nested-anon-types
-        -Wno-gnu-anonymous-struct
-
-        # diligent
-        -Wno-non-virtual-dtor
-        -Wno-unused-parameter
-        -Wno-gnu-zero-variadic-macro-arguments
 )
 
 target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})
