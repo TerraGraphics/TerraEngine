@@ -108,7 +108,7 @@ public:
     VertexBufferRange<Vertex> AddRange(size_t vertexCount) {
         auto offsetCount = static_cast<uint32_t>(m_data.size());
         m_data.resize(offsetCount + vertexCount * sizeof(Vertex));
-        return VertexBufferRange<Vertex>(reinterpret_cast<Vertex*>(&m_data[offsetCount]), offsetCount, vertexCount);
+        return VertexBufferRange<Vertex>(reinterpret_cast<Vertex*>(&m_data[offsetCount]), offsetCount, static_cast<uint32_t>(vertexCount));
     }
 
     std::shared_ptr<VertexBuffer> Build(DevicePtr& device, const dg::Char* name = nullptr) {

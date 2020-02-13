@@ -3,13 +3,12 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-
 #include "core/engine.h"
-#include "core/render/target.h"
 #include "editor_scene.h"
+#include "core/render/target.h"
 #include "middleware/imgui/gui.h"
+#include "core/dg/render_device.h"
+#include "core/dg/device_context.h"
 #include "core/material/material_builder.h"
 #include "middleware/camera/editor_controller.h"
 

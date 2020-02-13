@@ -12,6 +12,7 @@ class MaterialNode : Fixed {
 public:
     MaterialNode() = delete;
     MaterialNode(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry);
+    virtual ~MaterialNode() = default;
 
     std::shared_ptr<GeometryNode>& GetGeometry() noexcept { return m_geometry; }
 

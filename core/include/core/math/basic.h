@@ -21,6 +21,9 @@ struct Color4f {
         return dg::float4(red, green, blue, alpha);
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
     union {
         float value[4] = {0, 0, 0, 1.0f};
         struct {
@@ -30,6 +33,8 @@ struct Color4f {
             float alpha;
         };
     };
+#pragma clang diagnostic pop
+
 };
 
 struct Color4 {
@@ -49,6 +54,9 @@ struct Color4 {
             static_cast<float>(alpha) / 255.0f);
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
     union {
         uint32_t value = 0xFF000000;
         struct {
@@ -58,6 +66,8 @@ struct Color4 {
             uint8_t alpha;
         };
     };
+#pragma clang diagnostic pop
+
 };
 
 using Color = Color4;
@@ -80,6 +90,9 @@ struct Color3f {
         return dg::float4(red, green, blue, 1.f);
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
     union {
         float value[3] = {0, 0, 0};
         struct {
@@ -88,6 +101,8 @@ struct Color3f {
             float blue;
         };
     };
+#pragma clang diagnostic pop
+
 };
 
 struct Color3 {
@@ -116,6 +131,9 @@ struct Color3 {
             1.f);
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
     union {
         uint32_t value = 0;
         struct {
@@ -125,4 +143,6 @@ struct Color3 {
             uint8_t _;
         };
     };
+#pragma clang diagnostic pop
+
 };

@@ -21,7 +21,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
 
         float coneHeight = 0.1f;
         ConeShape coneShape({10, 1}, axis, 0.03f, coneHeight);
-        translation[static_cast<uint>(axis)] = 1. - coneHeight * 0.5f;
+        translation[static_cast<uint>(axis)] = 1.f - coneHeight * 0.5f;
         coneShape.SetTranform(dg::float4x4::Translation(translation));
 
         float cylinderSpacing = 0.05f;

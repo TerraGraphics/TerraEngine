@@ -1,7 +1,7 @@
 #include "middleware/std_material/std_material.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include "core/dg/render_device.h"
+#include "core/dg/device_context.h"
 
 
 StdMaterial::StdMaterial(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry)
@@ -53,9 +53,9 @@ void StdMaterial::Update(DevicePtr& device, ContextPtr& context) {
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         device->CreateBuffer(desc, nullptr, &m_materialCB);
 
-        dg::ShaderMaterial* data;
-        context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
-        *data = m_materialData;
+        void* data;
+        context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, data);
+        *reinterpret_cast<dg::ShaderMaterial*>(data) = m_materialData;
         context->UnmapBuffer(m_materialCB, dg::MAP_WRITE);
 
         var->Set(m_materialCB);
@@ -63,9 +63,9 @@ void StdMaterial::Update(DevicePtr& device, ContextPtr& context) {
     }
 
     if (m_isDirty) {
-        dg::ShaderMaterial* data;
-        context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, (dg::PVoid&)data);
-        *data = m_materialData;
+        void* data;
+        context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, data);
+        *reinterpret_cast<dg::ShaderMaterial*>(data) = m_materialData;
         context->UnmapBuffer(m_materialCB, dg::MAP_WRITE);
         m_isDirty = false;
     }

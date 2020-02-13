@@ -1,10 +1,10 @@
 #include "editor_scene.h"
 
 #include <DiligentTools/TextureLoader/interface/TextureUtilities.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 
 #include "core/engine.h"
 #include "core/scene/scene.h"
+#include "core/dg/device_context.h"
 #include "middleware/gizmo/gizmo_3d.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"

@@ -95,7 +95,7 @@ public:
     IndexBufferRange<Index> AddRange(size_t indexCount) {
         auto offsetCount = static_cast<uint32_t>(m_data.size());
         m_data.resize(offsetCount + indexCount * sizeof(Index));
-        return IndexBufferRange<Index>(reinterpret_cast<Index*>(&m_data[offsetCount]), offsetCount, indexCount);
+        return IndexBufferRange<Index>(reinterpret_cast<Index*>(&m_data[offsetCount]), offsetCount, static_cast<uint32_t>(indexCount));
     }
 
     std::shared_ptr<IndexBuffer> Build(DevicePtr& device, const dg::Char* name = nullptr) {

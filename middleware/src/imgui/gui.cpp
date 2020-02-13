@@ -2,12 +2,11 @@
 
 #include <imgui.h>
 
-#include <DiligentCore/Common/interface/BasicMath.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/MapHelper.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-
+#include "core/dg/math.h"
 #include "platforms/platforms.h"
+#include "core/dg/render_device.h"
 #include "core/common/exception.h"
+
 
 static const char* vertexShaderSource = R"(
 cbuffer Camera {
@@ -205,7 +204,7 @@ void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& 
         io.MouseDown[2] = handler->IsKeyStickyDown(Key::MouseMiddle);
 
         for(const auto ch : handler->GetInput()) {
-            io.AddInputCharacter(static_cast<wchar_t>(ch));
+            io.AddInputCharacter(static_cast<unsigned int>(ch));
         }
     } else {
         io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
@@ -270,36 +269,45 @@ void Gui::RenderFrame() {
     }
 
     {
-        dg::MapHelper<ImDrawVert> vbData(m_context, m_vb, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
-        dg::MapHelper<ImDrawIdx>  ibData(m_context, m_ib, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
+        void* vbRaw;
+        void* ibRaw;
+        m_context->MapBuffer(m_vb, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, vbRaw);
+        m_context->MapBuffer(m_ib, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, ibRaw);
 
-        ImDrawVert* vbIt = vbData;
-        ImDrawIdx* ibIt = ibData;
+        ImDrawVert* vbIt = reinterpret_cast<ImDrawVert*>(vbRaw);
+        ImDrawIdx* ibIt = reinterpret_cast<ImDrawIdx*>(ibRaw);
         for (int n = 0; n != drawData->CmdListsCount; ++n) {
             const ImDrawList* cmdList = drawData->CmdLists[n];
-            memcpy(vbIt, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
-            memcpy(ibIt, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+            memcpy(vbIt, cmdList->VtxBuffer.Data, static_cast<size_t>(cmdList->VtxBuffer.Size) * sizeof(ImDrawVert));
+            memcpy(ibIt, cmdList->IdxBuffer.Data, static_cast<size_t>(cmdList->IdxBuffer.Size) * sizeof(ImDrawIdx));
             vbIt += cmdList->VtxBuffer.Size;
             ibIt += cmdList->IdxBuffer.Size;
         }
+
+        m_context->UnmapBuffer(m_ib, dg::MAP_WRITE);
+        m_context->UnmapBuffer(m_vb, dg::MAP_WRITE);
     }
 
 
     // Our visible imgui space lies from drawData->DisplayPos (top left) to drawData->DisplayPos+data_data->DisplaySize (bottom right).
     // DisplayPos is (0,0) for single viewport apps.
     {
-        dg::MapHelper<dg::float4x4> CBData(m_context, m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
+        void* cameraDataRaw;
+        m_context->MapBuffer(m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, cameraDataRaw);
+        dg::float4x4* cameraData = reinterpret_cast<dg::float4x4*>(cameraDataRaw);
 
         // TODO: check left and right matrix
         float L = drawData->DisplayPos.x;
         float R = drawData->DisplayPos.x + drawData->DisplaySize.x;
         float T = drawData->DisplayPos.y;
         float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
-        *CBData = dg::float4x4 {
+        *cameraData = dg::float4x4 {
             2.0f / (R - L),                  0.0f,   0.0f,   0.0f,
             0.0f,                  2.0f / (T - B),   0.0f,   0.0f,
             0.0f,                            0.0f,   0.5f,   0.0f,
             (R + L) / (L - R),  (T + B) / (B - T),   0.5f,   1.0f};
+
+        m_context->UnmapBuffer(m_cameraCB, dg::MAP_WRITE);
     }
 
     auto displayWidth = static_cast<uint32_t>(drawData->DisplaySize.x);
@@ -341,7 +349,7 @@ void Gui::RenderFrame() {
             if (pcmd->UserCallback != NULL) {
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-                if (pcmd->UserCallback == ImDrawCallback_ResetRenderState) {
+                if (pcmd->UserCallback == reinterpret_cast<ImDrawCallback>(-1) /* ImDrawCallback_ResetRenderState */) {
                     setupRenderState();
                     lastUsedTexture = m_fontTex;
                 } else {
@@ -379,8 +387,8 @@ void Gui::RenderFrame() {
                     m_context->CommitShaderResources(binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 }
                 dg::DrawIndexedAttribs DrawAttrs(pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? dg::VT_UINT16 : dg::VT_UINT32, dg::DRAW_FLAG_VERIFY_STATES);
-                DrawAttrs.FirstIndexLocation = pcmd->IdxOffset + globalIdxOffset;
-                DrawAttrs.BaseVertex         = pcmd->VtxOffset + globalVtxOffset;
+                DrawAttrs.FirstIndexLocation = pcmd->IdxOffset + static_cast<uint32_t>(globalIdxOffset);
+                DrawAttrs.BaseVertex         = pcmd->VtxOffset + static_cast<uint32_t>(globalVtxOffset);
                 m_context->DrawIndexed(DrawAttrs);
             }
         }
@@ -421,8 +429,10 @@ void Gui::CreateGraphics() {
     cbDesc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
     m_device->CreateBuffer(cbDesc, nullptr, &m_cameraCB);
     {
-        dg::MapHelper<dg::float4x4> CBData(m_context, m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD);
-        *CBData = dg::float4x4();
+        void* cameraDataRaw;
+        m_context->MapBuffer(m_cameraCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, cameraDataRaw);
+        *reinterpret_cast<dg::float4x4*>(cameraDataRaw) = dg::float4x4();
+        m_context->UnmapBuffer(m_cameraCB, dg::MAP_WRITE);
     }
 
     dg::LayoutElement layoutElems[] = {
@@ -515,7 +525,7 @@ void Gui::CreateFontsTexture() {
     m_device->CreateTexture(fontTexDesc, &data, &fontTex);
     m_fontTex = fontTex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     m_fontBinding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(m_fontTex);
-    io.Fonts->TexID = (ImTextureID)m_fontTex;
+    io.Fonts->TexID = reinterpret_cast<ImTextureID>(m_fontTex.RawPtr());
 }
 
 void Gui::DestroyGraphics() {

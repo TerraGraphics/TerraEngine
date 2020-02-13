@@ -14,7 +14,7 @@ void EditorCameraController::SetCamera(const std::shared_ptr<Camera>& camera) {
     m_camera->SetAspectRatio(m_aspectRatio);
 }
 
-void EditorCameraController::Update(const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler, uint32_t width, uint32_t height, float deltaTime) {
+void EditorCameraController::Update(const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler, uint32_t width, uint32_t height, float /* deltaTime */) {
     constexpr const auto pitchMax = HalfPI<float>() - QuarterPI<float>() / 45.f;
     constexpr const auto pitchMin = -(HalfPI<float>() - QuarterPI<float>() / 45.f);
 

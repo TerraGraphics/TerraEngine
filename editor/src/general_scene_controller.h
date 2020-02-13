@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <DiligentCore/Common/interface/BasicMath.h>
 
 #include "core/dg/dg.h"
+#include "core/dg/math.h"
 #include "core/common/ctor.h"
 
 namespace Diligent {

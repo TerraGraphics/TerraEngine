@@ -1,7 +1,6 @@
 #include "middleware/generator/shape_builder.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-
+#include "core/dg/render_device.h"
 #include "core/math/normal_matrix.h"
 #include "core/scene/geometry_node.h"
 #include "middleware/generator/shape.h"
