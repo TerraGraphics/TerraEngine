@@ -13,7 +13,7 @@ target_include_directories(${PROJECT_NAME}
         ${CMAKE_SOURCE_DIR}/materials/std
         ${PROJECT_SOURCE_DIR}/src
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE platforms core ${CONAN_PKG_LIBS_FMT} ${CONAN_PKG_LIBS_LIBUCL} ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
+target_link_libraries(${PROJECT_NAME} PRIVATE core ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI})
 
 target_compile_options(${PROJECT_NAME}
     PRIVATE

@@ -1,13 +1,12 @@
 #include "general_scene.h"
 
-#include <DiligentTools/TextureLoader/interface/TextureUtilities.h>
-
 #include "core/engine.h"
 #include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "platforms/platforms.h"
 #include "core/dg/device_context.h"
 #include "core/scene/geometry_node.h"
+#include "core/dg/texture_utilities.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
 #include "middleware/std_material/std_material.h"
@@ -26,7 +25,7 @@ void GeneralScene::Create() {
     // GenerateGrassBillboard();
 }
 
-void GeneralScene::Update(double deltaTime) {
+void GeneralScene::Update(double /* deltaTime */) {
     m_scene->Update();
 }
 

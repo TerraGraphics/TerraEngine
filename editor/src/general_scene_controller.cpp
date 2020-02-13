@@ -11,8 +11,8 @@
 
 
 GeneralSceneController::GeneralSceneController()
-    : m_generalScene(new GeneralScene())
-    , m_controller(new FlyCameraController()) {
+    : m_controller(new FlyCameraController())
+    , m_generalScene(new GeneralScene()) {
 
 }
 
@@ -47,7 +47,7 @@ void GeneralSceneController::Update(double deltaTime) {
     auto handler = engine.GetEventHandler();
     const auto& desc = engine.GetSwapChain()->GetDesc();
 
-    m_controller->Update(handler, desc.Width, desc.Height, deltaTime);
+    m_controller->Update(handler, desc.Width, desc.Height, static_cast<float>(deltaTime));
     m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
     m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);

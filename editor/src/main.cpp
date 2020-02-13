@@ -1,9 +1,9 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <DiligentCore/Primitives/interface/Errors.h>
 
 #include "editor.h"
 #include "core/engine.h"
+#include "core/dg/errors.h"
 #include "platforms/platforms_supported.h"
 
 

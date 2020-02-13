@@ -55,7 +55,7 @@ void EditorSceneController::Update(double deltaTime) {
     auto& handler = engine.GetEventHandler();
     auto& device = engine.GetDevice();
 
-    m_controller->Update(handler, m_viewWidht, m_viewHeight, deltaTime);
+    m_controller->Update(handler, m_viewWidht, m_viewHeight, static_cast<float>(deltaTime));
     m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
     m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
@@ -139,7 +139,7 @@ void EditorSceneController::ViewWindow() {
         m_viewWidht = static_cast<uint32_t>(size.x);
         m_viewHeight = static_cast<uint32_t>(size.y);
 
-        ImGui::Image((ImTextureID)m_target->GetColorTexture(), ImVec2(m_viewWidht, m_viewHeight));
+        ImGui::Image(reinterpret_cast<ImTextureID>(m_target->GetColorTexture().RawPtr()), ImVec2(m_viewWidht, m_viewHeight));
         ImGui::End();
     }
 }
