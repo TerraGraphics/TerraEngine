@@ -13,26 +13,4 @@ target_include_directories(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/src
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE middleware ${CONAN_PKG_LIBS_IMGUI})
-
-target_compile_options(${PROJECT_NAME}
-    PRIVATE
-        -Werror
-
-        -Wall
-        -Wextra
-        -Wpedantic
-
-        -Wcast-qual
-        -Wcast-align
-        -Wsign-promo
-        -Wconversion
-        -Wfloat-equal
-        -Wenum-compare
-        -Wold-style-cast
-        -Wredundant-decls
-        -Wsign-conversion
-        -Wctor-dtor-privacy
-        -Woverloaded-virtual
-)
-
 set_common_project_properties(${PROJECT_NAME})

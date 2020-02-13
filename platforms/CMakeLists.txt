@@ -41,30 +41,4 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
-
-target_compile_options(${PROJECT_NAME}
-    PRIVATE
-        -Werror
-
-        -Wall
-        -Wextra
-        -Wpedantic
-
-        -Wcast-align
-        -Wcast-qual
-        -Wconversion
-        -Wctor-dtor-privacy
-        -Wenum-compare
-        -Wfloat-equal
-        -Wold-style-cast
-        -Woverloaded-virtual
-        -Wredundant-decls
-        -Wsign-conversion
-        -Wsign-promo
-
-        # Diligent
-        -Wno-unused-parameter
-        -Wno-gnu-zero-variadic-macro-arguments
-)
-
 set_common_project_properties(${PROJECT_NAME})

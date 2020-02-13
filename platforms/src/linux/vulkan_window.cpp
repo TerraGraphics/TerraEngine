@@ -18,7 +18,11 @@
 #    undef False
 #endif
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #include <DiligentCore/Primitives/interface/Errors.h>
+#pragma clang diagnostic pop
 #include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
 
 #include "linux/x11_key_map.h"

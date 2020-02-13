@@ -1,7 +1,11 @@
 #pragma once
 
 #include <vector>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #include <DiligentCore/Common/interface/RefCntAutoPtr.h>
+#pragma clang diagnostic pop
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
