@@ -12,7 +12,7 @@ namespace Diligent {
 
 class Gui;
 class Camera;
-class Target;
+class RenderTarget;
 class EditorScene;
 class EditorCameraController;
 class EditorSceneController : Fixed {
@@ -44,5 +44,5 @@ private:
     EditorScene* m_editorScene = nullptr;
     uint32_t m_viewWidht = 1.f;
     uint32_t m_viewHeight = 1.f;
-    std::unique_ptr<Target> m_target;
+    std::unique_ptr<RenderTarget> m_renderTarget;
 };
