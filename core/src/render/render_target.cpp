@@ -5,6 +5,11 @@
 #include "core/dg/device_context.h"
 
 
+void RenderTarget::Create(const DevicePtr& device) {
+    ColorTargetDesc colorTargets[] = { ColorTargetDesc() };
+    Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets, DepthTargetDesc()));
+}
+
 void RenderTarget::Create(const DevicePtr& device, RenderTargetDesc&& desc) {
     if (!m_colorTargets.empty()) {
         throw EngineError("double create for RenderTarget");
@@ -87,16 +92,21 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
         width = swapChain->GetDesc().Width;
         height = swapChain->GetDesc().Height;
     }
-    if (((m_width == width) && (m_height == height)) || (width == 0) || (height == 0)) {
+
+    if ((width == 0) || (height == 0)) {
         return;
     }
+
+    bool needRecreate = ((m_width != width) || (m_height != height));
     m_width = width;
     m_height = height;
 
     uint8_t i = 0;
     for (auto& ct : m_colorTargets) {
         if (ct) {
-            CreateColorTarget(i, ct->GetDesc().Name);
+            if (needRecreate) {
+                CreateColorTarget(i, ct->GetDesc().Name);
+            }
         } else {
             m_colorViews[i] = swapChain->GetCurrentBackBufferRTV();
         }
@@ -104,14 +114,16 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
     }
 
     if (m_depthTarget) {
-        CreateDepthTarget(m_depthTarget->GetDesc().Name);
+        if (needRecreate) {
+            CreateDepthTarget(m_depthTarget->GetDesc().Name);
+        }
     } else {
         m_depthView = swapChain->GetDepthBufferDSV();
     }
 }
 
 void RenderTarget::Bind(ContextPtr& context, const Color4f& clearColor) {
-    context->SetRenderTargets(1, m_colorViews.data(), m_depthView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    context->SetRenderTargets(static_cast<uint32_t>(m_colorViews.size()), m_colorViews.data(), m_depthView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     for (auto* view : m_colorViews) {
         context->ClearRenderTarget(view, clearColor.value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }

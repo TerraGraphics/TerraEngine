@@ -12,6 +12,7 @@ namespace Diligent {
 
 class Camera;
 class GeneralScene;
+class RenderTarget;
 class FlyCameraController;
 class GeneralSceneController : Fixed {
 public:
@@ -33,4 +34,5 @@ private:
     FlyCameraController* m_controller = nullptr;
 
     GeneralScene* m_generalScene = nullptr;
+    std::unique_ptr<RenderTarget> m_sceneRenderTarget;
 };

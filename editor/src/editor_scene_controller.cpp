@@ -16,7 +16,8 @@
 EditorSceneController::EditorSceneController()
     : m_controller(new EditorCameraController())
     , m_editorScene(new EditorScene())
-    , m_renderTarget(new RenderTarget()) {
+    , m_sceneRenderTarget(new RenderTarget())
+    , m_previewRenderTarget(new RenderTarget()) {
 
 }
 
@@ -29,7 +30,8 @@ EditorSceneController::~EditorSceneController() {
         delete m_editorScene;
     }
 
-    m_renderTarget.reset();
+    m_sceneRenderTarget.reset();
+    m_previewRenderTarget.reset();
 }
 
 void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui) {
@@ -47,13 +49,15 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
 
     m_editorScene->Create();
 
+    m_sceneRenderTarget->Create(device);
     ColorTargetDesc colorTargets[] = { ColorTargetDesc("rt::color::preview") };
-    m_renderTarget->Create(device, RenderTargetDesc(1, colorTargets, DepthTargetDesc("rt::depth::preview")));
+    m_previewRenderTarget->Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets, DepthTargetDesc("rt::depth::preview")));
 }
 
 void EditorSceneController::Update(double deltaTime) {
     auto& engine = Engine::Get();
     auto& handler = engine.GetEventHandler();
+    auto& swapChain = engine.GetSwapChain();
 
     m_controller->Update(handler, m_viewWidht, m_viewHeight, static_cast<float>(deltaTime));
     m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
@@ -61,15 +65,16 @@ void EditorSceneController::Update(double deltaTime) {
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
     m_editorScene->Update(deltaTime);
-    m_renderTarget->Update(engine.GetSwapChain(), m_viewWidht, m_viewHeight);
+    m_sceneRenderTarget->Update(swapChain);
+    m_previewRenderTarget->Update(swapChain, m_viewWidht, m_viewHeight);
 }
 
 void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
     auto& context = engine.GetImmediateContext();
 
-    const Color4f clearColor(1.f, 1.f, 1.f, 1.f);
-    m_renderTarget->Bind(context, clearColor);
+    const Color4f clearColor(1.f, 1.f, 1.f);
+    m_previewRenderTarget->Bind(context, clearColor);
 
     auto builder = engine.GetMaterialBuilder();
     builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
@@ -78,11 +83,7 @@ void EditorSceneController::Draw() {
 
     m_editorScene->Draw();
 
-    dg::ITextureView* pRTV = engine.GetSwapChain()->GetCurrentBackBufferRTV();
-    dg::ITextureView* pDSV = engine.GetSwapChain()->GetDepthBufferDSV();
-    context->SetRenderTargets(1, &pRTV, pDSV, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    context->ClearRenderTarget(pRTV, clearColor.value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    context->ClearDepthStencil(pDSV, dg::CLEAR_DEPTH_FLAG, 1.f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    m_sceneRenderTarget->Bind(context, clearColor);
 
     m_gui->StartFrame();
     DockSpace();
@@ -139,7 +140,7 @@ void EditorSceneController::ViewWindow() {
         m_viewWidht = static_cast<uint32_t>(size.x);
         m_viewHeight = static_cast<uint32_t>(size.y);
 
-        ImGui::Image(reinterpret_cast<ImTextureID>(m_renderTarget->GetColorTexture(0).RawPtr()), ImVec2(m_viewWidht, m_viewHeight));
+        ImGui::Image(reinterpret_cast<ImTextureID>(m_previewRenderTarget->GetColorTexture(0).RawPtr()), ImVec2(m_viewWidht, m_viewHeight));
         ImGui::End();
     }
 }
