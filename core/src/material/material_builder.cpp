@@ -2,9 +2,9 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
+#include "core/material/material.h"
 #include "core/material/shader_builder.h"
 #include "core/dg/graphics_accessories.h"
-#include "core/material/microshader_loader.h"
 
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
@@ -18,20 +18,9 @@ MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE s
 
 }
 
-MaterialBuilder::Builder::Builder(MaterialBuilder* builder, ShaderPtr& shaderVS, ShaderPtr& shaderPS, ShaderPtr& shaderGS, const dg::InputLayoutDesc& layoutDesc)
-    : m_builder(builder) {
-
-    m_desc.IsComputePipeline = false;
-    m_desc.GraphicsPipeline.NumRenderTargets = 1;
-    m_desc.GraphicsPipeline.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable = true;
-
-    m_desc.GraphicsPipeline.pVS = shaderVS;
-    m_desc.GraphicsPipeline.pPS = shaderPS;
-    m_desc.GraphicsPipeline.pGS = shaderGS;
-    m_desc.GraphicsPipeline.InputLayout = layoutDesc;
-    m_desc.GraphicsPipeline.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
-
+MaterialBuilder::Builder::Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc)
+    : m_builder(builder)
+    , m_desc(std::move(desc)) {
 }
 
 MaterialBuilder::Builder& MaterialBuilder::Builder::DepthEnable(bool value) noexcept {
@@ -159,14 +148,28 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl
     auto src = m_microShaderLoader->GetSources(mask, vDecl.GetVertexInput());
     auto shaders = m_shaderBuilder->Build(src);
 
-    return Builder(this, shaders.vs, shaders.ps, shaders.gs, vDecl.GetInputLayoutDesc());
+    dg::PipelineStateDesc desc;
+    desc.IsComputePipeline = false;
+
+    auto& gp = desc.GraphicsPipeline;
+    gp.NumRenderTargets = src.gsOutputNumber;
+    for (uint8_t i=0; i!=src.gsOutputNumber; ++i) {
+        gp.RTVFormats[i] = m_swapChain->GetDesc().ColorBufferFormat;
+    }
+    gp.DepthStencilDesc.DepthEnable = true;
+    gp.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
+    gp.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    // gp.RasterizerDesc.FillMode = dg::FILL_MODE_WIREFRAME;
+    gp.pVS = shaders.vs;
+    gp.pPS = shaders.ps;
+    gp.pGS = shaders.gs;
+    gp.InputLayout = vDecl.GetInputLayoutDesc();
+    gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
+
+    return Builder(this, std::move(desc));
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
-    desc.GraphicsPipeline.RTVFormats[0] = m_swapChain->GetDesc().ColorBufferFormat;
-    desc.GraphicsPipeline.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
-    // desc.GraphicsPipeline.RasterizerDesc.FillMode = dg::FILL_MODE_WIREFRAME;
-
     PipelineStatePtr pipelineState;
     m_device->CreatePipelineState(desc, &pipelineState);
     m_staticVarsStorage->SetVars(pipelineState);

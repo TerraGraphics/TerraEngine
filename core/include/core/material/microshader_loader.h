@@ -11,6 +11,7 @@ public:
         std::string vs;
         std::string ps;
         std::string gs;
+        uint8_t gsOutputNumber = 0;
     };
 
 private:

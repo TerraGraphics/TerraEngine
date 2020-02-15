@@ -39,12 +39,14 @@ public:
     ~PixelShader() = default;
 
     const SemanticDecls& GetInput() const { return m_input; }
+    uint8_t GetOutputNumber() const { return m_outputNumber; }
 
     void Append(const PixelMicroshader* value);
     void Generate(const MaterialBuilderDesc& desc, std::string& out);
 
 private:
     bool m_isOverrideFound = false;
+    uint8_t m_outputNumber = 0;
     SemanticDecls m_input;
     std::vector<const PixelMicroshader*> m_data;
 };

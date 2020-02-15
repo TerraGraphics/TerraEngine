@@ -2,13 +2,12 @@
 
 #include <map>
 
-#include "core/material/material.h"
 #include "core/dg/pipeline_state.h"
-#include "core/material/vertex_decl.h"
 #include "core/material/material_vars.h"
 #include "core/material/material_builder_desc.h"
 
 
+class Material;
 class ShaderBuilder;
 class MicroshaderLoader;
 class MaterialBuilder : Fixed {
@@ -31,7 +30,7 @@ public:
 
     public:
         Builder() = delete;
-        Builder(MaterialBuilder* builder, ShaderPtr& shaderVS, ShaderPtr& shaderPS, ShaderPtr& shaderGS, const dg::InputLayoutDesc& layoutDesc);
+        Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc);
         ~Builder() = default;
 
         Builder& DepthEnable(bool value) noexcept;

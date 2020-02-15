@@ -74,6 +74,7 @@ public:
     ~SemanticDecls() = default;
 
     const std::vector<SemanticDecl> GetData() const { return m_data; }
+    size_t GetSize() const { return m_data.size(); }
     std::string JoinNames(const std::string& sep) const;
 
     void SetData(std::vector<SemanticDecl>&& data);

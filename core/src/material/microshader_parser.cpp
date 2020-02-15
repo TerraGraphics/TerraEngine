@@ -118,6 +118,7 @@ void PixelShader::Generate(const MaterialBuilderDesc& desc, std::string& out) {
     }
     out.append("}");
 
+    m_outputNumber = static_cast<uint8_t>(base.psOutput.GetSize());
     m_input = base.psInput;
 }
 
