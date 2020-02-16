@@ -186,13 +186,16 @@ struct BasicRect {
     using RectT = BasicRect<T>;
 
     BasicRect() = default;
-    BasicRect(const PointT& pos1, const PointT& pos2) noexcept : x(pos1.x), y(pos1.y), w(pos2.x - pos1.x), h(pos2.y - pos1.y) {}
+    BasicRect(const PointT& posMin, const PointT& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
     BasicRect(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
 
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }
     T Left() const noexcept { return x; }
     T Right() const noexcept { return x + w; }
+
+    PointT Min() const noexcept { return PointT(x, y); }
+    PointT Max() const noexcept { return PointT(x + w, y + h); }
 
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }

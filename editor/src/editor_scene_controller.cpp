@@ -8,6 +8,7 @@
 #include "middleware/imgui/gui.h"
 #include "core/dg/render_device.h"
 #include "core/dg/device_context.h"
+#include "middleware/imgui/widgets.h"
 #include "core/render/render_target.h"
 #include "core/material/material_builder.h"
 #include "middleware/camera/editor_controller.h"
@@ -41,9 +42,10 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_vsCameraVarId = vsCameraVarId;
     m_psCameraVarId = psCameraVarId;
     m_gsCameraVarId = gsCameraVarId;
+    m_isOpenGL = device->GetDeviceCaps().IsGLDevice();
     m_gui = gui;
 
-    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, device->GetDeviceCaps().IsGLDevice(), true);
+    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, m_isOpenGL, true);
     m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
     m_controller->SetCamera(m_camera);
 
@@ -141,7 +143,7 @@ void EditorSceneController::ViewWindow() {
         m_viewWidht = static_cast<uint32_t>(size.x);
         m_viewHeight = static_cast<uint32_t>(size.y);
 
-        ImGui::Image(reinterpret_cast<ImTextureID>(m_previewRenderTarget->GetColorTexture(0).RawPtr()), ImVec2(m_viewWidht, m_viewHeight));
+        math::Rectf rc = Image(m_previewRenderTarget->GetColorTexture(0), math::Size(m_viewWidht, m_viewHeight), m_isOpenGL);
         ImGui::End();
     }
 }
