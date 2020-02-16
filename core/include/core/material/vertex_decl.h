@@ -57,10 +57,8 @@ public:
     VertexDeclCache() = default;
     ~VertexDeclCache() = default;
 
-    VertexDecl& GetFullVertexDecl(const VertexDecl& value);
-    void SetAdditionalVertexDecl(const VertexDecl& value);
+    VertexDecl& GetFullVertexDecl(const VertexDecl& vertexDecl, const VertexDecl& additionalVertexDecl);
 
 private:
-    VertexDecl m_additionalVertexDecl;
-    std::unordered_map<uint32_t, VertexDecl> m_cache;
+    std::unordered_map<uint64_t, VertexDecl> m_cache;
 };

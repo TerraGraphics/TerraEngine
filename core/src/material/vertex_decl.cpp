@@ -39,15 +39,12 @@ VertexDecl::VertexDecl(const VertexDecl& first, const VertexDecl& second)
     }
 }
 
-VertexDecl& VertexDeclCache::GetFullVertexDecl(const VertexDecl& value) {
-    auto it = m_cache.find(value.GetId());
+VertexDecl& VertexDeclCache::GetFullVertexDecl(const VertexDecl& vertexDecl, const VertexDecl& additionalVertexDecl) {
+    uint64_t key = (static_cast<uint64_t>(vertexDecl.GetId()) << uint64_t(32)) + static_cast<uint64_t>(additionalVertexDecl.GetId());
+    auto it = m_cache.find(key);
     if (it == m_cache.cend()) {
-        it = m_cache.emplace(value.GetId(), VertexDecl(value, m_additionalVertexDecl)).first;
+        it = m_cache.emplace(key, VertexDecl(vertexDecl, additionalVertexDecl)).first;
     }
 
     return it->second;
-}
-
-void VertexDeclCache::SetAdditionalVertexDecl(const VertexDecl& value) {
-    m_additionalVertexDecl = value;
 }

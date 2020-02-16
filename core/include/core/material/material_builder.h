@@ -3,6 +3,7 @@
 #include <map>
 
 #include "core/dg/pipeline_state.h"
+#include "core/material/vertex_decl.h"
 #include "core/material/material_vars.h"
 #include "core/material/material_builder_desc.h"
 
@@ -69,7 +70,7 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    Builder Create(uint64_t mask, const VertexDecl& vertexDecl);
+    Builder Create(uint64_t mask, const VertexDecl& vertexDecl, const VertexDecl& additionalVertexDecl);
 
 private:
     std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc);

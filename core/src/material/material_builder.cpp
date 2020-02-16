@@ -136,13 +136,12 @@ uint64_t MaterialBuilder::GetShaderMask(const std::string& name) const {
 }
 
 void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
-    m_vertexDeclCache->SetAdditionalVertexDecl(desc.additionalVertexDecl);
     m_microShaderLoader->Load(desc);
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl& vertexDecl) {
-    auto& vDecl = m_vertexDeclCache->GetFullVertexDecl(vertexDecl);
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl& vertexDecl, const VertexDecl& additionalVertexDecl) {
+    auto& vDecl = m_vertexDeclCache->GetFullVertexDecl(vertexDecl, additionalVertexDecl);
     auto src = m_microShaderLoader->GetSources(mask, vDecl.GetVertexInput());
     auto shaders = m_shaderBuilder->Build(src);
 

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-#include "core/dg/dg.h"
-#include "core/common/ctor.h"
+#include "core/material/vertex_decl.h"
 
 
 class TransformNode;
@@ -13,7 +11,8 @@ public:
     ~Gizmo3D() = default;
 
 public:
-    std::shared_ptr<TransformNode> Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder);
+    std::shared_ptr<TransformNode> Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder,
+        const VertexDecl& additionalVertexDecl);
 
 private:
     std::shared_ptr<TransformNode> m_rootNode;
