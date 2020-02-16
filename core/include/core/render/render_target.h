@@ -66,7 +66,7 @@ public:
     void Create(const DevicePtr& device);
     void Create(const DevicePtr& device, RenderTargetDesc&& desc);
     void Update(SwapChainPtr& swapChain, uint32_t width = 0, uint32_t height = 0);
-    void Bind(ContextPtr& context, const Color4f& clearColor);
+    void Bind(ContextPtr& context, const math::Color4f& clearColor);
 
     TextureViewPtr GetColorTexture(uint8_t num);
 

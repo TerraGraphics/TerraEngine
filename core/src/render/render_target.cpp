@@ -122,7 +122,7 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
     }
 }
 
-void RenderTarget::Bind(ContextPtr& context, const Color4f& clearColor) {
+void RenderTarget::Bind(ContextPtr& context, const math::Color4f& clearColor) {
     context->SetRenderTargets(static_cast<uint32_t>(m_colorViews.size()), m_colorViews.data(), m_depthView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     for (auto* view : m_colorViews) {
         context->ClearRenderTarget(view, clearColor.value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

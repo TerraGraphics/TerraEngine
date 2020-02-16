@@ -74,7 +74,7 @@ void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
     auto& context = engine.GetImmediateContext();
 
-    const Color4f clearColor(1.f, 1.f, 1.f);
+    const math::Color4f clearColor(1.f, 1.f, 1.f);
     m_previewRenderTarget->Bind(context, clearColor);
 
     auto builder = engine.GetMaterialBuilder();

@@ -13,7 +13,7 @@ public:
     StdMaterial() = delete;
     StdMaterial(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry);
 
-    void SetBaseColor(const Color4f& value);
+    void SetBaseColor(const math::Color4f& value);
     void SetBaseColor(const dg::float4& value);
     void SetBaseColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
     void SetBaseTexture(TextureViewPtr& texture);

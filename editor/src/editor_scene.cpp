@@ -18,7 +18,7 @@ static const auto& additionalVDecl = VertexDecl({
         ItemDecl<dg::float3>("NormalRow0", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
         ItemDecl<dg::float3>("NormalRow1", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
         ItemDecl<dg::float3>("NormalRow2", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<Color4>("IdColor", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
+        ItemDecl<math::Color4>("IdColor", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
     });
 
 EditorScene::EditorScene() {

@@ -1,6 +1,6 @@
 # TerraEngine - Game engine
 
-# Build
+## Build
 
 * Install externan packages:
 
@@ -19,3 +19,7 @@ cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAK
 cmake --build .
 cd ..
 ```
+
+## Utils
+
+* To be able to run **make cloc** you must install the application <https://github.com/boyter/scc>.
