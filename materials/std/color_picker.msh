@@ -1,0 +1,29 @@
+name = "COLOR_PICKER"
+group = "PICKER"
+pixel {
+    entrypoint = "FillIdColor"
+    order = 110
+    PSOutput {
+        idcolor: [float4, SV_TARGET1]
+    }
+    PSInput {
+        idcolor: [float4, COLOR0]
+    }
+    source = <<SHADER
+void FillIdColor(in PSInput psIn, inout PSLocal psLocal, inout PSOutput psOut) {
+    psOut.idcolor = psIn.idcolor;
+}
+SHADER
+}
+vertex {
+idcolor {
+    entrypoint = "IdColor"
+    order = 110
+    VSInput = ["IdColor"]
+    source = <<SHADER
+void IdColor(in VSInput vsIn, inout VSOutput vsOut) {
+    vsOut.idcolor = vsIn.IdColor;
+}
+SHADER
+}
+}

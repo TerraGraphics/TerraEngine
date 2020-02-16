@@ -3,8 +3,7 @@
 #include <unordered_map>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
-#include "core/dg/dg.h"
-#include "core/dg/math.h"
+#include "core/math/basic.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 #include "core/common/exception.h"
@@ -27,6 +26,10 @@ template<typename T> Layout ItemDecl(const std::string& name, uint32_t bufferSlo
         return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_FLOAT32, dg::False, frequency)};
     } else if constexpr (std::is_same<T, dg::float4>::value) {
         return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_FLOAT32, dg::False, frequency)};
+    } else if constexpr (std::is_same<T, Color3>::value) {
+        return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_UINT8, dg::True, frequency)};
+    } else if constexpr (std::is_same<T, Color4>::value) {
+        return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_UINT8, dg::True, frequency)};
     } else {
         throw EngineError("unknown type for Layout");
     }

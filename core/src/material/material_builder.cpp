@@ -108,9 +108,7 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     , m_vertexDeclCache(new VertexDeclCache())
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_microShaderLoader(new MicroshaderLoader())
-    , m_staticVarsStorage(new StaticVarsStorage(device, context))
-
-    {
+    , m_staticVarsStorage(new StaticVarsStorage(device, context)) {
 
 }
 

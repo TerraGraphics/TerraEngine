@@ -15,7 +15,7 @@
 void GeneralScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
-    m_scene = std::make_shared<Scene>(m_device, engine.GetImmediateContext());
+    m_scene = std::make_shared<Scene>(m_device, engine.GetImmediateContext(), false);
 
     CreateTextures();
     CreateMaterials();

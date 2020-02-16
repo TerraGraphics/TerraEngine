@@ -50,7 +50,8 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_editorScene->Create();
 
     m_sceneRenderTarget->Create(device);
-    ColorTargetDesc colorTargets[] = { ColorTargetDesc("rt::color::preview") };
+
+    ColorTargetDesc colorTargets[] = { ColorTargetDesc("rt::color::preview"), ColorTargetDesc("rt::color::picker") };
     m_previewRenderTarget->Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets, DepthTargetDesc("rt::depth::preview")));
 }
 

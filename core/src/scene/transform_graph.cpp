@@ -68,7 +68,7 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
     m_baseTransform = transform;
 }
 
-void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList) {
+void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList, uint32_t& lastId) {
     if (m_isDirty) {
         if (auto parent = m_parent.lock()) {
             m_world = m_baseTransform * parent->m_world;
@@ -78,11 +78,14 @@ void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList
     }
 
     if (m_materialNode) {
+        if (m_id == 0) {
+            m_id = ++lastId;
+        }
         nodeList.push_back(shared_from_this());
     }
 
     for (auto& node : m_children) {
-        node->Update(nodeList);
+        node->Update(nodeList, lastId);
     }
 }
 
@@ -104,5 +107,5 @@ void TransformGraph::AddChild(const std::shared_ptr<TransformNode>& node) {
 }
 
 void TransformGraph::UpdateGraph(std::vector<std::shared_ptr<TransformNode>>& nodeList) {
-    m_root->Update(nodeList);
+    m_root->Update(nodeList, m_lastId);
 }
