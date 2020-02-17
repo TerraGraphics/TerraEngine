@@ -38,6 +38,7 @@ EditorSceneController::~EditorSceneController() {
 void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui) {
     auto& engine = Engine::Get();
     auto device = engine.GetDevice();
+    auto& scDesc = engine.GetSwapChain()->GetDesc();
 
     m_vsCameraVarId = vsCameraVarId;
     m_psCameraVarId = psCameraVarId;
@@ -53,8 +54,11 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
 
     m_sceneRenderTarget->Create(device);
 
-    ColorTargetDesc colorTargets[] = { ColorTargetDesc("rt::color::preview"), ColorTargetDesc("rt::color::picker") };
-    m_previewRenderTarget->Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets, DepthTargetDesc("rt::depth::preview")));
+    ColorTargetDesc colorTargets[] = {
+        ColorTargetDesc(scDesc.ColorBufferFormat, "rt::color::preview"),
+        ColorTargetDesc(scDesc.ColorBufferFormat, "rt::color::picker") };
+    m_previewRenderTarget->Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets,
+        DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview")));
 }
 
 void EditorSceneController::Update(double deltaTime) {

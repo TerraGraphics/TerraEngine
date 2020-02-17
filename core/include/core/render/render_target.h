@@ -12,13 +12,15 @@ struct ColorTargetDesc {
     // Default color target
     ColorTargetDesc() noexcept = default;
     // Custom color target
-    ColorTargetDesc(const char* name) noexcept
+    ColorTargetDesc(dg::TEXTURE_FORMAT format, const char* name) noexcept
         : type(Type::Custom)
+        , format(format)
         , name(name) {
 
     }
 
     Type type = Type::Default;
+    dg::TEXTURE_FORMAT format = dg::TEXTURE_FORMAT(0);
     const char* name = nullptr;
 };
 
@@ -30,13 +32,15 @@ struct DepthTargetDesc {
     // Default depth target
     DepthTargetDesc() noexcept = default;
     // Custom depth target
-    DepthTargetDesc(const char* name) noexcept
+    DepthTargetDesc(dg::TEXTURE_FORMAT format, const char* name) noexcept
         : type(Type::Custom)
+        , format(format)
         , name(name) {
 
     }
 
     Type type = Type::Default;
+    dg::TEXTURE_FORMAT format = dg::TEXTURE_FORMAT(0);
     const char* name = nullptr;
 };
 
@@ -71,8 +75,8 @@ public:
     TextureViewPtr GetColorTexture(uint8_t num);
 
 private:
-    void CreateColorTarget(uint8_t num, const char* name);
-    void CreateDepthTarget(const char* name);
+    void CreateColorTarget(uint8_t num, dg::TEXTURE_FORMAT format, const char* name);
+    void CreateDepthTarget(dg::TEXTURE_FORMAT format, const char* name);
 
 private:
     bool m_existsDefaultTarget = false;

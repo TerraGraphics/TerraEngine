@@ -24,26 +24,26 @@ void RenderTarget::Create(const DevicePtr& device, RenderTargetDesc&& desc) {
     m_colorViews.resize(desc.numColorTargets, nullptr);
     for (uint8_t i=0; i!=desc.numColorTargets; ++i) {
         if (desc.colorTargets[i].type == ColorTargetDesc::Type::Custom) {
-            CreateColorTarget(i, desc.colorTargets[i].name);
+            CreateColorTarget(i, desc.colorTargets[i].format, desc.colorTargets[i].name);
         } else {
             m_existsDefaultTarget = true;
         }
     }
 
     if (desc.depthTarget.type == DepthTargetDesc::Type::Custom) {
-        CreateDepthTarget(desc.depthTarget.name);
+        CreateDepthTarget(desc.depthTarget.format, desc.depthTarget.name);
     } else {
         m_existsDefaultTarget = true;
     }
 }
 
-void RenderTarget::CreateColorTarget(uint8_t num, const char* name) {
+void RenderTarget::CreateColorTarget(uint8_t num, dg::TEXTURE_FORMAT format, const char* name) {
     dg::TextureDesc desc;
     desc.Name = (name != nullptr) ? name : "rt::color";
     desc.Type = dg::RESOURCE_DIM_TEX_2D;
     desc.Width = m_width;
     desc.Height = m_height;
-    desc.Format = dg::TEX_FORMAT_RGBA8_UNORM;
+    desc.Format = (format == dg::TEXTURE_FORMAT(0)) ? dg::TEX_FORMAT_RGBA8_UNORM : format;
     desc.MipLevels = 1;
     desc.SampleCount = 1;
     desc.Usage = dg::USAGE_DEFAULT;
@@ -61,13 +61,13 @@ void RenderTarget::CreateColorTarget(uint8_t num, const char* name) {
     m_colorViews[num] = m_colorTargets[num]->GetDefaultView(dg::TEXTURE_VIEW_RENDER_TARGET);
 }
 
-void RenderTarget::CreateDepthTarget(const char* name) {
+void RenderTarget::CreateDepthTarget(dg::TEXTURE_FORMAT format, const char* name) {
     dg::TextureDesc desc;
     desc.Name = (name != nullptr) ? name : "rt::depth";
     desc.Type = dg::RESOURCE_DIM_TEX_2D;
     desc.Width = m_width;
     desc.Height = m_height;
-    desc.Format = dg::TEX_FORMAT_D32_FLOAT;
+    desc.Format = (format == dg::TEXTURE_FORMAT(0)) ? dg::TEX_FORMAT_D32_FLOAT : format;
     desc.MipLevels = 1;
     desc.SampleCount = 1;
     desc.Usage = dg::USAGE_DEFAULT;
@@ -105,7 +105,8 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
     for (auto& ct : m_colorTargets) {
         if (ct) {
             if (needRecreate) {
-                CreateColorTarget(i, ct->GetDesc().Name);
+                auto& desc = ct->GetDesc();
+                CreateColorTarget(i, desc.Format, desc.Name);
             }
         } else {
             m_colorViews[i] = swapChain->GetCurrentBackBufferRTV();
@@ -115,7 +116,8 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
 
     if (m_depthTarget) {
         if (needRecreate) {
-            CreateDepthTarget(m_depthTarget->GetDesc().Name);
+            auto& desc = m_depthTarget->GetDesc();
+            CreateDepthTarget(desc.Format, desc.Name);
         }
     } else {
         m_depthView = swapChain->GetDepthBufferDSV();
