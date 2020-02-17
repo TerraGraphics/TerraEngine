@@ -22,7 +22,7 @@ public:
 private:
     void CreateTextures();
     void CreateMaterials();
-    void GenerateCube();
+    void GenerateMeshes();
     void GenerateGizmo();
 
 private:

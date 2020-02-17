@@ -46,6 +46,9 @@ private:
     uint32_t m_viewHeight = 1.f;
     std::unique_ptr<RenderTarget> m_sceneRenderTarget;
     std::unique_ptr<RenderTarget> m_previewRenderTarget;
+    TexturePtr m_rtGpuCopy;
 
     math::Point m_clickPos = math::Point(0, 0);
+    uint32_t m_value = 0;
+    bool m_clicked = false;
 };

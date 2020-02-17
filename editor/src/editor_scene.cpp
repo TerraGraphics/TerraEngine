@@ -36,7 +36,7 @@ void EditorScene::Create() {
 
     CreateTextures();
     CreateMaterials();
-    GenerateCube();
+    GenerateMeshes();
     GenerateGizmo();
 }
 
@@ -95,18 +95,24 @@ void EditorScene::CreateMaterials() {
         Build("mat::clr::phong");
 }
 
-void EditorScene::GenerateCube() {
+void EditorScene::GenerateMeshes() {
     // ConeShape shape({30, 30}, Axis::Y);
-    SphereShape shape({30, 30}, Axis::Y);
+    ConeShape shape1({30, 30}, Axis::Y);
+    SphereShape shape2({30, 30}, Axis::Y);
     // PlaneShape shape(UInt2(1, 1), {Axis::X, Axis::Z});
     // shape.SetTexScale({1, 1});
-    auto model = ShapeBuilder(m_device).Join({&shape}, "Model");
+    auto model1 = ShapeBuilder(m_device).Join({&shape1}, "Model1");
+    auto model2 = ShapeBuilder(m_device).Join({&shape2}, "Model2");
 
-    auto modelNode = std::make_shared<StdMaterial>(m_matTexPhong, model);
-    modelNode->SetBaseTexture(m_TextureCube);
+    auto modelNode1 = std::make_shared<StdMaterial>(m_matTexPhong, model1);
+    modelNode1->SetBaseTexture(m_TextureCube);
+    auto modelNode2 = std::make_shared<StdMaterial>(m_matTexPhong, model2);
+    modelNode2->SetBaseTexture(m_TextureCube);
 
     auto matModel = dg::float4x4::Scale(1, 1, 1);
-    m_scene->NewChild(modelNode, matModel);
+    m_scene->NewChild(modelNode1, matModel);
+    matModel = dg::float4x4::Translation(1, 1, 1);
+    m_scene->NewChild(modelNode2, matModel);
 }
 
 void EditorScene::GenerateGizmo() {
