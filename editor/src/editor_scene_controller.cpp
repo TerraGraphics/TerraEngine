@@ -58,23 +58,11 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     ColorTargetDesc colorTargets[] = {
         ColorTargetDesc(scDesc.ColorBufferFormat, "rt::color::preview"),
         ColorTargetDesc(scDesc.ColorBufferFormat, "rt::color::picker") };
-    m_previewRenderTarget->Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets,
-        DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview")));
-
-    dg::TextureDesc desc;
-    desc.Name = "rt::color::gpu";
-    desc.Type = dg::RESOURCE_DIM_TEX_2D;
-    desc.Width = 1;
-    desc.Height = 1;
-    desc.Format = dg::TEX_FORMAT_RGBA8_UNORM;
-    desc.MipLevels = 1;
-    desc.SampleCount = 1;
-    desc.Usage = dg::USAGE_STAGING;
-    desc.BindFlags = dg::BIND_NONE;
-    desc.CPUAccessFlags = dg::CPU_ACCESS_READ;
-    desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
-    desc.CommandQueueMask = 1;
-    engine.GetDevice()->CreateTexture(desc, nullptr, &m_rtGpuCopy);
+    m_previewRenderTarget->Create(device, RenderTargetDesc(
+        _countof(colorTargets), colorTargets,
+        DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview"),
+        CPUTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, 1, 1, "rt::color::cpu")
+        ));
 }
 
 void EditorSceneController::Update(double deltaTime) {
@@ -109,11 +97,7 @@ void EditorSceneController::Draw() {
     m_sceneRenderTarget->Bind(context, clearColor);
     if (m_clicked) {
         m_clicked = false;
-
-        dg::MappedTextureSubresource texData;
-        context->MapTextureSubresource(m_rtGpuCopy, 0, 0, dg::MAP_READ, dg::MAP_FLAG_DO_NOT_WAIT, nullptr, texData);
-        m_value = *reinterpret_cast<const uint32_t*>(texData.pData);
-        context->UnmapTextureSubresource(m_rtGpuCopy, 0, 0);
+        m_value = m_previewRenderTarget->ReadCPUTarget(context);
     }
 
     m_gui->StartFrame();
@@ -180,26 +164,7 @@ void EditorSceneController::ViewWindow() {
             m_clickPos.y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
             m_clicked = true;
 
-            dg::CopyTextureAttribs cpyAttr;
-            cpyAttr.pSrcTexture = m_previewRenderTarget->m_colorTargets[1];
-            cpyAttr.SrcMipLevel = 0;
-            cpyAttr.SrcSlice = 0;
-            dg::Box box;
-            box.MinX = m_clickPos.x;
-            box.MaxX = m_clickPos.x + 1;
-            box.MinY = m_clickPos.y;
-            box.MaxY = m_clickPos.y + 1;
-            cpyAttr.pSrcBox = &box;
-            cpyAttr.SrcTextureTransitionMode = dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-            cpyAttr.pDstTexture = m_rtGpuCopy;
-            cpyAttr.DstMipLevel = 0;
-            cpyAttr.DstSlice = 0;
-            cpyAttr.DstX = 0;
-            cpyAttr.DstY = 0;
-            cpyAttr.DstZ = 0;
-            cpyAttr.DstTextureTransitionMode = dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-
-            Engine::Get().GetImmediateContext()->CopyTexture(cpyAttr);
+            m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(), 1, m_clickPos.x, m_clickPos.y);
         }
 
         ImGui::End();
