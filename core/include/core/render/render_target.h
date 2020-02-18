@@ -46,8 +46,8 @@ struct DepthTargetDesc {
 
 struct CPUTargetDesc {
     CPUTargetDesc() noexcept = default;
-    CPUTargetDesc(dg::TEXTURE_FORMAT format, uint32_t width, uint32_t height, const char* name) noexcept
-        : format(format)
+    CPUTargetDesc(uint8_t numColorTargets, uint32_t width, uint32_t height, const char* name) noexcept
+        : numColorTargets(numColorTargets)
         , width(width)
         , height(height)
         , name(name) {
@@ -55,10 +55,10 @@ struct CPUTargetDesc {
     }
 
     bool IsEmpty() const noexcept {
-        return ((format == dg::TEXTURE_FORMAT(0)) || (width == 0) || (height == 0));
+        return ((width == 0) || (height == 0));
     }
 
-    dg::TEXTURE_FORMAT format = dg::TEXTURE_FORMAT(0);
+    uint8_t numColorTargets = 0;
     uint32_t width = 0;
     uint32_t height = 0;
     const char* name = nullptr;
@@ -105,7 +105,7 @@ public:
     void Update(SwapChainPtr& swapChain, uint32_t width = 0, uint32_t height = 0);
     void Bind(ContextPtr& context, const math::Color4f& clearColor);
 
-    void CopyColorTarget(ContextPtr& context, uint8_t num, uint32_t offsetX, uint32_t offsetY);
+    void CopyColorTarget(ContextPtr& context, uint32_t offsetX, uint32_t offsetY);
     std::pair<uint32_t, bool> ReadCPUTarget(ContextPtr& context);
 
     TextureViewPtr GetColorTexture(uint8_t num);
@@ -127,6 +127,7 @@ private:
     TexturePtr m_depthTarget;
     dg::ITextureView* m_depthView;
     TexturePtr m_cpuTarget;
+    uint8_t m_numCTForCT = 0;
     FencePtr m_cpuTargetFence;
     uint64_t m_cpuTargetFenceLast = 0;
 };

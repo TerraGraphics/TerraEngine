@@ -61,7 +61,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_previewRenderTarget->Create(device, RenderTargetDesc(
         _countof(colorTargets), colorTargets,
         DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview"),
-        CPUTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, 1, 1, "rt::color::cpu")
+        CPUTargetDesc(1, 1, 1, "rt::color::cpu")
         ));
 }
 
@@ -167,7 +167,7 @@ void EditorSceneController::ViewWindow() {
             m_clickPos.y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
             m_clicked = true;
 
-            m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(), 1, m_clickPos.x, m_clickPos.y);
+            m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(), m_clickPos.x, m_clickPos.y);
         }
 
         ImGui::End();
@@ -178,8 +178,9 @@ void EditorSceneController::PropertyWindow() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
     if (ImGui::Begin("Property", pOpen, windowFlags)) {
-        auto* d = reinterpret_cast<uint8_t*>(&m_value);
-        std::string str = fmt::format("{}.{}.{}.{}", d[0], d[1], d[2], d[3]);
+        math::Color4 crl;
+        crl.value = m_value;
+        std::string str = fmt::format("r={} g={} b={} a={}", crl.red, crl.green, crl.blue, crl.alpha);
         ImGui::Text("pos: %d %d = %s", m_clickPos.x, m_clickPos.y, str.c_str());
         ImGui::End();
     }

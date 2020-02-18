@@ -149,6 +149,14 @@ struct Color3 {
 
 };
 
+// 0xAARRGGBB to 0xAABBGGRR
+inline uint32_t BGRAToRGBA(uint32_t v) {
+    return
+        (v & 0xFF00FF00) |
+        ((v & 0x00FF0000) >> 16) |
+        ((v & 0x000000FF) << 16);
+}
+
 template <typename T>
 struct BasicPoint {
     using Type = T;

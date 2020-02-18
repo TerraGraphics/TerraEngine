@@ -37,7 +37,11 @@ void RenderTarget::Create(const DevicePtr& device, RenderTargetDesc&& desc) {
     }
 
     if (!desc.cpuTarget.IsEmpty()) {
-        CreateCPUTarget(desc.cpuTarget.format, desc.cpuTarget.width, desc.cpuTarget.height, desc.cpuTarget.name);
+        m_numCTForCT = desc.cpuTarget.numColorTargets;
+        if (m_numCTForCT >= m_colorTargets.size()) {
+            throw EngineError("wrong numColorTargets ({}) in CPUTargetDesc", m_numCTForCT);
+        }
+        CreateCPUTarget(desc.colorTargets[m_numCTForCT].format, desc.cpuTarget.width, desc.cpuTarget.height, desc.cpuTarget.name);
 
         dg::FenceDesc fenceDesc;
         fenceDesc.Name = "rt::fence::cpu";
@@ -148,16 +152,13 @@ void RenderTarget::Bind(ContextPtr& context, const math::Color4f& clearColor) {
     context->ClearDepthStencil(m_depthView, dg::CLEAR_DEPTH_FLAG, 1.0f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
-void RenderTarget::CopyColorTarget(ContextPtr& context, uint8_t num, uint32_t offsetX, uint32_t offsetY) {
-    if (num >= m_colorTargets.size()) {
-        throw EngineError("wrong number {} for RenderTarget::CopyColorTarget", num);
-    }
+void RenderTarget::CopyColorTarget(ContextPtr& context, uint32_t offsetX, uint32_t offsetY) {
     if (!m_cpuTarget) {
         throw EngineError("wrong call RenderTarget::CopyColorTarget: cpu texture is uninitialized");
     }
 
     dg::CopyTextureAttribs cpyAttr;
-    cpyAttr.pSrcTexture = m_colorTargets[num];
+    cpyAttr.pSrcTexture = m_colorTargets[m_numCTForCT];
     cpyAttr.SrcMipLevel = 0;
     cpyAttr.SrcSlice = 0;
     dg::Box box;
@@ -188,10 +189,25 @@ std::pair<uint32_t, bool> RenderTarget::ReadCPUTarget(ContextPtr& context) {
         return std::make_pair(0, false);
     }
 
+    bool needConvert = false;
+    switch (m_cpuTarget->GetDesc().Format) {
+        case dg::TEX_FORMAT_BGRA8_TYPELESS:
+        case dg::TEX_FORMAT_BGRA8_UNORM:
+        case dg::TEX_FORMAT_BGRA8_UNORM_SRGB:
+            needConvert = true;
+            break;
+        default:
+            needConvert = false;
+            break;
+    }
+
     dg::MappedTextureSubresource texData;
     context->MapTextureSubresource(m_cpuTarget, 0, 0, dg::MAP_READ, dg::MAP_FLAG_DO_NOT_WAIT, nullptr, texData);
     uint32_t result = *reinterpret_cast<const uint32_t*>(texData.pData);
     context->UnmapTextureSubresource(m_cpuTarget, 0, 0);
+    if (needConvert) {
+        result = math::BGRAToRGBA(result);
+    }
 
     return std::make_pair(result, true);
 }
