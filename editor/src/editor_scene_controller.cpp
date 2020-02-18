@@ -1,6 +1,7 @@
 #include "editor_scene_controller.h"
 
-#include <imgui.h>
+#include "middleware/imgui/imgui_math.h"
+
 #include <imgui_internal.h>
 
 #include "core/engine.h"
@@ -148,6 +149,14 @@ void EditorSceneController::ViewWindow() {
         m_viewHeight = static_cast<uint32_t>(size.y);
 
         math::Rectf rc = Image(m_previewRenderTarget->GetColorTexture(0), math::Size(m_viewWidht, m_viewHeight), m_isOpenGL);
+        if (ImGui::IsWindowHovered() &&
+            ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max())) &&
+            ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+
+            m_clickPos.x = static_cast<uint32_t>(ImGui::GetIO().MousePos.x - rc.x);
+            m_clickPos.y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
+        }
+
         ImGui::End();
     }
 }
@@ -156,6 +165,7 @@ void EditorSceneController::PropertyWindow() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
     if (ImGui::Begin("Property", pOpen, windowFlags)) {
+        ImGui::Text("pos: %d %d", m_clickPos.x, m_clickPos.y);
         ImGui::End();
     }
 }

@@ -1,18 +1,10 @@
 #include "middleware/imgui/widgets.h"
 
-#include <imgui.h>
+#include "middleware/imgui/imgui_math.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
-
-static inline ImVec2 ToImGui(math::Size value) {
-    return ImVec2(static_cast<float>(value.w), static_cast<float>(value.h));
-}
-
-static inline ImVec2 ToImGui(math::Pointf value) {
-    return ImVec2(value.x, value.y);
-}
 
 math::Rectf Image(dg::ITextureView* texture, math::Size size, bool isOpenGL, math::Pointf uv0, math::Pointf uv1, math::Color tintCol) {
 
@@ -33,5 +25,5 @@ math::Rectf Image(dg::ITextureView* texture, math::Size size, bool isOpenGL, mat
 
     window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min, bb.Max, ToImGui(uv0), ToImGui(uv1), tintCol.value);
 
-    return math::Rectf(math::Pointf(bb.Min.x, bb.Min.y), math::Pointf(bb.Max.x, bb.Max.y));
+    return math::Rectf(ToPointf(bb.Min), ToPointf(bb.Max));
 }

@@ -2,8 +2,7 @@
 
 #include <memory>
 
-#include "core/dg/dg.h"
-#include "core/dg/math.h"
+#include "core/math/basic.h"
 #include "core/common/ctor.h"
 
 namespace Diligent {
@@ -47,4 +46,6 @@ private:
     uint32_t m_viewHeight = 1.f;
     std::unique_ptr<RenderTarget> m_sceneRenderTarget;
     std::unique_ptr<RenderTarget> m_previewRenderTarget;
+
+    math::Point m_clickPos = math::Point(0, 0);
 };
