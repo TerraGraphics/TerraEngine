@@ -14,7 +14,10 @@ public:
     std::shared_ptr<TransformNode> Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder,
         const VertexDecl& additionalVertexDecl);
 
+    void SelectNode(std::shared_ptr<TransformNode> node);
+
 private:
     std::shared_ptr<TransformNode> m_rootNode;
     std::shared_ptr<TransformNode> m_transformNode;
+    std::shared_ptr<TransformNode> m_selectedObject;
 };

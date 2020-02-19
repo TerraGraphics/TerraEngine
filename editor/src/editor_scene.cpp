@@ -41,11 +41,31 @@ void EditorScene::Create() {
 }
 
 void EditorScene::Update(double /* deltaTime */) {
-    m_scene->Update();
+    if (m_findId) {
+        m_gizmo->SelectNode(m_scene->Update(m_selectedId));
+        m_findId = false;
+    } else {
+        m_scene->Update();
+    }
 }
 
 void EditorScene::Draw() {
     m_scene->Draw();
+}
+
+void EditorScene::SelectNode(uint32_t id) {
+    if (id == m_selectedId) {
+        return;
+    }
+
+    m_selectedId = id;
+    if (id == std::numeric_limits<uint32_t>::max()) {
+        m_findId = false;
+        m_gizmo->SelectNode(std::shared_ptr<TransformNode>());
+        return;
+    }
+
+    m_findId = true;
 }
 
 void EditorScene::CreateTextures() {

@@ -20,12 +20,13 @@ std::shared_ptr<TransformNode> Scene::Update(uint32_t findId) {
     UpdateGraph(m_updateDesc);
 
     auto& nodeList = m_updateDesc.nodeList;
-    if (!m_transformBuffer) {
+    if (!m_transformBuffer || (m_transformBufferBufferElementNumber < nodeList.size())) {
+        m_transformBufferBufferElementNumber = static_cast<uint32_t>(((nodeList.size() >> 8) + size_t(1)) << size_t(8));
         size_t itemSize = sizeof(dg::float4x4) + sizeof(dg::float3x3);
         if (m_addId) {
             itemSize += sizeof(uint32_t);
         }
-        auto fullSize = nodeList.size() * itemSize;
+        auto fullSize = m_transformBufferBufferElementNumber * itemSize;
         m_transformBuffer = std::make_shared<WriteableVertexBuffer>(m_device, fullSize, dg::USAGE_STAGING, "transform vb");
     }
 

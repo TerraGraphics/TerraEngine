@@ -32,6 +32,7 @@ public:
     void AddChild(const std::shared_ptr<TransformNode>& node);
 
     void SetVisible(bool value) noexcept;
+    bool IsVisible() const noexcept { return m_isVisible; };
 
     void SetTransform(const dg::float4x4& transform);
     const dg::float4x4& GetBaseTransform() const noexcept { return m_baseTransform; }

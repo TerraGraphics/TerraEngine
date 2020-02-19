@@ -18,5 +18,6 @@ private:
     ContextPtr m_context;
     bool m_addId = false;
     std::shared_ptr<WriteableVertexBuffer> m_transformBuffer;
+    uint32_t m_transformBufferBufferElementNumber = 0;
     TransformUpdateDesc m_updateDesc;
 };

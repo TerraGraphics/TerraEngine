@@ -19,6 +19,8 @@ public:
     void Update(double deltaTime);
     void Draw();
 
+    void SelectNode(uint32_t id);
+
 private:
     void CreateTextures();
     void CreateMaterials();
@@ -38,6 +40,9 @@ private:
 
     std::unique_ptr<Gizmo3D> m_gizmo;
     std::shared_ptr<Scene> m_scene;
+
+    uint32_t m_selectedId = std::numeric_limits<uint32_t>::max();
+    bool m_findId = false;
 
     DevicePtr m_device;
 };

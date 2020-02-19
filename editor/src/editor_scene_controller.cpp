@@ -57,7 +57,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
 
     ColorTargetDesc colorTargets[] = {
         ColorTargetDesc(scDesc.ColorBufferFormat, math::Color4f(1.f), "rt::color::preview"),
-        ColorTargetDesc(scDesc.ColorBufferFormat, math::Color4f(1.f), "rt::color::picker") };
+        ColorTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::picker") };
     m_previewRenderTarget->Create(device, RenderTargetDesc(
         _countof(colorTargets), colorTargets,
         DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview"),
@@ -77,6 +77,7 @@ void EditorSceneController::Update(double deltaTime) {
 
     if (m_clicked) {
         if (m_previewRenderTarget->ReadCPUTarget(engine.GetImmediateContext(), m_value)) {
+            m_editorScene->SelectNode(m_value);
             m_clicked = false;
         }
     }
@@ -178,7 +179,7 @@ void EditorSceneController::PropertyWindow() {
         math::Color4 crl;
         crl.value = m_value;
         std::string str = fmt::format("r={} g={} b={} a={}", crl.red, crl.green, crl.blue, crl.alpha);
-        ImGui::Text("pos: %d %d = %s", m_clickPos.x, m_clickPos.y, str.c_str());
+        ImGui::Text("pos: %d %d = %s (%d)", m_clickPos.x, m_clickPos.y, str.c_str(), m_value);
         ImGui::End();
     }
 }
