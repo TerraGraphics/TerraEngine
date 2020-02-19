@@ -38,6 +38,10 @@ void RenderTarget::Create(const DevicePtr& device, RenderTargetDesc&& desc) {
 
     if (!desc.cpuTarget.IsEmpty()) {
         CreateCPUTarget(desc.cpuTarget.format, desc.cpuTarget.width, desc.cpuTarget.height, desc.cpuTarget.name);
+
+        dg::FenceDesc fenceDesc;
+        fenceDesc.Name = "rt::fence::cpu";
+        m_device->CreateFence(fenceDesc, &m_cpuTargetFence);
     }
 }
 
@@ -172,11 +176,16 @@ void RenderTarget::CopyColorTarget(ContextPtr& context, uint8_t num, uint32_t of
     cpyAttr.DstTextureTransitionMode = dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
     context->CopyTexture(cpyAttr);
+    context->SignalFence(m_cpuTargetFence, ++m_cpuTargetFenceLast);
 }
 
-uint32_t RenderTarget::ReadCPUTarget(ContextPtr& context) {
+std::pair<uint32_t, bool> RenderTarget::ReadCPUTarget(ContextPtr& context) {
     if (!m_cpuTarget) {
         throw EngineError("wrong call RenderTarget::ReadCPUTarget: cpu texture is uninitialized");
+    }
+
+    if (m_cpuTargetFenceLast > m_cpuTargetFence->GetCompletedValue()) {
+        return std::make_pair(0, false);
     }
 
     dg::MappedTextureSubresource texData;
@@ -184,7 +193,7 @@ uint32_t RenderTarget::ReadCPUTarget(ContextPtr& context) {
     uint32_t result = *reinterpret_cast<const uint32_t*>(texData.pData);
     context->UnmapTextureSubresource(m_cpuTarget, 0, 0);
 
-    return result;
+    return std::make_pair(result, true);
 }
 
 TextureViewPtr RenderTarget::GetColorTexture(uint8_t num) {

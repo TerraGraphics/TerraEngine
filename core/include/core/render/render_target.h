@@ -106,7 +106,7 @@ public:
     void Bind(ContextPtr& context, const math::Color4f& clearColor);
 
     void CopyColorTarget(ContextPtr& context, uint8_t num, uint32_t offsetX, uint32_t offsetY);
-    uint32_t ReadCPUTarget(ContextPtr& context);
+    std::pair<uint32_t, bool> ReadCPUTarget(ContextPtr& context);
 
     TextureViewPtr GetColorTexture(uint8_t num);
 
@@ -127,4 +127,6 @@ private:
     TexturePtr m_depthTarget;
     dg::ITextureView* m_depthView;
     TexturePtr m_cpuTarget;
+    FencePtr m_cpuTargetFence;
+    uint64_t m_cpuTargetFenceLast = 0;
 };

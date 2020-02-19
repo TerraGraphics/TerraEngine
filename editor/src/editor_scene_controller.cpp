@@ -96,8 +96,11 @@ void EditorSceneController::Draw() {
 
     m_sceneRenderTarget->Bind(context, clearColor);
     if (m_clicked) {
-        m_clicked = false;
-        m_value = m_previewRenderTarget->ReadCPUTarget(context);
+        auto [value, ok] = m_previewRenderTarget->ReadCPUTarget(context);
+        if (ok) {
+            m_value = value;
+            m_clicked = false;
+        }
     }
 
     m_gui->StartFrame();
