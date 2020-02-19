@@ -53,11 +53,11 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
 
     m_editorScene->Create();
 
-    m_sceneRenderTarget->Create(device);
+    m_sceneRenderTarget->Create(device, math::Color4f(1.f));
 
     ColorTargetDesc colorTargets[] = {
-        ColorTargetDesc(scDesc.ColorBufferFormat, "rt::color::preview"),
-        ColorTargetDesc(scDesc.ColorBufferFormat, "rt::color::picker") };
+        ColorTargetDesc(scDesc.ColorBufferFormat, math::Color4f(1.f), "rt::color::preview"),
+        ColorTargetDesc(scDesc.ColorBufferFormat, math::Color4f(1.f), "rt::color::picker") };
     m_previewRenderTarget->Create(device, RenderTargetDesc(
         _countof(colorTargets), colorTargets,
         DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview"),
@@ -75,6 +75,12 @@ void EditorSceneController::Update(double deltaTime) {
     m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
+    if (m_clicked) {
+        if (m_previewRenderTarget->ReadCPUTarget(engine.GetImmediateContext(), m_value)) {
+            m_clicked = false;
+        }
+    }
+
     m_editorScene->Update(deltaTime);
     m_sceneRenderTarget->Update(swapChain);
     m_previewRenderTarget->Update(swapChain, m_viewWidht, m_viewHeight);
@@ -83,25 +89,16 @@ void EditorSceneController::Update(double deltaTime) {
 void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
     auto& context = engine.GetImmediateContext();
+    auto& builder = engine.GetMaterialBuilder();
 
-    const math::Color4f clearColor(1.f, 1.f, 1.f);
-    m_previewRenderTarget->Bind(context, clearColor);
-
-    auto builder = engine.GetMaterialBuilder();
+    m_previewRenderTarget->Bind(context);
     builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
 
     m_editorScene->Draw();
 
-    m_sceneRenderTarget->Bind(context, clearColor);
-    if (m_clicked) {
-        auto [value, ok] = m_previewRenderTarget->ReadCPUTarget(context);
-        if (ok) {
-            m_value = value;
-            m_clicked = false;
-        }
-    }
+    m_sceneRenderTarget->Bind(context);
 
     m_gui->StartFrame();
     DockSpace();

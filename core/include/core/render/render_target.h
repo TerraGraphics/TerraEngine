@@ -9,18 +9,27 @@ struct ColorTargetDesc {
         Default,
         Custom
     };
+    ColorTargetDesc() = delete;
+
     // Default color target
-    ColorTargetDesc() noexcept = default;
+    ColorTargetDesc(math::Color4f clearColor) noexcept
+        : type(Type::Default)
+        , clearColor(clearColor) {
+
+    }
+
     // Custom color target
-    ColorTargetDesc(dg::TEXTURE_FORMAT format, const char* name) noexcept
+    ColorTargetDesc(dg::TEXTURE_FORMAT format, math::Color4f clearColor, const char* name) noexcept
         : type(Type::Custom)
         , format(format)
+        , clearColor(clearColor)
         , name(name) {
 
     }
 
     Type type = Type::Default;
     dg::TEXTURE_FORMAT format = dg::TEXTURE_FORMAT(0);
+    math::Color4f clearColor = math::Color4f(1.f, 1.f, 1.f);
     const char* name = nullptr;
 };
 
@@ -100,13 +109,13 @@ public:
     RenderTarget() = default;
     ~RenderTarget() = default;
 
-    void Create(const DevicePtr& device);
+    void Create(const DevicePtr& device, math::Color4f clearColor);
     void Create(const DevicePtr& device, RenderTargetDesc&& desc);
     void Update(SwapChainPtr& swapChain, uint32_t width = 0, uint32_t height = 0);
-    void Bind(ContextPtr& context, const math::Color4f& clearColor);
+    void Bind(ContextPtr& context);
 
     void CopyColorTarget(ContextPtr& context, uint32_t offsetX, uint32_t offsetY);
-    std::pair<uint32_t, bool> ReadCPUTarget(ContextPtr& context);
+    bool ReadCPUTarget(ContextPtr& context, uint32_t& result);
 
     TextureViewPtr GetColorTexture(uint8_t num);
 
@@ -124,6 +133,7 @@ private:
 
     std::vector<TexturePtr> m_colorTargets;
     std::vector<dg::ITextureView*> m_colorViews;
+    std::vector<math::Color4f> m_clearColors;
     TexturePtr m_depthTarget;
     dg::ITextureView* m_depthView;
     TexturePtr m_cpuTarget;

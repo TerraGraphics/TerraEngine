@@ -5,8 +5,8 @@
 #include "core/dg/device_context.h"
 
 
-void RenderTarget::Create(const DevicePtr& device) {
-    ColorTargetDesc colorTargets[] = { ColorTargetDesc() };
+void RenderTarget::Create(const DevicePtr& device, math::Color4f clearColor) {
+    ColorTargetDesc colorTargets[] = { ColorTargetDesc(clearColor) };
     Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets, DepthTargetDesc()));
 }
 
@@ -22,7 +22,9 @@ void RenderTarget::Create(const DevicePtr& device, RenderTargetDesc&& desc) {
     TexturePtr defColorTarget;
     m_colorTargets.resize(desc.numColorTargets, defColorTarget);
     m_colorViews.resize(desc.numColorTargets, nullptr);
+    m_clearColors.resize(desc.numColorTargets, math::Color4f());
     for (uint8_t i=0; i!=desc.numColorTargets; ++i) {
+        m_clearColors[i] = desc.colorTargets[i].clearColor;
         if (desc.colorTargets[i].type == ColorTargetDesc::Type::Custom) {
             CreateColorTarget(i, desc.colorTargets[i].format, desc.colorTargets[i].name);
         } else {
@@ -62,6 +64,7 @@ void RenderTarget::CreateColorTarget(uint8_t num, dg::TEXTURE_FORMAT format, con
     desc.BindFlags = dg::BIND_SHADER_RESOURCE | dg::BIND_RENDER_TARGET;
     desc.CPUAccessFlags = dg::CPU_ACCESS_NONE;
     desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
+
     desc.CommandQueueMask = 1;
     m_device->CreateTexture(desc, nullptr, &m_colorTargets[num]);
 
@@ -82,7 +85,7 @@ void RenderTarget::CreateDepthTarget(dg::TEXTURE_FORMAT format, const char* name
     desc.CPUAccessFlags = dg::CPU_ACCESS_NONE;
     desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
     desc.ClearValue.Format = desc.Format;
-    desc.ClearValue.DepthStencil.Depth = 1;
+    desc.ClearValue.DepthStencil.Depth = 1.f;
     desc.ClearValue.DepthStencil.Stencil = 0;
     desc.CommandQueueMask = 1;
     m_device->CreateTexture(desc, nullptr, &m_depthTarget);
@@ -144,10 +147,10 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
     }
 }
 
-void RenderTarget::Bind(ContextPtr& context, const math::Color4f& clearColor) {
+void RenderTarget::Bind(ContextPtr& context) {
     context->SetRenderTargets(static_cast<uint32_t>(m_colorViews.size()), m_colorViews.data(), m_depthView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    for (auto* view : m_colorViews) {
-        context->ClearRenderTarget(view, clearColor.value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    for (size_t i=0; i!=m_colorViews.size(); ++i) {
+        context->ClearRenderTarget(m_colorViews[i], m_clearColors[i].value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
     context->ClearDepthStencil(m_depthView, dg::CLEAR_DEPTH_FLAG, 1.0f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
@@ -180,36 +183,26 @@ void RenderTarget::CopyColorTarget(ContextPtr& context, uint32_t offsetX, uint32
     context->SignalFence(m_cpuTargetFence, ++m_cpuTargetFenceLast);
 }
 
-std::pair<uint32_t, bool> RenderTarget::ReadCPUTarget(ContextPtr& context) {
+bool RenderTarget::ReadCPUTarget(ContextPtr& context, uint32_t& result) {
     if (!m_cpuTarget) {
         throw EngineError("wrong call RenderTarget::ReadCPUTarget: cpu texture is uninitialized");
     }
 
     if (m_cpuTargetFenceLast > m_cpuTargetFence->GetCompletedValue()) {
-        return std::make_pair(0, false);
-    }
-
-    bool needConvert = false;
-    switch (m_cpuTarget->GetDesc().Format) {
-        case dg::TEX_FORMAT_BGRA8_TYPELESS:
-        case dg::TEX_FORMAT_BGRA8_UNORM:
-        case dg::TEX_FORMAT_BGRA8_UNORM_SRGB:
-            needConvert = true;
-            break;
-        default:
-            needConvert = false;
-            break;
+        return false;
     }
 
     dg::MappedTextureSubresource texData;
     context->MapTextureSubresource(m_cpuTarget, 0, 0, dg::MAP_READ, dg::MAP_FLAG_DO_NOT_WAIT, nullptr, texData);
-    uint32_t result = *reinterpret_cast<const uint32_t*>(texData.pData);
+    result = *reinterpret_cast<const uint32_t*>(texData.pData);
     context->UnmapTextureSubresource(m_cpuTarget, 0, 0);
-    if (needConvert) {
+
+    auto format = m_cpuTarget->GetDesc().Format;
+    if ((format == dg::TEX_FORMAT_BGRA8_TYPELESS) || (format == dg::TEX_FORMAT_BGRA8_UNORM) || (format == dg::TEX_FORMAT_BGRA8_UNORM_SRGB)) {
         result = math::BGRAToRGBA(result);
     }
 
-    return std::make_pair(result, true);
+    return true;
 }
 
 TextureViewPtr RenderTarget::GetColorTexture(uint8_t num) {

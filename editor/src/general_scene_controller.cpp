@@ -43,7 +43,7 @@ void GeneralSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVar
     m_controller->AttachCamera(m_camera);
 
     m_generalScene->Create();
-    m_sceneRenderTarget->Create(device);
+    m_sceneRenderTarget->Create(device, math::Color4f(0, 0, 1.f));
 }
 
 void GeneralSceneController::Update(double deltaTime) {
@@ -63,10 +63,9 @@ void GeneralSceneController::Update(double deltaTime) {
 
 void GeneralSceneController::Draw() {
     auto& engine = Engine::Get();
-
-    m_sceneRenderTarget->Bind(engine.GetImmediateContext(), math::Color4f(0, 0, 1.f));
-
     auto builder = engine.GetMaterialBuilder();
+
+    m_sceneRenderTarget->Bind(engine.GetImmediateContext());
     builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
