@@ -10,7 +10,7 @@ public:
     Scene(DevicePtr device, ContextPtr context, bool addId);
     ~Scene() = default;
 
-    void Update();
+    std::shared_ptr<TransformNode> Update(uint32_t findId = 0);
     uint32_t Draw();
 
 private:
@@ -18,5 +18,5 @@ private:
     ContextPtr m_context;
     bool m_addId = false;
     std::shared_ptr<WriteableVertexBuffer> m_transformBuffer;
-    std::vector<std::shared_ptr<TransformNode>> m_nodeListForDraw;
+    TransformUpdateDesc m_updateDesc;
 };

@@ -63,12 +63,20 @@ void TransformNode::AddChild(const std::shared_ptr<TransformNode>& node) {
     m_children.push_back(node);
 }
 
+void TransformNode::SetVisible(bool value) noexcept {
+    m_isVisible = value;
+}
+
 void TransformNode::SetTransform(const dg::float4x4& transform) {
     m_isDirty = true;
     m_baseTransform = transform;
 }
 
-void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList, uint32_t& lastId) {
+void TransformNode::Update(TransformUpdateDesc& value) {
+    if (!m_isVisible) {
+        return;
+    }
+
     if (m_isDirty) {
         if (auto parent = m_parent.lock()) {
             m_world = m_baseTransform * parent->m_world;
@@ -79,13 +87,16 @@ void TransformNode::Update(std::vector<std::shared_ptr<TransformNode>>& nodeList
 
     if (m_materialNode) {
         if (m_id == 0) {
-            m_id = ++lastId;
+            m_id = ++value.lastId;
         }
-        nodeList.push_back(shared_from_this());
+        if (m_id == value.findId) {
+            value.findResult = shared_from_this();
+        }
+        value.nodeList.push_back(shared_from_this());
     }
 
     for (auto& node : m_children) {
-        node->Update(nodeList, lastId);
+        node->Update(value);
     }
 }
 
@@ -106,6 +117,8 @@ void TransformGraph::AddChild(const std::shared_ptr<TransformNode>& node) {
     m_root->AddChild(node);
 }
 
-void TransformGraph::UpdateGraph(std::vector<std::shared_ptr<TransformNode>>& nodeList) {
-    m_root->Update(nodeList, m_lastId);
+void TransformGraph::UpdateGraph(TransformUpdateDesc& value) {
+    value.lastId = m_lastId;
+    m_root->Update(value);
+    m_lastId = value.lastId;
 }
