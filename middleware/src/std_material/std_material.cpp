@@ -11,17 +11,14 @@ StdMaterial::StdMaterial(const std::shared_ptr<Material>& material, const std::s
 
 void StdMaterial::SetBaseColor(const math::Color4f& value) {
     m_materialData.crlBase = value.ToFloat4();
-    m_isDirty = true;
 }
 
 void StdMaterial::SetBaseColor(const dg::float4& value) {
     m_materialData.crlBase = value;
-    m_isDirty = true;
 }
 
 void StdMaterial::SetBaseColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     m_materialData.crlBase = math::Color4f(r, g, b, a).ToFloat4();
-    m_isDirty = true;
 }
 
 void StdMaterial::SetBaseTexture(TextureViewPtr& texture) {
@@ -30,7 +27,6 @@ void StdMaterial::SetBaseTexture(TextureViewPtr& texture) {
 
 void StdMaterial::SetAlphaThreshold(float value) {
     m_materialData.alphaThreshold = value;
-    m_isDirty = true;
 }
 
 void StdMaterial::Update(DevicePtr& device, ContextPtr& context) {
@@ -53,20 +49,11 @@ void StdMaterial::Update(DevicePtr& device, ContextPtr& context) {
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         device->CreateBuffer(desc, nullptr, &m_materialCB);
 
-        void* data;
-        context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, data);
-        *reinterpret_cast<dg::ShaderMaterial*>(data) = m_materialData;
-        context->UnmapBuffer(m_materialCB, dg::MAP_WRITE);
-
         var->Set(m_materialCB);
-        m_isDirty = false;
     }
 
-    if (m_isDirty) {
-        void* data;
-        context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, data);
-        *reinterpret_cast<dg::ShaderMaterial*>(data) = m_materialData;
-        context->UnmapBuffer(m_materialCB, dg::MAP_WRITE);
-        m_isDirty = false;
-    }
+    void* data = nullptr;
+    context->MapBuffer(m_materialCB, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, data);
+    *reinterpret_cast<dg::ShaderMaterial*>(data) = m_materialData;
+    context->UnmapBuffer(m_materialCB, dg::MAP_WRITE);
 }

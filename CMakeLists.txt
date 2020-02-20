@@ -8,6 +8,7 @@ conan_cmake_run(CONANFILE conanfile.txt
     BUILD_TYPE "Release"
     BUILD missing
     OPTIONS DiligentGraphics:development=False
+    SETTINGS DiligentGraphics:build_type=${CMAKE_BUILD_TYPE}
     )
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()

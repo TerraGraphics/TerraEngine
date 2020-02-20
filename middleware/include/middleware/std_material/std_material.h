@@ -22,7 +22,6 @@ public:
     void Update(DevicePtr& device, ContextPtr& context) override;
 
 private:
-    bool m_isDirty = true;
     bool m_isMaterialDataExists = true;
     BufferPtr m_materialCB;
     dg::ShaderMaterial m_materialData;

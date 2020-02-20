@@ -26,7 +26,7 @@ uint32_t StaticVarsStorage::Add(dg::SHADER_TYPE shaderType, const std::string& n
         }
     }
 
-    dg::IBuffer* buffer;
+    dg::IBuffer* buffer = nullptr;
     dg::BufferDesc desc;
     desc.Name = name.c_str();
     desc.uiSizeInBytes = static_cast<uint32_t>(size);
