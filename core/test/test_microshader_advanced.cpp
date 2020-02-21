@@ -21,4 +21,14 @@ TEST(MathAdvanced, TestQuadEquation) {
     ASSERT_FLOAT_EQ(result.y, -3.f);
 }
 
+TEST(MathAdvanced, IntersectionRayAndCylinder0Z) {
+    // rayStart, rayDir, radius, height
+    float radius = 1.f;
+    float height = 1.f;
+    ASSERT_TRUE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(1.f, 0, 0), radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(-1.f, 0, 0), radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(0, 1.f, 0), radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(0, 0, 1.f), radius, height));
+}
+
 }
