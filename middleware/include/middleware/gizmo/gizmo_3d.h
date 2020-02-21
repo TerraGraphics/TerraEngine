@@ -3,6 +3,7 @@
 #include "core/material/vertex_decl.h"
 
 
+class Camera;
 class TransformNode;
 class MaterialBuilder;
 class Gizmo3D : Fixed {
@@ -13,6 +14,7 @@ public:
 public:
     std::shared_ptr<TransformNode> Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder,
         const VertexDecl& additionalVertexDecl);
+    void Update(const std::shared_ptr<Camera>& camera);
 
     void SelectNode(std::shared_ptr<TransformNode> node);
 

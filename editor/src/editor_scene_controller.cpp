@@ -82,7 +82,7 @@ void EditorSceneController::Update(double deltaTime) {
         }
     }
 
-    m_editorScene->Update(deltaTime);
+    m_editorScene->Update(deltaTime, m_camera);
     m_sceneRenderTarget->Update(swapChain);
     m_previewRenderTarget->Update(swapChain, m_viewWidht, m_viewHeight);
 }

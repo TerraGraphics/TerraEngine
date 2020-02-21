@@ -7,6 +7,7 @@
 
 
 class Scene;
+class Camera;
 class Gizmo3D;
 class Material;
 class EditorScene : Fixed {
@@ -16,7 +17,7 @@ public:
 
 public:
     void Create();
-    void Update(double deltaTime);
+    void Update(double deltaTime, const std::shared_ptr<Camera>& camera);
     void Draw();
 
     void SelectNode(uint32_t id);

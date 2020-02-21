@@ -1,5 +1,6 @@
 #include "middleware/gizmo/gizmo_3d.h"
 
+#include "core/camera/camera.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
@@ -46,12 +47,26 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
     return m_rootNode;
 }
 
+void Gizmo3D::Update(const std::shared_ptr<Camera>& camera) {
+    if (!m_selectedObject) {
+        return;
+    }
+    auto nodeMatrix = m_selectedObject->GetWorldMatrix();
+    auto nodePos = dg::float3(nodeMatrix._41, nodeMatrix._42, nodeMatrix._43);
+    auto dir = dg::normalize(nodePos - camera->GetPosition());
+    auto gizmoPos = camera->GetPosition() + dir * 6.f;
+
+    nodeMatrix._11 = 1.f;
+    nodeMatrix._22 = 1.f;
+    nodeMatrix._33 = 1.f;
+    nodeMatrix._41 = gizmoPos.x;
+    nodeMatrix._42 = gizmoPos.y;
+    nodeMatrix._43 = gizmoPos.z;
+    nodeMatrix._44 = 1.f;
+    m_rootNode->SetTransform(nodeMatrix);
+}
+
 void Gizmo3D::SelectNode(std::shared_ptr<TransformNode> node) {
     m_selectedObject = node;
-    if (node) {
-        m_rootNode->SetTransform(node->GetWorldMatrix());
-        m_rootNode->SetVisible(true);
-    } else {
-        m_rootNode->SetVisible(false);
-    }
+    m_rootNode->SetVisible(static_cast<bool>(node));
 }

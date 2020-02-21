@@ -40,7 +40,8 @@ void EditorScene::Create() {
     GenerateGizmo();
 }
 
-void EditorScene::Update(double /* deltaTime */) {
+void EditorScene::Update(double /* deltaTime */, const std::shared_ptr<Camera>& camera) {
+    m_gizmo->Update(camera);
     if (m_findId) {
         m_gizmo->SelectNode(m_scene->Update(m_selectedId));
         m_findId = false;
