@@ -42,7 +42,7 @@ public:
     uint32_t GetId() const noexcept { return m_id; }
     std::shared_ptr<MaterialNode>& GetMaterialNode() noexcept { return m_materialNode; }
 
-    void Update(TransformUpdateDesc& value);
+    void Update(TransformUpdateDesc& value, bool isDirty);
 
 private:
     std::weak_ptr<TransformNode> m_parent;

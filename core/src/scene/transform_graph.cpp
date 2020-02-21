@@ -72,12 +72,13 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
     m_baseTransform = transform;
 }
 
-void TransformNode::Update(TransformUpdateDesc& value) {
+void TransformNode::Update(TransformUpdateDesc& value, bool isDirty) {
     if (!m_isVisible) {
         return;
     }
 
-    if (m_isDirty) {
+    if (m_isDirty || isDirty) {
+        isDirty = true;
         if (auto parent = m_parent.lock()) {
             m_world = m_baseTransform * parent->m_world;
             m_normal = MakeNormalMatrix3x3(m_world);
@@ -96,7 +97,7 @@ void TransformNode::Update(TransformUpdateDesc& value) {
     }
 
     for (auto& node : m_children) {
-        node->Update(value);
+        node->Update(value, isDirty);
     }
 }
 
@@ -119,6 +120,6 @@ void TransformGraph::AddChild(const std::shared_ptr<TransformNode>& node) {
 
 void TransformGraph::UpdateGraph(TransformUpdateDesc& value) {
     value.lastId = m_lastId;
-    m_root->Update(value);
+    m_root->Update(value, false);
     m_lastId = value.lastId;
 }

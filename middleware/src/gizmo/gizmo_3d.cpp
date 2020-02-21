@@ -48,5 +48,10 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
 
 void Gizmo3D::SelectNode(std::shared_ptr<TransformNode> node) {
     m_selectedObject = node;
-    m_rootNode->SetVisible(static_cast<bool>(node));
+    if (node) {
+        m_rootNode->SetTransform(node->GetWorldMatrix());
+        m_rootNode->SetVisible(true);
+    } else {
+        m_rootNode->SetVisible(false);
+    }
 }

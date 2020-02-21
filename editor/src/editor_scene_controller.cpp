@@ -56,7 +56,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_sceneRenderTarget->Create(device, math::Color4f(1.f));
 
     ColorTargetDesc colorTargets[] = {
-        ColorTargetDesc(scDesc.ColorBufferFormat, math::Color4f(1.f), "rt::color::preview"),
+        ColorTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::preview"),
         ColorTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::picker") };
     m_previewRenderTarget->Create(device, RenderTargetDesc(
         _countof(colorTargets), colorTargets,
