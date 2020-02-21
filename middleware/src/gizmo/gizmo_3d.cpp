@@ -13,8 +13,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
     auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetDecl(), additionalVertexDecl).
         DepthEnable(false).
         CullMode(dg::CULL_MODE_NONE).
-        // TODO: dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC).
+        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::gizmo::arrow");
 
     m_rootNode = std::make_shared<TransformNode>();

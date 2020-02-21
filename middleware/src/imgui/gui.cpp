@@ -246,8 +246,7 @@ void Gui::RenderFrame() {
         desc.Name           = "vb::imgui";
         desc.BindFlags      = dg::BIND_VERTEX_BUFFER;
         desc.uiSizeInBytes  = m_vbSize * sizeof(ImDrawVert);
-        // TODO: dg::USAGE_DYNAMIC;
-        desc.Usage          = dg::USAGE_STAGING;
+        desc.Usage          = dg::USAGE_DYNAMIC;
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         m_device->CreateBuffer(desc, nullptr, &m_vb);
     }
@@ -262,8 +261,7 @@ void Gui::RenderFrame() {
         desc.Name           = "ib::imgui";
         desc.BindFlags      = dg::BIND_INDEX_BUFFER;
         desc.uiSizeInBytes  = m_ibSize * sizeof(ImDrawIdx);
-        // TODO: dg::USAGE_DYNAMIC;
-        desc.Usage          = dg::USAGE_STAGING;
+        desc.Usage          = dg::USAGE_DYNAMIC;
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         m_device->CreateBuffer(desc, nullptr, &m_ib);
     }

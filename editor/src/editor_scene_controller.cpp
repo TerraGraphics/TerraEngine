@@ -165,7 +165,8 @@ void EditorSceneController::ViewWindow() {
             m_clickPos.y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
             m_clicked = true;
 
-            m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(), m_clickPos.x, m_clickPos.y);
+            m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(),
+                m_clickPos.x, m_isOpenGL ? m_viewHeight - m_clickPos.y : m_clickPos.y);
         }
 
         ImGui::End();
