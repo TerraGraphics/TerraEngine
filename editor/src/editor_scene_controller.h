@@ -1,20 +1,12 @@
 #pragma once
 
 #include <memory>
-
-#include "core/math/basic.h"
 #include "core/common/ctor.h"
 
-namespace Diligent {
-#include "structures.fxh"
-}
 
 class Gui;
-class Camera;
-class PreviewScene;
 class RenderTarget;
 class PreviewWindow;
-class EditorCameraController;
 class EditorSceneController : Fixed {
 public:
     EditorSceneController();
@@ -27,29 +19,11 @@ public:
 
 private:
     void DockSpace();
-    void ViewWindow();
     void PropertyWindow();
     void FooterWindow();
 
 private:
-    uint32_t m_vsCameraVarId = 0;
-    uint32_t m_psCameraVarId = 0;
-    uint32_t m_gsCameraVarId = 0;
-    bool m_isOpenGL = false;
-
-    dg::ShaderCamera m_shaderCamera;
-    std::shared_ptr<Camera> m_camera;
-    EditorCameraController* m_controller = nullptr;
-
     std::shared_ptr<Gui> m_gui = nullptr;
-    std::unique_ptr<PreviewScene> m_previewScene;
-    uint32_t m_viewWidht = 1.f;
-    uint32_t m_viewHeight = 1.f;
-    std::unique_ptr<RenderTarget> m_sceneRenderTarget;
-    std::unique_ptr<RenderTarget> m_previewRenderTarget;
+    std::unique_ptr<RenderTarget> m_renderTarget;
     std::unique_ptr<PreviewWindow> m_previewWindow;
-
-    math::Point m_clickPos = math::Point(0, 0);
-    uint32_t m_value = 0;
-    bool m_clicked = false;
 };
