@@ -1,4 +1,4 @@
-#include "editor_scene.h"
+#include "preview_scene.h"
 
 #include "core/engine.h"
 #include "core/scene/scene.h"
@@ -21,15 +21,15 @@ static const auto& additionalVDecl = VertexDecl({
         ItemDecl<math::Color4>("IdColor", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
     });
 
-EditorScene::EditorScene() {
+PreviewScene::PreviewScene() {
 
 }
 
-EditorScene::~EditorScene() {
+PreviewScene::~PreviewScene() {
 
 }
 
-void EditorScene::Create() {
+void PreviewScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
     m_scene = std::make_shared<Scene>(m_device, engine.GetImmediateContext(), true);
@@ -40,7 +40,7 @@ void EditorScene::Create() {
     GenerateGizmo();
 }
 
-void EditorScene::Update(double /* deltaTime */, const std::shared_ptr<Camera>& camera) {
+void PreviewScene::Update(double /* deltaTime */, const std::shared_ptr<Camera>& camera) {
     m_gizmo->Update(camera);
     if (m_findId) {
         m_gizmo->SelectNode(m_scene->Update(m_selectedId));
@@ -50,11 +50,11 @@ void EditorScene::Update(double /* deltaTime */, const std::shared_ptr<Camera>& 
     }
 }
 
-void EditorScene::Draw() {
+void PreviewScene::Draw() {
     m_scene->Draw();
 }
 
-void EditorScene::SelectNode(uint32_t id) {
+void PreviewScene::SelectNode(uint32_t id) {
     if (id == m_selectedId) {
         return;
     }
@@ -69,15 +69,15 @@ void EditorScene::SelectNode(uint32_t id) {
     m_findId = true;
 }
 
-void EditorScene::SetMouseRay(dg::float3 rayStart, dg::float3 rayDir) {
+void PreviewScene::SetMouseRay(dg::float3 rayStart, dg::float3 rayDir) {
     m_gizmo->SetMouseRay(rayStart, rayDir);
 }
 
-void EditorScene::SetSpherePos(dg::float3 pos) {
+void PreviewScene::SetSpherePos(dg::float3 pos) {
     m_sphere->SetTransform(dg::float4x4::Translation(pos));
 }
 
-void EditorScene::CreateTextures() {
+void PreviewScene::CreateTextures() {
     dg::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = true;
 
@@ -88,7 +88,7 @@ void EditorScene::CreateTextures() {
     }
 }
 
-void EditorScene::CreateMaterials() {
+void PreviewScene::CreateMaterials() {
     auto materialBuilder = Engine::Get().GetMaterialBuilder();
     const auto BASE_COLOR_MATERIAL = materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL");
     const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
@@ -124,7 +124,7 @@ void EditorScene::CreateMaterials() {
         Build("mat::clr::phong");
 }
 
-void EditorScene::GenerateMeshes() {
+void PreviewScene::GenerateMeshes() {
     // ConeShape shape({30, 30}, Axis::Y);
     ConeShape shape1({30, 30}, Axis::Y);
     SphereShape shape2({30, 30}, Axis::Y);
@@ -151,7 +151,7 @@ void EditorScene::GenerateMeshes() {
     m_sphere = m_scene->NewChild(modelNode3);
 }
 
-void EditorScene::GenerateGizmo() {
+void PreviewScene::GenerateGizmo() {
     m_gizmo = std::make_unique<Gizmo3D>();
     m_scene->AddChild(m_gizmo->Create(m_device, Engine::Get().GetMaterialBuilder(), additionalVDecl));
 }

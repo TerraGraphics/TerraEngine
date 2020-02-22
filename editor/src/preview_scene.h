@@ -12,10 +12,10 @@ class Camera;
 class Gizmo3D;
 class Material;
 class TransformNode;
-class EditorScene : Fixed {
+class PreviewScene : Fixed {
 public:
-    EditorScene();
-    ~EditorScene();
+    PreviewScene();
+    ~PreviewScene();
 
 public:
     void Create();

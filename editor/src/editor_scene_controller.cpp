@@ -5,7 +5,8 @@
 #include <imgui_internal.h>
 
 #include "core/engine.h"
-#include "editor_scene.h"
+#include "preview_scene.h"
+#include "preview_window.h"
 #include "middleware/imgui/gui.h"
 #include "core/dg/render_device.h"
 #include "core/dg/device_context.h"
@@ -17,9 +18,10 @@
 
 EditorSceneController::EditorSceneController()
     : m_controller(new EditorCameraController())
-    , m_editorScene(new EditorScene())
+    , m_previewScene(new PreviewScene())
     , m_sceneRenderTarget(new RenderTarget())
-    , m_previewRenderTarget(new RenderTarget()) {
+    , m_previewRenderTarget(new RenderTarget())
+    , m_previewWindow(new PreviewWindow()) {
 
 }
 
@@ -28,12 +30,10 @@ EditorSceneController::~EditorSceneController() {
         delete m_controller;
     }
 
-    if (m_editorScene != nullptr) {
-        delete m_editorScene;
-    }
-
+    m_previewScene.reset();
     m_sceneRenderTarget.reset();
     m_previewRenderTarget.reset();
+    m_previewWindow.reset();
 }
 
 void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui) {
@@ -51,7 +51,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
     m_controller->SetCamera(m_camera);
 
-    m_editorScene->Create();
+    m_previewScene->Create();
 
     m_sceneRenderTarget->Create(device, math::Color4f(1.f));
 
@@ -63,6 +63,8 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
         DepthTargetDesc(scDesc.DepthBufferFormat, "rt::depth::preview"),
         CPUTargetDesc(1, 1, 1, "rt::color::cpu")
         ));
+
+    m_previewWindow->Create();
 }
 
 void EditorSceneController::Update(double deltaTime) {
@@ -75,14 +77,22 @@ void EditorSceneController::Update(double deltaTime) {
     m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
+    m_gui->StartFrame();
+    DockSpace();
+    m_previewWindow->Update(deltaTime);
+    ViewWindow();
+    PropertyWindow();
+    FooterWindow();
+    // ImGui::ShowDemoWindow(nullptr);
+
     if (m_clicked) {
         if (m_previewRenderTarget->ReadCPUTarget(engine.GetImmediateContext(), m_value)) {
-            m_editorScene->SelectNode(m_value);
+            m_previewScene->SelectNode(m_value);
             m_clicked = false;
         }
     }
 
-    m_editorScene->Update(deltaTime, m_camera);
+    m_previewScene->Update(deltaTime, m_camera);
     m_sceneRenderTarget->Update(swapChain);
     m_previewRenderTarget->Update(swapChain, m_viewWidht, m_viewHeight);
 }
@@ -97,16 +107,11 @@ void EditorSceneController::Draw() {
     builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
 
-    m_editorScene->Draw();
+    m_previewScene->Draw();
+    m_previewWindow->Draw();
 
     m_sceneRenderTarget->Bind(context);
 
-    m_gui->StartFrame();
-    DockSpace();
-    ViewWindow();
-    PropertyWindow();
-    FooterWindow();
-    // ImGui::ShowDemoWindow(nullptr);
     m_gui->RenderFrame();
 }
 
@@ -164,13 +169,13 @@ void EditorSceneController::ViewWindow() {
             auto y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
 
             auto rayDir = m_camera->ScreenPointToRay(math::Point(x, y), rc.SizeCast<uint32_t>());
-            m_editorScene->SetMouseRay(m_camera->GetPosition(), rayDir);
+            m_previewScene->SetMouseRay(m_camera->GetPosition(), rayDir);
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
                 m_clicked = true;
                 m_clickPos.x = x;
                 m_clickPos.y = y;
-                m_editorScene->SetSpherePos(m_camera->GetPosition() + rayDir * 2.f);
+                m_previewScene->SetSpherePos(m_camera->GetPosition() + rayDir * 2.f);
 
                 m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(),
                     m_clickPos.x, m_isOpenGL ? static_cast<uint32_t>(rc.Height()) - m_clickPos.y : m_clickPos.y);

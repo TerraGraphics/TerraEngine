@@ -11,8 +11,9 @@ namespace Diligent {
 
 class Gui;
 class Camera;
-class EditorScene;
+class PreviewScene;
 class RenderTarget;
+class PreviewWindow;
 class EditorCameraController;
 class EditorSceneController : Fixed {
 public:
@@ -41,11 +42,12 @@ private:
     EditorCameraController* m_controller = nullptr;
 
     std::shared_ptr<Gui> m_gui = nullptr;
-    EditorScene* m_editorScene = nullptr;
+    std::unique_ptr<PreviewScene> m_previewScene;
     uint32_t m_viewWidht = 1.f;
     uint32_t m_viewHeight = 1.f;
     std::unique_ptr<RenderTarget> m_sceneRenderTarget;
     std::unique_ptr<RenderTarget> m_previewRenderTarget;
+    std::unique_ptr<PreviewWindow> m_previewWindow;
 
     math::Point m_clickPos = math::Point(0, 0);
     uint32_t m_value = 0;
