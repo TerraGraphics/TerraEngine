@@ -16,6 +16,7 @@ public:
         const VertexDecl& additionalVertexDecl);
     void Update(const std::shared_ptr<Camera>& camera);
 
+    void SetMouseRay(dg::float3 rayStart, dg::float3 rayDir);
     void SelectNode(std::shared_ptr<TransformNode> node);
 
 private:

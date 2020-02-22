@@ -69,6 +69,14 @@ void EditorScene::SelectNode(uint32_t id) {
     m_findId = true;
 }
 
+void EditorScene::SetMouseRay(dg::float3 rayStart, dg::float3 rayDir) {
+    m_gizmo->SetMouseRay(rayStart, rayDir);
+}
+
+void EditorScene::SetSpherePos(dg::float3 pos) {
+    m_sphere->SetTransform(dg::float4x4::Translation(pos));
+}
+
 void EditorScene::CreateTextures() {
     dg::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = true;
@@ -134,6 +142,13 @@ void EditorScene::GenerateMeshes() {
     m_scene->NewChild(modelNode1, matModel);
     matModel = dg::float4x4::Translation(1, 1, 1);
     m_scene->NewChild(modelNode2, matModel);
+
+    SphereShape shape3({30, 30}, Axis::Y);
+    shape3.SetTranform(dg::float4x4::Scale(0.04f));
+    auto model3 = ShapeBuilder(m_device).Join({&shape3}, "Model3");
+    auto modelNode3 = std::make_shared<StdMaterial>(m_matClrNoLight, model3);
+    modelNode3->SetBaseColor(255, 0, 0);
+    m_sphere = m_scene->NewChild(modelNode3);
 }
 
 void EditorScene::GenerateGizmo() {

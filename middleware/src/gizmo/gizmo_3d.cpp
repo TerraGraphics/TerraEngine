@@ -1,6 +1,7 @@
 #include "middleware/gizmo/gizmo_3d.h"
 
 #include "core/camera/camera.h"
+#include "core/math/advanced.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
@@ -63,6 +64,12 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera) {
     nodeMatrix._43 = gizmoPos.z;
     nodeMatrix._44 = 1.f;
     m_rootNode->SetTransform(nodeMatrix);
+}
+
+void Gizmo3D::SetMouseRay(dg::float3 rayStart, dg::float3 rayDir) {
+    if (math::IntersectionRayAndCylinder0Z(rayStart, rayDir, 0.1f, 1.f)) {
+        std::cout << "select OZ" << rayStart.x << rayStart.y << rayStart.z << std::endl;
+    }
 }
 
 void Gizmo3D::SelectNode(std::shared_ptr<TransformNode> node) {

@@ -158,15 +158,23 @@ void EditorSceneController::ViewWindow() {
 
         math::Rectf rc = Image(m_previewRenderTarget->GetColorTexture(0), math::Size(m_viewWidht, m_viewHeight), m_isOpenGL);
         if (ImGui::IsWindowHovered() &&
-            ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max())) &&
-            ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max()))) {
 
-            m_clickPos.x = static_cast<uint32_t>(ImGui::GetIO().MousePos.x - rc.x);
-            m_clickPos.y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
-            m_clicked = true;
+            auto x = static_cast<uint32_t>(ImGui::GetIO().MousePos.x - rc.x);
+            auto y = static_cast<uint32_t>(ImGui::GetIO().MousePos.y - rc.y);
 
-            m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(),
-                m_clickPos.x, m_isOpenGL ? m_viewHeight - m_clickPos.y : m_clickPos.y);
+            auto rayDir = m_camera->ScreenPointToRay(math::Point(x, y), rc.SizeCast<uint32_t>());
+            m_editorScene->SetMouseRay(m_camera->GetPosition(), rayDir);
+
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                m_clicked = true;
+                m_clickPos.x = x;
+                m_clickPos.y = y;
+                m_editorScene->SetSpherePos(m_camera->GetPosition() + rayDir * 2.f);
+
+                m_previewRenderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(),
+                    m_clickPos.x, m_isOpenGL ? static_cast<uint32_t>(rc.Height()) - m_clickPos.y : m_clickPos.y);
+            }
         }
 
         ImGui::End();
