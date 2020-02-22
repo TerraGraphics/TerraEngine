@@ -32,6 +32,17 @@ void Camera::SetViewParams(const dg::float3& position, const dg::float3& directi
 	calcViewMatrix(direction);
 }
 
+dg::float3 Camera::ScreenPointToRay(math::Point mousePos, math::Size screenSize) const {
+	// see: http://antongerdelan.net/opengl/raycasting.html
+	float posX = (2.f * static_cast<float>(mousePos.x)) / static_cast<float>(screenSize.w) - 1.f;
+	float posY = 1.f - (2.f * static_cast<float>(mousePos.y)) / static_cast<float>(screenSize.h);
+	auto rayEye = dg::float4(posX, posY, -1.f, 1.f) * m_matProj.Inverse();
+	rayEye.z = m_isCoordSystemRH ? -1.f : 1.f;
+	rayEye.w = 0.0f;
+	dg::float4 ray = rayEye * m_matView.Inverse();
+	return dg::normalize(dg::float3(ray.x, ray.y, ray.z));
+}
+
 // see glm::perspectiveRH_ZO
 static dg::float4x4 PerspectiveRH_ZO(float fovy, float aspect, float zNear, float zFar) {
 	float const tanHalfFovy = tanf(fovy / 2.f);

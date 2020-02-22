@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dg/dg.h"
+#include "core/math/basic.h"
 #include "core/common/ctor.h"
 #include "core/math/constants.h"
 
@@ -19,6 +19,7 @@ public:
 	void SetNearPlane(float value);
 	void SetFarPlane(float value);
 	void SetViewParams(const dg::float3& position, const dg::float3& direction);
+	dg::float3 ScreenPointToRay(math::Point mousePos, math::Size screenSize) const;
 
 	float GetNearPlane() const noexcept {
 		return m_nearPlane;
