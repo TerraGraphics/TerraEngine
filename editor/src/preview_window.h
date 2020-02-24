@@ -11,6 +11,7 @@ namespace Diligent {
 
 
 class Camera;
+class Gizmo3D;
 class RenderTarget;
 class PreviewScene;
 class EditorCameraController;
@@ -27,6 +28,10 @@ public:
 private:
     std::unique_ptr<PreviewScene> m_scene;
     std::unique_ptr<RenderTarget> m_renderTarget;
+
+    std::unique_ptr<Gizmo3D> m_gizmo;
+    uint32_t m_selectedId = std::numeric_limits<uint32_t>::max();
+    bool m_findId = false;
 
     uint32_t m_vsCameraVarId = 0;
     uint32_t m_psCameraVarId = 0;

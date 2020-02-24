@@ -3,7 +3,6 @@
 #include "core/engine.h"
 #include "core/scene/scene.h"
 #include "core/dg/device_context.h"
-#include "middleware/gizmo/gizmo_3d.h"
 #include "core/dg/texture_utilities.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
@@ -37,44 +36,18 @@ void PreviewScene::Create() {
     CreateTextures();
     CreateMaterials();
     GenerateMeshes();
-    GenerateGizmo();
 }
 
-void PreviewScene::Update(double /* deltaTime */, const std::shared_ptr<Camera>& camera) {
-    m_gizmo->Update(camera);
-    if (m_findId) {
-        m_gizmo->SelectNode(m_scene->Update(m_selectedId));
-        m_findId = false;
-    } else {
-        m_scene->Update();
-    }
+void PreviewScene::AddChild(const std::shared_ptr<TransformNode>& node) {
+    m_scene->AddChild(node);
+}
+
+std::shared_ptr<TransformNode> PreviewScene::Update(double /* deltaTime */, uint32_t findId) {
+    return m_scene->Update(findId);
 }
 
 void PreviewScene::Draw() {
     m_scene->Draw();
-}
-
-void PreviewScene::SelectNode(uint32_t id) {
-    if (id == m_selectedId) {
-        return;
-    }
-
-    m_selectedId = id;
-    if (id == std::numeric_limits<uint32_t>::max()) {
-        m_findId = false;
-        m_gizmo->SelectNode(std::shared_ptr<TransformNode>());
-        return;
-    }
-
-    m_findId = true;
-}
-
-void PreviewScene::SetMouseRay(dg::float3 rayStart, dg::float3 rayDir) {
-    m_gizmo->SetMouseRay(rayStart, rayDir);
-}
-
-void PreviewScene::SetSpherePos(dg::float3 pos) {
-    m_sphere->SetTransform(dg::float4x4::Translation(pos));
 }
 
 void PreviewScene::CreateTextures() {
@@ -142,16 +115,4 @@ void PreviewScene::GenerateMeshes() {
     m_scene->NewChild(modelNode1, matModel);
     matModel = dg::float4x4::Translation(1, 1, 1);
     m_scene->NewChild(modelNode2, matModel);
-
-    SphereShape shape3({30, 30}, Axis::Y);
-    shape3.SetTranform(dg::float4x4::Scale(0.04f));
-    auto model3 = ShapeBuilder(m_device).Join({&shape3}, "Model3");
-    auto modelNode3 = std::make_shared<StdMaterial>(m_matClrNoLight, model3);
-    modelNode3->SetBaseColor(255, 0, 0);
-    m_sphere = m_scene->NewChild(modelNode3);
-}
-
-void PreviewScene::GenerateGizmo() {
-    m_gizmo = std::make_unique<Gizmo3D>();
-    m_scene->AddChild(m_gizmo->Create(m_device, Engine::Get().GetMaterialBuilder(), additionalVDecl));
 }
