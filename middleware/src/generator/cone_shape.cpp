@@ -3,9 +3,8 @@
 #include "core/common/exception.h"
 
 
-ConeShape::ConeShape(const UInt2& segments, const Axis& axisUp, float radius, float height)
-    : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
-    , m_segments(segments)
+ConeShape::ConeShape(const UInt2& segments, const math::Axis& axisUp, float radius, float height)
+    : FlatPlaneGenerator(segments)
     , m_axisUp(axisUp)
     , m_radius(radius)
     , m_height(height) {
@@ -33,7 +32,7 @@ void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     auto oneOverSizeCone = 1.f / std::hypot(m_radius, m_height);
     auto radiusNorm = m_height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
     auto normUp = m_radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
-    FlatGenerator(vb, m_segments, [axis0, axis1, axis2, radiusNorm, normUp, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
+    Generate(vb, [axis0, axis1, axis2, radiusNorm, normUp, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
         float circleAngle = TwoPI<float>() * c.x;
 
         float posUp = (c.y - 0.5f) * height;
@@ -52,8 +51,4 @@ void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 
         out.uv = Shape::ToDXTexCoord(c);
     });
-}
-
-void ConeShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    FlatGenerator(ib, m_segments, vertexStartIndex);
 }

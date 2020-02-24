@@ -129,7 +129,7 @@ void GeneralScene::CreateMaterials() {
 }
 
 void GeneralScene::GenerateGround() {
-    PlaneShape shape({1, 1}, {Axis::X, Axis::Z});
+    PlaneShape shape({1, 1}, {math::Axis::X, math::Axis::Z});
     shape.SetTexScale({128, 128});
     auto plane = ShapeBuilder(m_device).Join({&shape}, "Ground");
 
@@ -144,14 +144,14 @@ void GeneralScene::GenerateTrees() {
     RandSeed(17);
     auto tree = std::make_shared<TransformNode>();
 
-    CylinderShape trunkShape({5, 1}, Axis::Y);
+    CylinderShape trunkShape({5, 1}, math::Axis::Y);
     auto trunkMatNode = std::make_shared<StdMaterial>(m_matClrPhong, ShapeBuilder(m_device).Join({&trunkShape}, "trunk"));
     trunkMatNode->SetBaseColor(139, 69, 19);
 
     auto matModelTrunk = dg::float4x4::Scale(0.5, 4, 0.5) * dg::float4x4::Translation(0, 2, 0);
     tree->NewChild(trunkMatNode, matModelTrunk);
 
-    SphereShape crownShape({10, 5}, Axis::Y);
+    SphereShape crownShape({10, 5}, math::Axis::Y);
     auto crownMatNode = std::make_shared<StdMaterial>(m_matClrPhong, ShapeBuilder(m_device).Join({&crownShape}, "crown"));
     crownMatNode->SetBaseColor(0, 128, 0);
 
@@ -193,13 +193,13 @@ void GeneralScene::GenerateGrassBillboard() {
     float angleY = ThirdPI<float>() * 2.0f;
     auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(ThirdPI<float>() / 3.f);
 
-    PlaneShape plane1({1, 1}, {Axis::X, Axis::Y});
+    PlaneShape plane1({1, 1}, {math::Axis::X, math::Axis::Y});
     plane1.SetTranform(matBase);
 
-    PlaneShape plane2({1, 1}, {Axis::X, Axis::Y});
+    PlaneShape plane2({1, 1}, {math::Axis::X, math::Axis::Y});
     plane2.SetTranform(matBase * dg::float4x4::RotationY(angleY));
 
-    PlaneShape plane3({1, 1}, {Axis::X, Axis::Y});
+    PlaneShape plane3({1, 1}, {math::Axis::X, math::Axis::Y});
     plane3.SetTranform(matBase * dg::float4x4::RotationY(angleY * 2.f));
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");

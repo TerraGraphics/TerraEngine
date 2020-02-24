@@ -3,7 +3,7 @@
 #include "middleware/generator/shape.h"
 
 
-class ConeShape : public Shape {
+class ConeShape : public FlatPlaneGenerator {
 public:
     ConeShape() = delete;
     /*!
@@ -14,16 +14,14 @@ public:
         Cone radius equals 'radius' (radius > 0.f).
         Cone height equals 'height' (height > 0.f).
     */
-    ConeShape(const UInt2& segments, const Axis& axisUp = Axis::Y, float radius = 0.5f, float height = 1.0f);
+    ConeShape(const UInt2& segments, const math::Axis& axisUp = math::Axis::Y, float radius = 0.5f, float height = 1.0f);
     ~ConeShape() = default;
 
 protected:
     void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
-    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
 
 private:
-    UInt2 m_segments;
-    Axis m_axisUp;
+    math::Axis m_axisUp;
     float m_radius = 0.5f;
     float m_height = 1.0f;
 };

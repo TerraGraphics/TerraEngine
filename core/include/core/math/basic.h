@@ -8,6 +8,21 @@ using UInt2 = dg::Vector2<uint32_t>;
 
 namespace math {
 
+enum class Axis : uint8_t {
+    X = 0,
+    Y = 1,
+    Z = 2,
+};
+
+enum class Direction : uint8_t {
+    POS_X = 0,
+    POS_Y = 1,
+    POS_Z = 2,
+    NEG_X = 3,
+    NEG_Y = 4,
+    NEG_Z = 5,
+};
+
 struct Color4f {
     Color4f() = default;
     Color4f(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept

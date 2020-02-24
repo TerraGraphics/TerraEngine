@@ -10,7 +10,7 @@
 
 void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, std::shared_ptr<TransformNode>& root) {
     m_root = root;
-    for (const auto axis: {Axis::X, Axis::Y, Axis::Z}) {
+    for (const auto axis: {math::Axis::X, math::Axis::Y, math::Axis::Z}) {
         auto translation = dg::float3(0, 0, 0);
 
         float coneHeight = 0.1f;
@@ -35,9 +35,9 @@ void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, s
 
 void GizmoMove::Select(dg::float3 rayStart, dg::float3 rayDir) {
     if (math::IntersectionRayAndCylinder0Z(rayStart, rayDir, m_arrowActiveRadius, 1.f)) {
-        m_arrowNodes[static_cast<uint>(Axis::Z)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, m_arrowSelectScale, 1.f));
+        m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, m_arrowSelectScale, 1.f));
     } else {
-        m_arrowNodes[static_cast<uint>(Axis::Z)]->SetTransform(dg::One4x4);
+        m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::One4x4);
     }
 }
 

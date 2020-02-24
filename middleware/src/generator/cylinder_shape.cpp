@@ -3,9 +3,8 @@
 #include "core/common/exception.h"
 
 
-CylinderShape::CylinderShape(const UInt2& segments, const Axis& axisUp, float radius, float height)
-    : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
-    , m_segments(segments)
+CylinderShape::CylinderShape(const UInt2& segments, const math::Axis& axisUp, float radius, float height)
+    : FlatPlaneGenerator(segments)
     , m_axisUp(axisUp)
     , m_radius(radius)
     , m_height(height) {
@@ -28,7 +27,7 @@ void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t axis0 = static_cast<uint32_t>(m_axisUp);
     uint32_t axis1 = (axis0 + 2) % 3;
     uint32_t axis2 = (axis0 + 1) % 3;
-    FlatGenerator(vb, m_segments, [axis0, axis1, axis2, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
+    Generate(vb, [axis0, axis1, axis2, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
         auto angle = TwoPI<float>() * c.x;
         auto circleX = std::cos(angle);
         auto circleY = std::sin(angle);
@@ -42,8 +41,4 @@ void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         out.normal = dg::normalize(out.normal);
         out.uv = Shape::ToDXTexCoord(c);
     });
-}
-
-void CylinderShape::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    FlatGenerator(ib, m_segments, vertexStartIndex);
 }

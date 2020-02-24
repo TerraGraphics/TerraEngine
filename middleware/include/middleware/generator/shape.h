@@ -7,12 +7,6 @@
 #include "core/scene/vertex_buffer.h"
 
 
-enum class Axis : uint8_t {
-    X = 0,
-    Y = 1,
-    Z = 2,
-};
-
 class Shape {
     friend class ShapeBuilder;
 protected:
@@ -28,10 +22,6 @@ protected:
     virtual void FillVertex(VertexBufferRange<VertexPNC>& vb) const = 0;
     virtual void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const = 0;
 
-    using VertexCallback = std::function<void (const dg::float2&, VertexPNC&)>;
-    void FlatGenerator(VertexBufferRange<VertexPNC>& vb, const UInt2& segments, const VertexCallback& callback) const;
-    void FlatGenerator(IndexBufferRange<uint32_t>& ib, const UInt2& segments, uint32_t vertexStartIndex) const;
-
     static dg::float2 ToDXTexCoord(const dg::float2& coord);
 
 protected:
@@ -41,4 +31,16 @@ protected:
 
     uint32_t m_vertexCount = 0;
     uint32_t m_indexCount = 0;
+};
+
+class FlatPlaneGenerator : public Shape {
+protected:
+    FlatPlaneGenerator(const UInt2& segments);
+
+    using VertexCallback = std::function<void (const dg::float2&, VertexPNC&)>;
+    void Generate(VertexBufferRange<VertexPNC>& vb, const VertexCallback& callback) const;
+    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const final;
+
+private:
+    UInt2 m_segments;
 };
