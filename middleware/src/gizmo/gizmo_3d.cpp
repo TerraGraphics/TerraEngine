@@ -8,18 +8,8 @@
 #include "middleware/std_material/std_material.h"
 
 
-std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder,
-    const VertexDecl& additionalVertexDecl) {
-
-    auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetDecl(), additionalVertexDecl).
-        DepthEnable(false).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::gizmo::arrow");
-
-    m_rootNode = std::make_shared<TransformNode>();
-    m_transformNode = m_rootNode->NewChild();
-
+void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, std::shared_ptr<TransformNode>& root) {
+    m_root = root;
     for (const auto axis: {Axis::X, Axis::Y, Axis::Z}) {
         auto translation = dg::float3(0, 0, 0);
 
@@ -30,7 +20,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
 
         float cylinderSpacing = 0.05f;
         float cylinderHeight = 1.f - coneHeight - cylinderSpacing;
-        CylinderShape cylinderShape({5, 1}, axis, 0.01f, cylinderHeight);
+        CylinderShape cylinderShape({5, 1}, axis, m_arrowRadius, cylinderHeight);
         translation[static_cast<uint>(axis)] = cylinderSpacing + cylinderHeight * 0.5f;
         cylinderShape.SetTranform(dg::float4x4::Translation(translation));
 
@@ -39,18 +29,57 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
         color[static_cast<uint>(axis)] = 1.0f;
         arrowNode->SetBaseColor(color);
 
-        m_transformNode->NewChild(arrowNode);
+        m_arrowNodes[static_cast<uint>(axis)] = m_root->NewChild(arrowNode);
     }
+}
+
+void GizmoMove::Select(dg::float3 rayStart, dg::float3 rayDir) {
+    if (math::IntersectionRayAndCylinder0Z(rayStart, rayDir, m_arrowActiveRadius, 1.f)) {
+        m_arrowNodes[static_cast<uint>(Axis::Z)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, m_arrowSelectScale, 1.f));
+    } else {
+        m_arrowNodes[static_cast<uint>(Axis::Z)]->SetTransform(dg::One4x4);
+    }
+}
+
+Gizmo3D::Gizmo3D()
+    : m_move(new GizmoMove()) {
+
+}
+
+Gizmo3D::~Gizmo3D() {
+    m_move.reset();
+}
+
+std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder,
+    const VertexDecl& additionalVertexDecl) {
+
+    auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetDecl(), additionalVertexDecl).
+        DepthEnable(false).
+        CullMode(dg::CULL_MODE_NONE).
+        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
+        Build("mat::gizmo::arrow");
+
+
+    m_rootNode = std::make_shared<TransformNode>();
+    auto moveRoot = m_rootNode->NewChild();
+    m_move->Create(device, material, moveRoot);
 
     SelectNode(m_selectedObject);
 
     return m_rootNode;
 }
 
-void Gizmo3D::Update(const std::shared_ptr<Camera>& camera) {
+void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Size sceenSize, bool mouseUnderWindow, math::Point mousePos) {
     if (!m_selectedObject) {
         return;
     }
+
+    if (mouseUnderWindow) {
+        auto rayStart = camera->GetPosition();
+        auto rayDir = camera->ScreenPointToRay(mousePos, sceenSize);
+        m_move->Select(rayStart, rayDir);
+    }
+
     auto nodeMatrix = m_selectedObject->GetWorldMatrix();
     auto nodePos = dg::float3(nodeMatrix._41, nodeMatrix._42, nodeMatrix._43);
     auto dir = dg::normalize(nodePos - camera->GetPosition());
@@ -64,12 +93,6 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera) {
     nodeMatrix._43 = gizmoPos.z;
     nodeMatrix._44 = 1.f;
     m_rootNode->SetTransform(nodeMatrix);
-}
-
-void Gizmo3D::SetMouseRay(dg::float3 rayStart, dg::float3 rayDir) {
-    if (math::IntersectionRayAndCylinder0Z(rayStart, rayDir, 0.1f, 1.f)) {
-        std::cout << "select OZ" << rayStart.x << rayStart.y << rayStart.z << std::endl;
-    }
 }
 
 void Gizmo3D::SelectNode(std::shared_ptr<TransformNode> node) {

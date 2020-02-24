@@ -84,43 +84,45 @@ void PreviewWindow::Update(double deltaTime) {
         m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
         m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
+        bool mouseUnderWindow = false;
+        math::Point mousePos;
         if (ImGui::IsWindowHovered() &&
             ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max()))) {
 
             auto mouseX = static_cast<uint32_t>(ImGui::GetIO().MousePos.x) - rc.x;
             auto mouseY = static_cast<uint32_t>(ImGui::GetIO().MousePos.y) - rc.y;
-
-            auto rayDir = m_camera->ScreenPointToRay(math::Point(mouseX, mouseY), rc.SizeCast<uint32_t>());
-            m_gizmo->SetMouseRay(m_camera->GetPosition(), rayDir);
+            mouseUnderWindow = true;
+            mousePos = math::Point(mouseX, mouseY);
 
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                m_clicked = true;
+                m_waitTextureCopy = true;
                 m_renderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(), mouseX, m_isOpenGL ? rc.Height() - mouseY : mouseY);
             }
         }
 
-        if (m_clicked) {
+        bool findSelectedId = false;
+        if (m_waitTextureCopy) {
             uint32_t selectedId = 0;
             if (m_renderTarget->ReadCPUTarget(engine.GetImmediateContext(), selectedId)) {
-                m_clicked = false;
+                m_waitTextureCopy = false;
                 if (selectedId != m_selectedId) {
                     m_selectedId = selectedId;
                     if (selectedId == std::numeric_limits<uint32_t>::max()) {
-                        m_findId = false;
                         m_gizmo->SelectNode(std::shared_ptr<TransformNode>());
-                        return;
+                    } else {
+                        findSelectedId = true;
                     }
-
-                    m_findId = true;
                 }
             }
         }
 
-        m_gizmo->Update(m_camera);
-        if (m_findId) {
+        if (findSelectedId) {
             m_gizmo->SelectNode(m_scene->Update(deltaTime, m_selectedId));
-            m_findId = false;
-        } else {
+        }
+
+        m_gizmo->Update(m_camera, rc.SizeCast<uint32_t>(), mouseUnderWindow, mousePos);
+
+        if (!findSelectedId) {
             m_scene->Update(deltaTime);
         }
 

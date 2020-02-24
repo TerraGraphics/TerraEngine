@@ -28,16 +28,15 @@ public:
 private:
     std::unique_ptr<PreviewScene> m_scene;
     std::unique_ptr<RenderTarget> m_renderTarget;
+    bool m_waitTextureCopy = false;
 
     std::unique_ptr<Gizmo3D> m_gizmo;
     uint32_t m_selectedId = std::numeric_limits<uint32_t>::max();
-    bool m_findId = false;
 
     uint32_t m_vsCameraVarId = 0;
     uint32_t m_psCameraVarId = 0;
     uint32_t m_gsCameraVarId = 0;
     bool m_isOpenGL = false;
-    bool m_clicked = false;
     bool m_draw = false;
 
     dg::ShaderCamera m_shaderCamera;
