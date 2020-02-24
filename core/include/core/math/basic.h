@@ -222,6 +222,7 @@ struct BasicRect {
 
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
+    BasicSize<T> Size() const noexcept { return BasicSize<T>(w, h); }
     template<typename U> BasicSize<U> SizeCast() const noexcept { return BasicSize<U>(static_cast<U>(w), static_cast<U>(h)); }
 
     T CenterX() const noexcept { return x + w / 2; }

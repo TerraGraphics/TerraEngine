@@ -66,12 +66,13 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
     ));
 
     m_scene->Create();
-    m_scene->AddChild(m_gizmo->Create(device, engine.GetMaterialBuilder(), additionalVDecl));
+    m_scene->AddChild(m_gizmo->Create(device, engine.GetEventHandler(), engine.GetMaterialBuilder(), additionalVDecl));
 }
 
 void PreviewWindow::Update(double deltaTime) {
     auto& engine = Engine::Get();
     auto& handler = engine.GetEventHandler();
+    auto& context = engine.GetImmediateContext();
 
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
@@ -83,27 +84,15 @@ void PreviewWindow::Update(double deltaTime) {
         m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
         m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
         m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
+        m_renderTarget->Update(engine.GetSwapChain(), rc.Width(), rc.Height());
 
-        bool mouseUnderWindow = false;
-        math::Point mousePos;
-        if (ImGui::IsWindowHovered() &&
-            ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max()))) {
-
-            auto mouseX = static_cast<uint32_t>(ImGui::GetIO().MousePos.x) - rc.x;
-            auto mouseY = static_cast<uint32_t>(ImGui::GetIO().MousePos.y) - rc.y;
-            mouseUnderWindow = true;
-            mousePos = math::Point(mouseX, mouseY);
-
-            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                m_waitTextureCopy = true;
-                m_renderTarget->CopyColorTarget(Engine::Get().GetImmediateContext(), mouseX, m_isOpenGL ? rc.Height() - mouseY : mouseY);
-            }
-        }
+        bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
+                                 ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max())));
 
         bool findSelectedId = false;
         if (m_waitTextureCopy) {
             uint32_t selectedId = 0;
-            if (m_renderTarget->ReadCPUTarget(engine.GetImmediateContext(), selectedId)) {
+            if (m_renderTarget->ReadCPUTarget(context, selectedId)) {
                 m_waitTextureCopy = false;
                 if (selectedId != m_selectedId) {
                     m_selectedId = selectedId;
@@ -120,13 +109,19 @@ void PreviewWindow::Update(double deltaTime) {
             m_gizmo->SelectNode(m_scene->Update(deltaTime, m_selectedId));
         }
 
-        m_gizmo->Update(m_camera, rc.SizeCast<uint32_t>(), mouseUnderWindow, mousePos);
+        GizmoFoundDesc foundDesc;
+        m_gizmo->Update(m_camera, rc, mouseUnderWindow, foundDesc);
+        if (foundDesc.needFound) {
+            if (m_isOpenGL) {
+                foundDesc.mouseY = foundDesc.windowHeight - foundDesc.mouseY;
+            }
+            m_renderTarget->CopyColorTarget(context, foundDesc.mouseX, foundDesc.mouseY);
+            m_waitTextureCopy = true;
+        }
 
         if (!findSelectedId) {
             m_scene->Update(deltaTime);
         }
-
-        m_renderTarget->Update(engine.GetSwapChain(), rc.Width(), rc.Height());
 
         ImGui::End();
     }

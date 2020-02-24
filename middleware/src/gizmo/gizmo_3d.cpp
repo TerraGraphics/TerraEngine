@@ -5,6 +5,7 @@
 #include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
+#include "platforms/default_window_handler.h"
 #include "middleware/std_material/std_material.h"
 
 
@@ -33,7 +34,7 @@ void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, s
     }
 }
 
-void GizmoMove::Select(dg::float3 rayStart, dg::float3 rayDir) {
+bool GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
     m_arrowNodes[static_cast<uint>(math::Axis::X)]->SetTransform(dg::One4x4);
     m_arrowNodes[static_cast<uint>(math::Axis::Y)]->SetTransform(dg::One4x4);
     m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::One4x4);
@@ -44,7 +45,11 @@ void GizmoMove::Select(dg::float3 rayStart, dg::float3 rayDir) {
         m_arrowNodes[static_cast<uint>(math::Axis::Y)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, 1.f, m_arrowSelectScale));
     } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Z, m_arrowActiveRadius, 1.f)) {
         m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, m_arrowSelectScale, 1.f));
+    } else {
+        return false;
     }
+
+    return true;
 }
 
 Gizmo3D::Gizmo3D()
@@ -54,10 +59,13 @@ Gizmo3D::Gizmo3D()
 
 Gizmo3D::~Gizmo3D() {
     m_move.reset();
+    m_rootNode.reset();
+    m_selectedObject.reset();
+    m_eventHandler.reset();
 }
 
-std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_ptr<MaterialBuilder>& materialBuilder,
-    const VertexDecl& additionalVertexDecl) {
+std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
+    std::shared_ptr<MaterialBuilder>& materialBuilder, const VertexDecl& additionalVertexDecl) {
 
     auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetDecl(), additionalVertexDecl).
         DepthEnable(false).
@@ -66,6 +74,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
         Build("mat::gizmo::arrow");
 
 
+    m_eventHandler = eventHandler;
     m_rootNode = std::make_shared<TransformNode>();
     auto moveRoot = m_rootNode->NewChild();
     m_move->Create(device, material, moveRoot);
@@ -75,15 +84,32 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, std::shared_pt
     return m_rootNode;
 }
 
-void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Size sceenSize, bool mouseUnderWindow, math::Point mousePos) {
+void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc) {
+    bool mouseFirstRelease = m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft);
+
+    float absoluteMousePosX, absoluteMousePosY;
+    m_eventHandler->GetCursorPosition(absoluteMousePosX, absoluteMousePosY);
+    auto mousePos = math::Point(
+            static_cast<uint32_t>(absoluteMousePosX) - windowRect.x,
+            static_cast<uint32_t>(absoluteMousePosY) - windowRect.y);
+
+    foundDesc.needFound = false;
+    foundDesc.mouseX = mousePos.x;
+    foundDesc.mouseY = mousePos.y;
+    foundDesc.windowWidth = windowRect.Width();
+    foundDesc.windowHeight = windowRect.Height();
+
     if (!m_selectedObject) {
+        if (mouseFirstRelease) {
+            foundDesc.needFound = true;
+        }
         return;
     }
 
     auto nodeMatrix = m_selectedObject->GetWorldMatrix();
     auto nodePos = dg::float3(nodeMatrix._41, nodeMatrix._42, nodeMatrix._43);
-    auto dir = dg::normalize(nodePos - camera->GetPosition());
-    auto gizmoPos = camera->GetPosition() + dir * 6.f;
+    auto nodeToCamDir = dg::normalize(nodePos - camera->GetPosition());
+    auto gizmoPos = camera->GetPosition() + nodeToCamDir * 6.f;
 
     nodeMatrix._11 = 1.f;
     nodeMatrix._22 = 1.f;
@@ -94,15 +120,22 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Size sceenSize
     nodeMatrix._44 = 1.f;
     m_rootNode->SetTransform(nodeMatrix);
 
-    if (mouseUnderWindow) {
-        auto invNodeMatrix = nodeMatrix.Inverse();
+    if (!mouseUnderWindow) {
+        return;
+    }
 
-        auto rayStart = camera->GetPosition();
-        auto rayPoint = rayStart + camera->ScreenPointToRay(mousePos, sceenSize);
+    auto invNodeMatrix = nodeMatrix.Inverse();
 
-        rayStart = static_cast<dg::float3>(dg::float4(rayStart, 1.f) * invNodeMatrix);
-        rayPoint = static_cast<dg::float3>(dg::float4(rayPoint, 1.f) * invNodeMatrix);
-        m_move->Select(rayStart, dg::normalize(rayPoint - rayStart));
+    auto rayStart = camera->GetPosition();
+    rayStart = static_cast<dg::float3>(dg::float4(rayStart, 1.f) * invNodeMatrix);
+
+    auto rayDir = camera->ScreenPointToRay(mousePos, windowRect.Size());
+    rayDir = dg::normalize(static_cast<dg::float3>(dg::float4(rayDir, 0.f) * invNodeMatrix));
+
+    bool gizmoSelected = m_move->Update(rayStart, rayDir);
+
+    if (!gizmoSelected && mouseFirstRelease) {
+        foundDesc.needFound = true;
     }
 }
 
