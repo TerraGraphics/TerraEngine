@@ -34,10 +34,16 @@ void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, s
 }
 
 void GizmoMove::Select(dg::float3 rayStart, dg::float3 rayDir) {
-    if (math::IntersectionRayAndCylinder0Z(rayStart, rayDir, m_arrowActiveRadius, 1.f)) {
+    m_arrowNodes[static_cast<uint>(math::Axis::X)]->SetTransform(dg::One4x4);
+    m_arrowNodes[static_cast<uint>(math::Axis::Y)]->SetTransform(dg::One4x4);
+    m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::One4x4);
+
+    if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::X, m_arrowActiveRadius, 1.f)) {
+        m_arrowNodes[static_cast<uint>(math::Axis::X)]->SetTransform(dg::float4x4::Scale(1.f, m_arrowSelectScale, m_arrowSelectScale));
+    } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Y, m_arrowActiveRadius, 1.f)) {
+        m_arrowNodes[static_cast<uint>(math::Axis::Y)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, 1.f, m_arrowSelectScale));
+    } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Z, m_arrowActiveRadius, 1.f)) {
         m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, m_arrowSelectScale, 1.f));
-    } else {
-        m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::One4x4);
     }
 }
 
@@ -74,12 +80,6 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Size sceenSize
         return;
     }
 
-    if (mouseUnderWindow) {
-        auto rayStart = camera->GetPosition();
-        auto rayDir = camera->ScreenPointToRay(mousePos, sceenSize);
-        m_move->Select(rayStart, rayDir);
-    }
-
     auto nodeMatrix = m_selectedObject->GetWorldMatrix();
     auto nodePos = dg::float3(nodeMatrix._41, nodeMatrix._42, nodeMatrix._43);
     auto dir = dg::normalize(nodePos - camera->GetPosition());
@@ -93,6 +93,17 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Size sceenSize
     nodeMatrix._43 = gizmoPos.z;
     nodeMatrix._44 = 1.f;
     m_rootNode->SetTransform(nodeMatrix);
+
+    if (mouseUnderWindow) {
+        auto invNodeMatrix = nodeMatrix.Inverse();
+
+        auto rayStart = camera->GetPosition();
+        auto rayPoint = rayStart + camera->ScreenPointToRay(mousePos, sceenSize);
+
+        rayStart = static_cast<dg::float3>(dg::float4(rayStart, 1.f) * invNodeMatrix);
+        rayPoint = static_cast<dg::float3>(dg::float4(rayPoint, 1.f) * invNodeMatrix);
+        m_move->Select(rayStart, dg::normalize(rayPoint - rayStart));
+    }
 }
 
 void Gizmo3D::SelectNode(std::shared_ptr<TransformNode> node) {

@@ -29,7 +29,21 @@ bool QuadEquation(dg::float3 p, dg::float2& result) {
     Intersection:
         (x0 + l*t)^2 + (y0 + m*t)^2 = r*r
 */
-bool IntersectionRayAndCylinder0Z(dg::float3 rayStart, dg::float3 rayDir, float radius, float height) {
+bool IntersectionRayAndCylinder(dg::float3 rayStart, dg::float3 rayDir, Axis axisUp, float radius, float height) {
+    // reduce the task to a cylinder OZ
+    switch (axisUp) {
+    case Axis::X:
+        std::swap(rayStart.x, rayStart.z);
+        std::swap(rayDir.x, rayDir.z);
+        break;
+    case Axis::Y:
+        std::swap(rayStart.y, rayStart.z);
+        std::swap(rayDir.y, rayDir.z);
+        break;
+    default:
+        break;
+    }
+
     auto p = dg::float3(
         rayDir.x * rayDir.x + rayDir.y * rayDir.y,
         2.f * (rayStart.x * rayDir.x + rayStart.y * rayDir.y),

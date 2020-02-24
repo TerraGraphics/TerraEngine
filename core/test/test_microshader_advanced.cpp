@@ -21,14 +21,43 @@ TEST(MathAdvanced, TestQuadEquation) {
     ASSERT_FLOAT_EQ(result.y, -3.f);
 }
 
-TEST(MathAdvanced, IntersectionRayAndCylinder0Z) {
-    // rayStart, rayDir, radius, height
+TEST(MathAdvanced, IntersectionRayAndCylinderOX) {
     float radius = 1.f;
     float height = 1.f;
-    ASSERT_TRUE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(1.f, 0, 0), radius, height));
-    ASSERT_FALSE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(-1.f, 0, 0), radius, height));
-    ASSERT_FALSE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(0, 1.f, 0), radius, height));
-    ASSERT_FALSE(math::IntersectionRayAndCylinder0Z(dg::float3(-10.f, 0, 0), dg::float3(0, 0, 1.f), radius, height));
+    auto axis = math::Axis::X;
+    auto rayStart = dg::float3(0, -10.f, 0);
+    ASSERT_TRUE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 1.f, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, -1.f, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(1.f, 0, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(-1.f, 0, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, 1.f), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, -1.f), axis, radius, height));
+}
+
+TEST(MathAdvanced, IntersectionRayAndCylinderOY) {
+    float radius = 1.f;
+    float height = 1.f;
+    auto axis = math::Axis::Y;
+    auto rayStart = dg::float3(0, 0, -10.f);
+    ASSERT_TRUE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, 1.f), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, -1.f), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 1.f, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, -1.f, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(1.f, 0, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(-1.f, 0, 0), axis, radius, height));
+}
+
+TEST(MathAdvanced, IntersectionRayAndCylinderOZ) {
+    float radius = 1.f;
+    float height = 1.f;
+    auto axis = math::Axis::Z;
+    auto rayStart = dg::float3(-10.f, 0, 0);
+    ASSERT_TRUE(math::IntersectionRayAndCylinder(rayStart, dg::float3(1.f, 0, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(-1.f, 0, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 1.f, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, -1.f, 0), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, 1.f), axis, radius, height));
+    ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, -1.f), axis, radius, height));
 }
 
 }
