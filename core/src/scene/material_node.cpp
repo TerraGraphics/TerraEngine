@@ -13,6 +13,10 @@ MaterialNode::MaterialNode(const std::shared_ptr<Material>& material, const std:
 
 }
 
+MaterialNode::~MaterialNode() {
+
+}
+
 void MaterialNode::SetVertexShaderVar(const dg::Char* name, dg::IDeviceObject* value) {
     auto* var = m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name);
     if (!var) {
