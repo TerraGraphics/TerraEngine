@@ -38,25 +38,35 @@ void GizmoMove::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEve
 }
 
 void GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
-    if (m_isMoved) {
-        if (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft)) {
-            return;
-        } else {
-            SelectReset();
-            m_isMoved = false;
+    if ((m_isMoved) && (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft))) {
+        float coord;
+        if (FindCoordByAxis(rayStart, rayDir, m_moveAxis, coord)) {
+            auto transform = m_selectedObject->GetBaseTransform();
+            auto ind = static_cast<uint>(m_moveAxis);
+            transform[3][ind] = coord - m_startMoveAxisCoord + m_startMoveSelectedCoord[ind];
+            m_selectedObject->SetTransform(transform);
         }
-    } else {
-        SelectReset();
+
+        return;
     }
 
-    math::Axis selectedAxis;
-    m_isSelected = FindSelect(rayStart, rayDir, selectedAxis);
+    SelectReset();
+    m_isMoved = false;
+    m_isSelected = FindSelect(rayStart, rayDir, m_moveAxis);
     if (m_isSelected) {
-        SelectAxis(selectedAxis);
+        SelectAxis(m_moveAxis);
         if (m_eventHandler->IsKeyPressedFirstTime(Key::MouseLeft)) {
-            m_isMoved = true;
+            m_isMoved = FindCoordByAxis(rayStart, rayDir, m_moveAxis, m_startMoveAxisCoord);
+            if (m_isMoved) {
+                auto& transform = m_selectedObject->GetBaseTransform();
+                m_startMoveSelectedCoord = dg::float3(transform._41, transform._42, transform._43);
+            }
         }
     }
+}
+
+void GizmoMove::SelectNode(const std::shared_ptr<TransformNode>& node) {
+    m_selectedObject = node;
 }
 
 void GizmoMove::SelectReset() {
@@ -88,6 +98,34 @@ bool GizmoMove::FindSelect(dg::float3 rayStart, dg::float3 rayDir, math::Axis& r
         result = math::Axis::Y;
     } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Z, m_arrowActiveRadius, 1.f)) {
         result = math::Axis::Z;
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+/*
+    for axis == X: ray (rayStart; rayDir) crosses a plane X0Y (z == 0) or X0Z (y == 0)
+
+    x = x0 + l*t
+    y = y0 + m*t
+    z = z0 + n*t
+
+    for X0Y: x = x0 + l*t, where t = -z0 / n
+    For X0Z: x = x0 + l*t, where t = -y0 / m
+*/
+bool GizmoMove::FindCoordByAxis(dg::float3 rayStart, dg::float3 rayDir, math::Axis axis, float& result) {
+    auto ind0 = static_cast<uint>(axis);
+    auto axis1 = math::Next(axis);
+    auto ind1 = static_cast<uint>(axis1);
+    auto axis2 = math::Next(axis1);
+    auto ind2 = static_cast<uint>(axis2);
+
+    if (std::fpclassify(rayDir[ind1]) != FP_ZERO) {
+        result = rayStart[ind0] - rayDir[ind0] * rayStart[ind1] / rayDir[ind1];
+    } else if (std::fpclassify(rayDir[ind2]) != FP_ZERO) {
+        result = rayStart[ind0] - rayDir[ind0] * rayStart[ind2] / rayDir[ind2];
     } else {
         return false;
     }
@@ -167,23 +205,24 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
         return;
     }
 
-    auto invNodeMatrix = nodeMatrix.Inverse();
+    if (!m_move->IsMoved()) {
+        m_invRayMatrix = nodeMatrix.Inverse();
+    }
 
     auto rayStart = camera->GetPosition();
-    rayStart = static_cast<dg::float3>(dg::float4(rayStart, 1.f) * invNodeMatrix);
+    rayStart = static_cast<dg::float3>(dg::float4(rayStart, 1.f) * m_invRayMatrix);
 
     auto rayDir = camera->ScreenPointToRay(mousePos, windowRect.Size());
-    rayDir = dg::normalize(static_cast<dg::float3>(dg::float4(rayDir, 0.f) * invNodeMatrix));
+    rayDir = dg::normalize(static_cast<dg::float3>(dg::float4(rayDir, 0.f) * m_invRayMatrix));
 
     m_move->Update(rayStart, rayDir);
-    bool gizmoIsActive = m_move->IsActive();
-
-    if (!gizmoIsActive && mouseFirstRelease) {
+    if (mouseFirstRelease && !m_move->IsSelected() && !m_move->IsMoved()) {
         foundDesc.needFound = true;
     }
 }
 
-void Gizmo3D::SelectNode(std::shared_ptr<TransformNode> node) {
+void Gizmo3D::SelectNode(const std::shared_ptr<TransformNode>& node) {
     m_selectedObject = node;
     m_rootNode->SetVisible(static_cast<bool>(node));
+    m_move->SelectNode(node);
 }

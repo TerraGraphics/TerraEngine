@@ -14,6 +14,8 @@ enum class Axis : uint8_t {
     Z = 2,
 };
 
+Axis Next(Axis value);
+
 enum class Direction : uint8_t {
     POS_X = 0,
     POS_Y = 1,
