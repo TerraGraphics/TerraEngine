@@ -9,7 +9,10 @@
 #include "middleware/std_material/std_material.h"
 
 
-void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, std::shared_ptr<TransformNode>& root) {
+void GizmoMove::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
+    std::shared_ptr<Material>& material, std::shared_ptr<TransformNode>& root) {
+
+    m_eventHandler = eventHandler;
     m_root = root;
     for (const auto axis: {math::Axis::X, math::Axis::Y, math::Axis::Z}) {
         auto translation = dg::float3(0, 0, 0);
@@ -34,17 +37,57 @@ void GizmoMove::Create(DevicePtr& device, std::shared_ptr<Material>& material, s
     }
 }
 
-bool GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
+void GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
+    if (m_isMoved) {
+        if (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft)) {
+            return;
+        } else {
+            SelectReset();
+            m_isMoved = false;
+        }
+    } else {
+        SelectReset();
+    }
+
+    math::Axis selectedAxis;
+    m_isSelected = FindSelect(rayStart, rayDir, selectedAxis);
+    if (m_isSelected) {
+        SelectAxis(selectedAxis);
+        if (m_eventHandler->IsKeyPressedFirstTime(Key::MouseLeft)) {
+            m_isMoved = true;
+        }
+    }
+}
+
+void GizmoMove::SelectReset() {
     m_arrowNodes[static_cast<uint>(math::Axis::X)]->SetTransform(dg::One4x4);
     m_arrowNodes[static_cast<uint>(math::Axis::Y)]->SetTransform(dg::One4x4);
     m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::One4x4);
+}
 
-    if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::X, m_arrowActiveRadius, 1.f)) {
+void GizmoMove::SelectAxis(math::Axis value) {
+    switch (value) {
+    case math::Axis::X:
         m_arrowNodes[static_cast<uint>(math::Axis::X)]->SetTransform(dg::float4x4::Scale(1.f, m_arrowSelectScale, m_arrowSelectScale));
-    } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Y, m_arrowActiveRadius, 1.f)) {
+        break;
+    case math::Axis::Y:
         m_arrowNodes[static_cast<uint>(math::Axis::Y)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, 1.f, m_arrowSelectScale));
-    } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Z, m_arrowActiveRadius, 1.f)) {
+        break;
+    case math::Axis::Z:
         m_arrowNodes[static_cast<uint>(math::Axis::Z)]->SetTransform(dg::float4x4::Scale(m_arrowSelectScale, m_arrowSelectScale, 1.f));
+        break;
+    default:
+        break;
+    }
+}
+
+bool GizmoMove::FindSelect(dg::float3 rayStart, dg::float3 rayDir, math::Axis& result) {
+    if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::X, m_arrowActiveRadius, 1.f)) {
+        result = math::Axis::X;
+    } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Y, m_arrowActiveRadius, 1.f)) {
+        result = math::Axis::Y;
+    } else if (math::IntersectionRayAndCylinder(rayStart, rayDir, math::Axis::Z, m_arrowActiveRadius, 1.f)) {
+        result = math::Axis::Z;
     } else {
         return false;
     }
@@ -77,7 +120,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::sha
     m_eventHandler = eventHandler;
     m_rootNode = std::make_shared<TransformNode>();
     auto moveRoot = m_rootNode->NewChild();
-    m_move->Create(device, material, moveRoot);
+    m_move->Create(device, eventHandler, material, moveRoot);
 
     SelectNode(m_selectedObject);
 
@@ -132,9 +175,10 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
     auto rayDir = camera->ScreenPointToRay(mousePos, windowRect.Size());
     rayDir = dg::normalize(static_cast<dg::float3>(dg::float4(rayDir, 0.f) * invNodeMatrix));
 
-    bool gizmoSelected = m_move->Update(rayStart, rayDir);
+    m_move->Update(rayStart, rayDir);
+    bool gizmoIsActive = m_move->IsActive();
 
-    if (!gizmoSelected && mouseFirstRelease) {
+    if (!gizmoIsActive && mouseFirstRelease) {
         foundDesc.needFound = true;
     }
 }
