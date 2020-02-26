@@ -1,7 +1,12 @@
 #include "core/material/microshader_parser.h"
 
-#include <fmt/format.h>
+#include <utility>
+#include <algorithm>
+#include <type_traits>
+
+#include "core/dg/ucl.h"
 #include "core/common/exception.h"
+#include "core/material/material_builder_desc.h"
 
 
 using namespace msh;

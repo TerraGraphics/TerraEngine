@@ -1,12 +1,20 @@
 #pragma once
 
+#include <vector>
+#include <string>
+#include <cstdint>
+#include <type_traits>
 #include <unordered_map>
+#include <initializer_list>
+
+#include <DiligentCore/Primitives/interface/BasicTypes.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
 #include "core/math/basic.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 #include "core/common/exception.h"
+#include "core/dg/graphics_types.h"
 #include "core/material/microshader_types.h"
 
 

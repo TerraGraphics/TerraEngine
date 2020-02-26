@@ -17,8 +17,8 @@ public:
 
     std::shared_ptr<GeometryNode>& GetGeometry() noexcept { return m_geometry; }
 
-    void SetVertexShaderVar(const char* name, dg::IDeviceObject* value);
-    void SetPixelShaderVar(const char* name, dg::IDeviceObject* value);
+    void SetVertexShaderVar(const char* name, DeviceRaw value);
+    void SetPixelShaderVar(const char* name, DeviceRaw value);
 
     virtual void Update(DevicePtr& device, ContextPtr& context) = 0;
     uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0);

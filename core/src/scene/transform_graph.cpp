@@ -1,7 +1,7 @@
 #include "core/scene/transform_graph.h"
 
+#include <algorithm>
 #include "core/math/normal_matrix.h"
-#include "core/scene/material_node.h"
 
 
 TransformNode::TransformNode(const dg::float4x4& transform)

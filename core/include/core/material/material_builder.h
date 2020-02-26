@@ -1,16 +1,26 @@
 #pragma once
 
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
+#include <cstdint>
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
+
+#include "core/dg/dg.h"
+#include "core/dg/sampler.h"
+#include "core/common/ctor.h"
+#include "core/dg/graphics_types.h"
 #include "core/dg/pipeline_state.h"
 #include "core/material/vertex_decl.h"
 #include "core/material/material_vars.h"
-#include "core/material/material_builder_desc.h"
 
 
 class Material;
 class ShaderBuilder;
 class MicroshaderLoader;
+struct MaterialBuilderDesc;
 class MaterialBuilder : Fixed {
 public:
     struct Builder : Fixed {
@@ -18,14 +28,14 @@ public:
             bool operator<(const ShaderResourceVariableDescKey& other) const noexcept;
 
             dg::SHADER_TYPE shaderType;
-            dg::String name;
+            std::string name;
         };
 
         struct StaticSamplerDesc {
-            StaticSamplerDesc(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc);
+            StaticSamplerDesc(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc);
 
             dg::SHADER_TYPE shaderType;
-            dg::String name;
+            std::string name;
             dg::SamplerDesc desc;
         };
 
@@ -37,11 +47,11 @@ public:
         Builder& DepthEnable(bool value) noexcept;
         Builder& CullMode(dg::CULL_MODE value) noexcept;
         Builder& Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
-        Builder& Var(dg::SHADER_TYPE shaderType, const dg::String& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
+        Builder& Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
+        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
+        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
 
-        std::shared_ptr<Material> Build(const dg::Char* name = nullptr);
+        std::shared_ptr<Material> Build(const char* name = nullptr);
 
     private:
         MaterialBuilder* m_builder;

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "core/material/vertex_decl.h"
+#include "core/dg/math.h"
 
 
+class VertexDecl;
 struct VertexP {
 	dg::float3 position;
 

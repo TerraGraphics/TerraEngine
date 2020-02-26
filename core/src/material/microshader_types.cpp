@@ -1,6 +1,10 @@
 #include "core/material/microshader_types.h"
 
+#include <tuple>
+#include <iterator>
+#include <algorithm>
 #include <fmt/format.h>
+
 #include "core/common/exception.h"
 
 

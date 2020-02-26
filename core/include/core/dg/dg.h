@@ -20,15 +20,21 @@ namespace Diligent {
     class IEngineFactory;
     class IPipelineState;
     class IShaderResourceBinding;
+    class IShaderResourceVariable;
     class IShaderSourceInputStreamFactory;
 
+    enum CULL_MODE : Int8;
+    enum SHADER_TYPE : Uint32;
     enum TEXTURE_FORMAT : Uint16;
 }
 
 namespace dg = Diligent;
 
-using BufferRawPtr = dg::IBuffer*;
-using PipelineStateRawPtr = dg::IPipelineState*;
+using BufferRaw = dg::IBuffer*;
+using DeviceRaw = dg::IDeviceObject*;
+using TextureViewRaw = dg::ITextureView*;
+using PipelineStateRaw = dg::IPipelineState*;
+using ShaderResourceVariableRaw = dg::IShaderResourceVariable*;
 
 using FencePtr = dg::RefCntAutoPtr<dg::IFence>;
 using BufferPtr = dg::RefCntAutoPtr<dg::IBuffer>;

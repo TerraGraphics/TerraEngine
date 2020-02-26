@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include <cstdint>
+#include <utility>
+
 #include "core/dg/dg.h"
 #include "core/math/basic.h"
 #include "core/common/ctor.h"
@@ -133,10 +137,10 @@ private:
     DevicePtr m_device;
 
     std::vector<TexturePtr> m_colorTargets;
-    std::vector<dg::ITextureView*> m_colorViews;
+    std::vector<TextureViewRaw> m_colorViews;
     std::vector<math::Color4f> m_clearColors;
     TexturePtr m_depthTarget;
-    dg::ITextureView* m_depthView;
+    TextureViewRaw m_depthView;
     TexturePtr m_cpuTarget;
     uint8_t m_numCTForCT = 0;
     FencePtr m_cpuTargetFence;

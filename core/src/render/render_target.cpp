@@ -1,8 +1,18 @@
 #include "core/render/render_target.h"
 
+#include <memory>
+#include <cstddef>
+#include <algorithm>
+#include <ext/alloc_traits.h>
+
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Fence.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+
+#include "core/dg/texture.h"
 #include "core/common/exception.h"
 #include "core/dg/render_device.h"
 #include "core/dg/device_context.h"
+#include "core/dg/graphics_types.h"
 
 
 void RenderTarget::Create(const DevicePtr& device, math::Color4f clearColor) {

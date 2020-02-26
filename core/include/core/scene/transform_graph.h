@@ -2,8 +2,9 @@
 
 #include <memory>
 #include <vector>
+#include <cstdint>
 
-#include "core/dg/dg.h"
+#include "core/dg/math.h"
 #include "core/common/ctor.h"
 #include "core/math/constants.h"
 

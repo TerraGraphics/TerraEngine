@@ -22,11 +22,11 @@ public:
     uint32_t Add(dg::SHADER_TYPE shaderType, const std::string& name, size_t size);
     void Update(uint32_t id, const void* data, size_t size);
 
-    void SetVars(PipelineStateRawPtr pipelineState);
+    void SetVars(PipelineStateRaw pipelineState);
 
 private:
     DevicePtr m_device;
     ContextPtr m_context;
     std::vector<Info> m_infoList;
-    std::vector<BufferRawPtr> m_buffers;
+    std::vector<BufferRaw> m_buffers;
 };

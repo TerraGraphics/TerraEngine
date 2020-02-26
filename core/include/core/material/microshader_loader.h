@@ -12,6 +12,11 @@
 #include "core/material/material_builder_desc.h"
 
 
+namespace ucl {
+    class Ucl;
+}
+struct ucl_object_s;
+typedef ucl_object_s ucl_object_t;
 class MicroshaderLoader : Fixed {
 public:
     struct Source {

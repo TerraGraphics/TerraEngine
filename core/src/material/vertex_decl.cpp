@@ -1,5 +1,10 @@
 #include "core/material/vertex_decl.h"
 
+#include <cstdint>
+#include <utility>
+#include <fmt/format.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
+
 
 VertexDecl::VertexDecl(std::initializer_list<Layout> layouts) {
     uint32_t index = 0;

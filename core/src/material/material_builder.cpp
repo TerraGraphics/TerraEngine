@@ -1,17 +1,28 @@
 #include "core/material/material_builder.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+#include <tuple>
+#include <utility>
+#include <type_traits>
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/RasterizerState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
+
+#include "core/dg/errors.h"
+#include "core/dg/render_device.h"
 #include "core/material/material.h"
 #include "core/material/shader_builder.h"
 #include "core/dg/graphics_accessories.h"
+#include "core/material/microshader_loader.h"
 
 
 bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
     return (std::tie(shaderType, name) < std::tie(other.shaderType, other.name));
 }
 
-MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc)
+MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc)
     : shaderType(shaderType)
     , name(name)
     , desc(desc) {
@@ -41,7 +52,7 @@ MaterialBuilder::Builder& MaterialBuilder::Builder::Topology(dg::PRIMITIVE_TOPOL
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderType, const dg::String& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
     ShaderResourceVariableDescKey key{shaderType, name};
     if (m_vars.find(key) != m_vars.cend()) {
         LOG_ERROR_AND_THROW("Shader varaible ", name, " is duplicated for shader type ", dg::GetShaderTypeLiteralName(shaderType));
@@ -51,14 +62,14 @@ MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderTy
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
     Var(shaderType, name, type);
     m_samplers.emplace_back(shaderType, name, desc);
 
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const dg::String& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
     dg::SamplerDesc desc;
     desc.AddressU = addressMode;
     desc.AddressV = addressMode;
@@ -70,7 +81,7 @@ MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE s
     return *this;
 }
 
-std::shared_ptr<Material> MaterialBuilder::Builder::Build(const dg::Char* name) {
+std::shared_ptr<Material> MaterialBuilder::Builder::Build(const char* name) {
     m_desc.Name = (name != nullptr) ? name : "no name is assigned";
     m_desc.ResourceLayout.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 

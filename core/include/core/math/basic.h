@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dg/dg.h"
+#include <cstdint>
 #include "core/dg/math.h"
 
 

@@ -1,6 +1,16 @@
 #include "core/material/shader_builder.h"
 
+#include <utility>
+#include <filesystem>
+#include <fmt/format.h>
+
+#include <DiligentCore/Primitives/interface/DataBlob.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
+
+#include "core/dg/errors.h"
 #include "core/common/exception.h"
+#include "core/dg/render_device.h"
 #include "core/common/hash_combine.h"
 #include "core/dg/graphics_accessories.h"
 

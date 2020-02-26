@@ -1,5 +1,9 @@
 #include "core/scene/material_node.h"
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
+
 #include "core/common/exception.h"
 #include "core/dg/device_context.h"
 #include "core/material/material.h"
@@ -17,8 +21,8 @@ MaterialNode::~MaterialNode() {
 
 }
 
-void MaterialNode::SetVertexShaderVar(const char* name, dg::IDeviceObject* value) {
-    auto* var = m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name);
+void MaterialNode::SetVertexShaderVar(const char* name, DeviceRaw value) {
+    ShaderResourceVariableRaw var = m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name);
     if (!var) {
         throw EngineError("unable to find variable '{}' in material {} for vertex shader", name, m_material->GetName());
     }
@@ -26,8 +30,8 @@ void MaterialNode::SetVertexShaderVar(const char* name, dg::IDeviceObject* value
     var->Set(value);
 }
 
-void MaterialNode::SetPixelShaderVar(const char* name, dg::IDeviceObject* value) {
-    auto* var = m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, name);
+void MaterialNode::SetPixelShaderVar(const char* name, DeviceRaw value) {
+    ShaderResourceVariableRaw var = m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, name);
     if (!var) {
         throw EngineError("unable to find variable '{}' in material {} for pixel shader", name, m_material->GetName());
     }
