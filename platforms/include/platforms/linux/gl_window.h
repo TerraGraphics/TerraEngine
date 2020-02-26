@@ -1,6 +1,13 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <cstddef>
+#include <cstdint>
+#include <sys/types.h>
+
 #include "platforms/window.h"
+#include "platforms/window_events.h"
 
 
 typedef union _XEvent XEvent;

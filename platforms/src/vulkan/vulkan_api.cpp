@@ -1,6 +1,26 @@
 #include "platforms/vulkan/vulkan_api.h"
 
+#include <memory>
+#include <vector>
+#include <stdexcept>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#include <DiligentCore/Common/interface/RefCntAutoPtr.h>
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
+#pragma clang diagnostic pop
+
+#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
 
 
 VulkanAPI::VulkanAPI(uint32_t window, xcb_connection_t* connection)

@@ -1,5 +1,8 @@
 #include "platforms/window.h"
 
+#include <algorithm>
+#include <stdexcept>
+
 
 RenderWindow::RenderWindow(const WindowDesc& desc, const std::shared_ptr<WindowEventsHandler>& handler)
     : m_desc(desc)

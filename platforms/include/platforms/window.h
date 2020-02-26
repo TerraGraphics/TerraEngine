@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "window_events.h"
+#include <string>
+#include <cstdint>
+
 
 enum class CursorType : uint8_t {
     Arrow = 0,
@@ -50,6 +52,7 @@ struct WindowDesc {
     std::string name;
 };
 
+class WindowEventsHandler;
 class RenderWindow {
 public:
     RenderWindow() = delete;

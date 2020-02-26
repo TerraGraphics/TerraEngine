@@ -1,8 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <cstdint>
+#include <X11/X.h>
 #include <X11/Xlib.h>
+
 
 class WindowEventsHandler;
 class X11InputHandler {

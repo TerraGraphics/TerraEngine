@@ -1,9 +1,13 @@
 #include "core/engine.h"
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+
 #include "core/common/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
+#include "core/dg/render_device.h"
+#include "core/dg/device_context.h"
 #include "core/material/material_builder.h"
 
 

@@ -1,8 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <memory>
+#include <string>
+#include <cstddef>
+#include <cstdint>
+#include <sys/types.h>
+
 #include <xcb/xcb.h>
+#include <xcb/xproto.h>
+
 #include "platforms/window.h"
+#include "platforms/window_events.h"
 
 
 typedef struct _XDisplay Display;

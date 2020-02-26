@@ -1,12 +1,17 @@
 #include "platforms/linux/gl_window.h"
 
 #include <thread>
-#include <exception>
+#include <chrono>
+#include <stdexcept>
 
+#include <GL/gl.h>
 #include <GL/glx.h>
+
+#include <X11/X.h>
+#include <X11/Xlib.h>
 #include <X11/Xatom.h>
+#include <X11/Xutil.h>
 #include <X11/XKBlib.h>
-#include <X11/cursorfont.h>
 #include <X11/Xcursor/Xcursor.h>
 
 #ifdef Bool

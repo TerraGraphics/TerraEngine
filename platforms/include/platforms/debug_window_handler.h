@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include <cstdint>
+
+#include "platforms/window_events.h"
 #include "platforms/default_window_handler.h"
 
 

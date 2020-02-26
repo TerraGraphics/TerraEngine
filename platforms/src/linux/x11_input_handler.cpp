@@ -1,8 +1,8 @@
 #include "linux/x11_input_handler.h"
 
 #include <locale>
-#include <cstring>
 #include <codecvt>
+#include <cstdlib>
 #include <X11/Xutil.h>
 #include "platforms/window_events.h"
 

@@ -1,9 +1,15 @@
 #include "platforms/linux/vulkan_window.h"
 
 #include <thread>
+#include <chrono>
 #include <cstring>
+#include <stdlib.h>
+#include <stdexcept>
 
+#include <X11/X.h>
+#include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h>
+
 #include <xcb/xcb_icccm.h>
 #include <xcb/xcb_cursor.h>
 #include <xcb/xcb_keysyms.h>
