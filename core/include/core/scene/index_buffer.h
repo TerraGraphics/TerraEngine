@@ -2,10 +2,12 @@
 
 #include <memory>
 #include <vector>
+#include <cstddef>
+#include <cstdint>
 #include <stdexcept>
+#include <type_traits>
 
 #include "core/dg/dg.h"
-#include "core/dg/buffer.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 
@@ -13,8 +15,8 @@
 class IndexBuffer : public Counter<IndexBuffer>, Fixed {
 public:
     IndexBuffer() = delete;
-    IndexBuffer(DevicePtr& device, const void* data, uint32_t size, const dg::Char* name = nullptr);
-    ~IndexBuffer() = default;
+    IndexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name = nullptr);
+    ~IndexBuffer();
 
     void Bind(ContextPtr& context, uint32_t offset);
 
@@ -98,7 +100,7 @@ public:
         return IndexBufferRange<Index>(reinterpret_cast<Index*>(&m_data[offsetCount]), offsetCount, static_cast<uint32_t>(indexCount));
     }
 
-    std::shared_ptr<IndexBuffer> Build(DevicePtr& device, const dg::Char* name = nullptr) {
+    std::shared_ptr<IndexBuffer> Build(DevicePtr& device, const char* name = nullptr) {
         return std::make_shared<IndexBuffer>(device, m_data.data(), m_data.size(), name);
     }
 

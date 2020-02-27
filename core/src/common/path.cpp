@@ -1,7 +1,13 @@
 #include "core/common/path.h"
 
+#include <cstring>
 #include <numeric>
 #include <fstream>
+#include <errno.h>
+#include <utility>
+#include <iterator>
+#include <functional>
+#include <fmt/format.h>
 
 #include "core/common/exception.h"
 

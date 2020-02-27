@@ -10,7 +10,7 @@ public:
     Material() = delete;
     Material(const PipelineStatePtr& pipelineState);
 
-    const dg::Char* GetName() const;
+    const char* GetName() const;
     ShaderResourceBindingPtr CreateShaderResourceBinding();
 
     void Bind(ContextPtr& context);

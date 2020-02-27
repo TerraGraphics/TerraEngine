@@ -1,11 +1,12 @@
 #include "core/scene/vertex_buffer.h"
 
+#include "core/dg/buffer.h"
 #include "core/common/exception.h"
 #include "core/dg/render_device.h"
 #include "core/dg/device_context.h"
 
 
-VertexBuffer::VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const dg::Char* name) {
+VertexBuffer::VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name) {
     dg::BufferDesc buffDesc;
     buffDesc.Name = name;
     buffDesc.Usage = dg::USAGE_STATIC;
@@ -19,12 +20,16 @@ VertexBuffer::VertexBuffer(DevicePtr& device, const void* data, uint32_t size, c
     device->CreateBuffer(buffDesc, &buffData, &m_vertexBuffer);
 }
 
+VertexBuffer::~VertexBuffer() {
+
+}
+
 void VertexBuffer::Bind(ContextPtr& context, uint32_t offset) {
     dg::IBuffer* pBuffs[] = { m_vertexBuffer };
     context->SetVertexBuffers(0, 1, pBuffs, &offset, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, dg::SET_VERTEX_BUFFERS_FLAG_NONE);
 }
 
-WriteableVertexBuffer::WriteableVertexBuffer(DevicePtr& device, uint32_t size, dg::USAGE usage, const dg::Char* name)
+WriteableVertexBuffer::WriteableVertexBuffer(DevicePtr& device, uint32_t size, dg::USAGE usage, const char* name)
     : VertexBuffer() {
 
     dg::BufferDesc buffDesc;

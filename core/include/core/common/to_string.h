@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "core/dg/dg.h"
 #include "core/dg/math.h"
 
 

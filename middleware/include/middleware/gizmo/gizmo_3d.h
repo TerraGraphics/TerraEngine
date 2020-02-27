@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/dg/dg.h"
 #include "core/material/vertex_decl.h"
 
 

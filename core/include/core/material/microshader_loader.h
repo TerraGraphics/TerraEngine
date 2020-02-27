@@ -1,7 +1,15 @@
 #pragma once
 
+#include <map>
+#include <string>
+#include <vector>
+#include <cstdint>
+#include <filesystem>
+
 #include "core/common/ctor.h"
+#include "core/material/microshader_types.h"
 #include "core/material/microshader_parser.h"
+#include "core/material/material_builder_desc.h"
 
 
 class MicroshaderLoader : Fixed {

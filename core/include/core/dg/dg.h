@@ -27,6 +27,9 @@ namespace Diligent {
 
 namespace dg = Diligent;
 
+using BufferRawPtr = dg::IBuffer*;
+using PipelineStateRawPtr = dg::IPipelineState*;
+
 using FencePtr = dg::RefCntAutoPtr<dg::IFence>;
 using BufferPtr = dg::RefCntAutoPtr<dg::IBuffer>;
 using ShaderPtr = dg::RefCntAutoPtr<dg::IShader>;

@@ -1,5 +1,7 @@
 #include "core/camera/camera.h"
 
+#include <math.h>
+
 
 Camera::Camera(float fovy, float nearPlane, float farPlane, bool isGL, bool isCoordSystemRH)
 	: m_fovy(fovy)

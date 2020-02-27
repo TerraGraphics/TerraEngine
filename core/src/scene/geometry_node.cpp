@@ -1,12 +1,26 @@
 #include "core/scene/geometry_node.h"
 
+#include "core/dg/graphics_types.h"
 #include "core/dg/device_context.h"
+#include "core/scene/index_buffer.h"
+#include "core/scene/vertex_buffer.h"
 
+GeometryNode::GeometryNode() {
+
+}
+
+GeometryNode::~GeometryNode() {
+
+}
 
 GeometryNodeUnindexed::GeometryNodeUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount)
     : m_vertexBuffer(vb)
     , m_vertexBufferOffsetBytes(vbOffsetBytes)
     , m_vertexBufferCount(vbCount) {
+
+}
+
+GeometryNodeUnindexed::~GeometryNodeUnindexed() {
 
 }
 
@@ -35,6 +49,10 @@ GeometryNodeIndexed::GeometryNodeIndexed(const std::shared_ptr<VertexBuffer>& vb
     , m_indexBufferOffsetBytes(ibOffsetBytes)
     , m_indexBufferCount(ibCount)
     , m_indexBufferUint32(ibUint32) {
+
+}
+
+GeometryNodeIndexed::~GeometryNodeIndexed() {
 
 }
 

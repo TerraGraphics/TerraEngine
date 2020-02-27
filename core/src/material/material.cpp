@@ -1,6 +1,7 @@
 #include "core/material/material.h"
 
 #include "core/dg/device_context.h"
+#include "core/dg/pipeline_state.h"
 
 
 Material::Material(const PipelineStatePtr& pipelineState)
@@ -8,7 +9,7 @@ Material::Material(const PipelineStatePtr& pipelineState)
 
 }
 
-const dg::Char* Material::GetName() const {
+const char* Material::GetName() const {
     return m_pipelineState->GetDesc().Name;
 }
 

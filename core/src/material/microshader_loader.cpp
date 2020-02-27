@@ -1,8 +1,14 @@
 #include "core/material/microshader_loader.h"
 
+#include <set>
+#include <memory>
+#include <utility>
+#include <type_traits>
+
 #include "core/common/exception.h"
 
 
+struct ucl_parser;
 namespace {
     struct ParserDeleter {
         void operator() (ucl_parser *obj) {

@@ -1,13 +1,16 @@
 #include "core/engine.h"
 
+#include <cstdint>
+#include <utility>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
 #include "core/common/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
-#include "core/dg/render_device.h"
-#include "core/dg/device_context.h"
+#include "core/dg/render_device.h" // IWYU pragma: keep
+#include "core/dg/device_context.h" // IWYU pragma: keep
+#include "core/dg/graphics_types.h"
 #include "core/material/material_builder.h"
 
 

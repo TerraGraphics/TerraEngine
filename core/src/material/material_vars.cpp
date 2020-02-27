@@ -1,5 +1,7 @@
 #include "core/material/material_vars.h"
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+
 #include "core/common/exception.h"
 #include "core/dg/device_context.h"
 #include "core/dg/graphics_accessories.h"
@@ -26,7 +28,7 @@ uint32_t StaticVarsStorage::Add(dg::SHADER_TYPE shaderType, const std::string& n
         }
     }
 
-    dg::IBuffer* buffer = nullptr;
+    BufferRawPtr buffer = nullptr;
     dg::BufferDesc desc;
     desc.Name = name.c_str();
     desc.uiSizeInBytes = static_cast<uint32_t>(size);
@@ -54,7 +56,7 @@ void StaticVarsStorage::Update(uint32_t id, const void* data, size_t size) {
     m_context->UnmapBuffer(buffer, dg::MAP_WRITE);
 }
 
-void StaticVarsStorage::SetVars(dg::IPipelineState* pipelineState) {
+void StaticVarsStorage::SetVars(PipelineStateRawPtr pipelineState) {
     uint32_t ind = 0;
     for (const auto& it: m_infoList) {
         dg::IShaderResourceVariable* var = pipelineState->GetStaticVariableByName(it.shaderType, it.name.c_str());

@@ -6,7 +6,7 @@
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #pragma clang diagnostic ignored "-Wpessimizing-move"
 #pragma clang diagnostic ignored "-Wignored-qualifiers"
-#include <ucl++.h>
+#include <ucl++.h> // IWYU pragma: export
 #pragma clang diagnostic pop
 
 #include "core/material/microshader_types.h"

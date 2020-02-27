@@ -1,28 +1,29 @@
 #pragma once
 
-#include <DiligentCore/Primitives/interface/BasicTypes.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
+#include <memory>
+#include <cstdint>
 
-#include "core/dg/math.h"
-#include "core/scene/index_buffer.h"
-#include "core/scene/vertex_buffer.h"
+#include "core/dg/dg.h"
+#include "core/common/ctor.h"
+#include "core/common/counter.h"
 
 
 class GeometryNode : public Counter<GeometryNode>, Fixed {
 protected:
-    GeometryNode() = default;
-    virtual ~GeometryNode() = default;
+    GeometryNode();
+    virtual ~GeometryNode();
 
 public:
     virtual void Bind(ContextPtr& context) = 0;
     virtual uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0) = 0;
 };
 
+class VertexBuffer;
 class GeometryNodeUnindexed final : public GeometryNode {
 public:
     GeometryNodeUnindexed() = delete;
     GeometryNodeUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount);
-    ~GeometryNodeUnindexed() final = default;
+    ~GeometryNodeUnindexed() final;
 
 public:
     void Bind(ContextPtr& context) final;
@@ -34,12 +35,13 @@ private:
     uint32_t m_vertexBufferCount = 0;
 };
 
+class IndexBuffer;
 class GeometryNodeIndexed final : public GeometryNode {
 public:
     GeometryNodeIndexed() = delete;
     GeometryNodeIndexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
         const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32);
-    ~GeometryNodeIndexed() final = default;
+    ~GeometryNodeIndexed() final;
 
 public:
     void Bind(ContextPtr& context) final;

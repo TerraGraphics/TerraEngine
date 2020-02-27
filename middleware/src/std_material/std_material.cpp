@@ -9,6 +9,10 @@ StdMaterial::StdMaterial(const std::shared_ptr<Material>& material, const std::s
 
 }
 
+StdMaterial::~StdMaterial() {
+
+}
+
 void StdMaterial::SetBaseColor(const math::Color4f& value) {
     m_materialData.crlBase = value.ToFloat4();
 }

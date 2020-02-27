@@ -10,3 +10,5 @@
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #include <DiligentCore/Common/interface/BasicMath.h>
 #pragma clang diagnostic pop
+
+namespace dg = Diligent;

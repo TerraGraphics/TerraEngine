@@ -2,12 +2,14 @@
 
 #include <memory>
 #include <vector>
+#include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 
 #include "core/dg/dg.h"
-#include "core/dg/buffer.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
+#include "core/dg/graphics_types.h"
 
 
 class VertexBuffer : public Counter<VertexBuffer>, Fixed {
@@ -15,8 +17,8 @@ protected:
     VertexBuffer() = default;
 
 public:
-    VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const dg::Char* name = nullptr);
-    ~VertexBuffer() = default;
+    VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name = nullptr);
+    ~VertexBuffer();
 
     void Bind(ContextPtr& context, uint32_t offset);
 
@@ -27,7 +29,7 @@ protected:
 class WriteableVertexBuffer : public VertexBuffer {
 public:
     WriteableVertexBuffer() = delete;
-    WriteableVertexBuffer(DevicePtr& device, uint32_t size, dg::USAGE usage = dg::USAGE_DYNAMIC, const dg::Char* name = nullptr);
+    WriteableVertexBuffer(DevicePtr& device, uint32_t size, dg::USAGE usage = dg::USAGE_DYNAMIC, const char* name = nullptr);
     ~WriteableVertexBuffer() = default;
 
     template<typename T> T* Map(ContextPtr& context) {
@@ -111,7 +113,7 @@ public:
         return VertexBufferRange<Vertex>(reinterpret_cast<Vertex*>(&m_data[offsetCount]), offsetCount, static_cast<uint32_t>(vertexCount));
     }
 
-    std::shared_ptr<VertexBuffer> Build(DevicePtr& device, const dg::Char* name = nullptr) {
+    std::shared_ptr<VertexBuffer> Build(DevicePtr& device, const char* name = nullptr) {
         return std::make_shared<VertexBuffer>(device, m_data.data(), m_data.size(), name);
     }
 
