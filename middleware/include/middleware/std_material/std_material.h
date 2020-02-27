@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include <cstdint>
+
+#include "core/dg/dg.h"
 #include "core/math/basic.h"
 #include "core/scene/material_node.h"
 
@@ -8,6 +12,8 @@ namespace Diligent {
     #include "structures.fxh"
 }
 
+class Material;
+class GeometryNode;
 class StdMaterial : public MaterialNode {
 public:
     StdMaterial() = delete;

@@ -1,5 +1,10 @@
 #include "middleware/camera/fly_controller.h"
 
+#include <algorithm>
+
+#include "core/camera/camera.h"
+#include "core/math/constants.h"
+
 
 void FlyCameraController::EnableInput(bool value) noexcept {
     m_enableInput = value;

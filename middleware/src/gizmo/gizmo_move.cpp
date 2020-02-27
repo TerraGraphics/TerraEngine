@@ -1,6 +1,11 @@
 #include "middleware/gizmo/gizmo_move.h"
 
+#include <cmath>
+#include <sys/types.h>
+#include <initializer_list>
+
 #include "core/math/advanced.h"
+#include "core/math/constants.h"
 #include "core/scene/transform_graph.h"
 #include "middleware/generator/generator.h"
 #include "platforms/default_window_handler.h"

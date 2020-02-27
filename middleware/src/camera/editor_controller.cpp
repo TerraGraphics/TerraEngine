@@ -1,6 +1,8 @@
 #include "middleware/camera/editor_controller.h"
 
-#include <cmath>
+#include "core/camera/camera.h"
+#include "core/math/constants.h"
+#include "platforms/default_window_handler.h"
 
 
 void EditorCameraController::EnableInput(bool value) noexcept {

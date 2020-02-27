@@ -1,9 +1,8 @@
 #pragma once
 
-#include <imgui.h>
 #include "core/math/basic.h"
 
-
+struct ImVec2;
 ImVec2 ToImGui(math::Size value);
 ImVec2 ToImGui(math::Point value);
 ImVec2 ToImGui(math::Pointf value);

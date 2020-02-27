@@ -1,9 +1,12 @@
 #include "preview_window.h"
 
+#include <imgui.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
 #include "core/engine.h"
 #include "preview_scene.h"
+#include "core/camera/camera.h"
+#include "core/math/constants.h"
 #include "core/dg/render_device.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gizmo/gizmo_3d.h"

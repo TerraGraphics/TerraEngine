@@ -2,11 +2,15 @@
 
 #include <memory>
 #include <vector>
+#include <cstddef>
+#include <cstdint>
 
-#include "core/camera/camera.h"
+#include "core/dg/math.h"
+#include "core/common/ctor.h"
 #include "platforms/default_window_handler.h"
 
 
+class Camera;
 // First-person flight camera controler
 class FlyCameraController : Fixed {
 public:

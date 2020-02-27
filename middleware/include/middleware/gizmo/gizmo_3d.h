@@ -1,11 +1,15 @@
 #pragma once
 
+#include <memory>
+#include <cstdint>
+
 #include "core/dg/dg.h"
+#include "core/math/basic.h"
+#include "core/common/ctor.h"
 #include "core/material/vertex_decl.h"
 
 
 class Camera;
-class Material;
 class GizmoMove;
 class TransformNode;
 class MaterialBuilder;

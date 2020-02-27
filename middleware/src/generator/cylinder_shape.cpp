@@ -1,5 +1,9 @@
 #include "middleware/generator/cylinder_shape.h"
 
+#include <cstdint>
+
+#include "core/math/constants.h"
+#include "core/scene/vertexes.h"
 #include "core/common/exception.h"
 
 

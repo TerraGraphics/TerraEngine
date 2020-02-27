@@ -1,5 +1,8 @@
 #include "middleware/imgui/imgui_math.h"
 
+#include <imgui.h>
+#include <cstdint>
+
 
 ImVec2 ToImGui(math::Size value) {
     return ImVec2(static_cast<float>(value.w), static_cast<float>(value.h));

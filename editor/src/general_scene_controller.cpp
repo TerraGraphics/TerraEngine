@@ -4,6 +4,9 @@
 
 #include "core/engine.h"
 #include "general_scene.h"
+#include "core/camera/camera.h"
+#include "core/scene/vertexes.h"
+#include "core/math/constants.h"
 #include "core/dg/render_device.h"
 #include "core/dg/device_context.h"
 #include "core/render/render_target.h"

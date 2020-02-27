@@ -1,5 +1,7 @@
+#include <memory>
 #include <gtest/gtest.h>
 
+#include "core/math/basic.h"
 #include "core/math/advanced.h"
 
 namespace {

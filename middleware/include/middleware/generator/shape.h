@@ -1,12 +1,14 @@
 #pragma once
 
+#include <cstdint>
+#include <functional>
 #include "core/math/basic.h"
-#include "core/scene/vertexes.h"
 #include "core/math/constants.h"
 #include "core/scene/index_buffer.h"
-#include "core/scene/vertex_buffer.h"
 
 
+struct VertexPNC;
+template <typename Vertex> class VertexBufferRange;
 class Shape {
     friend class ShapeBuilder;
 protected:

@@ -1,5 +1,10 @@
 #include "middleware/generator/cube_shape.h"
 
+#include "core/dg/math.h"
+
+#include "core/scene/vertexes.h"
+#include "core/scene/vertex_buffer.h"
+
 
 CubeShape::CubeShape()
     : Shape(24, 12 * 3) {

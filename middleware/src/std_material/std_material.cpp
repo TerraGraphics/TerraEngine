@@ -1,6 +1,13 @@
 #include "middleware/std_material/std_material.h"
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
+
+#include "core/dg/buffer.h"
 #include "core/dg/render_device.h"
+#include "core/dg/graphics_types.h"
 #include "core/dg/device_context.h"
 
 

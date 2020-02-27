@@ -2,6 +2,7 @@
 
 #include "core/engine.h"
 #include "core/scene/scene.h"
+#include "core/scene/vertexes.h"
 #include "core/dg/device_context.h"
 #include "core/dg/texture_utilities.h"
 #include "core/material/material_builder.h"

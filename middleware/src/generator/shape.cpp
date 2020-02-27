@@ -1,5 +1,8 @@
 #include "middleware/generator/shape.h"
 
+ #include "core/scene/vertexes.h"
+ #include "core/scene/vertex_buffer.h"
+
 
 Shape::Shape(uint32_t vertexCount, uint32_t indexCount)
     : m_vertexCount(vertexCount)

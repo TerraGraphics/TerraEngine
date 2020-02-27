@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"

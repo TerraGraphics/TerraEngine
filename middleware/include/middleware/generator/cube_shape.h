@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cstdint>
+#include "core/scene/index_buffer.h"
 #include "middleware/generator/shape.h"
 
 
+struct VertexPNC;
+template <typename Vertex> class VertexBufferRange;
 class CubeShape : public Shape {
 public:
     /*!

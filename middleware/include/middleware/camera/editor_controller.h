@@ -1,12 +1,14 @@
 #pragma once
 
 #include <memory>
-#include <vector>
+#include <cstdint>
 
-#include "core/camera/camera.h"
-#include "platforms/default_window_handler.h"
+#include "core/dg/math.h"
+#include "core/common/ctor.h"
 
 
+class Camera;
+class DefaultWindowEventsHandler;
 // Camera controler for editor
 class EditorCameraController : Fixed {
 public:

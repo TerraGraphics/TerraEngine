@@ -1,12 +1,14 @@
 #include "middleware/imgui/widgets.h"
 
-#include "middleware/imgui/imgui_math.h"
-
+#include <utility>
+#include <imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
+#include "middleware/imgui/imgui_math.h"
 
-math::Rect Image(dg::ITextureView* texture, math::Size size, bool isOpenGL, math::Pointf uv0, math::Pointf uv1, math::Color tintCol) {
+
+math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::Pointf uv0, math::Pointf uv1, math::Color tintCol) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::Rect();

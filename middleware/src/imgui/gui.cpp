@@ -1,12 +1,31 @@
 #include "middleware/imgui/gui.h"
 
+#include <string>
+#include <cfloat>
 #include <imgui.h>
+#include <cstring>
+#include <iterator>
+#include <algorithm>
+
+#include <DiligentCore/Primitives/interface/BasicTypes.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/BlendState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/math.h"
+#include "core/dg/buffer.h"
+#include "core/dg/texture.h"
+#include "core/dg/sampler.h"
 #include "platforms/platforms.h"
 #include "core/dg/render_device.h"
 #include "core/common/exception.h"
+#include "core/dg/graphics_types.h"
 #include "core/dg/device_context.h"
+#include "core/dg/rasterizer_state.h"
 
 
 static const char* vertexShaderSource = R"(
@@ -363,7 +382,7 @@ void Gui::RenderFrame() {
                     static_cast<int32_t>(pcmd->ClipRect.w - clip_off.y)};
                 m_context->SetScissorRects(1, &r, displayWidth, displayHeight);
 
-                auto* texture = reinterpret_cast<dg::ITextureView*>(pcmd->TextureId);
+                auto* texture = reinterpret_cast<TextureViewRaw>(pcmd->TextureId);
                 if (texture == nullptr) {
                     CreateFontsTexture();
                     lastUsedTexture = m_fontTex;

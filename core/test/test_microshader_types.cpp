@@ -1,3 +1,6 @@
+#include <string>
+#include <vector>
+#include <utility>
 #include <gtest/gtest.h>
 
 #include "core/material/microshader_types.h"

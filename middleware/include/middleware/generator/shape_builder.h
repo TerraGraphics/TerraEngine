@@ -14,7 +14,7 @@ public:
     ShapeBuilder(const DevicePtr& device);
     ~ShapeBuilder();
 
-    std::shared_ptr<GeometryNode> Join(const std::initializer_list<const Shape*>& shapes, const dg::Char* name = nullptr);
+    std::shared_ptr<GeometryNode> Join(const std::initializer_list<const Shape*>& shapes, const char* name = nullptr);
 
 private:
     DevicePtr m_device;

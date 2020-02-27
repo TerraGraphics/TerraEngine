@@ -1,8 +1,11 @@
 #pragma once
 
+#include "core/math/basic.h"
 #include "middleware/generator/shape.h"
 
 
+struct VertexPNC;
+template <typename Vertex> class VertexBufferRange;
 class CylinderShape : public FlatPlaneGenerator {
 public:
     CylinderShape() = delete;

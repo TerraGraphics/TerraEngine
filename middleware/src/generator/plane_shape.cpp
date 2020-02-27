@@ -1,5 +1,8 @@
 #include "middleware/generator/plane_shape.h"
 
+#include <cstdint>
+
+#include "core/scene/vertexes.h"
 #include "core/common/exception.h"
 
 
