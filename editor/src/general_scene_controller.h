@@ -1,14 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <cstdint>
 
-#include "core/dg/dg.h"
-#include "core/dg/math.h"
 #include "core/common/ctor.h"
-
-namespace Diligent {
-#include "structures.fxh"
-}
+#include "middleware/std_material/structures.h"
 
 class Camera;
 class GeneralScene;

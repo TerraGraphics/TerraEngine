@@ -1,12 +1,14 @@
 #include "editor_scene_controller.h"
 
+#include <cstddef>
 #include <imgui.h>
 #include <imgui_internal.h>
 
 #include "core/engine.h"
 #include "preview_window.h"
+#include "core/math/basic.h"
 #include "middleware/imgui/gui.h"
-#include "core/dg/render_device.h"
+#include "core/dg/render_device.h" // IWYU pragma: keep
 #include "core/render/render_target.h"
 
 

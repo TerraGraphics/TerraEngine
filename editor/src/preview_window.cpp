@@ -2,18 +2,26 @@
 
 #include <imgui.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
+#include "core/dg/dg.h"
 #include "core/engine.h"
 #include "preview_scene.h"
+#include "core/math/basic.h"
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
 #include "core/dg/render_device.h"
+#include "core/dg/graphics_types.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gizmo/gizmo_3d.h"
+#include "core/material/vertex_decl.h"
 #include "core/render/render_target.h"
 #include "middleware/imgui/imgui_math.h"
 #include "core/material/material_builder.h"
 #include "middleware/camera/editor_controller.h"
+
+class TransformNode;
 
 
 // TODO: remove it

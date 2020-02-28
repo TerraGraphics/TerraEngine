@@ -1,14 +1,11 @@
 #pragma once
 
+#include <limits>
 #include <memory>
+#include <cstdint>
 
-#include "core/math/basic.h"
 #include "core/common/ctor.h"
-
-namespace Diligent {
-#include "structures.fxh"
-}
-
+#include "middleware/std_material/structures.h"
 
 class Camera;
 class Gizmo3D;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <cstdint>
+
 #include "core/common/ctor.h"
 
 

@@ -1,14 +1,26 @@
 #include "general_scene.h"
 
+#include <cstdint>
+
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
+
 #include "core/engine.h"
+#include "core/dg/texture.h"
+#include "core/math/basic.h"
 #include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"
-#include "platforms/platforms.h"
-#include "core/dg/device_context.h"
+#include "core/math/constants.h"
+#include "core/dg/device_context.h" // IWYU pragma: keep
+#include "core/dg/graphics_types.h"
 #include "core/scene/vertex_buffer.h"
 #include "core/scene/geometry_node.h"
+#include "core/dg/rasterizer_state.h"
 #include "core/dg/texture_utilities.h"
+#include "core/material/vertex_decl.h"
+#include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"
 #include "middleware/generator/generator.h"
 #include "middleware/std_material/std_material.h"

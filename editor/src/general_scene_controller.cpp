@@ -1,14 +1,16 @@
 #include "general_scene_controller.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
+#include "core/dg/dg.h"
 #include "core/engine.h"
 #include "general_scene.h"
+#include "core/math/basic.h"
 #include "core/camera/camera.h"
-#include "core/scene/vertexes.h"
 #include "core/math/constants.h"
 #include "core/dg/render_device.h"
-#include "core/dg/device_context.h"
+#include "core/dg/graphics_types.h"
 #include "core/render/render_target.h"
 #include "core/material/material_builder.h"
 #include "middleware/camera/fly_controller.h"
@@ -51,7 +53,7 @@ void GeneralSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVar
 
 void GeneralSceneController::Update(double deltaTime) {
     auto& engine = Engine::Get();
-    auto handler = engine.GetEventHandler();
+    auto& handler = engine.GetEventHandler();
     auto& swapChain = engine.GetSwapChain();
     const auto& desc = swapChain->GetDesc();
 
