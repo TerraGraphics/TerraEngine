@@ -13,6 +13,11 @@ conan_cmake_run(CONANFILE conanfile.txt
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
+find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+if(NOT IWYU_PATH)
+  message(FATAL_ERROR "Could not find the program include-what-you-use")
+endif()
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
