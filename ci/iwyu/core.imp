@@ -1,0 +1,50 @@
+[
+    { ref: "./common.imp" },
+
+    { include: ['"core/dg/math.h"', public, '"core/math/basic.h"', public] },
+    { include: ['"DiligentCore/Common/interface/BasicMath.h"', private, '"core/dg/math.h"', public] },
+    { include: ['"DiligentCore/Common/interface/RefCntAutoPtr.h"', private, '"core/dg/dg.h"', public] },
+    { include: ['"DiligentCore/Primitives/interface/Errors.h"', private, '"core/dg/errors.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/Buffer.h"', private, '"core/dg/buffer.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/Sampler.h"', private, '"core/dg/sampler.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/Texture.h"', private, '"core/dg/texture.h"', public] },
+    { include: ['"DiligentTools/TextureLoader/interface/TextureUtilities.h"', private, '"core/dg/texture_utilities.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h"', private, '"core/dg/render_device.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h"', private, '"core/dg/device_context.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private, '"core/dg/pipeline_state.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h"', private, '"core/dg/graphics_types.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/RasterizerState.h"', private, '"core/dg/rasterizer_state.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h"', private, '"core/dg/graphics_utilities.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.h"', private, '"core/dg/graphics_accessories.h"', public] },
+    { include: ['"DiligentTools/TextureLoader/interface/TextureLoader.h"', private, '"DiligentTools/TextureLoader/interface/TextureUtilities.h"', private] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private, '"DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h"', private] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private, '"DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h"', private] },
+    { include: ['"DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h"', private, '"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private] },
+
+    { symbol: ["Diligent::CULL_MODE", "private", '"core/dg/dg.h"', "public"] },
+    { symbol: ["Diligent::SHADER_TYPE", "private", '"core/dg/dg.h"', "public"] },
+    { symbol: ["Diligent::TEXTURE_FORMAT", "private", '"core/dg/dg.h"', "public"] },
+
+    { include: ['"ucl.h"', private, '"core/dg/ucl.h"', public] },
+    { include: ['"ucl++.h"', private, '"core/dg/ucl.h"', public] },
+
+
+    { include: ['"core/dg/math.h"', public, '"middleware/std_material/structures.h"', public] },
+    { include: ['"structures.fxh"', private, '"middleware/std_material/structures.h"', public] },
+
+    { include: ["<stdexcept>", public, '"core/common/exception.h"', public] },
+    { include: ['"platforms/window.h"', private, '"platforms/platforms.h"', public] },
+    { include: ['"platforms/graphic_api.h"', private, '"platforms/platforms.h"', public] },
+    { include: ['"platforms/default_window_handler.h"', public, '"platforms/platforms.h"', public] },
+
+    { include: ['"platforms/window.h"', private, '"platforms/linux/gl_window.h"', public] },
+    { include: ['"platforms/window.h"', private, '"platforms/linux/vulkan_window.h"', public] },
+    { include: ['"platforms/window_events.h"', private, '"platforms/default_window_handler.h"', public] },
+
+    { include: ['"platforms/platforms.h"', public, '"platforms/platforms_supported.h"', public] },
+    { include: ['"platforms/linux/gl_window.h"', public, '"platforms/platforms_supported.h"', public] },
+    { include: ['"platforms/vulkan/vulkan_api.h"', public, '"platforms/platforms_supported.h"', public] },
+    { include: ['"platforms/opengl/opengl_api.h"', public, '"platforms/platforms_supported.h"', public] },
+    { include: ['"platforms/linux/vulkan_window.h"', public, '"platforms/platforms_supported.h"', public] },
+    { include: ['"platforms/debug_window_handler.h"', public, '"platforms/platforms_supported.h"', public] },
+]
