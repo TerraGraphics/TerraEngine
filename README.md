@@ -2,7 +2,7 @@
 
 ## Build
 
-* Install externan packages:
+### Required packages installation
 
 ```console
 sudo pip install conan
@@ -10,16 +10,32 @@ conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-co
 conan remote add terragraphics https://api.bintray.com/conan/terragraphics/conan-packages
 ```
 
-* Build:
+### Additional packages installation
+
+#### Install "[include what you use](https://github.com/include-what-you-use/include-what-you-use)"
+
+* For arch linux:
+
+```console
+yay -S include-what-you-use
+```
+
+#### Install [scc](https://github.com/boyter/scc) for command "make cloc":
+
+```console
+go get -u github.com/boyter/scc/
+```
+
+### CMake build options
+
+* TERRA_IWYU_ENABLE (default OFF) - for enable/disable for "[include what you use](https://github.com/include-what-you-use/include-what-you-use)"
+
+### Compile
 
 ```console
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ ../
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DTERRA_IWYU_ENABLE=OFF ../
 cmake --build .
 cd ..
 ```
-
-## Utils
-
-* To be able to run **make cloc** you must install the application <https://github.com/boyter/scc>.
