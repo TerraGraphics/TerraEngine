@@ -13,9 +13,18 @@ conan_cmake_run(CONANFILE conanfile.txt
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-find_program(IWYU_PATH NAMES include-what-you-use iwyu)
-if(NOT IWYU_PATH)
-  message(FATAL_ERROR "Could not find the program include-what-you-use")
+option(TERRA_IWYU_ENABLE "include-what-you-use enable" OFF)
+set(IWYU_ENABLE FALSE CACHE INTERNAL "include-what-you-use enable")
+if(${TERRA_IWYU_ENABLE})
+    set(IWYU_ENABLE TRUE CACHE INTERNAL "include-what-you-use enable")
+endif()
+message("IWYU_ENABLE: " ${IWYU_ENABLE})
+
+if(${IWYU_ENABLE})
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+  if(NOT IWYU_PATH)
+    message(FATAL_ERROR "Could not find the program include-what-you-use")
+  endif()
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})

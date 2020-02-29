@@ -78,7 +78,8 @@
     },
     "cmake.configureArgs": [
         "-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
-        "-DDILIGENT_NO_VULKAN:BOOL=OFF"
+        "-DDILIGENT_NO_VULKAN:BOOL=OFF",
+        "-DTERRA_IWYU_ENABLE:BOOL=OFF",
     ],
     "C_Cpp.enhancedColorization": "Disabled",
     "catch2TestExplorer.executables": [ "*test" ]
