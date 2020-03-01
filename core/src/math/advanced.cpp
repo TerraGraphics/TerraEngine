@@ -108,4 +108,28 @@ bool IntersectionRayAndCylinder(dg::float3 rayStart, dg::float3 rayDir, Axis axi
     return false;
 }
 
+/*
+    plane: plane.x * x + plane.y * y + plane.z * z + plane.w = 0
+    ray:
+        x = x0 + l*t
+        y = y0 + m*t
+        z = z0 + n*t
+        0 <= t <= +inf
+
+    intersection:
+        plane.x * (x0 + l*t) + plane.y * (y0 + m*t) + plane.z * (z0 + n*t) + plane.w = 0
+*/
+bool IntersectionRayAndPlane(dg::float3 rayStart, dg::float3 rayDir, dg::float4 plane, dg::float3& result) {
+    float t = - dg::dot(plane, dg::float4(rayStart, 1.f)) / dg::dot(static_cast<dg::float3>(plane), rayDir);
+
+    // 0 <= t <= +inf
+    if (t < 0) {
+        return false;
+    }
+
+    result = rayStart + rayDir * t;
+
+    return true;
+}
+
 }

@@ -6,6 +6,11 @@
 #include "core/math/basic.h"
 #include "core/math/advanced.h"
 
+#define ASSERT_FLOAT3_EQ(actual, expected) \
+    ASSERT_FLOAT_EQ(actual.x, expected.x); \
+    ASSERT_FLOAT_EQ(actual.y, expected.y); \
+    ASSERT_FLOAT_EQ(actual.z, expected.z);
+
 #define ASSERT_FLOAT4_EQ(actual, expected) \
     ASSERT_FLOAT_EQ(actual.x, expected.x); \
     ASSERT_FLOAT_EQ(actual.y, expected.y); \
@@ -128,6 +133,22 @@ TEST(MathAdvanced, IntersectionRayAndCylinderOZ) {
     ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, -1.f, 0), axis, radius, height));
     ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, 1.f), axis, radius, height));
     ASSERT_FALSE(math::IntersectionRayAndCylinder(rayStart, dg::float3(0, 0, -1.f), axis, radius, height));
+}
+
+TEST(MathAdvanced, IntersectionRayAndPlane) {
+    auto rg = GetRandomGenerator();
+    auto gen = std::uniform_real_distribution<float>(0.01f, 1.f);
+
+    dg::float4 plane(gen(rg), gen(rg), gen(rg), gen(rg));
+    dg::float3 rayStart = dg::float3(gen(rg), gen(rg), gen(rg));
+    dg::float3 rayDir = dg::normalize(dg::float3(gen(rg), gen(rg), gen(rg)));
+
+    auto result = dg::float3(0, 0, 0);
+    if (math::IntersectionRayAndPlane(rayStart, rayDir, plane, result)) {
+        auto dir = dg::normalize(result - rayStart);
+        ASSERT_FLOAT3_EQ(dir, rayDir);
+        ASSERT_FLOAT_EQ(dg::dot(plane, dg::float4(result, 1.f)), 0);
+    }
 }
 
 }
