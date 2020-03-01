@@ -17,7 +17,7 @@ public:
         Cone radius equals 'radius' (radius > 0.f).
         Cone height equals 'height' (height > 0.f).
     */
-    ConeShape(const UInt2& segments, const math::Axis& axisUp = math::Axis::Y, float radius = 0.5f, float height = 1.0f);
+    ConeShape(const math::UInt2& segments, const math::Axis& axisUp = math::Axis::Y, float radius = 0.5f, float height = 1.0f);
     ~ConeShape() = default;
 
 protected:

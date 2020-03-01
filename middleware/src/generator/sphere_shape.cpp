@@ -7,7 +7,7 @@
 #include "core/common/exception.h"
 
 
-SphereShape::SphereShape(const UInt2& segments, const math::Axis& axisUp, float radius)
+SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius)
     : FlatPlaneGenerator(segments)
     , m_axisUp(axisUp)
     , m_radius(radius) {

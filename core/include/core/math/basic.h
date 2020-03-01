@@ -4,15 +4,17 @@
 #include "core/dg/math.h"
 
 
-using UInt2 = dg::Vector2<uint32_t>;
-
 namespace math {
+
+using UInt2 = dg::Vector2<uint32_t>;
 
 enum class Axis : uint8_t {
     X = 0,
     Y = 1,
     Z = 2,
 };
+
+using Axis2 = dg::Vector2<Axis>;
 
 Axis Next(Axis value);
 

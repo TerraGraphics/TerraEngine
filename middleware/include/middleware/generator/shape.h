@@ -37,12 +37,12 @@ protected:
 
 class FlatPlaneGenerator : public Shape {
 protected:
-    FlatPlaneGenerator(const UInt2& segments);
+    FlatPlaneGenerator(const math::UInt2& segments);
 
     using VertexCallback = std::function<void (const dg::float2&, VertexPNC&)>;
     void Generate(VertexBufferRange<VertexPNC>& vb, const VertexCallback& callback) const;
     void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const final;
 
 private:
-    UInt2 m_segments;
+    math::UInt2 m_segments;
 };

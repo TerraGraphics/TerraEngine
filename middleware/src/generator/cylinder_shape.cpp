@@ -7,7 +7,7 @@
 #include "core/common/exception.h"
 
 
-CylinderShape::CylinderShape(const UInt2& segments, const math::Axis& axisUp, float radius, float height)
+CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height)
     : FlatPlaneGenerator(segments)
     , m_axisUp(axisUp)
     , m_radius(radius)
