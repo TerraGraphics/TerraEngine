@@ -27,7 +27,9 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t axis0 = static_cast<uint32_t>(m_axisUp);
     uint32_t axis1 = (axis0 + 2) % 3;
     uint32_t axis2 = (axis0 + 1) % 3;
-    Generate(vb, [axis0, axis1, axis2, radius = m_radius](const dg::float2& c, VertexPNC& out) {
+    Generate(vb, [axis0, axis1, axis2, radius = m_radius](const dg::float2& c) {
+        VertexPNC out;
+
         float angleA = TwoPI<float>() * c.x;
         float angleB = PI<float>() * c.y - HalfPI<float>();
 
@@ -41,5 +43,7 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         out.position[axis2] = circleY;
         out.normal = dg::normalize(out.position);
         out.uv = Shape::ToDXTexCoord(c);
+
+        return out;
     });
 }

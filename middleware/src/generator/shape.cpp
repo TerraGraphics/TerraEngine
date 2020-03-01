@@ -25,22 +25,17 @@ dg::float2 Shape::ToDXTexCoord(const dg::float2& coord) {
 
 FlatPlaneGenerator::FlatPlaneGenerator(const math::UInt2& segments)
     : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
-    , m_segments(segments) {
+    , m_segments(segments)
+    , m_generator(segments) {
 
 }
 
-void FlatPlaneGenerator::Generate(VertexBufferRange<VertexPNC>& vb, const VertexCallback& callback) const {
-    uint32_t ind = 0;
-    dg::float2 coord;
+void FlatPlaneGenerator::Generate(VertexBufferRange<VertexPNC>& vb, UVGridGenerator::Callback&& callback) const {
+    m_generator.SetCallback(std::move(callback));
 
-    for(uint32_t y=0; y!=(m_segments.y + 1); ++y) {
-        coord.y = static_cast<float>(y) / static_cast<float>(m_segments.y);
-        for(uint32_t x=0; x!=(m_segments.x + 1); ++x) {
-            coord.x = static_cast<float>(x) / static_cast<float>(m_segments.x);
-            callback(coord, vb[ind]);
-            vb[ind].uv *= m_texScale;
-            ++ind;
-        }
+    uint32_t ind = 0;
+    for(auto&& v: m_generator.GetVertexes()) {
+        vb[ind++] = std::move(v);
     }
 }
 

@@ -31,7 +31,8 @@ void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t axis0 = static_cast<uint32_t>(m_axisUp);
     uint32_t axis1 = (axis0 + 2) % 3;
     uint32_t axis2 = (axis0 + 1) % 3;
-    Generate(vb, [axis0, axis1, axis2, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
+    Generate(vb, [axis0, axis1, axis2, radius = m_radius, height = m_height](const dg::float2& c) {
+        VertexPNC out;
         auto angle = TwoPI<float>() * c.x;
         auto circleX = std::cos(angle);
         auto circleY = std::sin(angle);
@@ -44,5 +45,7 @@ void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         out.normal[axis2] = circleY;
         out.normal = dg::normalize(out.normal);
         out.uv = Shape::ToDXTexCoord(c);
+
+        return out;
     });
 }

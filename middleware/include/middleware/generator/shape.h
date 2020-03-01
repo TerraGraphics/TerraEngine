@@ -5,6 +5,7 @@
 #include "core/math/basic.h"
 #include "core/math/constants.h"
 #include "core/scene/index_buffer.h"
+#include "middleware/generator/uv_grid_generator.h"
 
 
 struct VertexPNC;
@@ -39,10 +40,10 @@ class FlatPlaneGenerator : public Shape {
 protected:
     FlatPlaneGenerator(const math::UInt2& segments);
 
-    using VertexCallback = std::function<void (const dg::float2&, VertexPNC&)>;
-    void Generate(VertexBufferRange<VertexPNC>& vb, const VertexCallback& callback) const;
+    void Generate(VertexBufferRange<VertexPNC>& vb, UVGridGenerator::Callback&& callback) const;
     void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const final;
 
 private:
     math::UInt2 m_segments;
+    mutable UVGridGenerator m_generator;
 };

@@ -36,7 +36,8 @@ void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     auto oneOverSizeCone = 1.f / std::hypot(m_radius, m_height);
     auto radiusNorm = m_height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
     auto normUp = m_radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
-    Generate(vb, [axis0, axis1, axis2, radiusNorm, normUp, radius = m_radius, height = m_height](const dg::float2& c, VertexPNC& out) {
+    Generate(vb, [axis0, axis1, axis2, radiusNorm, normUp, radius = m_radius, height = m_height](const dg::float2& c) {
+        VertexPNC out;
         float circleAngle = TwoPI<float>() * c.x;
 
         float posUp = (c.y - 0.5f) * height;
@@ -54,5 +55,7 @@ void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         out.normal = dg::normalize(out.normal);
 
         out.uv = Shape::ToDXTexCoord(c);
+
+        return out;
     });
 }
