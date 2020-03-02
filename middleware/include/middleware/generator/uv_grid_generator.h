@@ -29,7 +29,7 @@ public:
         };
 
         Vertexes() = delete;
-        Vertexes(math::UInt2 segments);
+        Vertexes(const math::UInt2& segments);
 
         void SetCallback(Callback&& value);
 
@@ -41,6 +41,36 @@ public:
         Callback m_callback;
     };
 
+    struct Indexes : private Fixed {
+        struct Iterator : private Fixed {
+            Iterator() = delete;
+            Iterator(const math::UInt2& segments, uint32_t offset);
+            Iterator(math::UInt2&& ind);
+
+            bool operator==(const Iterator& other) const { return m_ind == other.m_ind; }
+            bool operator!=(const Iterator& other) const { return m_ind != other.m_ind; }
+            Iterator& operator++();
+            uint32_t operator*() const;
+
+        private:
+            math::UInt2 m_ind = {0, 0};
+            uint32_t m_offset;
+            uint32_t m_triangleIndex = 0;
+            math::UInt2 m_segments;
+            uint32_t m_triangleTable[6];
+        };
+
+        Indexes() = delete;
+        Indexes(const math::UInt2& segments, uint32_t offset);
+
+        Iterator begin() const;
+        Iterator end() const;
+
+    private:
+        math::UInt2 m_segments;
+        uint32_t m_offset;
+    };
+
 public:
     UVGridGenerator() = delete;
     UVGridGenerator(math::UInt2 segments);
@@ -48,7 +78,9 @@ public:
     void SetCallback(Callback&& value);
 
     const Vertexes& GetVertexes() const { return m_vertexes; }
+    const Indexes GetIndexes(uint32_t vertexStartIndex = 0) const { return Indexes(m_segments, vertexStartIndex); }
 
 private:
     Vertexes m_vertexes;
+    math::UInt2 m_segments;
 };
