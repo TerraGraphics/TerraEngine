@@ -29,7 +29,7 @@ public:
         };
 
         Vertexes() = delete;
-        Vertexes(const math::UInt2& segments);
+        Vertexes(const math::UInt2& segments, const math::Axis3& orientation);
 
         void SetCallback(Callback&& value);
 
@@ -38,6 +38,7 @@ public:
 
     private:
         math::UInt2 m_segments;
+        uint32_t m_permutations[3];
         Callback m_callback;
     };
 
@@ -73,7 +74,7 @@ public:
 
 public:
     UVGridGenerator() = delete;
-    UVGridGenerator(math::UInt2 segments);
+    UVGridGenerator(const math::UInt2& segments, const math::Axis3& orientation);
 
     void SetCallback(Callback&& value);
 

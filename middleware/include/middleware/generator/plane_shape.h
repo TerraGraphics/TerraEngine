@@ -22,6 +22,5 @@ protected:
     void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
 
 private:
-    math::Axis2 m_axes;
     dg::float2 m_sizes;
 };

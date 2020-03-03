@@ -7,8 +7,7 @@
 
 
 PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, const dg::float2& sizes)
-    : FlatPlaneGenerator(segments)
-    , m_axes(axes)
+    : FlatPlaneGenerator(segments, {axes[0], axes[1], math::GetThirdAxis(axes[0], axes[1])})
     , m_sizes(sizes) {
 
     if (segments.x < 1) {
@@ -29,18 +28,11 @@ PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, con
 }
 
 void PlaneShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
-    uint32_t axis0 = static_cast<uint32_t>(m_axes[0]);
-    uint32_t axis1 = static_cast<uint32_t>(m_axes[1]);
-    uint32_t axis2 = static_cast<uint32_t>(math::Axis::X) + static_cast<uint32_t>(math::Axis::Y) + static_cast<uint32_t>(math::Axis::Z) - axis0 - axis1;
-    Generate(vb, [axis0, axis1, axis2, sizes = m_sizes](const dg::float2& c) {
+    Generate(vb, [sizes = m_sizes](const dg::float2& c) {
         VertexPNC out;
 
-        out.position[axis0] = (c.x - 0.5f) * sizes[0];
-        out.position[axis1] = (c.y - 0.5f) * sizes[1];
-        out.position[axis2] = 0.f;
-        out.normal[axis0] = 0.f;
-        out.normal[axis1] = 0.f;
-        out.normal[axis2] = 1.f;
+        out.position = dg::float3((c.x - 0.5f) * sizes[0], (c.y - 0.5f) * sizes[1], 0);
+        out.normal = dg::float3(0, 0, 1.f);
         out.uv = Shape::ToDXTexCoord(c);
 
         return out;

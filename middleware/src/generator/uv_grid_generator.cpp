@@ -23,12 +23,27 @@ UVGridGenerator::Vertexes::Iterator& UVGridGenerator::Vertexes::Iterator::operat
 }
 
 VertexPNC UVGridGenerator::Vertexes::Iterator::operator*() const {
-    return m_parent.m_callback(dg::float2(m_deltas.x * m_ind.x, m_deltas.y * m_ind.y));
+    VertexPNC result = m_parent.m_callback(dg::float2(m_deltas.x * m_ind.x, m_deltas.y * m_ind.y));
+    result.position = dg::float3(
+        result.position[m_parent.m_permutations[0]],
+        result.position[m_parent.m_permutations[1]],
+        result.position[m_parent.m_permutations[2]]
+    );
+    result.normal = dg::float3(
+        result.normal[m_parent.m_permutations[0]],
+        result.normal[m_parent.m_permutations[1]],
+        result.normal[m_parent.m_permutations[2]]
+    );
+
+    return result;
 }
 
-UVGridGenerator::Vertexes::Vertexes(const math::UInt2& segments)
+UVGridGenerator::Vertexes::Vertexes(const math::UInt2& segments, const math::Axis3& orientation)
     : m_segments(segments) {
 
+    m_permutations[static_cast<uint32_t>(orientation[0])] = 0;
+    m_permutations[static_cast<uint32_t>(orientation[1])] = 1;
+    m_permutations[static_cast<uint32_t>(orientation[2])] = 2;
 }
 
 void UVGridGenerator::Vertexes::SetCallback(Callback&& value) {
@@ -89,8 +104,8 @@ UVGridGenerator::Indexes::Iterator UVGridGenerator::Indexes::end() const {
     return Iterator(math::UInt2(0, m_segments.y));
 }
 
-UVGridGenerator::UVGridGenerator(math::UInt2 segments)
-    : m_vertexes(segments)
+UVGridGenerator::UVGridGenerator(const math::UInt2& segments, const math::Axis3& orientation)
+    : m_vertexes(segments, orientation)
     , m_segments(segments) {
 
 }

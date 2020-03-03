@@ -23,9 +23,9 @@ dg::float2 Shape::ToDXTexCoord(const dg::float2& coord) {
     return dg::float2(coord.u, 1.f - coord.v);
 }
 
-FlatPlaneGenerator::FlatPlaneGenerator(const math::UInt2& segments)
+FlatPlaneGenerator::FlatPlaneGenerator(const math::UInt2& segments, const math::Axis3& orientation)
     : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
-    , m_generator(segments) {
+    , m_generator(segments, orientation) {
 
 }
 

@@ -8,8 +8,7 @@
 
 
 SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius)
-    : FlatPlaneGenerator(segments)
-    , m_axisUp(axisUp)
+    : FlatPlaneGenerator(segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
     , m_radius(radius) {
 
     if (segments.x < 3) {
@@ -24,10 +23,7 @@ SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, 
 }
 
 void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
-    uint32_t axis0 = static_cast<uint32_t>(m_axisUp);
-    uint32_t axis1 = (axis0 + 2) % 3;
-    uint32_t axis2 = (axis0 + 1) % 3;
-    Generate(vb, [axis0, axis1, axis2, radius = m_radius](const dg::float2& c) {
+    Generate(vb, [radius = m_radius](const dg::float2& c) {
         VertexPNC out;
 
         float angleA = TwoPI<float>() * c.x;
@@ -38,9 +34,7 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         auto circleX = std::cos(angleA) * circleRadius;
         auto circleY = std::sin(angleA) * circleRadius;
 
-        out.position[axis0] = posUp;
-        out.position[axis1] = circleX;
-        out.position[axis2] = circleY;
+        out.position = dg::float3(posUp, circleX, circleY);
         out.normal = dg::normalize(out.position);
         out.uv = Shape::ToDXTexCoord(c);
 

@@ -15,8 +15,10 @@ enum class Axis : uint8_t {
 };
 
 using Axis2 = dg::Vector2<Axis>;
+using Axis3 = dg::Vector3<Axis>;
 
 Axis Next(Axis value);
+Axis Prev(Axis value);
 Axis GetThirdAxis(Axis first, Axis second);
 
 enum class Direction : uint8_t {

@@ -23,6 +23,5 @@ protected:
     void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
 
 private:
-    math::Axis m_axisUp;
     float m_radius = 0.5f;
 };
