@@ -20,6 +20,7 @@ using Axis3 = dg::Vector3<Axis>;
 Axis Next(Axis value);
 Axis Prev(Axis value);
 Axis GetThirdAxis(Axis first, Axis second);
+Axis GetThirdAxis(Axis2 values);
 
 enum class Direction : uint8_t {
     POS_X = 0,
@@ -29,6 +30,12 @@ enum class Direction : uint8_t {
     NEG_Y = 4,
     NEG_Z = 5,
 };
+
+Axis GetAxis(Direction value);
+Direction GetDirection(Axis value);
+
+// For POX_ return +1, for NEG_ return -1
+int8_t GetSign(Direction value);
 
 struct Color4f {
     Color4f() = default;

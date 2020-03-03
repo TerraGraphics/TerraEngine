@@ -94,7 +94,7 @@ std::shared_ptr<StdMaterial> GizmoPlane::Create(DevicePtr& device, std::shared_p
     auto axisNum0 = static_cast<uint>(axises[0]);
     auto axisNum1 = static_cast<uint>(axises[1]);
 
-    PlaneShape planeShape({1, 1}, axises, {m_size, m_size});
+    PlaneShape planeShape({1, 1}, axises, math::GetDirection(math::GetThirdAxis(axises)), {m_size, m_size});
     auto translation = dg::float3(0, 0, 0);
     translation[axisNum0] = m_spacing + m_size * .5f;
     translation[axisNum1] = m_spacing + m_size * .5f;
@@ -159,7 +159,7 @@ bool GizmoPlane::IsSelected(dg::float3 rayStart, dg::float3 rayDir) const {
 
 bool GizmoPlane::GetProjection(dg::float3 rayStart, dg::float3 rayDir, dg::float3& value) const {
     if (math::IntersectionRayAndPlane(rayStart, rayDir, m_planeParams, value)) {
-        value[static_cast<uint>(GetThirdAxis(m_axises[0], m_axises[1]))] = 0;
+        value[static_cast<uint>(math::GetThirdAxis(m_axises))] = 0;
         return true;
     }
 
