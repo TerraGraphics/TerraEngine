@@ -8,7 +8,7 @@
 
 
 CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height)
-    : FlatPlaneGenerator(segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+    : FlatPlaneGenerator("CylinderShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
     , m_radius(radius)
     , m_height(height) {
 

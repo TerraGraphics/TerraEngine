@@ -8,7 +8,7 @@
 
 
 SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius)
-    : FlatPlaneGenerator(segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+    : FlatPlaneGenerator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
     , m_radius(radius) {
 
     if (segments.x < 3) {

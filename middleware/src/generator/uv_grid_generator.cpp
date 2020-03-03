@@ -1,5 +1,7 @@
 #include "middleware/generator/uv_grid_generator.h"
 
+#include "core/common/exception.h"
+
 
 UVGridGenerator::Vertexes::Iterator::Iterator(const Vertexes& parent)
     : m_deltas(1.f / parent.m_segments.x, 1.f / parent.m_segments.y)
@@ -104,10 +106,24 @@ UVGridGenerator::Indexes::Iterator UVGridGenerator::Indexes::end() const {
     return Iterator(math::UInt2(0, m_segments.y));
 }
 
-UVGridGenerator::UVGridGenerator(const math::UInt2& segments, const math::Axis3& orientation)
+UVGridGenerator::UVGridGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation)
     : m_vertexes(segments, orientation)
     , m_segments(segments) {
-
+    for (uint32_t i=0; i!=3; ++i) {
+        auto axis = orientation[i];
+        if ((axis != math::Axis::X) && (axis != math::Axis::Y) && (axis != math::Axis::Z)) {
+            throw EngineError("wrong orientation[{}]={} value in {}", i, static_cast<uint32_t>(axis), name);
+        }
+        if (orientation[0] == orientation[1]) {
+            throw EngineError("error in the orientation array in {}, elements number 0 and number 1 are equal", name);
+        }
+        if (orientation[0] == orientation[2]) {
+            throw EngineError("error in the orientation array in {}, elements number 0 and number 2 are equal", name);
+        }
+        if (orientation[1] == orientation[2]) {
+            throw EngineError("error in the orientation array in {}, elements number 1 and number 2 are equal", name);
+        }
+    }
 }
 
 void UVGridGenerator::SetCallback(Callback&& value) {

@@ -74,7 +74,7 @@ public:
 
 public:
     UVGridGenerator() = delete;
-    UVGridGenerator(const math::UInt2& segments, const math::Axis3& orientation);
+    UVGridGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation);
 
     void SetCallback(Callback&& value);
 

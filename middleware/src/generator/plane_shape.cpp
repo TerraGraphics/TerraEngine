@@ -7,7 +7,7 @@
 
 
 PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, const dg::float2& sizes)
-    : FlatPlaneGenerator(segments, {axes[0], axes[1], math::GetThirdAxis(axes[0], axes[1])})
+    : FlatPlaneGenerator("PlaneShape", segments, {axes[0], axes[1], math::GetThirdAxis(axes[0], axes[1])})
     , m_sizes(sizes) {
 
     if (segments.x < 1) {
@@ -15,9 +15,6 @@ PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, con
     }
     if (segments.y < 1) {
         throw EngineError("minimum value for segments.y in PlaneShape is 1");
-    }
-    if (axes[0] == axes[1]) {
-        throw EngineError("axles must not match in PlaneShape");
     }
     if (sizes.x < 0) {
         throw EngineError("minimum value for sizes.x in PlaneShape is greater than 0");
