@@ -7,8 +7,8 @@
 #include "core/common/exception.h"
 
 
-SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius)
-    : FlatPlaneGenerator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, const dg::float3& center)
+    : FlatPlaneGenerator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center)
     , m_radius(radius) {
 
     if (segments.x < 3) {

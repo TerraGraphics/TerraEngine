@@ -29,17 +29,16 @@ public:
         };
 
         Vertexes() = delete;
-        Vertexes(const math::UInt2& segments, const math::Axis3& orientation);
-
-        void SetCallback(Callback&& value);
+        Vertexes(const math::UInt2& segments, const math::Axis3& orientation, const dg::float3& center, const Callback& callback);
 
         Iterator begin() const;
         Iterator end() const;
 
     private:
         math::UInt2 m_segments;
+        dg::float3 m_center;
         uint32_t m_permutations[3];
-        Callback m_callback;
+        const Callback& m_callback;
     };
 
     struct Indexes : private Fixed {
@@ -78,10 +77,11 @@ public:
 
     void SetCallback(Callback&& value);
 
-    const Vertexes& GetVertexes() const { return m_vertexes; }
-    const Indexes GetIndexes(uint32_t vertexStartIndex = 0) const { return Indexes(m_segments, vertexStartIndex); }
+    const Vertexes GetVertexes(const dg::float3& center = dg::float3(0, 0, 0)) const;
+    const Indexes GetIndexes(uint32_t vertexStartIndex = 0) const;
 
 private:
-    Vertexes m_vertexes;
     math::UInt2 m_segments;
+    math::Axis3 m_orientation;
+    Callback m_callback;
 };

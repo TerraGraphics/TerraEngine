@@ -10,7 +10,7 @@ template <typename Vertex> class VertexBufferRange;
 class CubeShape : public Shape {
 public:
     /*!
-       Creates a solid cube with a center at the beginning of the coordinates and a long edge equal to 1
+       Creates a cube with a center at the beginning of the coordinates and a long edge equal to 1
 
                    21-------22
                    /       /

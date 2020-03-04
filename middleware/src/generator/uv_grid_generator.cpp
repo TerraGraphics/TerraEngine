@@ -29,9 +29,9 @@ VertexPNC UVGridGenerator::Vertexes::Iterator::operator*() const {
 
     VertexPNC result = m_parent.m_callback(uv);
     result.position = dg::float3(
-        result.position[m_parent.m_permutations[0]],
-        result.position[m_parent.m_permutations[1]],
-        result.position[m_parent.m_permutations[2]]
+        m_parent.m_center.x + result.position[m_parent.m_permutations[0]],
+        m_parent.m_center.y + result.position[m_parent.m_permutations[1]],
+        m_parent.m_center.z + result.position[m_parent.m_permutations[2]]
     );
 
     result.normal = dg::float3(
@@ -46,16 +46,15 @@ VertexPNC UVGridGenerator::Vertexes::Iterator::operator*() const {
     return result;
 }
 
-UVGridGenerator::Vertexes::Vertexes(const math::UInt2& segments, const math::Axis3& orientation)
-    : m_segments(segments) {
+UVGridGenerator::Vertexes::Vertexes(
+    const math::UInt2& segments, const math::Axis3& orientation, const dg::float3& center, const Callback& callback)
+    : m_segments(segments)
+    , m_center(center)
+    , m_callback(callback) {
 
     m_permutations[static_cast<uint32_t>(orientation[0])] = 0;
     m_permutations[static_cast<uint32_t>(orientation[1])] = 1;
     m_permutations[static_cast<uint32_t>(orientation[2])] = 2;
-}
-
-void UVGridGenerator::Vertexes::SetCallback(Callback&& value) {
-    m_callback = std::move(value);
 }
 
 UVGridGenerator::Vertexes::Iterator UVGridGenerator::Vertexes::begin() const {
@@ -113,8 +112,9 @@ UVGridGenerator::Indexes::Iterator UVGridGenerator::Indexes::end() const {
 }
 
 UVGridGenerator::UVGridGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation)
-    : m_vertexes(segments, orientation)
-    , m_segments(segments) {
+    : m_segments(segments)
+    , m_orientation(orientation) {
+
     for (uint32_t i=0; i!=3; ++i) {
         auto axis = orientation[i];
         if ((axis != math::Axis::X) && (axis != math::Axis::Y) && (axis != math::Axis::Z)) {
@@ -133,5 +133,13 @@ UVGridGenerator::UVGridGenerator(const std::string& name, const math::UInt2& seg
 }
 
 void UVGridGenerator::SetCallback(Callback&& value) {
-    m_vertexes.SetCallback(std::move(value));
+    m_callback = std::move(value);
+}
+
+const UVGridGenerator::Vertexes UVGridGenerator::GetVertexes(const dg::float3& center) const {
+    return Vertexes(m_segments, m_orientation, center, m_callback);
+}
+
+const UVGridGenerator::Indexes UVGridGenerator::GetIndexes(uint32_t vertexStartIndex) const {
+    return Indexes(m_segments, vertexStartIndex);
 }

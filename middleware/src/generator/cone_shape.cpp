@@ -7,8 +7,8 @@
 #include "core/common/exception.h"
 
 
-ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height)
-    : FlatPlaneGenerator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
+    : FlatPlaneGenerator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center)
     , m_radius(radius)
     , m_height(height) {
 

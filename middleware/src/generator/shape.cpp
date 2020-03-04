@@ -19,9 +19,10 @@ void Shape::SetTexScale(const dg::float2& value) {
     m_texScale = value;
 }
 
-FlatPlaneGenerator::FlatPlaneGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation)
+FlatPlaneGenerator::FlatPlaneGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation, const dg::float3& center)
     : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
-    , m_generator(name, segments, orientation) {
+    , m_generator(name, segments, orientation)
+    , m_center(center) {
 
 }
 
@@ -29,7 +30,7 @@ void FlatPlaneGenerator::Generate(VertexBufferRange<VertexPNC>& vb, UVGridGenera
     m_generator.SetCallback(std::move(callback));
 
     uint32_t ind = 0;
-    for(auto&& v: m_generator.GetVertexes()) {
+    for(auto&& v: m_generator.GetVertexes(m_center)) {
         vb[ind++] = std::move(v);
     }
 }

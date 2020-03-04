@@ -6,8 +6,8 @@
 #include "core/common/exception.h"
 
 
-PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, const dg::float2& sizes)
-    : FlatPlaneGenerator("PlaneShape", segments, {axes[0], axes[1], math::GetThirdAxis(axes[0], axes[1])})
+PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, const dg::float2& sizes, const dg::float3& center)
+    : FlatPlaneGenerator("PlaneShape", segments, {axes[0], axes[1], math::GetThirdAxis(axes[0], axes[1])}, center)
     , m_sizes(sizes) {
 
     if (segments.x < 1) {
