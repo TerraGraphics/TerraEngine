@@ -34,6 +34,8 @@ public:
         Iterator begin() const;
         Iterator end() const;
 
+        uint32_t Lenght() const;
+
     private:
         math::UInt2 m_segments;
         dg::float3 m_center;
@@ -65,6 +67,8 @@ public:
 
         Iterator begin() const;
         Iterator end() const;
+
+        uint32_t Lenght() const;
 
     private:
         math::UInt2 m_segments;

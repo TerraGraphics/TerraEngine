@@ -8,8 +8,7 @@
 
 
 SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, const dg::float3& center)
-    : FlatPlaneGenerator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center)
-    , m_radius(radius) {
+    : FlatPlaneGenerator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in SphereShape is 3");
@@ -20,10 +19,8 @@ SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, 
     if (radius <= 0.f) {
         throw EngineError("radius value in SphereShape must be greater than zero");
     }
-}
 
-void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
-    Generate(vb, [radius = m_radius](const dg::float2& c) {
+    m_generator.SetCallback([radius](const dg::float2& c) {
         VertexPNC out;
 
         float angleA = TwoPI<float>() * c.x;

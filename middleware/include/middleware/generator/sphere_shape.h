@@ -21,10 +21,4 @@ public:
     SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius = 0.5f,
         const dg::float3& center = dg::float3(0, 0, 0));
     ~SphereShape() = default;
-
-protected:
-    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
-
-private:
-    float m_radius = 0.5f;
 };

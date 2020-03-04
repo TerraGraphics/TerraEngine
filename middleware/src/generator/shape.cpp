@@ -26,9 +26,7 @@ FlatPlaneGenerator::FlatPlaneGenerator(const std::string& name, const math::UInt
 
 }
 
-void FlatPlaneGenerator::Generate(VertexBufferRange<VertexPNC>& vb, UVGridGenerator::Callback&& callback) const {
-    m_generator.SetCallback(std::move(callback));
-
+void FlatPlaneGenerator::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     uint32_t ind = 0;
     for(auto&& v: m_generator.GetVertexes(m_center)) {
         vb[ind++] = std::move(v);

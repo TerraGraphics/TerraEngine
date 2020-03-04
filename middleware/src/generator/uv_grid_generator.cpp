@@ -65,6 +65,10 @@ UVGridGenerator::Vertexes::Iterator UVGridGenerator::Vertexes::end() const {
     return Iterator(math::UInt2(0, m_segments.y + 1), *this);
 }
 
+uint32_t UVGridGenerator::Vertexes::Lenght() const {
+    return (m_segments.x + 1) * (m_segments.y + 1);
+}
+
 UVGridGenerator::Indexes::Iterator::Iterator(const math::UInt2& segments, uint32_t offset)
     : m_offset(offset)
     , m_segments(segments)
@@ -109,6 +113,10 @@ UVGridGenerator::Indexes::Iterator UVGridGenerator::Indexes::begin() const {
 
 UVGridGenerator::Indexes::Iterator UVGridGenerator::Indexes::end() const {
     return Iterator(math::UInt2(0, m_segments.y));
+}
+
+uint32_t UVGridGenerator::Indexes::Lenght() const {
+    return m_segments.x * m_segments.y * 6;
 }
 
 UVGridGenerator::UVGridGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation)

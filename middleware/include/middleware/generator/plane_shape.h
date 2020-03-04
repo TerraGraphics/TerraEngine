@@ -21,11 +21,4 @@ public:
         const dg::float2& sizes = dg::float2(1.f, 1.f),
         const dg::float3& center = dg::float3(0, 0, 0));
     ~PlaneShape() = default;
-
-protected:
-    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
-
-private:
-    dg::float2 m_sizes;
-    float m_normalValue;
 };

@@ -8,9 +8,7 @@
 
 
 CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
-    : FlatPlaneGenerator("CylinderShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center)
-    , m_radius(radius)
-    , m_height(height) {
+    : FlatPlaneGenerator("CylinderShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in CylinderShape is 3");
@@ -24,10 +22,8 @@ CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axis
     if (height <= 0.f) {
         throw EngineError("height value in CylinderShape must be greater than zero");
     }
-}
 
-void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
-    Generate(vb, [radius = m_radius, height = m_height](const dg::float2& c) {
+    m_generator.SetCallback([radius, height](const dg::float2& c) {
         VertexPNC out;
         auto angle = TwoPI<float>() * c.x;
         auto circleX = std::cos(angle);

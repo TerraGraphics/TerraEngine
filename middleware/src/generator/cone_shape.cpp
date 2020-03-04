@@ -8,9 +8,7 @@
 
 
 ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
-    : FlatPlaneGenerator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center)
-    , m_radius(radius)
-    , m_height(height) {
+    : FlatPlaneGenerator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in ConeShape is 3");
@@ -24,15 +22,13 @@ ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, floa
     if (height <= 0.f) {
         throw EngineError("height value in ConeShape must be greater than zero");
     }
-}
 
-void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     // tan(coneAngle) == radius / height
     // sizeCone = sqrt(radius * radius + height * height)
-    auto oneOverSizeCone = 1.f / std::hypot(m_radius, m_height);
-    auto radiusNorm = m_height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
-    auto normUp = m_radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
-    Generate(vb, [radiusNorm, normUp, radius = m_radius, height = m_height](const dg::float2& c) {
+    auto oneOverSizeCone = 1.f / std::hypot(radius, height);
+    auto radiusNorm = height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
+    auto normUp = radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
+    m_generator.SetCallback([radiusNorm, normUp, radius, height](const dg::float2& c) {
         VertexPNC out;
         float circleAngle = TwoPI<float>() * c.x;
 

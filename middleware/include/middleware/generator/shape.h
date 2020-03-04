@@ -38,10 +38,10 @@ class FlatPlaneGenerator : public Shape {
 protected:
     FlatPlaneGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation, const dg::float3& center);
 
-    void Generate(VertexBufferRange<VertexPNC>& vb, UVGridGenerator::Callback&& callback) const;
+    void FillVertex(VertexBufferRange<VertexPNC>& vb) const final;
     void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const final;
 
-private:
-    mutable UVGridGenerator m_generator;
+protected:
+    UVGridGenerator m_generator;
     dg::float3 m_center;
 };

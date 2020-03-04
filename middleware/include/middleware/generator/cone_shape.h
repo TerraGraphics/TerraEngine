@@ -22,11 +22,4 @@ public:
     ConeShape(const math::UInt2& segments, const math::Axis& axisUp = math::Axis::Y, float radius = 0.5f, float height = 1.0f,
         const dg::float3& center = dg::float3(0, 0, 0));
     ~ConeShape() = default;
-
-protected:
-    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
-
-private:
-    float m_radius = 0.5f;
-    float m_height = 1.0f;
 };
