@@ -27,10 +27,8 @@ PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, con
 void PlaneShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
     Generate(vb, [sizes = m_sizes](const dg::float2& c) {
         VertexPNC out;
-
         out.position = dg::float3((c.x - 0.5f) * sizes[0], (c.y - 0.5f) * sizes[1], 0);
         out.normal = dg::float3(0, 0, 1.f);
-        out.uv = Shape::ToDXTexCoord(c);
 
         return out;
     });

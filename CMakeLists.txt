@@ -26,6 +26,7 @@ if(${IWYU_ENABLE})
     message(FATAL_ERROR "Could not find the program include-what-you-use")
   endif()
 endif()
+# set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks="cppcoreguidelines-*")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

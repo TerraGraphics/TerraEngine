@@ -36,7 +36,6 @@ void SphereShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 
         out.position = dg::float3(posUp, circleX, circleY);
         out.normal = dg::normalize(out.position);
-        out.uv = Shape::ToDXTexCoord(c);
 
         return out;
     });

@@ -25,17 +25,23 @@ UVGridGenerator::Vertexes::Iterator& UVGridGenerator::Vertexes::Iterator::operat
 }
 
 VertexPNC UVGridGenerator::Vertexes::Iterator::operator*() const {
-    VertexPNC result = m_parent.m_callback(dg::float2(m_deltas.x * m_ind.x, m_deltas.y * m_ind.y));
+    auto uv = dg::float2(m_deltas.x * m_ind.x, m_deltas.y * m_ind.y);
+
+    VertexPNC result = m_parent.m_callback(uv);
     result.position = dg::float3(
         result.position[m_parent.m_permutations[0]],
         result.position[m_parent.m_permutations[1]],
         result.position[m_parent.m_permutations[2]]
     );
+
     result.normal = dg::float3(
         result.normal[m_parent.m_permutations[0]],
         result.normal[m_parent.m_permutations[1]],
         result.normal[m_parent.m_permutations[2]]
     );
+
+    // convert to directX texture coord system
+    result.uv = dg::float2(uv.u, 1.f - uv.v);
 
     return result;
 }

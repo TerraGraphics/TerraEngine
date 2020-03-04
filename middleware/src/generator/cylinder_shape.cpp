@@ -35,7 +35,6 @@ void CylinderShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
 
         out.position = dg::float3((c.y - 0.5f) * height, circleX * radius, circleY * radius);
         out.normal = dg::normalize(dg::float3(0.f, circleX, circleY));
-        out.uv = Shape::ToDXTexCoord(c);
 
         return out;
     });

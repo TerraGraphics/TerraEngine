@@ -25,8 +25,6 @@ protected:
     virtual void FillVertex(VertexBufferRange<VertexPNC>& vb) const = 0;
     virtual void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const = 0;
 
-    static dg::float2 ToDXTexCoord(const dg::float2& coord);
-
 protected:
     dg::float4x4 m_matrix = dg::One4x4;
     dg::float2 m_texScale = dg::float2(1.f, 1.f);

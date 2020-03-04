@@ -44,8 +44,6 @@ void ConeShape::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
         out.position = dg::float3(posUp, cosA * radiusPos, sinA * radiusPos);
         out.normal = dg::normalize(dg::float3(normUp, cosA * radiusNorm, sinA * radiusNorm));
 
-        out.uv = Shape::ToDXTexCoord(c);
-
         return out;
     });
 }
