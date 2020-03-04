@@ -6,7 +6,7 @@
 
 struct VertexPNC;
 template <typename Vertex> class VertexBufferRange;
-class SphereShape : public FlatPlaneGenerator {
+class SphereShape : public Shape {
 public:
     SphereShape() = delete;
     /*!
@@ -20,5 +20,10 @@ public:
     */
     SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius = 0.5f,
         const dg::float3& center = dg::float3(0, 0, 0));
-    ~SphereShape() = default;
+
+    const UVGridGenerator::Vertexes GetVertexes() const override { return m_generator.GetVertexes(); }
+    const UVGridGenerator::Indexes GetIndexes(uint32_t vertexStartIndex = 0) const override { return m_generator.GetIndexes(vertexStartIndex); }
+
+private:
+    UVGridGenerator m_generator;
 };

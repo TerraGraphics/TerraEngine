@@ -8,7 +8,7 @@
 
 
 CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
-    : FlatPlaneGenerator("CylinderShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
+    : m_generator("CylinderShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in CylinderShape is 3");

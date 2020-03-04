@@ -34,7 +34,7 @@ public:
         Iterator begin() const;
         Iterator end() const;
 
-        uint32_t Lenght() const;
+        size_t Lenght() const;
 
     private:
         math::UInt2 m_segments;
@@ -68,7 +68,7 @@ public:
         Iterator begin() const;
         Iterator end() const;
 
-        uint32_t Lenght() const;
+        size_t Lenght() const;
 
     private:
         math::UInt2 m_segments;
@@ -77,15 +77,16 @@ public:
 
 public:
     UVGridGenerator() = delete;
-    UVGridGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation);
+    UVGridGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation, const dg::float3& center);
 
     void SetCallback(Callback&& value);
 
-    const Vertexes GetVertexes(const dg::float3& center = dg::float3(0, 0, 0)) const;
+    const Vertexes GetVertexes() const;
     const Indexes GetIndexes(uint32_t vertexStartIndex = 0) const;
 
 private:
     math::UInt2 m_segments;
     math::Axis3 m_orientation;
+    dg::float3 m_center;
     Callback m_callback;
 };

@@ -4,12 +4,6 @@
  #include "core/scene/vertex_buffer.h"
 
 
-Shape::Shape(uint32_t vertexCount, uint32_t indexCount)
-    : m_vertexCount(vertexCount)
-    , m_indexCount(indexCount) {
-
-}
-
 void Shape::SetTranform(const dg::float4x4& matrix) {
     m_matrix = matrix;
     m_matrixChanged = true;
@@ -17,25 +11,4 @@ void Shape::SetTranform(const dg::float4x4& matrix) {
 
 void Shape::SetTexScale(const dg::float2& value) {
     m_texScale = value;
-}
-
-FlatPlaneGenerator::FlatPlaneGenerator(const std::string& name, const math::UInt2& segments, const math::Axis3& orientation, const dg::float3& center)
-    : Shape((segments.x + 1) * (segments.y + 1), segments.x * segments.y * 6)
-    , m_generator(name, segments, orientation)
-    , m_center(center) {
-
-}
-
-void FlatPlaneGenerator::FillVertex(VertexBufferRange<VertexPNC>& vb) const {
-    uint32_t ind = 0;
-    for(auto&& v: m_generator.GetVertexes(m_center)) {
-        vb[ind++] = std::move(v);
-    }
-}
-
-void FlatPlaneGenerator::FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const {
-    uint32_t ind = 0;
-    for(auto index: m_generator.GetIndexes(vertexStartIndex)) {
-        ib[ind++] = index;
-    }
 }

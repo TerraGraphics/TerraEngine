@@ -8,7 +8,7 @@
 
 PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, math::Direction normalDir,
     const dg::float2& sizes, const dg::float3& center)
-    : FlatPlaneGenerator("PlaneShape", segments, {axes[0], axes[1], math::GetAxis(normalDir)}, center) {
+    : m_generator("PlaneShape", segments, {axes[0], axes[1], math::GetAxis(normalDir)}, center) {
 
     if (segments.x < 1) {
         throw EngineError("minimum value for segments.x in PlaneShape is 1");

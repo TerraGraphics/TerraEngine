@@ -8,7 +8,7 @@
 
 
 SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, const dg::float3& center)
-    : FlatPlaneGenerator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
+    : m_generator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in SphereShape is 3");

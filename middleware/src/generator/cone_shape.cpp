@@ -8,7 +8,7 @@
 
 
 ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
-    : FlatPlaneGenerator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
+    : m_generator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in ConeShape is 3");
