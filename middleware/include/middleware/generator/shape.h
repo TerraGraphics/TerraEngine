@@ -8,19 +8,29 @@
 #include "middleware/generator/uv_grid_generator.h"
 
 
-struct VertexPNC;
-template <typename Vertex> class VertexBufferRange;
-class Shape {
-    friend class ShapeBuilder;
-public:
-    void SetTranform(const dg::float4x4& matrix);
-    void SetTexScale(const dg::float2& value);
+class Shape : public IShapeGenerator {
+protected:
+    Shape(const std::string& name, const math::Axis3& orientation);
 
-    virtual const UVGridGenerator::Vertexes GetVertexes() const = 0;
-    virtual const UVGridGenerator::Indexes GetIndexes(uint32_t vertexStartIndex) const = 0;
+public:
+    void SetUVScale(const dg::float2& value);
+    void SetCenter(const dg::float3& value);
+    void SetTransform(const dg::float4x4& value);
+
+    size_t LenghtVertex() const final;
+    size_t LenghtIndex() const final;
+    void FillVertex(VertexPNC* vertexes) const final;
+    void FillIndex(uint32_t* indexes, uint32_t vertexStartIndex) const final;
 
 protected:
-    dg::float4x4 m_matrix = dg::One4x4;
-    dg::float2 m_texScale = dg::float2(1.f, 1.f);
+    void SetGenerator(IShapeGenerator* baseGenerator);
+
+private:
+    uint32_t m_axisPermutations[3];
+    dg::float2 m_uvScale = {1.f, 1.f};
+    dg::float3 m_shapeCenter = {0, 0, 0};
+    dg::float3x3 m_normalMatrix = dg::One3x3;
+    dg::float4x4 m_vertexMatrix = dg::One4x4;
     bool m_matrixChanged = false;
+    IShapeGenerator* m_baseGenerator = nullptr;
 };

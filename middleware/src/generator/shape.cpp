@@ -1,14 +1,86 @@
 #include "middleware/generator/shape.h"
 
  #include "core/scene/vertexes.h"
+ #include "core/common/exception.h"
+ #include "core/math/normal_matrix.h"
  #include "core/scene/vertex_buffer.h"
 
+Shape::Shape(const std::string& name, const math::Axis3& orientation) {
+    for (uint32_t i=0; i!=3; ++i) {
+        auto axis = orientation[i];
+        m_axisPermutations[static_cast<uint32_t>(axis)] = i;
+        if ((axis != math::Axis::X) && (axis != math::Axis::Y) && (axis != math::Axis::Z)) {
+            throw EngineError("wrong orientation[{}]={} value in {}", i, static_cast<uint32_t>(axis), name);
+        }
+        if (orientation[0] == orientation[1]) {
+            throw EngineError("error in the orientation array in {}, elements number 0 and number 1 are equal", name);
+        }
+        if (orientation[0] == orientation[2]) {
+            throw EngineError("error in the orientation array in {}, elements number 0 and number 2 are equal", name);
+        }
+        if (orientation[1] == orientation[2]) {
+            throw EngineError("error in the orientation array in {}, elements number 1 and number 2 are equal", name);
+        }
+    }
+}
 
-void Shape::SetTranform(const dg::float4x4& matrix) {
-    m_matrix = matrix;
+void Shape::SetUVScale(const dg::float2& value) {
+    m_uvScale = value;
+}
+
+void Shape::SetCenter(const dg::float3& value) {
+    m_shapeCenter = value;
+}
+
+void Shape::SetTransform(const dg::float4x4& value) {
+    m_normalMatrix = MakeNormalMatrix3x3(value);
+    m_vertexMatrix = value;
     m_matrixChanged = true;
 }
 
-void Shape::SetTexScale(const dg::float2& value) {
-    m_texScale = value;
+size_t Shape::LenghtVertex() const {
+    return m_baseGenerator->LenghtVertex();
+}
+
+size_t Shape::LenghtIndex() const {
+    return m_baseGenerator->LenghtIndex();
+}
+
+void Shape::FillVertex(VertexPNC* vertexes) const {
+    if (m_baseGenerator != nullptr) {
+        m_baseGenerator->FillVertex(vertexes);
+    }
+    for (uint32_t i=0; i!=LenghtVertex(); ++i) {
+        auto& v = vertexes[i];
+        v.position = dg::float3(
+            m_shapeCenter.x + v.position[m_axisPermutations[0]],
+            m_shapeCenter.y + v.position[m_axisPermutations[1]],
+            m_shapeCenter.z + v.position[m_axisPermutations[2]]
+        );
+        v.normal = dg::float3(
+            v.normal[m_axisPermutations[0]],
+            v.normal[m_axisPermutations[1]],
+            v.normal[m_axisPermutations[2]]
+        );
+        // convert to directX texture coord system
+        v.uv = dg::float2(v.uv.u * m_uvScale.x, (1.f - v.uv.v) * m_uvScale.y);
+    }
+
+    if (m_matrixChanged) {
+        for (uint32_t i=0; i!=LenghtVertex(); ++i) {
+            vertexes[i].position = vertexes[i].position * m_vertexMatrix;
+            vertexes[i].normal = vertexes[i].normal * m_normalMatrix;
+            vertexes[i].uv *= m_uvScale;
+        }
+    }
+}
+
+void Shape::FillIndex(uint32_t* indexes, uint32_t vertexStartIndex) const {
+    if (m_baseGenerator != nullptr) {
+        m_baseGenerator->FillIndex(indexes, vertexStartIndex);
+    }
+}
+
+void Shape::SetGenerator(IShapeGenerator* baseGenerator) {
+    m_baseGenerator = baseGenerator;
 }
