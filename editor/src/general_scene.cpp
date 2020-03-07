@@ -144,7 +144,7 @@ void GeneralScene::CreateMaterials() {
 
 void GeneralScene::GenerateGround() {
     PlaneShape shape({1, 1}, {math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
-    shape.SetTexScale({128, 128});
+    shape.SetUVScale({128, 128});
     auto plane = ShapeBuilder(m_device).Join({&shape}, "Ground");
 
     auto groundNode = std::make_shared<StdMaterial>(m_matTexNoLight, plane);
@@ -208,13 +208,13 @@ void GeneralScene::GenerateGrassBillboard() {
     auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(ThirdPI<float>() / 3.f);
 
     PlaneShape plane1({1, 1}, {math::Axis::X, math::Axis::Y}, math::Direction::POS_Z);
-    plane1.SetTranform(matBase);
+    plane1.SetTransform(matBase);
 
     PlaneShape plane2({1, 1}, {math::Axis::X, math::Axis::Y}, math::Direction::POS_Z);
-    plane2.SetTranform(matBase * dg::float4x4::RotationY(angleY));
+    plane2.SetTransform(matBase * dg::float4x4::RotationY(angleY));
 
     PlaneShape plane3({1, 1}, {math::Axis::X, math::Axis::Y}, math::Direction::POS_Z);
-    plane3.SetTranform(matBase * dg::float4x4::RotationY(angleY * 2.f));
+    plane3.SetTransform(matBase * dg::float4x4::RotationY(angleY * 2.f));
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 

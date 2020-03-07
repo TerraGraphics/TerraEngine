@@ -7,8 +7,26 @@
 #include "core/common/exception.h"
 
 
-ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
-    : m_generator("ConeShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
+ConeShape::ConeShape(const math::UInt2 segments, const math::Axis axisUp, float radius, float height)
+    : Shape("ConeShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+    , m_generator(segments, [radius, height](VertexPNC* begin, VertexPNC* end) {
+        // tan(coneAngle) == radius / height
+        // sizeCone = sqrt(radius * radius + height * height)
+        auto oneOverSizeCone = 1.f / std::hypot(radius, height);
+        auto radiusNorm = height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
+        auto normUp = radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
+        for (VertexPNC* it=begin; it != end; ++it) {
+            float circleAngle = TwoPI<float>() * it->uv.x;
+
+            float posUp = (it->uv.y - 0.5f) * height;
+            float radiusPos = (1.f - it->uv.y) * radius;
+            auto cosA = std::cos(circleAngle);
+            auto sinA = std::sin(circleAngle);
+
+            it->position = dg::float3(posUp, cosA * radiusPos, sinA * radiusPos);
+            it->normal = dg::normalize(dg::float3(normUp, cosA * radiusNorm, sinA * radiusNorm));
+        }
+    }) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in ConeShape is 3");
@@ -23,23 +41,5 @@ ConeShape::ConeShape(const math::UInt2& segments, const math::Axis& axisUp, floa
         throw EngineError("height value in ConeShape must be greater than zero");
     }
 
-    // tan(coneAngle) == radius / height
-    // sizeCone = sqrt(radius * radius + height * height)
-    auto oneOverSizeCone = 1.f / std::hypot(radius, height);
-    auto radiusNorm = height * oneOverSizeCone; // cos(coneAngle) = height / sizeCone
-    auto normUp = radius * oneOverSizeCone; // sin(coneAngle) = radius / sizeCone
-    m_generator.SetCallback([radiusNorm, normUp, radius, height](const dg::float2& c) {
-        VertexPNC out;
-        float circleAngle = TwoPI<float>() * c.x;
-
-        float posUp = (c.y - 0.5f) * height;
-        float radiusPos = (1.f - c.y) * radius;
-        auto cosA = std::cos(circleAngle);
-        auto sinA = std::sin(circleAngle);
-
-        out.position = dg::float3(posUp, cosA * radiusPos, sinA * radiusPos);
-        out.normal = dg::normalize(dg::float3(normUp, cosA * radiusNorm, sinA * radiusNorm));
-
-        return out;
-    });
+    SetGenerator(&m_generator);
 }

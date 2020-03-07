@@ -7,8 +7,22 @@
 #include "core/common/exception.h"
 
 
-SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, const dg::float3& center)
-    : m_generator("SphereShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
+SphereShape::SphereShape(const math::UInt2 segments, const math::Axis axisUp, float radius)
+    : Shape("SphereShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+    , m_generator(segments, [radius](VertexPNC* begin, VertexPNC* end) {
+        for (VertexPNC* it=begin; it != end; ++it) {
+            float angleA = TwoPI<float>() * it->uv.x;
+            float angleB = PI<float>() * it->uv.y - HalfPI<float>();
+
+            float posUp = std::sin(angleB) * radius;
+            float circleRadius = std::cos(angleB) * radius;
+            auto circleX = std::cos(angleA) * circleRadius;
+            auto circleY = std::sin(angleA) * circleRadius;
+
+            it->position = dg::float3(posUp, circleX, circleY);
+            it->normal = dg::normalize(it->position);
+        }
+    }) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in SphereShape is 3");
@@ -20,20 +34,5 @@ SphereShape::SphereShape(const math::UInt2& segments, const math::Axis& axisUp, 
         throw EngineError("radius value in SphereShape must be greater than zero");
     }
 
-    m_generator.SetCallback([radius](const dg::float2& c) {
-        VertexPNC out;
-
-        float angleA = TwoPI<float>() * c.x;
-        float angleB = PI<float>() * c.y - HalfPI<float>();
-
-        float posUp = std::sin(angleB) * radius;
-        float circleRadius = std::cos(angleB) * radius;
-        auto circleX = std::cos(angleA) * circleRadius;
-        auto circleY = std::sin(angleA) * circleRadius;
-
-        out.position = dg::float3(posUp, circleX, circleY);
-        out.normal = dg::normalize(out.position);
-
-        return out;
-    });
+    SetGenerator(&m_generator);
 }

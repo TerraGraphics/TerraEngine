@@ -2,28 +2,23 @@
 
 #include "core/math/basic.h"
 #include "middleware/generator/shape.h"
+#include "middleware/generator/vertex_eval_applyer.h"
 
 
-struct VertexPNC;
-template <typename Vertex> class VertexBufferRange;
 class PlaneShape : public Shape {
 public:
     PlaneShape() = delete;
     /*!
         Creates a plane
 
+        Default plane center at the beginning of coordinates.
         The plane is located in the {axes[0], axes[1]} plane, the normals are directed along the "normalDir" axis.
         The number of segments along the axes[N]-axis equals segments[N] (segments[N] >= 1).
         Edge side[N] of the plane is equal to the sizes[N] (sizes[N] > 0).
-        Plane center is at a point center.
     */
-    PlaneShape(const math::UInt2& segments, const math::Axis2& axes, math::Direction normalDir,
-        const dg::float2& sizes = dg::float2(1.f, 1.f),
-        const dg::float3& center = dg::float3(0, 0, 0));
-
-    const UVGridGenerator::Vertexes GetVertexes() const override { return m_generator.GetVertexes(); }
-    const UVGridGenerator::Indexes GetIndexes(uint32_t vertexStartIndex = 0) const override { return m_generator.GetIndexes(vertexStartIndex); }
+    PlaneShape(const math::UInt2 segments, const math::Axis2 axes, math::Direction normalDir,
+        const dg::float2 sizes = dg::float2(1.f, 1.f));
 
 private:
-    UVGridGenerator m_generator;
+    VertexEvalApplyer<UVGridGenerator> m_generator;
 };

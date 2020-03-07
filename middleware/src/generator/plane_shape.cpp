@@ -6,9 +6,15 @@
 #include "core/common/exception.h"
 
 
-PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, math::Direction normalDir,
-    const dg::float2& sizes, const dg::float3& center)
-    : m_generator("PlaneShape", segments, {axes[0], axes[1], math::GetAxis(normalDir)}, center) {
+PlaneShape::PlaneShape(const math::UInt2 segments, const math::Axis2 axes, math::Direction normalDir, const dg::float2 sizes)
+    : Shape("PlaneShape", {axes[0], axes[1], math::GetAxis(normalDir)})
+    , m_generator(segments, [sizes, normalDir](VertexPNC* begin, VertexPNC* end) {
+        auto normal = dg::float3(0, 0, static_cast<float>(math::GetSign(normalDir)));
+        for (VertexPNC* it=begin; it != end; ++it) {
+            it->position = dg::float3((it->uv.x - 0.5f) * sizes[0], (it->uv.y - 0.5f) * sizes[1], 0);
+            it->normal = normal;
+        }
+    }) {
 
     if (segments.x < 1) {
         throw EngineError("minimum value for segments.x in PlaneShape is 1");
@@ -23,11 +29,5 @@ PlaneShape::PlaneShape(const math::UInt2& segments, const math::Axis2& axes, mat
         throw EngineError("minimum value for sizes.y in PlaneShape is greater than 0");
     }
 
-    m_generator.SetCallback([sizes, normalValue = static_cast<float>(math::GetSign(normalDir))](const dg::float2& c) {
-        VertexPNC out;
-        out.position = dg::float3((c.x - 0.5f) * sizes[0], (c.y - 0.5f) * sizes[1], 0);
-        out.normal = dg::float3(0, 0, normalValue);
-
-        return out;
-    });
+    SetGenerator(&m_generator);
 }

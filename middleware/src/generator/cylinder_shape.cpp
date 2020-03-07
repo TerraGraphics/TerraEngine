@@ -7,8 +7,18 @@
 #include "core/common/exception.h"
 
 
-CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axisUp, float radius, float height, const dg::float3& center)
-    : m_generator("CylinderShape", segments, {axisUp, math::Prev(axisUp), math::Next(axisUp)}, center) {
+CylinderShape::CylinderShape(const math::UInt2 segments, const math::Axis axisUp, float radius, float height)
+    : Shape("CylinderShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+    , m_generator(segments, [radius, height](VertexPNC* begin, VertexPNC* end) {
+        for (VertexPNC* it=begin; it != end; ++it) {
+            auto angle = TwoPI<float>() * it->uv.x;
+            auto circleX = std::cos(angle);
+            auto circleY = std::sin(angle);
+
+            it->position = dg::float3((it->uv.y - 0.5f) * height, circleX * radius, circleY * radius);
+            it->normal = dg::normalize(dg::float3(0.f, circleX, circleY));
+        }
+    }) {
 
     if (segments.x < 3) {
         throw EngineError("minimum value for segments.x in CylinderShape is 3");
@@ -23,15 +33,5 @@ CylinderShape::CylinderShape(const math::UInt2& segments, const math::Axis& axis
         throw EngineError("height value in CylinderShape must be greater than zero");
     }
 
-    m_generator.SetCallback([radius, height](const dg::float2& c) {
-        VertexPNC out;
-        auto angle = TwoPI<float>() * c.x;
-        auto circleX = std::cos(angle);
-        auto circleY = std::sin(angle);
-
-        out.position = dg::float3((c.y - 0.5f) * height, circleX * radius, circleY * radius);
-        out.normal = dg::normalize(dg::float3(0.f, circleX, circleY));
-
-        return out;
-    });
+    SetGenerator(&m_generator);
 }
