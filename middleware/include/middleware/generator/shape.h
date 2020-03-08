@@ -1,13 +1,16 @@
 #pragma once
 
+#include <string>
 #include <cstdint>
-#include <functional>
+#include <cstddef>
+
 #include "core/math/basic.h"
+#include "core/common/ctor.h"
 #include "core/math/constants.h"
-#include "core/scene/index_buffer.h"
-#include "middleware/generator/uv_grid_generator.h"
+#include "middleware/generator/shape_generator.h"
 
 
+struct VertexPNC;
 class Shape : public IShapeGenerator, Noncopyable {
 protected:
     Shape() = delete;

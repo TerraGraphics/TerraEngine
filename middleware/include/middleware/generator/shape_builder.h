@@ -4,11 +4,10 @@
 #include <initializer_list>
 
 #include "core/dg/dg.h"
-#include "middleware/generator/shape_generator.h"
 
 
-class Shape;
 class GeometryNode;
+class IShapeGenerator;
 class ShapeBuilder {
 public:
     ShapeBuilder() = delete;

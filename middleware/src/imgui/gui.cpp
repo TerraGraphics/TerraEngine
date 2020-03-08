@@ -7,7 +7,6 @@
 #include <iterator>
 #include <algorithm>
 
-#include <DiligentCore/Primitives/interface/BasicTypes.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/BlendState.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
@@ -455,11 +454,11 @@ void Gui::CreateGraphics() {
 
     dg::LayoutElement layoutElems[] = {
         // vertex position
-        dg::LayoutElement{0, 0, 2, dg::VT_FLOAT32, dg::False},
+        dg::LayoutElement{0, 0, 2, dg::VT_FLOAT32, false},
         // texture coordinates
-        dg::LayoutElement{1, 0, 2, dg::VT_FLOAT32, dg::False},
+        dg::LayoutElement{1, 0, 2, dg::VT_FLOAT32, false},
         // color
-        dg::LayoutElement{2, 0, 4, dg::VT_UINT8, dg::True}
+        dg::LayoutElement{2, 0, 4, dg::VT_UINT8, true}
     };
 
     dg::ShaderResourceVariableDesc vars[] = {

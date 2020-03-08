@@ -1,6 +1,8 @@
 #include "middleware/generator/cylinder_shape.h"
 
-#include <cstdint>
+#include <memory>
+#include <utility>
+#include <type_traits>
 
 #include "core/math/constants.h"
 #include "core/scene/vertexes.h"

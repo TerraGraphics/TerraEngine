@@ -6,8 +6,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <initializer_list>
-
-#include <DiligentCore/Primitives/interface/BasicTypes.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
 #include "core/math/basic.h"
@@ -27,17 +25,17 @@ template<typename T> Layout ItemDecl(const std::string& name, uint32_t bufferSlo
     dg::LayoutElement::FREQUENCY frequency = dg::LayoutElement::FREQUENCY_PER_VERTEX) {
 
     if constexpr (std::is_same<T, float>::value) {
-        return Layout{msh::Decl(name, "float"),  dg::LayoutElement(0, bufferSlot, 1, dg::VT_FLOAT32, dg::False, frequency)};
+        return Layout{msh::Decl(name, "float"),  dg::LayoutElement(0, bufferSlot, 1, dg::VT_FLOAT32, false, frequency)};
     } else if constexpr (std::is_same<T, dg::float2>::value) {
-        return Layout{msh::Decl(name, "float2"), dg::LayoutElement(0, bufferSlot, 2, dg::VT_FLOAT32, dg::False, frequency)};
+        return Layout{msh::Decl(name, "float2"), dg::LayoutElement(0, bufferSlot, 2, dg::VT_FLOAT32, false, frequency)};
     } else if constexpr (std::is_same<T, dg::float3>::value) {
-        return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_FLOAT32, dg::False, frequency)};
+        return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_FLOAT32, false, frequency)};
     } else if constexpr (std::is_same<T, dg::float4>::value) {
-        return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_FLOAT32, dg::False, frequency)};
+        return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_FLOAT32, false, frequency)};
     } else if constexpr (std::is_same<T, math::Color3>::value) {
-        return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_UINT8, dg::True, frequency)};
+        return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_UINT8, true, frequency)};
     } else if constexpr (std::is_same<T, math::Color4>::value) {
-        return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_UINT8, dg::True, frequency)};
+        return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_UINT8, true, frequency)};
     } else {
         throw EngineError("unknown type for Layout");
     }

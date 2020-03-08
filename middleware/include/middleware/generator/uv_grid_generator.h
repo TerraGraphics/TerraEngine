@@ -1,14 +1,14 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
-#include "core/dg/math.h"
 #include "core/math/basic.h"
 #include "core/common/ctor.h"
-#include "core/scene/vertexes.h"
 #include "middleware/generator/shape_generator.h"
 
 
+struct VertexPNC;
 class UVGridGenerator : public IShapeGenerator, Noncopyable {
 public:
     UVGridGenerator() = delete;

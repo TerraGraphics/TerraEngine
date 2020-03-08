@@ -1,9 +1,11 @@
 #include "middleware/generator/shape.h"
 
+#include <utility>
+
  #include "core/scene/vertexes.h"
  #include "core/common/exception.h"
  #include "core/math/normal_matrix.h"
- #include "core/scene/vertex_buffer.h"
+
 
 Shape::Shape(const std::string& name, const math::Axis3& orientation) {
     for (uint32_t i=0; i!=3; ++i) {

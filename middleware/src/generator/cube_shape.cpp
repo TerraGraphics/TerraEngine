@@ -1,9 +1,10 @@
 #include "middleware/generator/cube_shape.h"
 
-#include "core/dg/math.h"
-#include "core/scene/vertexes.h"
+#include <memory>
+#include <utility>
+#include <type_traits>
+
 #include "core/common/exception.h"
-#include "core/scene/vertex_buffer.h"
 
 
 static auto MakeGenerator(const dg::float3 sizes, const math::UInt3 segments) {

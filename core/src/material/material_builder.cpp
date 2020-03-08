@@ -173,7 +173,7 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl
     gp.pGS = shaders.gs;
     gp.InputLayout = vDecl.GetInputLayoutDesc();
     gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
-    gp.RasterizerDesc.FrontCounterClockwise = dg::False;
+    gp.RasterizerDesc.FrontCounterClockwise = false;
 
     return Builder(this, std::move(desc));
 }

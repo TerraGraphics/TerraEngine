@@ -1,6 +1,7 @@
 #include "middleware/generator/uv_grid_generator.h"
 
-#include "core/common/exception.h"
+#include <utility>
+#include "core/scene/vertexes.h"
 
 
 UVGridGenerator::UVGridGenerator(math::UInt2 segments, bool counterClockwise)

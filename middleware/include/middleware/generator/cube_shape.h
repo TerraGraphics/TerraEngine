@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstdint>
-#include "core/scene/index_buffer.h"
+#include "core/math/basic.h"
 #include "middleware/generator/shape.h"
 #include "middleware/generator/merge_shape.h"
 #include "middleware/generator/plane_shape.h"
-#include "middleware/generator/vertex_eval_applyer.h"
 
 
 class CubeShape : public Shape {

@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "core/common/ctor.h"
+#include "core/scene/vertexes.h"
 #include "middleware/generator/shape_generator.h"
 
 
