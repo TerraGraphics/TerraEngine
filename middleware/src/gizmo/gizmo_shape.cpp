@@ -20,12 +20,12 @@ std::shared_ptr<StdMaterial> GizmoArrow::Create(DevicePtr& device, std::shared_p
     float coneRadius = coneHeight * .3f;
     ConeShape coneShape({10, 1}, axis, coneRadius, coneHeight);
     translation[axisNum] = m_height - coneHeight * 0.5f;
-    coneShape.SetTranform(dg::float4x4::Translation(translation));
+    coneShape.SetTransform(dg::float4x4::Translation(translation));
 
     float cylinderHeight = m_height - coneHeight - arrowSpacing;
     CylinderShape cylinderShape({5, 1}, axis, m_radius, cylinderHeight);
     translation[axisNum] = arrowSpacing + cylinderHeight * 0.5f;
-    cylinderShape.SetTranform(dg::float4x4::Translation(translation));
+    cylinderShape.SetTransform(dg::float4x4::Translation(translation));
 
     auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "move arrow"));
     color[axisNum] = 1.0f;
@@ -98,7 +98,7 @@ std::shared_ptr<StdMaterial> GizmoPlane::Create(DevicePtr& device, std::shared_p
     auto translation = dg::float3(0, 0, 0);
     translation[axisNum0] = m_spacing + m_size * .5f;
     translation[axisNum1] = m_spacing + m_size * .5f;
-    planeShape.SetTranform(dg::float4x4::Translation(translation));
+    planeShape.SetTransform(dg::float4x4::Translation(translation));
 
     auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&planeShape}, "move plane"));
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);

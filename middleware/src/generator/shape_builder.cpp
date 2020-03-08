@@ -21,35 +21,18 @@ ShapeBuilder::~ShapeBuilder() {
     m_device.Release();
 }
 
-std::shared_ptr<GeometryNode> ShapeBuilder::Join(const std::initializer_list<const Shape*>& shapes, const char* name) {
+std::shared_ptr<GeometryNode> ShapeBuilder::Join(const std::initializer_list<const IShapeGenerator*>& shapes, const char* name) {
     VertexBufferBuilder vbBuilder;
     IndexBufferBuilder ibBuilder;
 
     uint32_t vertexStartIndex = 0;
     uint32_t indexCount = 0;
     for (auto& shape : shapes) {
-        auto vertexes = shape->GetVertexes();
-        auto vb = vbBuilder.AddRange<VertexPNC>(vertexes.Lenght());
-        uint32_t vbInd = 0;
-        for(auto&& v: vertexes) {
-            vb[vbInd++] = std::move(v);
-        }
+        auto vb = vbBuilder.AddRange<VertexPNC>(shape->LenghtVertex());
+        shape->FillVertex(vb.Begin());
 
-        if (shape->m_matrixChanged) {
-            const auto& matrix = shape->m_matrix;
-            const auto normalMatrix = MakeNormalMatrix3x3(matrix);
-            for (VertexPNC* it = vb.Begin(); it != vb.End(); ++it) {
-                it->position = it->position * matrix;
-                it->normal = it->normal * normalMatrix;
-            }
-        }
-
-        auto indexes = shape->GetIndexes(vertexStartIndex);
-        auto ib = ibBuilder.AddRange<uint32_t>(indexes.Lenght());
-        uint32_t ibInd = 0;
-        for(auto index: indexes) {
-            ib[ibInd++] = index;
-        }
+        auto ib = ibBuilder.AddRange<uint32_t>(shape->LenghtIndex());
+        shape->FillIndex(ib.Begin(), vertexStartIndex);
 
         vertexStartIndex += vb.Count();
         indexCount += ib.Count();
