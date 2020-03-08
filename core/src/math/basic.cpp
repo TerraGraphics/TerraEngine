@@ -36,7 +36,7 @@ Axis GetThirdAxis(Axis2 values) {
 }
 
 Axis GetAxis(Direction value) {
-    return static_cast<Axis>(static_cast<uint8_t>(value) % 3);
+    return static_cast<Axis>(static_cast<uint8_t>(value) % uint8_t(3));
 }
 
 Direction GetDirection(Axis value) {

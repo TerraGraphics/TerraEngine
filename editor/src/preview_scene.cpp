@@ -108,7 +108,8 @@ void PreviewScene::CreateMaterials() {
 }
 
 void PreviewScene::GenerateMeshes() {
-    ConeShape shape1({30, 30}, math::Axis::Y);
+    CubeShape shape1;
+    // ConeShape shape1({30, 30}, math::Axis::Y);
     // PlaneShape shape1({math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
     SphereShape shape2({30, 30}, math::Axis::Y);
     auto model1 = ShapeBuilder(m_device).Join({&shape1}, "Model1");

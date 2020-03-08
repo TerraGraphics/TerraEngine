@@ -24,6 +24,33 @@ Shape::Shape(const std::string& name, const math::Axis3& orientation) {
     }
 }
 
+Shape::Shape(Shape&& other) noexcept
+    : m_axisPermutations{other.m_axisPermutations[0], other.m_axisPermutations[1], other.m_axisPermutations[2]}
+    , m_uvScale(std::move(other.m_uvScale))
+    , m_shapeCenter(std::move(other.m_shapeCenter))
+    , m_normalMatrix(std::move(other.m_normalMatrix))
+    , m_vertexMatrix(std::move(other.m_vertexMatrix))
+    , m_matrixChanged(other.m_matrixChanged)
+    , m_baseGenerator(nullptr) {
+
+    other.m_baseGenerator = nullptr;
+}
+
+Shape& Shape::operator=(Shape&& other) noexcept {
+    m_axisPermutations[0] = other.m_axisPermutations[0];
+    m_axisPermutations[1] = other.m_axisPermutations[1];
+    m_axisPermutations[2] = other.m_axisPermutations[2];
+    m_uvScale = std::move(other.m_uvScale);
+    m_shapeCenter = std::move(other.m_shapeCenter);
+    m_normalMatrix = std::move(other.m_normalMatrix);
+    m_vertexMatrix = std::move(other.m_vertexMatrix);
+    m_matrixChanged = other.m_matrixChanged;
+    m_baseGenerator = nullptr;
+    other.m_baseGenerator = nullptr;
+
+    return *this;
+}
+
 void Shape::SetUVScale(const dg::float2& value) {
     m_uvScale = value;
 }
@@ -39,11 +66,11 @@ void Shape::SetTransform(const dg::float4x4& value) {
 }
 
 size_t Shape::LenghtVertex() const {
-    return m_baseGenerator->LenghtVertex();
+    return m_baseGenerator ? m_baseGenerator->LenghtVertex() : 0;
 }
 
 size_t Shape::LenghtIndex() const {
-    return m_baseGenerator->LenghtIndex();
+    return m_baseGenerator ? m_baseGenerator->LenghtIndex() : 0;
 }
 
 void Shape::FillVertex(VertexPNC* vertexes) const {
@@ -81,6 +108,6 @@ void Shape::FillIndex(uint32_t* indexes, uint32_t vertexStartIndex) const {
     }
 }
 
-void Shape::SetGenerator(IShapeGenerator* baseGenerator) {
+void Shape::SetGenerator(const IShapeGenerator* baseGenerator) {
     m_baseGenerator = baseGenerator;
 }

@@ -9,6 +9,19 @@ UVGridGenerator::UVGridGenerator(math::UInt2 segments, bool counterClockwise)
 
 }
 
+UVGridGenerator::UVGridGenerator(UVGridGenerator&& other) noexcept
+    : m_segments(std::move(other.m_segments))
+    , m_counterClockwise(other.m_counterClockwise) {
+
+}
+
+UVGridGenerator& UVGridGenerator::operator=(UVGridGenerator&& other) noexcept {
+    m_segments = std::move(other.m_segments);
+    m_counterClockwise = other.m_counterClockwise;
+
+    return *this;
+}
+
 size_t UVGridGenerator::LenghtVertex() const {
     return (m_segments.x + 1) * (m_segments.y + 1);
 }

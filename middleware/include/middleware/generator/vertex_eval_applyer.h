@@ -7,13 +7,26 @@
 
 
 template<class TShape>
-    class VertexEvalApplyer : public IShapeGenerator, Fixed {
+    class VertexEvalApplyer : public IShapeGenerator, Noncopyable {
 public:
     using Callback = std::function<void (VertexPNC* /* begin */, VertexPNC* /* end */)>;
     VertexEvalApplyer(TShape baseGenerator, Callback&& callback)
         : m_baseGenerator(std::move(baseGenerator))
         , m_callback(std::move(callback)) {
 
+    }
+
+    VertexEvalApplyer(VertexEvalApplyer&& other) noexcept
+        : m_baseGenerator(std::move(other.m_baseGenerator))
+        , m_callback(std::move(other.m_callback)) {
+
+    }
+
+    VertexEvalApplyer& operator=(VertexEvalApplyer&& other) noexcept {
+        m_baseGenerator = std::move(other.m_baseGenerator);
+        m_callback = std::move(other.m_callback);
+
+        return *this;
     }
 
     size_t LenghtVertex() const final {

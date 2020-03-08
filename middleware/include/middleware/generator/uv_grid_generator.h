@@ -9,10 +9,12 @@
 #include "middleware/generator/shape_generator.h"
 
 
-class UVGridGenerator : public IShapeGenerator {
+class UVGridGenerator : public IShapeGenerator, Noncopyable {
 public:
     UVGridGenerator() = delete;
     UVGridGenerator(math::UInt2 segments, bool counterClockwise = false);
+    UVGridGenerator(UVGridGenerator&& other) noexcept;
+    UVGridGenerator& operator=(UVGridGenerator&& other) noexcept;
 
     size_t LenghtVertex() const final;
     size_t LenghtIndex() const final;

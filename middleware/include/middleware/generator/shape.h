@@ -8,11 +8,14 @@
 #include "middleware/generator/uv_grid_generator.h"
 
 
-class Shape : public IShapeGenerator {
+class Shape : public IShapeGenerator, Noncopyable {
 protected:
     Shape(const std::string& name, const math::Axis3& orientation);
 
 public:
+    Shape(Shape&& other) noexcept;
+    Shape& operator=(Shape&& other) noexcept;
+
     void SetUVScale(const dg::float2& value);
     void SetCenter(const dg::float3& value);
     void SetTransform(const dg::float4x4& value);
@@ -23,7 +26,7 @@ public:
     void FillIndex(uint32_t* indexes, uint32_t vertexStartIndex) const final;
 
 protected:
-    void SetGenerator(IShapeGenerator* baseGenerator);
+    void SetGenerator(const IShapeGenerator* baseGenerator);
 
 private:
     uint32_t m_axisPermutations[3];
@@ -32,5 +35,5 @@ private:
     dg::float3x3 m_normalMatrix = dg::One3x3;
     dg::float4x4 m_vertexMatrix = dg::One4x4;
     bool m_matrixChanged = false;
-    IShapeGenerator* m_baseGenerator = nullptr;
+    const IShapeGenerator* m_baseGenerator = nullptr;
 };
