@@ -12,7 +12,7 @@
 class UVGridGenerator : public IShapeGenerator {
 public:
     UVGridGenerator() = delete;
-    UVGridGenerator(math::UInt2 segments);
+    UVGridGenerator(math::UInt2 segments, bool counterClockwise = false);
 
     size_t LenghtVertex() const final;
     size_t LenghtIndex() const final;
@@ -21,4 +21,5 @@ public:
 
 private:
     math::UInt2 m_segments;
+    bool m_counterClockwise;
 };

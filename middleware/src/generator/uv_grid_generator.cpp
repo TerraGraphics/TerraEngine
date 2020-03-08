@@ -3,8 +3,9 @@
 #include "core/common/exception.h"
 
 
-UVGridGenerator::UVGridGenerator(math::UInt2 segments)
-    : m_segments(segments) {
+UVGridGenerator::UVGridGenerator(math::UInt2 segments, bool counterClockwise)
+    : m_segments(segments)
+    , m_counterClockwise(counterClockwise) {
 
 }
 
@@ -36,19 +37,37 @@ void UVGridGenerator::FillIndex(uint32_t* indexes, uint32_t vertexStartIndex) co
     uint32_t ind = 0;
     uint32_t offset = vertexStartIndex;
 
-    for(uint32_t y=0; y!=m_segments.y; ++y) {
-        for(uint32_t x=0; x!=m_segments.x; ++x) {
-            uint32_t bottomLeftVertex = offset + x;
-            uint32_t topLeftVertex = bottomLeftVertex + m_segments.x + 1;
+    if (m_counterClockwise) {
+        for(uint32_t y=0; y!=m_segments.y; ++y) {
+            for(uint32_t x=0; x!=m_segments.x; ++x) {
+                uint32_t bottomLeftVertex = offset + x;
+                uint32_t topLeftVertex = bottomLeftVertex + m_segments.x + 1;
 
-            indexes[ind++] = bottomLeftVertex;
-            indexes[ind++] = bottomLeftVertex + 1;
-            indexes[ind++] = topLeftVertex;
+                indexes[ind++] = bottomLeftVertex + 1;
+                indexes[ind++] = bottomLeftVertex;
+                indexes[ind++] = topLeftVertex;
 
-            indexes[ind++] = topLeftVertex;
-            indexes[ind++] = bottomLeftVertex + 1;
-            indexes[ind++] = topLeftVertex + 1;
+                indexes[ind++] = bottomLeftVertex + 1;
+                indexes[ind++] = topLeftVertex;
+                indexes[ind++] = topLeftVertex + 1;
+            }
+            offset += m_segments.x + 1;
         }
-        offset += m_segments.x + 1;
+    } else {
+        for(uint32_t y=0; y!=m_segments.y; ++y) {
+            for(uint32_t x=0; x!=m_segments.x; ++x) {
+                uint32_t bottomLeftVertex = offset + x;
+                uint32_t topLeftVertex = bottomLeftVertex + m_segments.x + 1;
+
+                indexes[ind++] = bottomLeftVertex;
+                indexes[ind++] = bottomLeftVertex + 1;
+                indexes[ind++] = topLeftVertex;
+
+                indexes[ind++] = topLeftVertex;
+                indexes[ind++] = bottomLeftVertex + 1;
+                indexes[ind++] = topLeftVertex + 1;
+            }
+            offset += m_segments.x + 1;
+        }
     }
 }
