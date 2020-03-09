@@ -38,9 +38,9 @@ void GizmoScale::Update(dg::float3 rayStart, dg::float3 rayDir) {
             }
         }
 
-        transform[3][0] = m_startMoveCoord[0] - offset[0];
-        transform[3][1] = m_startMoveCoord[1] - offset[1];
-        transform[3][2] = m_startMoveCoord[2] - offset[2];
+        transform._11 = m_startScaleValue[0] - offset[0];
+        transform._22 = m_startScaleValue[1] - offset[1];
+        transform._33 = m_startScaleValue[2] - offset[2];
         m_selectedObject->SetTransform(transform);
         return;
     }
@@ -60,7 +60,7 @@ void GizmoScale::Update(dg::float3 rayStart, dg::float3 rayDir) {
 
     if (m_isMoved) {
         auto& transform = m_selectedObject->GetBaseTransform();
-        m_startMoveCoord = dg::float3(transform._41, transform._42, transform._43);
+        m_startScaleValue = dg::float3(transform._11, transform._22, transform._33);
     }
 }
 

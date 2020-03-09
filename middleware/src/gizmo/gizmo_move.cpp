@@ -38,9 +38,9 @@ void GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
             }
         }
 
-        transform[3][0] = m_startMoveCoord[0] - offset[0];
-        transform[3][1] = m_startMoveCoord[1] - offset[1];
-        transform[3][2] = m_startMoveCoord[2] - offset[2];
+        transform._41 = m_startMoveCoord[0] - offset[0];
+        transform._42 = m_startMoveCoord[1] - offset[1];
+        transform._43 = m_startMoveCoord[2] - offset[2];
         m_selectedObject->SetTransform(transform);
         return;
     }

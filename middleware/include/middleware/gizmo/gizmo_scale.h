@@ -36,7 +36,7 @@ private:
     bool m_isSelectedPlane = false;
     bool m_isMoved = false;
     uint m_moveItemIndex = 0;
-    dg::float3 m_startMoveCoord;
+    dg::float3 m_startScaleValue;
     std::shared_ptr<TransformNode> m_root = nullptr;
     std::shared_ptr<TransformNode> m_arrowNodes[3] = { nullptr };
     std::shared_ptr<TransformNode> m_planeNodes[3] = { nullptr };
