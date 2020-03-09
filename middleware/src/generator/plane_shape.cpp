@@ -31,3 +31,17 @@ PlaneShape::PlaneShape(const math::Axis2 axes, math::Direction normalDir, const 
 
     SetGenerator(&m_generator);
 }
+
+PlaneShape::PlaneShape(PlaneShape&& other) noexcept
+    : Shape(std::move(other))
+    , m_generator(std::move(other.m_generator)) {
+    SetGenerator(&m_generator);
+}
+
+PlaneShape& PlaneShape::operator=(PlaneShape&& other) noexcept {
+    Shape::operator=(std::move(other));
+    m_generator = std::move(other.m_generator);
+    SetGenerator(&m_generator);
+
+    return *this;
+}

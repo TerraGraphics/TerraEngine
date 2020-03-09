@@ -43,3 +43,17 @@ ConeShape::ConeShape(const math::UInt2 segments, const math::Axis axisUp, float 
 
     SetGenerator(&m_generator);
 }
+
+ConeShape::ConeShape(ConeShape&& other) noexcept
+    : Shape(std::move(other))
+    , m_generator(std::move(other.m_generator)) {
+    SetGenerator(&m_generator);
+}
+
+ConeShape& ConeShape::operator=(ConeShape&& other) noexcept {
+    Shape::operator=(std::move(other));
+    m_generator = std::move(other.m_generator);
+    SetGenerator(&m_generator);
+
+    return *this;
+}

@@ -19,6 +19,8 @@ public:
         Cone height equals 'height' (height > 0.f).
     */
     ConeShape(const math::UInt2 segments, const math::Axis axisUp = math::Axis::Y, float radius = 0.5f, float height = 1.0f);
+    ConeShape(ConeShape&& other) noexcept;
+    ConeShape& operator=(ConeShape&& other) noexcept;
 
 private:
     VertexEvalApplyer<UVGridGenerator> m_generator;

@@ -35,3 +35,17 @@ CylinderShape::CylinderShape(const math::UInt2 segments, const math::Axis axisUp
 
     SetGenerator(&m_generator);
 }
+
+CylinderShape::CylinderShape(CylinderShape&& other) noexcept
+    : Shape(std::move(other))
+    , m_generator(std::move(other.m_generator)) {
+    SetGenerator(&m_generator);
+}
+
+CylinderShape& CylinderShape::operator=(CylinderShape&& other) noexcept {
+    Shape::operator=(std::move(other));
+    m_generator = std::move(other.m_generator);
+    SetGenerator(&m_generator);
+
+    return *this;
+}

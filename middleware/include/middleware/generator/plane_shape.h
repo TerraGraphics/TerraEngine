@@ -20,6 +20,9 @@ public:
         const dg::float2 sizes = dg::float2(1.f, 1.f),
         const math::UInt2 segments = {1, 1});
 
+    PlaneShape(PlaneShape&& other) noexcept;
+    PlaneShape& operator=(PlaneShape&& other) noexcept;
+
 private:
     VertexEvalApplyer<UVGridGenerator> m_generator;
 };

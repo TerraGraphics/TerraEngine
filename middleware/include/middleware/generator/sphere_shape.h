@@ -18,6 +18,8 @@ public:
         Sphere radius equals 'radius' (radius > 0.f).
     */
     SphereShape(const math::UInt2 segments, const math::Axis axisUp, float radius = 0.5f);
+    SphereShape(SphereShape&& other) noexcept;
+    SphereShape& operator=(SphereShape&& other) noexcept;
 
 private:
     VertexEvalApplyer<UVGridGenerator> m_generator;
