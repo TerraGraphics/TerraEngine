@@ -3,36 +3,24 @@
 #include <cstdint>
 #include "core/scene/index_buffer.h"
 #include "middleware/generator/shape.h"
+#include "middleware/generator/merge_shape.h"
+#include "middleware/generator/plane_shape.h"
+#include "middleware/generator/vertex_eval_applyer.h"
 
 
-struct VertexPNC;
-template <typename Vertex> class VertexBufferRange;
 class CubeShape : public Shape {
 public:
     /*!
-       Creates a cube with a center at the beginning of the coordinates and a long edge equal to 1
+        Creates a cube
 
-                   21-------22
-                   /       /
-                  /       /
-                20-------23
-            9    6-------5    14
-           /|    |       |    /|
-          / |    | Y^  Z^|   / |
-        10  | 1--|--|-2/ | 13  |
-         |  8 |  7--|-|--4  | 15
-         | /  |     |/|     | /
-         |/   |     O-|-->X |/
-        11    0-------3    12
-             16-------19
-             /       /
-            /       /
-          17------18
+        Default cube center at the beginning of coordinates.
+        Edge sides of the cube is equal to "sizes" (sizes[N] > 0).
+        The number of segments by axis is equal to "segments" (segments.N >= 3).
     */
-    CubeShape();
-    ~CubeShape() = default;
+    CubeShape(const dg::float3 sizes = dg::float3(1.f, 1.f, 1.f), const math::UInt3 segments = {1, 1, 1});
+    CubeShape(CubeShape&& other) noexcept;
+    CubeShape& operator=(CubeShape&& other) noexcept;
 
-protected:
-    void FillVertex(VertexBufferRange<VertexPNC>& vb) const override;
-    void FillIndex(IndexBufferRange<uint32_t>& ib, uint32_t vertexStartIndex) const override;
+private:
+    MergeShape<PlaneShape, PlaneShape, PlaneShape, PlaneShape, PlaneShape, PlaneShape> m_generator;
 };

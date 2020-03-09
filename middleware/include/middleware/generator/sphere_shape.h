@@ -7,7 +7,6 @@
 
 class SphereShape : public Shape {
 public:
-    SphereShape() = delete;
     /*!
         Creates a sphere
 

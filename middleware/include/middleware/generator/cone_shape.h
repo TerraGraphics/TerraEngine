@@ -7,7 +7,6 @@
 
 class ConeShape : public Shape {
 public:
-    ConeShape() = delete;
     /*!
         Creates a cone
 

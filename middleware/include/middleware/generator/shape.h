@@ -10,6 +10,7 @@
 
 class Shape : public IShapeGenerator, Noncopyable {
 protected:
+    Shape() = delete;
     Shape(const std::string& name, const math::Axis3& orientation);
 
 public:

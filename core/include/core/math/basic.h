@@ -7,6 +7,7 @@
 namespace math {
 
 using UInt2 = dg::Vector2<uint32_t>;
+using UInt3 = dg::Vector3<uint32_t>;
 
 enum class Axis : uint8_t {
     X = 0,

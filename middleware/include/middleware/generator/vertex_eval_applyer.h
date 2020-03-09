@@ -10,6 +10,7 @@ template<class TShape>
     class VertexEvalApplyer : public IShapeGenerator, Noncopyable {
 public:
     using Callback = std::function<void (VertexPNC* /* begin */, VertexPNC* /* end */)>;
+    VertexEvalApplyer() = delete;
     VertexEvalApplyer(TShape baseGenerator, Callback&& callback)
         : m_baseGenerator(std::move(baseGenerator))
         , m_callback(std::move(callback)) {

@@ -7,7 +7,6 @@
 
 class PlaneShape : public Shape {
 public:
-    PlaneShape() = delete;
     /*!
         Creates a plane
 

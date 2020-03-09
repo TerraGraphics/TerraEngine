@@ -9,7 +9,17 @@
 
 template <class... T> class MergeShape;
 
-template <> class MergeShape<> : public EmptyShape, Noncopyable { };
+template <> class MergeShape<> : public EmptyShape, Noncopyable {
+public:
+    MergeShape() = default;
+    MergeShape(MergeShape&&) noexcept {
+
+    }
+
+    MergeShape& operator=(MergeShape&&) noexcept {
+        return *this;
+    }
+};
 
 template <typename Head, typename... Tail>
     class MergeShape<Head, Tail...> : public IShapeGenerator, Noncopyable {
@@ -19,15 +29,17 @@ public:
 		, m_tail(std::move(tail)...) {
     }
 
-    MergeShape(MergeShape&& other) noexcept
+    MergeShape(MergeShape<Head, Tail...>&& other) noexcept
         : m_head(std::move(other.m_head))
         , m_tail(std::move(other.m_tail)) {
 
     }
 
-    MergeShape& operator=(MergeShape&& other) noexcept {
+    MergeShape& operator=(MergeShape<Head, Tail...>&& other) noexcept {
         m_head = std::move(other.m_head);
         m_tail = std::move(other.m_tail);
+
+        return *this;
     }
 
     size_t LenghtVertex() const final {

@@ -7,7 +7,6 @@
 
 class CylinderShape : public Shape {
 public:
-    CylinderShape() = delete;
     /*!
         Creates a cylinder
 
