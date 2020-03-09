@@ -15,7 +15,7 @@ void GizmoMove::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEve
     m_eventHandler = eventHandler;
     for (const auto axis: {math::Axis::X, math::Axis::Y, math::Axis::Z}) {
         auto axisNum = static_cast<uint>(axis);
-        m_arrowNodes[axisNum] = m_root->NewChild(m_arrows[axisNum].Create(device, material, axis));
+        m_arrowNodes[axisNum] = m_root->NewChild(m_arrows[axisNum].Create(device, material, axis, true));
         m_planeNodes[axisNum] = m_root->NewChild(m_planes[axisNum].Create(device, material, {axis, math::Next(axis)}));
     }
 }

@@ -8,26 +8,36 @@
 #include "middleware/std_material/std_material.h"
 
 
-std::shared_ptr<StdMaterial> GizmoArrow::Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis) {
+std::shared_ptr<StdMaterial> GizmoArrow::Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis, bool isMoveType) {
     m_axis = axis;
 
     auto axisNum = static_cast<uint>(axis);
     float arrowSpacing = m_height * .05f;
-    auto translation = dg::float3(0, 0, 0);
+    auto center = dg::float3(0, 0, 0);
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
 
+    float cubeSide = m_height * .08f;
     float coneHeight = m_height * .1f;
-    float coneRadius = coneHeight * .3f;
-    ConeShape coneShape({10, 1}, axis, coneRadius, coneHeight);
-    translation[axisNum] = m_height - coneHeight * 0.5f;
-    coneShape.SetTransform(dg::float4x4::Translation(translation));
 
-    float cylinderHeight = m_height - coneHeight - arrowSpacing;
+    float cylinderHeight = m_height - arrowSpacing - (isMoveType ? coneHeight : cubeSide);
     CylinderShape cylinderShape({5, 1}, axis, m_radius, cylinderHeight);
-    translation[axisNum] = arrowSpacing + cylinderHeight * 0.5f;
-    cylinderShape.SetTransform(dg::float4x4::Translation(translation));
+    center[axisNum] = arrowSpacing + cylinderHeight * 0.5f;
+    cylinderShape.SetCenter(center);
 
-    auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "move arrow"));
+    std::shared_ptr<StdMaterial> node;
+    if (isMoveType) {
+        float coneRadius = coneHeight * .3f;
+        ConeShape coneShape({10, 1}, axis, coneRadius, coneHeight);
+        center[axisNum] = m_height - coneHeight * 0.5f;
+        coneShape.SetCenter(center);
+        node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "move arrow"));
+    } else {
+        CubeShape cubeShape({cubeSide, cubeSide, cubeSide});
+        center[axisNum] = m_height - cubeSide * 0.5f;
+        cubeShape.SetCenter(center);
+        node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&cubeShape, &cylinderShape}, "move arrow"));
+    }
+
     color[axisNum] = 1.0f;
     node->SetBaseColor(color);
 
@@ -95,10 +105,10 @@ std::shared_ptr<StdMaterial> GizmoPlane::Create(DevicePtr& device, std::shared_p
     auto axisNum1 = static_cast<uint>(axises[1]);
 
     PlaneShape planeShape(axises, math::GetDirection(math::GetThirdAxis(axises)), {m_size, m_size});
-    auto translation = dg::float3(0, 0, 0);
-    translation[axisNum0] = m_spacing + m_size * .5f;
-    translation[axisNum1] = m_spacing + m_size * .5f;
-    planeShape.SetTransform(dg::float4x4::Translation(translation));
+    auto center = dg::float3(0, 0, 0);
+    center[axisNum0] = m_spacing + m_size * .5f;
+    center[axisNum1] = m_spacing + m_size * .5f;
+    planeShape.SetCenter(center);
 
     auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&planeShape}, "move plane"));
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);

@@ -14,7 +14,7 @@ public:
     GizmoArrow() = default;
     ~GizmoArrow() = default;
 
-    std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis);
+    std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis, bool isMoveType);
     bool StartMove(dg::float3 rayStart, dg::float3 rayDir);
     bool GetMoveOffset(dg::float3 rayStart, dg::float3 rayDir, dg::float3& offset) const;
 
