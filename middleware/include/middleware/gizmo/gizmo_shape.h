@@ -59,3 +59,25 @@ private:
     dg::float4 m_planeParams;
     dg::float3 m_startMoveCoord;
 };
+
+class GizmoTorus : Fixed {
+public:
+    GizmoTorus() = default;
+    ~GizmoTorus() = default;
+
+    std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis);
+    bool StartMove(dg::float3 rayStart, dg::float3 rayDir);
+    bool GetMoveOffset(dg::float3 rayStart, dg::float3 rayDir, dg::float3& offset) const;
+
+    dg::float4x4 GetSelectTransform() const;
+    bool IsSelected(dg::float3 rayStart, dg::float3 rayDir) const;
+
+private:
+    bool GetProjection(dg::float3 rayStart, dg::float3 rayDir, dg::float3& value) const;
+
+private:
+    static constexpr float m_majorRadis = 0.5f;
+    static constexpr float m_minorRadis = 0.02f;
+
+    math::Axis m_axis;
+};

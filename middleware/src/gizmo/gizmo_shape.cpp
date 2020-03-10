@@ -30,12 +30,12 @@ std::shared_ptr<StdMaterial> GizmoArrow::Create(DevicePtr& device, std::shared_p
         ConeShape coneShape({10, 1}, axis, coneRadius, coneHeight);
         center[axisNum] = m_height - coneHeight * 0.5f;
         coneShape.SetCenter(center);
-        node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "move arrow"));
+        node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&coneShape, &cylinderShape}, "gizmo arrow"));
     } else {
         CubeShape cubeShape({cubeSide, cubeSide, cubeSide});
         center[axisNum] = m_height - cubeSide * 0.5f;
         cubeShape.SetCenter(center);
-        node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&cubeShape, &cylinderShape}, "move arrow"));
+        node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&cubeShape, &cylinderShape}, "gizmo arrow"));
     }
 
     color[axisNum] = 1.0f;
@@ -110,7 +110,7 @@ std::shared_ptr<StdMaterial> GizmoPlane::Create(DevicePtr& device, std::shared_p
     center[axisNum1] = m_spacing + m_size * .5f;
     planeShape.SetCenter(center);
 
-    auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&planeShape}, "move plane"));
+    auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&planeShape}, "gizmo plane"));
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
     color[axisNum0] = 1.0f;
     color[axisNum1] = 1.0f;
@@ -173,5 +173,38 @@ bool GizmoPlane::GetProjection(dg::float3 rayStart, dg::float3 rayDir, dg::float
         return true;
     }
 
+    return false;
+}
+
+std::shared_ptr<StdMaterial> GizmoTorus::Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis) {
+    m_axis = axis;
+
+    TorusShape torusShape(m_minorRadis, m_majorRadis, 10, 30, axis);
+
+    auto node = std::make_shared<StdMaterial>(material, ShapeBuilder(device).Join({&torusShape}, "gizmo torus"));
+    auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
+    color[static_cast<uint>(axis)] = 1.0f;
+    node->SetBaseColor(color);
+
+    return node;
+}
+
+dg::float4x4 GizmoTorus::GetSelectTransform() const {
+    return dg::One4x4;
+}
+
+bool GizmoTorus::StartMove(dg::float3 /* rayStart */, dg::float3 /* rayDir */) {
+    return false;
+}
+
+bool GizmoTorus::GetMoveOffset(dg::float3 /* rayStart */, dg::float3 /* rayDir */, dg::float3& /* offset */) const {
+    return true;
+}
+
+bool GizmoTorus::IsSelected(dg::float3 /* rayStart */, dg::float3 /* rayDir */) const {
+    return false;
+}
+
+bool GizmoTorus::GetProjection(dg::float3 /* rayStart */, dg::float3 /* rayDir */, dg::float3& /* value */) const {
     return false;
 }
