@@ -13,10 +13,10 @@
 class Material;
 class TransformNode;
 class DefaultWindowEventsHandler;
-class GizmoMove : public IGizmo, Fixed {
+class GizmoScale : public IGizmo, Fixed {
 public:
-    GizmoMove() = default;
-    ~GizmoMove() final = default;
+    GizmoScale() = default;
+    ~GizmoScale() final = default;
 
 public:
     bool IsSelected() const noexcept final { return m_isSelectedArrow || m_isSelectedPlane; }

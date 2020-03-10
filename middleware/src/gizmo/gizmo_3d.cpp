@@ -8,17 +8,16 @@
 #include "core/dg/rasterizer_state.h"
 #include "core/scene/transform_graph.h"
 #include "middleware/gizmo/gizmo_move.h"
+#include "middleware/gizmo/gizmo_scale.h"
 #include "core/material/material_builder.h"
 #include "platforms/default_window_handler.h"
 
 
-Gizmo3D::Gizmo3D()
-    : m_move(new GizmoMove()) {
+Gizmo3D::Gizmo3D() {
 
 }
 
 Gizmo3D::~Gizmo3D() {
-    m_move.reset();
     m_rootNode.reset();
     m_selectedObject.reset();
     m_eventHandler.reset();
@@ -36,10 +35,23 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::sha
 
     m_eventHandler = eventHandler;
     m_rootNode = std::make_shared<TransformNode>();
-    auto moveRoot = m_rootNode->NewChild();
-    m_move->Create(device, eventHandler, material, moveRoot);
 
-    SelectNode(m_selectedObject);
+    auto moveRoot = m_rootNode->NewChild();
+    auto move = std::make_unique<GizmoMove>();
+    move->Create(device, eventHandler, material, moveRoot);
+    m_gizmos[static_cast<uint32_t>(Type::MOVE)] = std::move(move);
+
+    auto rotateRoot = m_rootNode->NewChild();
+    auto rotate = std::make_unique<GizmoMove>();
+    rotate->Create(device, eventHandler, material, rotateRoot);
+    m_gizmos[static_cast<uint32_t>(Type::ROTATE)] = std::move(rotate);
+
+    auto scaleRoot = m_rootNode->NewChild();
+    auto scale = std::make_unique<GizmoScale>();
+    scale->Create(device, eventHandler, material, scaleRoot);
+    m_gizmos[static_cast<uint32_t>(Type::SCALE)] = std::move(scale);
+
+    SetType(m_type);
 
     return m_rootNode;
 }
@@ -84,7 +96,7 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
         return;
     }
 
-    if (!m_move->IsMoved()) {
+    if (!m_activeGizmo->IsMoved()) {
         m_invRayMatrix = nodeMatrix.Inverse();
     }
 
@@ -94,8 +106,8 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
     auto rayDir = camera->ScreenPointToRay(mousePos, windowRect.Size());
     rayDir = dg::normalize(static_cast<dg::float3>(dg::float4(rayDir, 0.f) * m_invRayMatrix));
 
-    m_move->Update(rayStart, rayDir);
-    if (mouseFirstRelease && !m_move->IsSelected() && !m_move->IsMoved()) {
+    m_activeGizmo->Update(rayStart, rayDir);
+    if (mouseFirstRelease && !m_activeGizmo->IsSelected() && !m_activeGizmo->IsMoved()) {
         foundDesc.needFound = true;
     }
 }
@@ -103,5 +115,23 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
 void Gizmo3D::SelectNode(const std::shared_ptr<TransformNode>& node) {
     m_selectedObject = node;
     m_rootNode->SetVisible(static_cast<bool>(node));
-    m_move->SelectNode(node);
+    m_activeGizmo->SelectNode(node);
+}
+
+void Gizmo3D::SetType(Type value) {
+    if ((m_type != Type::MOVE) && (m_type != Type::ROTATE) && (m_type != Type::SCALE)) {
+        return;
+    }
+    if ((m_type == value) && (m_activeGizmo != nullptr)) {
+        return;
+    }
+
+    m_type = value;
+
+    if (m_activeGizmo != nullptr) {
+        m_activeGizmo->SetEnable(false);
+    }
+    m_activeGizmo = m_gizmos[static_cast<uint32_t>(value)].get();
+    m_activeGizmo->SetEnable(true);
+    SelectNode(m_selectedObject);
 }

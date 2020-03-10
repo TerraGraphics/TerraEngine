@@ -10,7 +10,9 @@
 
 
 class Camera;
+class IGizmo;
 class GizmoMove;
+class GizmoScale;
 class TransformNode;
 class MaterialBuilder;
 class DefaultWindowEventsHandler;
@@ -24,6 +26,12 @@ struct GizmoFoundDesc {
 
 class Gizmo3D : Fixed {
 public:
+    enum class Type : uint8_t {
+        MOVE = 0,
+        ROTATE = 1,
+        SCALE = 2,
+    };
+public:
     Gizmo3D();
     ~Gizmo3D();
 
@@ -33,9 +41,14 @@ public:
     void Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc);
     void SelectNode(const std::shared_ptr<TransformNode>& node);
 
+    Type GetType() const noexcept { return m_type; }
+    void SetType(Type value);
+
 private:
     dg::float4x4 m_invRayMatrix;
-    std::unique_ptr<GizmoMove> m_move;
+    Type m_type = Type::MOVE;
+    std::unique_ptr<IGizmo> m_gizmos[3];
+    IGizmo* m_activeGizmo = nullptr;
     std::shared_ptr<TransformNode> m_rootNode = nullptr;
     std::shared_ptr<TransformNode> m_selectedObject = nullptr;
     std::shared_ptr<DefaultWindowEventsHandler> m_eventHandler = nullptr;
