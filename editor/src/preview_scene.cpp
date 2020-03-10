@@ -108,7 +108,8 @@ void PreviewScene::CreateMaterials() {
 }
 
 void PreviewScene::GenerateMeshes() {
-    CubeShape shape1({1.f, 2.f, 3.f}, {2, 3, 4});
+    TorusShape shape1(0.25f, 1.f, 10, 30);
+    // CubeShape shape1({1.f, 2.f, 3.f}, {2, 3, 4});
     // ConeShape shape1({30, 30}, math::Axis::Y);
     // PlaneShape shape1({math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
     SphereShape shape2({30, 30}, math::Axis::Y);

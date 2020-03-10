@@ -4,6 +4,7 @@
     { include: ['"middleware/generator/cone_shape.h"', public, '"middleware/generator/generator.h"', public] },
     { include: ['"middleware/generator/cube_shape.h"', public, '"middleware/generator/generator.h"', public] },
     { include: ['"middleware/generator/plane_shape.h"', public, '"middleware/generator/generator.h"', public] },
+    { include: ['"middleware/generator/torus_shape.h"', public, '"middleware/generator/generator.h"', public] },
     { include: ['"middleware/generator/sphere_shape.h"', public, '"middleware/generator/generator.h"', public] },
     { include: ['"middleware/generator/shape_builder.h"', public, '"middleware/generator/generator.h"', public] },
     { include: ['"middleware/generator/cylinder_shape.h"', public, '"middleware/generator/generator.h"', public] },
