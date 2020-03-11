@@ -204,8 +204,8 @@ void GeneralScene::GenerateGrass() {
 }
 
 void GeneralScene::GenerateGrassBillboard() {
-    float angleY = ThirdPI<float>() * 2.0f;
-    auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(ThirdPI<float>() / 3.f);
+    float angleY = OneThirdOfPI<float>() * 2.0f;
+    auto matBase = dg::float4x4::Translation(0, 0.5, 0) * dg::float4x4::RotationX(OneThirdOfPI<float>() / 3.f);
 
     PlaneShape plane1({math::Axis::X, math::Axis::Y}, math::Direction::POS_Z);
     plane1.SetTransform(matBase);

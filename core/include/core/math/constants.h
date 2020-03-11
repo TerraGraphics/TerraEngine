@@ -28,13 +28,18 @@ template<typename T> inline constexpr T PI() {
     return T(3.14159265358979323846264338327950288);
 }
 
+// 2 * pi / 3 = 120 deg
+template<typename T> inline constexpr T OneThirdOfTwoPI() {
+    return T(2.09439510239319549230842892218633525);
+}
+
 // pi / 2 = 90 deg
 template<typename T> inline constexpr T HalfPI() {
     return T(1.57079632679489661923132169163975144);
 }
 
 // pi / 3 = 60 deg
-template<typename T> inline constexpr T ThirdPI() {
+template<typename T> inline constexpr T OneThirdOfPI() {
     return T(1.047197551196597746154214461093167628);
 }
 
