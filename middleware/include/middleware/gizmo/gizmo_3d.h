@@ -11,8 +11,6 @@
 
 class Camera;
 class IGizmo;
-class GizmoMove;
-class GizmoScale;
 class TransformNode;
 class MaterialBuilder;
 class DefaultWindowEventsHandler;
@@ -46,7 +44,7 @@ public:
 
 private:
     dg::float4x4 m_invRayMatrix;
-    Type m_type = Type::MOVE;
+    Type m_type = Type::ROTATE;
     std::unique_ptr<IGizmo> m_gizmos[3];
     IGizmo* m_activeGizmo = nullptr;
     std::shared_ptr<TransformNode> m_rootNode = nullptr;

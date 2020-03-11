@@ -9,6 +9,7 @@
 #include "core/scene/transform_graph.h"
 #include "middleware/gizmo/gizmo_move.h"
 #include "middleware/gizmo/gizmo_scale.h"
+#include "middleware/gizmo/gizmo_rotate.h"
 #include "core/material/material_builder.h"
 #include "platforms/default_window_handler.h"
 
@@ -42,7 +43,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::sha
     m_gizmos[static_cast<uint32_t>(Type::MOVE)] = std::move(move);
 
     auto rotateRoot = m_rootNode->NewChild();
-    auto rotate = std::make_unique<GizmoMove>();
+    auto rotate = std::make_unique<GizmoRotate>();
     rotate->Create(device, eventHandler, material, rotateRoot);
     m_gizmos[static_cast<uint32_t>(Type::ROTATE)] = std::move(rotate);
 

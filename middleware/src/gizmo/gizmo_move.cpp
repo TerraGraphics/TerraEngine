@@ -66,6 +66,9 @@ void GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
 
 void GizmoMove::SetEnable(bool value) {
     m_root->SetVisible(value);
+    m_isMoved = false;
+    m_isSelectedArrow = false;
+    m_isSelectedPlane = false;
 }
 
 void GizmoMove::SelectNode(const std::shared_ptr<TransformNode>& node) {
