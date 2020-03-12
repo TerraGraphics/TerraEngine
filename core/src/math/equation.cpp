@@ -26,15 +26,39 @@ uint8_t SolveLinear(float a, float b, float* result) {
     return rootsCnt;
 }
 
+uint8_t SolveQuad(double a, double b, double* result) {
+    a *= 0.5;
+    auto d = a * a - b;
+    if (d < 0) {
+        return 0;
+    }
+    d = std::sqrt(d);
+    result[0] = -a + d;
+    result[1] = -a - d;
+
+    return 2;
+}
+
+uint8_t SolveQuad(float a, float b, float* result) {
+    double res[2];
+    auto rootsCnt = SolveQuad(static_cast<double>(a), static_cast<double>(b), res);
+    for (uint8_t i=0; i!=rootsCnt; ++i) {
+        result[i] = static_cast<float>(res[i]);
+    }
+
+    return rootsCnt;
+}
+
 uint8_t SolveQuad(double a, double b, double c, double* result) {
     if (std::fpclassify(a) != FP_ZERO) {
-        auto d = b * b - 4. * a * c;
+        b *= 0.5;
+        auto d = b * b - a * c;
         if (d < 0) {
             return 0;
         }
         d = std::sqrt(d);
-        result[0] = (-b + d) * 0.5 / a;
-        result[1] = (-b - d) * 0.5 / a;
+        result[0] = (-b + d) / a;
+        result[1] = (-b - d) / a;
 
         return 2;
     }
