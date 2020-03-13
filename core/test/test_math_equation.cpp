@@ -1,9 +1,17 @@
 #include <memory>
 #include <random>
 #include <chrono>
-#include <gtest/gtest.h>
 
+#include "gtest.h"
 #include "core/math/equation.h"
+
+
+template<typename T> static T Linear(T a, T b, T result) {
+    return a * result + b;
+}
+
+#define EXPECT_LINEAR(a, b, result) \
+    if constexpr (std::is_same<T, double>::value) {
 
 template<typename T> static T QuadAbsError() {
     if constexpr (std::is_same<T, double>::value) {
@@ -18,6 +26,12 @@ template<typename T> static T Quad(T a, T b, T c, T result) {
     return static_cast<T>((static_cast<double>(a) * r + static_cast<double>(b)) * r + static_cast<double>(c));
 }
 
+#define EXPECT_QUAD(a, b, result) \
+    EXPECT_NEAR(Quad(static_cast<decltype(a)>(1.), a, b, result), 0, QuadAbsError<decltype(a)>());
+
+#define EXPECT_FULL_QUAD(a, b, c, result) \
+    EXPECT_NEAR(Quad(a, b, c, result), 0, QuadAbsError<decltype(a)>());
+
 template<typename T> static T CubicAbsError() {
     if constexpr (std::is_same<T, double>::value) {
         return 1.e-13;
@@ -27,118 +41,108 @@ template<typename T> static T CubicAbsError() {
 }
 
 template<typename T> static T Cubic(T a, T b, T c, T d, T result) {
-    double r = static_cast<double>(result);
+
     return static_cast<T>(((static_cast<double>(a) * r + static_cast<double>(b)) * r + static_cast<double>(c)) * r + static_cast<double>(d));
 }
 
-#define EXPECT_QUAD(a, b, result) \
-    EXPECT_NEAR(Quad(static_cast<decltype(a)>(1.), a, b, result), 0, QuadAbsError<decltype(a)>());
-
-#define EXPECT_FULL_QUAD(a, b, c, result) \
-    EXPECT_NEAR(Quad(a, b, c, result), 0, QuadAbsError<decltype(a)>());
+#define EXPECT_CUBIC(a, b, c, result) \
+    EXPECT_NEAR(Cubic(static_cast<decltype(a)>(1.), a, b, c, result), 0, CubicAbsError<decltype(a)>());
 
 #define EXPECT_FULL_CUBIC(a, b, c, d, result) \
     EXPECT_NEAR(Cubic(a, b, c, d, result), 0, CubicAbsError<decltype(a)>());
-namespace {
+
+}
+
+#define EXPECT_CUBIC(a, b, c, result) \
+    EXPECT_NEAR(Cubic(static_cast<decltype(a)>(1.), a, b, c, result), 0, CubicAbsError<decltype(a)>());
+
+#define EXPECT_FULL_CUBIC(a, b, c, d, result) \
+    EXPECT_NEAR(Cubic(a, b, c, d, result), 0, CubicAbsError<decltype(a)>());
 
 TEST(MathEquation, SolveLinearDouble) {
     double a, b;
     double result[1];
 
-    a = 1.;
-    b = 2.;
-    ASSERT_EQ(math::SolveLinear(a, b, result), 1);
-    ASSERT_DOUBLE_EQ(a * result[0] + b, 0);
+namespace {
 
-    a = 10.;
-    b = 1.;
+template <typename T> class MathEquation : public ::testing::Test {};
+TYPED_TEST_SUITE(MathEquation, double, float);
+
+
+TYPED_TEST(MathEquation, SolveLinear) {
+    TypeParam a, b;
+    TypeParam result[1];
+
+    a = 1;
+    b = 2;
     ASSERT_EQ(math::SolveLinear(a, b, result), 1);
-    ASSERT_DOUBLE_EQ(a * result[0] + b, 0);
+    EXPECT_LINEAR(a, b, result[0]);
+
+    a = 10;
+    b = 1;
+    ASSERT_EQ(math::SolveLinear(a, b, result), 1);
+    EXPECT_LINEAR(a, b, result[0]);
 }
 
-TEST(MathEquation, SolveLinearDoubleAIsZero) {
-    double a, b;
-    double result[1];
+TYPED_TEST(MathEquation, SolveLinearAIsZero) {
+    TypeParam a, b;
+    TypeParam result[1];
 
     a = 0;
-    b = 2.;
+    b = 2;
     ASSERT_EQ(math::SolveLinear(a, b, result), 0);
 }
 
-TEST(MathEquation, SolveLinearFloat) {
-    float a, b;
-    float result[1];
+TYPED_TEST(MathEquation, SolveQuad) {
+    TypeParam a, b;
+    TypeParam result[2];
 
-    a = 1.f;
-    b = 2.f;
-    ASSERT_EQ(math::SolveLinear(a, b, result), 1);
-    ASSERT_FLOAT_EQ(a * result[0] + b, 0);
-
-    a = 10.f;
-    b = 1.f;
-    ASSERT_EQ(math::SolveLinear(a, b, result), 1);
-    ASSERT_FLOAT_EQ(a * result[0] + b, 0);
-}
-
-TEST(MathEquation, SolveLinearFloatAIsZero) {
-    float a, b;
-    float result[1];
-
-    a = 0;
-    b = 2.;
-    ASSERT_EQ(math::SolveLinear(a, b, result), 0);
-}
-
-TEST(MathEquation, SolveQuadDouble) {
-    double a, b;
-    double result[2];
-
-    a = 2.;
-    b = 3.;
+    a = 2;
+    b = 3;
     ASSERT_EQ(math::SolveQuad(a, b, result), 0);
 
-    a = 6.;
-    b = 9.;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2); // -3, -3
+    a = 6;
+    b = 9;
+    ASSERT_EQ(math::SolveQuad(a, b, result), 2);
     EXPECT_QUAD(a, b, result[0]);
     EXPECT_QUAD(a, b, result[1]);
 
-    a = 2.;
-    b = -3.;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2); // 1, -3
-    EXPECT_QUAD(a, b, result[0]);
-    EXPECT_QUAD(a, b, result[1]);
-}
-
-TEST(MathEquation, SolveQuadDoubleAIsZero) {
-    double a, b;
-    double result[2];
-
-    a = 0;
-    b = 3.;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 0);
-
-    a = 0;
-    b = -4.;
+    a = 2;
+    b = -3;
     ASSERT_EQ(math::SolveQuad(a, b, result), 2);
     EXPECT_QUAD(a, b, result[0]);
     EXPECT_QUAD(a, b, result[1]);
 }
 
-TEST(MathEquation, SolveQuadDoubleBIsZero) {
-    double a, b;
-    double result[2];
+TYPED_TEST(MathEquation, SolveQuadAIsZero) {
+    TypeParam a, b;
+    TypeParam result[2];
 
-    a = 1.;
+    a = 0;
+    b = 3;
+    ASSERT_EQ(math::SolveQuad(a, b, result), 0);
+
+    a = 0;
+    b = -4;
+    ASSERT_EQ(math::SolveQuad(a, b, result), 2);
+    EXPECT_QUAD(a, b, result[0]);
+    EXPECT_QUAD(a, b, result[1]);
+}
+
+TYPED_TEST(MathEquation, SolveQuadBIsZero) {
+    TypeParam a, b;
+    TypeParam result[2];
+
+    a = 1;
     b = 0;
     ASSERT_EQ(math::SolveQuad(a, b, result), 2);
     EXPECT_QUAD(a, b, result[0]);
     EXPECT_QUAD(a, b, result[1]);
 }
 
-TEST(MathEquation, SolveQuadDoubleAIsZeroBIsZero) {
-    double a, b;
-    double result[2];
+TYPED_TEST(MathEquation, SolveQuadAIsZeroBIsZero) {
+    TypeParam a, b;
+    TypeParam result[2];
 
     a = 0;
     b = 0;
@@ -147,229 +151,85 @@ TEST(MathEquation, SolveQuadDoubleAIsZeroBIsZero) {
     EXPECT_QUAD(a, b, result[1]);
 }
 
-TEST(MathEquation, SolveQuadFloat) {
-    float a, b;
-    float result[2];
+TYPED_TEST(MathEquation, SolveFullQuad) {
+    TypeParam a, b, c;
+    TypeParam result[2];
 
-    a = 2.f;
-    b = 3.f;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 0);
-
-    a = 6.f;
-    b = 9.f;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2); // -3, -3
-    EXPECT_QUAD(a, b, result[0]);
-    EXPECT_QUAD(a, b, result[1]);
-
-    a = 2.f;
-    b = -3.f;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2); // 1, -3
-    EXPECT_QUAD(a, b, result[0]);
-    EXPECT_QUAD(a, b, result[1]);
-}
-
-TEST(MathEquation, SolveQuadFloatAIsZero) {
-    float a, b;
-    float result[2];
-
-    a = 0;
-    b = 3.f;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 0);
-
-    a = 0;
-    b = -4.f;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2);
-    EXPECT_QUAD(a, b, result[0]);
-    EXPECT_QUAD(a, b, result[1]);
-}
-
-TEST(MathEquation, SolveQuadFloatBIsZero) {
-    float a, b;
-    float result[2];
-
-    a = 1.f;
-    b = 0;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2);
-    EXPECT_QUAD(a, b, result[0]);
-    EXPECT_QUAD(a, b, result[1]);
-}
-
-TEST(MathEquation, SolveQuadFloatAIsZeroBIsZero) {
-    float a, b;
-    float result[2];
-
-    a = 0;
-    b = 0;
-    ASSERT_EQ(math::SolveQuad(a, b, result), 2);
-    EXPECT_QUAD(a, b, result[0]);
-    EXPECT_QUAD(a, b, result[1]);
-}
-
-TEST(MathEquation, SolveFullQuadDouble) {
-    double a, b, c;
-    double result[2];
-
-    a = 2.;
-    b = 3.;
-    c = 4.;
+    a = 2;
+    b = 3;
+    c = 4;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 0);
 
-    a = 2.;
-    b = 12.;
-    c = 18.;
+    a = 2;
+    b = 12;
+    c = 18;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
     EXPECT_FULL_QUAD(a, b, c, result[0]);
     EXPECT_FULL_QUAD(a, b, c, result[1]);
 
-    a = 2.;
-    b = 4.;
-    c = -6.;
+    a = 2;
+    b = 4;
+    c = -6;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
     EXPECT_FULL_QUAD(a, b, c, result[0]);
     EXPECT_FULL_QUAD(a, b, c, result[1]);
 }
 
-TEST(MathEquation, SolveFullQuadDoubleAIsZero) {
-    double a, b, c;
-    double result[2];
+TYPED_TEST(MathEquation, SolveFullQuadAIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[2];
 
-    a = 0.;
-    b = 2.;
-    c = 3.;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 1); // -2
+    a = 0;
+    b = 2;
+    c = 3;
+    ASSERT_EQ(math::SolveQuad(a, b, c, result), 1);
     EXPECT_FULL_QUAD(a, b, c, result[0]);
 }
 
-TEST(MathEquation, SolveFullQuadDoubleBIsZero) {
-    double a, b, c;
-    double result[2];
+TYPED_TEST(MathEquation, SolveFullQuadBIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[2];
 
-    a = 2.;
+    a = 2;
     b = 0;
-    c = 3.;
+    c = 3;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 0);
 
-    a = 2.;
+    a = 2;
     b = 0;
-    c = -4.;
+    c = -4;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
     EXPECT_FULL_QUAD(a, b, c, result[0]);
     EXPECT_FULL_QUAD(a, b, c, result[1]);
 }
 
-TEST(MathEquation, SolveFullQuadDoubleCIsZero) {
-    double a, b, c;
-    double result[2];
+TYPED_TEST(MathEquation, SolveFullQuadCIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[2];
 
-    a = 2.;
-    b = 4.;
+    a = 2;
+    b = 4;
     c = 0;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
     EXPECT_FULL_QUAD(a, b, c, result[0]);
     EXPECT_FULL_QUAD(a, b, c, result[1]);
 }
 
-TEST(MathEquation, SolveFullQuadDoubleAIsZeroBIsZero) {
-    double a, b, c;
-    double result[2];
-
-    a = 0.;
-    b = 0.;
-    c = 3.;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 0);
-}
-
-TEST(MathEquation, SolveFullQuadDoubleBIsZeroCIsZero) {
-    double a, b, c;
-    double result[2];
-
-    a = 2.;
-    b = 0.;
-    c = 0.;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
-    EXPECT_FULL_QUAD(a, b, c, result[0]);
-    EXPECT_FULL_QUAD(a, b, c, result[1]);
-}
-
-TEST(MathEquation, SolveFullQuadFloat) {
-    float a, b, c;
-    float result[2];
-
-    a = 2.f;
-    b = 3.f;
-    c = 4.f;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 0);
-
-    a = 2.f;
-    b = 12.f;
-    c = 18.f;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
-    EXPECT_FULL_QUAD(a, b, c, result[0]);
-    EXPECT_FULL_QUAD(a, b, c, result[1]);
-
-    a = 2.f;
-    b = 4.f;
-    c = -6.f;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
-    EXPECT_FULL_QUAD(a, b, c, result[0]);
-    EXPECT_FULL_QUAD(a, b, c, result[1]);
-}
-
-TEST(MathEquation, SolveFullQuadFloatAIsZero) {
-    float a, b, c;
-    float result[2];
-
-    a = 0.f;
-    b = 2.f;
-    c = 3.f;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 1); // -2
-    EXPECT_FULL_QUAD(a, b, c, result[0]);
-}
-
-TEST(MathEquation, SolveFullQuadFloatBIsZero) {
-    float a, b, c;
-    float result[2];
-
-    a = 2.f;
-    b = 0;
-    c = 3.f;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 0);
-
-    a = 2.f;
-    b = 0;
-    c = -4.f;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
-    EXPECT_FULL_QUAD(a, b, c, result[0]);
-    EXPECT_FULL_QUAD(a, b, c, result[1]);
-}
-
-TEST(MathEquation, SolveFullQuadFloatCIsZero) {
-    float a, b, c;
-    float result[2];
-
-    a = 2.f;
-    b = 4.f;
-    c = 0;
-    ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
-    EXPECT_FULL_QUAD(a, b, c, result[0]);
-    EXPECT_FULL_QUAD(a, b, c, result[1]);
-}
-
-TEST(MathEquation, SolveFullQuadFloatAIsZeroBIsZero) {
-    float a, b, c;
-    float result[2];
+TYPED_TEST(MathEquation, SolveFullQuadAIsZeroBIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[2];
 
     a = 0;
     b = 0;
-    c = 3.f;
+    c = 3;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 0);
 }
 
-TEST(MathEquation, SolveFullQuadFloatBIsZeroCIsZero) {
-    float a, b, c;
-    float result[2];
+TYPED_TEST(MathEquation, SolveFullQuadBIsZeroCIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[2];
 
-    a = 2.f;
+    a = 2;
     b = 0;
     c = 0;
     ASSERT_EQ(math::SolveQuad(a, b, c, result), 2);
@@ -377,42 +237,42 @@ TEST(MathEquation, SolveFullQuadFloatBIsZeroCIsZero) {
     EXPECT_FULL_QUAD(a, b, c, result[1]);
 }
 
-TEST(MathEquation, SolveCubicDouble) {
-    double a, b, c, d;
-    double result[3];
+TYPED_TEST(MathEquation, SolveCubic) {
+    TypeParam a, b, c, d;
+    TypeParam result[3];
 
-    a = 1.;
-    b = 2.;
-    c = 3.;
-    d = 4.;
-    ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 1); // - 1.6506
+    a = 1;
+    b = 2;
+    c = 3;
+    d = 4;
+    ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 1);
     EXPECT_FULL_CUBIC(a, b, c, d, result[0]);
 
-    a = 1.;
-    b = 2.;
-    c = 3.;
-    d = -1.;
-    ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 1); // - 0.27568
+    a = 1;
+    b = 2;
+    c = 3;
+    d = -1;
+    ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 1);
     EXPECT_FULL_CUBIC(a, b, c, d, result[0]);
 
-    a = 5.;
-    b = -8.;
-    c = -8.;
-    d = 5.;
+    a = 5;
+    b = -8;
+    c = -8;
+    d = 5;
     ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 3);
     EXPECT_FULL_CUBIC(a, b, c, d, result[0]);
     EXPECT_FULL_CUBIC(a, b, c, d, result[1]);
     EXPECT_FULL_CUBIC(a, b, c, d, result[2]);
 }
 
-TEST(MathEquation, SolveCubicDoubleAIsZero) {
-    double a, b, c, d;
-    double result[3];
+TYPED_TEST(MathEquation, SolveCubicAIsZero) {
+    TypeParam a, b, c, d;
+    TypeParam result[3];
 
-    a = 0.;
-    b = 1.;
-    c = 6.;
-    d = 9.;
+    a = 0;
+    b = 1;
+    c = 6;
+    d = 9;
     ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 2);
     EXPECT_FULL_CUBIC(a, b, c, d, result[0]);
     EXPECT_FULL_CUBIC(a, b, c, d, result[1]);

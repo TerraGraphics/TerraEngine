@@ -1,8 +1,8 @@
 #include <memory>
 #include <random>
 #include <chrono>
-#include <gtest/gtest.h>
 
+#include "gtest.h"
 #include "core/math/basic.h"
 #include "core/math/advanced.h"
 
