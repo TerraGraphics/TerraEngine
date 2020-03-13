@@ -18,7 +18,7 @@ uint8_t SolveLinear(double a, double b, double* result) {
 
 uint8_t SolveLinear(float a, float b, float* result) {
     double res[1];
-    auto rootsCnt = SolveLinear(static_cast<float>(a), static_cast<float>(b), res);
+    auto rootsCnt = SolveLinear(static_cast<double>(a), static_cast<double>(b), res);
     for (uint8_t i=0; i!=rootsCnt; ++i) {
         result[i] = static_cast<float>(res[i]);
     }
@@ -44,7 +44,7 @@ uint8_t SolveQuad(double a, double b, double c, double* result) {
 
 uint8_t SolveQuad(float a, float b, float c, float* result) {
     double res[2];
-    auto rootsCnt = SolveQuad(static_cast<float>(a), static_cast<float>(b), static_cast<float>(c), res);
+    auto rootsCnt = SolveQuad(static_cast<double>(a), static_cast<double>(b), static_cast<double>(c), res);
     for (uint8_t i=0; i!=rootsCnt; ++i) {
         result[i] = static_cast<float>(res[i]);
     }
@@ -98,7 +98,13 @@ uint8_t SolveCubic(double a, double b, double c, double d, double* result) {
 
 uint8_t SolveCubic(float a, float b, float c, float d, float* result) {
     double res[3];
-    auto rootsCnt = SolveCubic(static_cast<float>(a), static_cast<float>(b), static_cast<float>(c), static_cast<float>(d), res);
+    auto rootsCnt = SolveCubic(static_cast<double>(a), static_cast<double>(b), static_cast<double>(c), static_cast<double>(d), res);
+    for (uint8_t i=0; i!=rootsCnt; ++i) {
+        result[i] = static_cast<float>(res[i]);
+    }
+
+    return rootsCnt;
+}
     for (uint8_t i=0; i!=rootsCnt; ++i) {
         result[i] = static_cast<float>(res[i]);
     }
