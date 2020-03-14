@@ -129,6 +129,113 @@ uint8_t SolveCubic(float a, float b, float c, float d, float* result) {
 
     return rootsCnt;
 }
+
+/*
+    x^4 + a*x^3 + b*x^2 + c*x + d = (x^2 + p1*x + q1)*(x^2 + p2*x + q2)
+    =>
+    a = p2 + p1
+    b = q2 + q1 + p2*p1
+    c = p1*q2 + p2*q1
+    d = q1*q2
+    => (see https://en.wikipedia.org/wiki/Vieta%27s_formulas)
+    p*p - a*p + b - w = 0
+    q*q - w*q + d = 0
+    where: w = q1 + q2
+    =>
+    dp = sqrt(a*a - 4*b + 4*w))
+    p1,2 = (a +/- dp)/2
+    dq = sqrt(w*w - 4*d)
+    q1,2 = (w -/+ dq)/2
+    =>
+    c = p1*q2 + p2*q1 = ((a + dp) * (w + dq) + (a - dp) * (w - dq)) / 4
+    =>
+    cube resolvent: w^3 - b*w^2 + (ca - 4*d)*w - d*a*a + 4*d*b - c*c = 0
+    w = max(|w1|, |w2|, |w3|)
+*/
+uint8_t SolveQuartic(double a, double b, double c, double d, double* result) {
+    double w;
+    {
+        double a3 = -b;
+        double b3 =  a*c -4.*d;
+        double c3 = -a*a*d + 4.*b*d - c*c;
+
+        double w3[3];
+        auto rootsCnt = SolveCubic(1., a3, b3, c3, w3);
+        if (rootsCnt == 0) {
+            return 0;
+        }
+
+        w = w3[0];
+        double maxAbs = std::fabs(w);
+        for (uint8_t i=1; i!=rootsCnt; ++i) {
+            if (maxAbs < std::fabs(w3[i])) {
+                w = w3[i];
+                maxAbs = std::fabs(w);
+            }
+        }
+    }
+
+    double q[2];
+    double p[2];
+
+    // solving quad: q*q - w*q + d = 0
+    if (SolveQuad(-w, d, q) != 2) {
+        return 0;
+    }
+
+    if (std::fpclassify(q[0] - q[1]) != FP_ZERO) {
+        /*
+            https://en.wikipedia.org/wiki/Cramer%27s_rule
+               p1 +    p2 = a
+            q2*p1 + q1*p2 = c
+            =>
+            p1 = (q1*a - c) / (q1 - q2)
+            p2 = (c - q2*a) / (q1 - q2)
+        */
+        p[0] = (q[0] * a - c) / (q[0] - q[1]);
+        p[1] = (c - q[1] * a) / (q[0] - q[1]);
+    } else {
+        q[0] = q[1] = w * 0.5;
+        // solving quad: p*p - a*p + b - w = 0
+        if (SolveQuad(-a, b - w, p) != 2) {
+            return 0;
+        }
+        p[0] = p[0];
+        p[1] = p[1];
+    }
+
+    // solving quad: x*x + p1*x + q1 = 0
+    uint8_t rootsCnt = SolveQuad(p[0], q[0], result);
+
+    // solving quad: x*x + p2*x + q2 = 0
+    rootsCnt += SolveQuad(p[1], q[1], &result[rootsCnt]);
+
+    return rootsCnt;
+}
+
+uint8_t SolveQuartic(float a, float b, float c, float d, float* result) {
+    double res[4];
+    auto rootsCnt = SolveQuartic(
+        static_cast<float>(a), static_cast<double>(b), static_cast<double>(c), static_cast<double>(d), res);
+    for (uint8_t i=0; i!=rootsCnt; ++i) {
+        result[i] = static_cast<float>(res[i]);
+    }
+
+    return rootsCnt;
+}
+
+uint8_t SolveQuartic(double a, double b, double c, double d, double e, double* result) {
+    if (std::fpclassify(a) != FP_ZERO) {
+        return SolveQuartic(b / a, c / a, d / a, e / a, result);
+    }
+
+    return SolveCubic(b, c, d, e, result);
+}
+
+uint8_t SolveQuartic(float a, float b, float c, float d, float e, float* result) {
+    double res[4];
+    auto rootsCnt = SolveQuartic(
+        static_cast<float>(a), static_cast<double>(b), static_cast<double>(c), static_cast<double>(d), static_cast<double>(e), res);
     for (uint8_t i=0; i!=rootsCnt; ++i) {
         result[i] = static_cast<float>(res[i]);
     }
