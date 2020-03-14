@@ -11,7 +11,7 @@ template<typename T> static T Linear(T a, T b, T result) {
 }
 
 #define EXPECT_LINEAR(a, b, result) \
-    if constexpr (std::is_same<T, double>::value) {
+    EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperFloatingPointEQ<decltype(a)>, Linear(a, b, result), 0)
 
 template<typename T> static T QuadAbsError() {
     if constexpr (std::is_same<T, double>::value) {
@@ -41,7 +41,7 @@ template<typename T> static T CubicAbsError() {
 }
 
 template<typename T> static T Cubic(T a, T b, T c, T d, T result) {
-
+    double r = static_cast<double>(result);
     return static_cast<T>(((static_cast<double>(a) * r + static_cast<double>(b)) * r + static_cast<double>(c)) * r + static_cast<double>(d));
 }
 
@@ -238,6 +238,108 @@ TYPED_TEST(MathEquation, SolveFullQuadBIsZeroCIsZero) {
 }
 
 TYPED_TEST(MathEquation, SolveCubic) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 2;
+    b = 3;
+    c = 4;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+
+    a = 2;
+    b = 3;
+    c = -1;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+
+    a = TypeParam(-5.5);
+    b = 6;
+    c = TypeParam(4.5);
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 3);
+    EXPECT_CUBIC(a, b, c, result[0]);
+    EXPECT_CUBIC(a, b, c, result[1]);
+    EXPECT_CUBIC(a, b, c, result[2]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicAIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 0;
+    b = 1;
+    c = 2;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicBIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 1;
+    b = 0;
+    c = 2;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicCIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = static_cast<TypeParam>(4. / 3.);
+    b = static_cast<TypeParam>(2. / 3.);
+    c = 0;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicAIsZeroBIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 0;
+    b = 0;
+    c = 1;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicAIsZeroCIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 0;
+    b = 1;
+    c = 0;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicBIsZeroCIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 1;
+    b = 0;
+    c = 0;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveCubicAIsZeroBIsZeroCIsZero) {
+    TypeParam a, b, c;
+    TypeParam result[3];
+
+    a = 0;
+    b = 0;
+    c = 0;
+    ASSERT_EQ(math::SolveCubic(a, b, c, result), 1);
+    EXPECT_CUBIC(a, b, c, result[0]);
+}
+
+TYPED_TEST(MathEquation, SolveFullCubic) {
     TypeParam a, b, c, d;
     TypeParam result[3];
 
@@ -255,6 +357,15 @@ TYPED_TEST(MathEquation, SolveCubic) {
     ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 1);
     EXPECT_FULL_CUBIC(a, b, c, d, result[0]);
 
+    a = 2;
+    b = -11;
+    c = 12;
+    d = 9;
+    ASSERT_EQ(math::SolveCubic(a, b, c, d, result), 3);
+    EXPECT_FULL_CUBIC(a, b, c, d, result[0]);
+    EXPECT_FULL_CUBIC(a, b, c, d, result[1]);
+    EXPECT_FULL_CUBIC(a, b, c, d, result[2]);
+
     a = 5;
     b = -8;
     c = -8;
@@ -265,7 +376,7 @@ TYPED_TEST(MathEquation, SolveCubic) {
     EXPECT_FULL_CUBIC(a, b, c, d, result[2]);
 }
 
-TYPED_TEST(MathEquation, SolveCubicAIsZero) {
+TYPED_TEST(MathEquation, SolveFullCubicAIsZero) {
     TypeParam a, b, c, d;
     TypeParam result[3];
 
