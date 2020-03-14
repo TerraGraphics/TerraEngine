@@ -76,45 +76,53 @@ uint8_t SolveQuad(float a, float b, float c, float* result) {
     return rootsCnt;
 }
 
+uint8_t SolveCubic(double a, double b, double c, double* result) {
+    double a2 = a*a;
+    double q  = (a2 - 3. * b) / 9.;
+    double r  = (a * (2. * a2 - 9. * b) + 27. * c) / 54.;
+    double r2 = r*r;
+    double q3 = q*q*q;
+
+    if (q3 > r2) {
+        double t = std::acos(std::min(std::max(r / std::sqrt(q3), -1.), 1.)) / 3.;
+        a /= 3.;
+        q = -2.*std::sqrt(q);
+
+        result[0] = q * std::cos(t) - a;
+        result[1] = q * std::cos(t + OneThirdOfTwoPI<double>()) - a;
+        result[2] = q * std::cos(t - OneThirdOfTwoPI<double>()) - a;
+
+        return 3;
+
+    } else {
+        double alpha = -std::pow(std::fabs(r) + std::sqrt(r2 - q3), 1. / 3.);
+        if (r < 0) {
+            alpha = -alpha;
+        }
+
+        if (std::fpclassify(alpha) != FP_ZERO) {
+            result[0] = alpha + q / alpha - a / 3.;
+        } else {
+            result[0] = - a / 3.;
+        }
+
+        return 1;
+    }
+}
+
+uint8_t SolveCubic(float a, float b, float c, float* result) {
+    double res[3];
+    auto rootsCnt = SolveCubic(static_cast<double>(a), static_cast<double>(b), static_cast<double>(c), res);
+    for (uint8_t i=0; i!=rootsCnt; ++i) {
+        result[i] = static_cast<float>(res[i]);
+    }
+
+    return rootsCnt;
+}
+
 uint8_t SolveCubic(double a, double b, double c, double d, double* result) {
     if (std::fpclassify(a) != FP_ZERO) {
-        // x*x*x + a*x*x + b*x + c = 0
-        double invA = 1. / a;
-        a = b * invA;
-        b = c * invA;
-        c = d * invA;
-
-        double a2 = a*a;
-        double q  = (a2 - 3. * b) / 9.;
-        double r  = (a * (2. * a2 - 9. * b) + 27. * c) / 54.;
-        double r2 = r*r;
-        double q3 = q*q*q;
-
-        if (q3 > r2) {
-            double t = std::acos(std::min(std::max(r / std::sqrt(q3), -1.), 1.)) / 3.;
-            a /= 3.;
-            q = -2.*std::sqrt(q);
-
-            result[0] = q * std::cos(t) - a;
-            result[1] = q * std::cos(t + OneThirdOfTwoPI<double>()) - a;
-            result[2] = q * std::cos(t - OneThirdOfTwoPI<double>()) - a;
-
-            return 3;
-
-        } else {
-            double alpha = -std::pow(std::fabs(r) + std::sqrt(r2 - q3), 1. / 3.);
-            if (r < 0) {
-                alpha = -alpha;
-            }
-
-            if (std::fpclassify(alpha) != FP_ZERO) {
-                result[0] = alpha + q / alpha - a / 3.;
-            } else {
-                result[0] = - a / 3.;
-            }
-
-            return 1;
-        }
+        return SolveCubic(b / a, c / a, d / a, result);
     }
 
     return SolveQuad(b, c, d, result);
@@ -160,7 +168,7 @@ uint8_t SolveQuartic(double a, double b, double c, double d, double* result) {
         double c3 = -a*a*d + 4.*b*d - c*c;
 
         double w3[3];
-        auto rootsCnt = SolveCubic(1., a3, b3, c3, w3);
+        auto rootsCnt = SolveCubic(a3, b3, c3, w3);
         if (rootsCnt == 0) {
             return 0;
         }
@@ -190,18 +198,16 @@ uint8_t SolveQuartic(double a, double b, double c, double d, double* result) {
             q2*p1 + q1*p2 = c
             =>
             p1 = (q1*a - c) / (q1 - q2)
-            p2 = (c - q2*a) / (q1 - q2)
+            p2 = (c - q2*a) / (q1 - q2) or p2 = a - p1
         */
         p[0] = (q[0] * a - c) / (q[0] - q[1]);
-        p[1] = (c - q[1] * a) / (q[0] - q[1]);
+        p[1] = a - p[0];
     } else {
         q[0] = q[1] = w * 0.5;
         // solving quad: p*p - a*p + b - w = 0
         if (SolveQuad(-a, b - w, p) != 2) {
             return 0;
         }
-        p[0] = p[0];
-        p[1] = p[1];
     }
 
     // solving quad: x*x + p1*x + q1 = 0
