@@ -4,15 +4,15 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#include <DiligentCore/Common/interface/RefCntAutoPtr.h>
+#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #pragma clang diagnostic pop
 
 
 namespace Diligent {
-    class ISwapChain;
-    class IRenderDevice;
-    class IEngineFactory;
-    class IDeviceContext;
+    struct ISwapChain;
+    struct IRenderDevice;
+    struct IEngineFactory;
+    struct IDeviceContext;
 }
 class GraphicAPI {
 public:

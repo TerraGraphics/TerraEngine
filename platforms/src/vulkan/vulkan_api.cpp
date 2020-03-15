@@ -7,7 +7,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#include <DiligentCore/Common/interface/RefCntAutoPtr.h>
+#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #pragma clang diagnostic pop
 
 #pragma clang diagnostic push
@@ -57,11 +57,12 @@ void VulkanAPI::Create(int validationLevel) {
 
     if (!m_swapChain) {
         Diligent::SwapChainDesc scDesc;
-        struct XCBInfo {
-            xcb_connection_t* connection;
-            uint32_t window;
-        } nativeWindowHandle = {m_connection, m_window};
-        engineFactoryVk->CreateSwapChainVk(m_device, contexts[0], scDesc, &nativeWindowHandle, &m_swapChain);
+
+        Diligent::LinuxNativeWindow nativeWindowHandle;
+        nativeWindowHandle.WindowId = m_window;
+        nativeWindowHandle.pXCBConnection = m_connection;
+
+        engineFactoryVk->CreateSwapChainVk(m_device, contexts[0], scDesc, nativeWindowHandle, &m_swapChain);
     }
 
     m_immediateContext.Attach(contexts[0]);

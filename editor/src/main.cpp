@@ -66,7 +66,7 @@ if (!useOpenGL) {
     auto glWindow = std::make_shared<WindowGLLinux>(windowDesc, engineDesc.eventHandler);
     glWindow->Create();
 
-    auto openGLAPI = std::make_shared<OpenGLAPI>(glWindow->GetNativeWindowHandler(), glWindow->GetDisplay());
+    auto openGLAPI = std::make_shared<OpenGLAPI>(static_cast<uint32_t>(glWindow->GetWindow()), glWindow->GetDisplay());
     Diligent::EngineGLCreateInfo& info = openGLAPI->GetCreateInfo();
     info.DebugMessageCallback = logMessageCallback;
 
@@ -86,8 +86,8 @@ static bool Run(bool useOpenGL, spdlog::level::level_enum logLevel, bool logToFi
         spdlog::set_default_logger(file_logger);
     }
 
-    auto logMessageCallback = [](dg::DebugMessageSeverity severity, const char* message, const char* function, const char* file, int line) {
-        static spdlog::level::level_enum match[static_cast<size_t>(dg::DebugMessageSeverity::FatalError) + 1] = {
+    auto logMessageCallback = [](dg::DEBUG_MESSAGE_SEVERITY severity, const char* message, const char* function, const char* file, int line) {
+        static spdlog::level::level_enum match[static_cast<size_t>(dg::DEBUG_MESSAGE_SEVERITY_FATAL_ERROR) + 1] = {
             spdlog::level::info, spdlog::level::warn, spdlog::level::err, spdlog::level::critical};
         spdlog::default_logger_raw()->log(spdlog::source_loc(file, line, function), match[static_cast<size_t>(severity)], message);
     };

@@ -27,7 +27,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#include <DiligentCore/Primitives/interface/Errors.h>
+#include <DiligentCore/Primitives/interface/Errors.hpp>
 #pragma clang diagnostic pop
 #include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
 

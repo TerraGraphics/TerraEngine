@@ -4,7 +4,7 @@ from conans import ConanFile, CMake, tools
 
 class DiligentGraphics(ConanFile):
     name = "DiligentGraphics"
-    version = "2.4.7795c56.b3f3da2"
+    version = "2.4.e8300f4.faa30a9"
     license = "Apache License 2.0"
     url = "https://github.com/DiligentGraphics/DiligentGraphics"
     description = " A modern cross-platform low-level graphics library and rendering framework"
@@ -22,12 +22,12 @@ class DiligentGraphics(ConanFile):
     exports_sources = "DiligentGraphics/*"
 
     def source(self):
-        core_version = "7795c56"
+        core_version = "e8300f4"
         self.run("git clone --recursive https://github.com/DiligentGraphics/DiligentCore.git DiligentGraphics/DiligentCore")
         with tools.chdir("DiligentGraphics/DiligentCore"):
             self.run("git reset --hard %s" % core_version)
 
-        tools_version = "b3f3da2"
+        tools_version = "faa30a9"
         self.run("git clone --recursive https://github.com/DiligentGraphics/DiligentTools.git DiligentGraphics/DiligentTools")
         with tools.chdir("DiligentGraphics/DiligentTools"):
             self.run("git reset --hard %s" % tools_version)

@@ -4,7 +4,7 @@ gtest/1.8.1@bincrafters/stable
 spdlog/1.4.2@bincrafters/stable
 libucl/0.8.1@terragraphics/stable
 imgui/1.74.docking.f68075b@terragraphics/wip
-DiligentGraphics/2.4.7795c56.b3f3da2@terragraphics/wip
+DiligentGraphics/2.4.e8300f4.faa30a9@terragraphics/wip
 
 [generators]
 cmake

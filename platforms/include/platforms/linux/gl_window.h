@@ -20,6 +20,7 @@ public:
     ~WindowGLLinux() override;
 
     Display* GetDisplay() noexcept { return m_display; }
+    uint64_t GetWindow() noexcept { return m_window; }
 
     void* GetNativeWindowHandler() const override { return reinterpret_cast<void*>(m_window); };
     void SetTitle(const char* text) override;

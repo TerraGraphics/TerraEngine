@@ -3,25 +3,25 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#include <DiligentCore/Common/interface/RefCntAutoPtr.h>
+#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #pragma clang diagnostic pop
 
 
 namespace Diligent {
-    class IFence;
-    class IShader;
-    class IBuffer;
-    class ITexture;
-    class ISwapChain;
-    class ITextureView;
-    class IDeviceObject;
-    class IRenderDevice;
-    class IDeviceContext;
-    class IEngineFactory;
-    class IPipelineState;
-    class IShaderResourceBinding;
-    class IShaderResourceVariable;
-    class IShaderSourceInputStreamFactory;
+    struct IFence;
+    struct IShader;
+    struct IBuffer;
+    struct ITexture;
+    struct ISwapChain;
+    struct ITextureView;
+    struct IDeviceObject;
+    struct IRenderDevice;
+    struct IDeviceContext;
+    struct IEngineFactory;
+    struct IPipelineState;
+    struct IShaderResourceBinding;
+    struct IShaderResourceVariable;
+    struct IShaderSourceInputStreamFactory;
 
     enum CULL_MODE : Int8;
     enum SHADER_TYPE : Uint32;

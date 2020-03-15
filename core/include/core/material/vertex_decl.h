@@ -22,7 +22,7 @@ struct Layout {
 };
 
 template<typename T> Layout ItemDecl(const std::string& name, uint32_t bufferSlot = 0,
-    dg::LayoutElement::FREQUENCY frequency = dg::LayoutElement::FREQUENCY_PER_VERTEX) {
+    dg::INPUT_ELEMENT_FREQUENCY frequency = dg::INPUT_ELEMENT_FREQUENCY_PER_VERTEX) {
 
     if constexpr (std::is_same<T, float>::value) {
         return Layout{msh::Decl(name, "float"),  dg::LayoutElement(0, bufferSlot, 1, dg::VT_FLOAT32, false, frequency)};

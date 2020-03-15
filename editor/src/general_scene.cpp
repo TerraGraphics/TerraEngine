@@ -93,13 +93,13 @@ void GeneralScene::CreateMaterials() {
     const auto& vDecl = VertexPNC::GetDecl();
     const auto& grassVDecl = VertexP::GetDecl();
     const auto& additionalVDecl = VertexDecl({
-        ItemDecl<dg::float4>("WorldRow0", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float4>("WorldRow1", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float4>("WorldRow2", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float4>("WorldRow3", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float3>("NormalRow0", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float3>("NormalRow1", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float3>("NormalRow2", 1, dg::LayoutElement::FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float4>("WorldRow0", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float4>("WorldRow1", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float4>("WorldRow2", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float4>("WorldRow3", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float3>("NormalRow0", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float3>("NormalRow1", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        ItemDecl<dg::float3>("NormalRow2", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
     });
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, vDecl, additionalVDecl).

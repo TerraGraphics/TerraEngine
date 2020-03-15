@@ -8,7 +8,7 @@
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #pragma clang diagnostic ignored "-Wimplicit-float-conversion"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#include <DiligentCore/Common/interface/BasicMath.h>
+#include <DiligentCore/Common/interface/BasicMath.hpp>
 #pragma clang diagnostic pop
 
 namespace dg = Diligent;

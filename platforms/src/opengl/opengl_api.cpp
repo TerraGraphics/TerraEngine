@@ -8,8 +8,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#include <DiligentCore/Primitives/interface/Errors.h>
-#include <DiligentCore/Common/interface/RefCntAutoPtr.h>
+#include <DiligentCore/Primitives/interface/Errors.hpp>
+#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #pragma clang diagnostic pop
 
 #pragma clang diagnostic push
@@ -25,20 +25,12 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
 
 
-OpenGLAPI::OpenGLAPI(void* nativeWindowHandler, Display* display) {
-    m_createInfo.pNativeWndHandle = nativeWindowHandler;
-#if PLATFORM_LINUX
-    m_createInfo.pDisplay = display;
-#endif
+OpenGLAPI::OpenGLAPI(uint32_t window, Display* display) {
+    m_createInfo.Window.WindowId = window;
+    m_createInfo.Window.pDisplay = display;
 }
 
 void OpenGLAPI::Create(int /* validationLevel */) {
-#if !PLATFORM_MACOS
-    if (m_createInfo.pNativeWndHandle == nullptr) {
-        throw std::runtime_error("nativeWindowHandle for GL init is equal null");
-    }
-#endif
-
 #if EXPLICITLY_LOAD_ENGINE_GL_DLL
     // Declare function pointer
     GetEngineFactoryOpenGLType GetEngineFactoryOpenGL = nullptr;

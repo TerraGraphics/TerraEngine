@@ -12,7 +12,7 @@ typedef struct _XDisplay Display;
 class OpenGLAPI : public GraphicAPI {
 public:
     OpenGLAPI() = delete;
-    OpenGLAPI(void* nativeWindowHandler, Display* display);
+    OpenGLAPI(uint32_t window, Display* display);
     ~OpenGLAPI() override = default;
 
     Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
