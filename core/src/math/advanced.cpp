@@ -2,34 +2,10 @@
 
 #include <cmath>
 #include <utility>
+#include "core/math/equation.h"
 
 
 namespace math {
-
-bool QuadEquation(dg::float3 p, dg::float2& result) {
-    if (std::fpclassify(p.x) != FP_ZERO) {
-        // x * x * p.x + x * p.y + p.z = 0
-        float d = p.y * p.y - 4.f * p.x * p.z;
-        if (d < 0) {
-            return false;
-        }
-        d = std::sqrt(d);
-        result.x = (-p.y + d) * 0.5f / p.x;
-        result.y = (-p.y - d) * 0.5f / p.x;
-
-        return true;
-    }
-
-    if (std::fpclassify(p.y) != FP_ZERO) {
-        // x * p.y + p.z = 0
-        result.x = - p.z / p.y;
-        result.y = result.x;
-        return true;
-    }
-
-    // p.z = 0
-    return false;
-}
 
 /*
     point(x0, y0, z0), n(l, m, n)
@@ -85,7 +61,7 @@ bool IntersectionRayAndCylinder(dg::float3 rayStart, dg::float3 rayDir, Axis axi
         rayStart.x * rayStart.x + rayStart.y * rayStart.y - radius * radius);
 
     dg::float2 t;
-    if (!QuadEquation(p, t)) {
+    if (SolveQuad(p.x, p.y, p.z, &t[0]) != 2) {
         return false;
     }
 
