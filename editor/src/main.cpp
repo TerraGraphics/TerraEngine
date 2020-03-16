@@ -2,6 +2,7 @@
 #include <memory>
 #include <cstdlib>
 #include <utility>
+#include <cstdint>
 #include <stdexcept>
 #include <algorithm>
 #include <fmt/format.h>

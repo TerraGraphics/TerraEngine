@@ -20,6 +20,7 @@
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
 #pragma clang diagnostic pop
 
+#include <DiligentCore/Platforms/interface/NativeWindow.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>

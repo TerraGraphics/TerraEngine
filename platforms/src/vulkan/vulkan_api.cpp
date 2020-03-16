@@ -18,6 +18,7 @@
 #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
 #pragma clang diagnostic pop
 
+#include <DiligentCore/Platforms/Linux/interface/LinuxNativeWindow.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "core/math/basic.h"
 #include "middleware/generator/shape.h"
