@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "middleware/generator/shape.h"
 #include "middleware/generator/merge_shape.h"
 #include "middleware/generator/plane_shape.h"

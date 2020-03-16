@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include "gtest.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/math/advanced.h"
 
 #define ASSERT_FLOAT3_EQ(actual, expected) \

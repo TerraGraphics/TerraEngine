@@ -1,7 +1,7 @@
 [
     { ref: "./common.imp" },
 
-    { include: ['"core/dg/math.h"', public, '"core/math/basic.h"', public] },
+    { include: ['"core/dg/math.h"', public, '"core/math/types.h"', public] },
     { include: ['"DiligentCore/Common/interface/BasicMath.hpp"', private, '"core/dg/math.h"', public] },
     { include: ['"DiligentCore/Common/interface/RefCntAutoPtr.hpp"', private, '"core/dg/dg.h"', public] },
     { include: ['"DiligentCore/Primitives/interface/Errors.hpp"', private, '"core/dg/errors.h"', public] },

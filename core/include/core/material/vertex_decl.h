@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/common/ctor.h"
 #include "core/common/counter.h"
 #include "core/common/exception.h"

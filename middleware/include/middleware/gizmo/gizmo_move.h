@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 #include "core/dg/dg.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/common/ctor.h"
 #include "middleware/gizmo/gizmo_base.h"
 #include "middleware/gizmo/gizmo_shape.h"

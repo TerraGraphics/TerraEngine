@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "middleware/generator/shape.h"
 #include "middleware/generator/uv_grid_generator.h"
 #include "middleware/generator/vertex_eval_applyer.h"

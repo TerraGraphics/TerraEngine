@@ -8,7 +8,7 @@
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "preview_scene.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
 #include "core/dg/render_device.h"

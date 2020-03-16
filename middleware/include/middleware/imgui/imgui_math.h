@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/math/basic.h"
+#include "core/math/types.h"
 
 struct ImVec2;
 ImVec2 ToImGui(math::Size value);

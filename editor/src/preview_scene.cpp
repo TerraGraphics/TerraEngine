@@ -5,7 +5,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/engine.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/dg/texture.h"
 #include "core/scene/scene.h"
 #include "core/scene/vertexes.h"

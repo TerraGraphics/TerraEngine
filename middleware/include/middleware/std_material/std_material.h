@@ -4,7 +4,7 @@
 #include <cstdint>
 
 #include "core/dg/dg.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/scene/material_node.h"
 #include "middleware/std_material/structures.h"
 

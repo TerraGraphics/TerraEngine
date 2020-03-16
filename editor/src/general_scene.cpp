@@ -8,7 +8,7 @@
 
 #include "core/engine.h"
 #include "core/dg/texture.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 #include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/dg/dg.h"
-#include "core/math/basic.h"
+#include "core/math/types.h"
 
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
