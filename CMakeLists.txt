@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(terra_engine VERSION 0.2)
+project(terra_engine VERSION 0.3)
 
 include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)

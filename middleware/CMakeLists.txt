@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(middleware VERSION 0.2 LANGUAGES CXX)
+project(middleware VERSION 0.3 LANGUAGES CXX)
 
 file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
