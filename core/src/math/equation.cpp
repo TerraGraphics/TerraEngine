@@ -1,6 +1,7 @@
 #include "core/math/equation.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "core/math/constants.h"
 

@@ -7,6 +7,7 @@
     { include: ['"gtest/gtest-message.h"', private, "<gtest/gtest.h>", public] },
     { include: ['"gtest/gtest_pred_impl.h"', private, "<gtest/gtest.h>", public] },
     { include: ['"gtest/gtest-test-part.h"', private, "<gtest/gtest.h>", public] },
+    { include: ['"gtest/gtest-typed-test.h"', private, "<gtest/gtest.h>", public] },
 
     { include: ['"spdlog/common.h"', private, "<spdlog/spdlog.h>", public] },
     { include: ['"spdlog/logger.h"', private, "<spdlog/spdlog.h>", public] },

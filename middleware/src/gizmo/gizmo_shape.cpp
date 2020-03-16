@@ -4,6 +4,7 @@
 #include <sys/types.h>
 
 #include "core/math/advanced.h"
+#include "core/math/constants.h"
 #include "middleware/generator/generator.h"
 #include "middleware/std_material/std_material.h"
 

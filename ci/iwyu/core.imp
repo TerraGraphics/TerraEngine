@@ -28,11 +28,13 @@
     { include: ['"ucl.h"', private, '"core/dg/ucl.h"', public] },
     { include: ['"ucl++.h"', private, '"core/dg/ucl.h"', public] },
 
+    { include: ["<gtest/gtest.h>", public, '"gtest.h"', public] },
+
+    { include: ["<stdexcept>", public, '"core/common/exception.h"', public] },
 
     { include: ['"core/dg/math.h"', public, '"middleware/std_material/structures.h"', public] },
     { include: ['"structures.fxh"', private, '"middleware/std_material/structures.h"', public] },
 
-    { include: ["<stdexcept>", public, '"core/common/exception.h"', public] },
     { include: ['"platforms/window.h"', private, '"platforms/platforms.h"', public] },
     { include: ['"platforms/graphic_api.h"', private, '"platforms/platforms.h"', public] },
     { include: ['"platforms/default_window_handler.h"', public, '"platforms/platforms.h"', public] },

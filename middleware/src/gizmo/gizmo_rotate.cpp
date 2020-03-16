@@ -1,10 +1,9 @@
 #include "middleware/gizmo/gizmo_rotate.h"
 
+#include <sys/types.h>
 #include <initializer_list>
 
-#include "core/math/constants.h"
 #include "core/scene/transform_graph.h"
-#include "platforms/default_window_handler.h"
 #include "middleware/std_material/std_material.h" // IWYU pragma: keep
 
 

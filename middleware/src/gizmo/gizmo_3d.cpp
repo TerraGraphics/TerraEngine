@@ -1,5 +1,6 @@
 #include "middleware/gizmo/gizmo_3d.h"
 
+#include <utility>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
@@ -7,6 +8,7 @@
 #include "core/scene/vertexes.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/scene/transform_graph.h"
+#include "middleware/gizmo/gizmo_base.h"
 #include "middleware/gizmo/gizmo_move.h"
 #include "middleware/gizmo/gizmo_scale.h"
 #include "middleware/gizmo/gizmo_rotate.h"
