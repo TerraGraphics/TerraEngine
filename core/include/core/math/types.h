@@ -146,14 +146,12 @@ struct Color3 {
         return Color3f(red, green, blue);
     }
 
-
     dg::float3 ToFloat3() const noexcept {
         return dg::float3(
             static_cast<float>(red) / 255.0f,
             static_cast<float>(green) / 255.0f,
             static_cast<float>(blue) / 255.0f);
     }
-
 
     dg::float4 ToFloat4() const noexcept {
         return dg::float4(
@@ -264,5 +262,48 @@ struct BasicRect {
 using Rect = BasicRect<uint32_t>;
 using RectI = BasicRect<int32_t>;
 using Rectf = BasicRect<float>;
+
+template<typename T> class PlaneT {
+public:
+    PlaneT() = default;
+    PlaneT(T a, T b, T c, T d) : a(a), b(b), c(c), d(d) {}
+
+    // point(x0, y0, z0), n(l, m, n)
+    // l*(x-x0) + m(y-y0) + n*(z-z0) = 0
+    PlaneT(const dg::Vector3<T>& point, const dg::Vector3<T>& normal)
+        : a(normal.x)
+        , b(normal.y)
+        , c(normal.z)
+        , d(-normal.x*point.x - normal.y*point.y - normal.z*point.z) {
+
+    }
+
+    // point(x0, y0, z0), vec0(a0, b0, c0), vec1(a1, b1, c1)
+    // | x-x0 y-y0 z-z0 |
+    // |   a0   b0   c0 | = (x-x0) * | b0 c0 | - (y-y0) * | a0 c0 | + (z-z0) * | a0 b0 |
+    // |   a1   b1   c1 |            | b1 c1 |            | a1 c1 |            | a1 b1 |
+    PlaneT(const dg::Vector3<T>& point, const dg::Vector3<T>& vec0, const dg::Vector3<T>& vec1) {
+        auto normal = dg::cross(vec0, vec1);
+        a = normal.x;
+        b = normal.y;
+        c = normal.z;
+        d = -normal.x*point.x - normal.y*point.y - normal.z*point.z;
+    }
+
+    operator dg::Vector3<T>() const noexcept {
+        return dg::Vector3<T>(a, b, c);
+    }
+
+    operator dg::Vector4<T>() const noexcept {
+        return dg::Vector4<T>(a, b, c, d);
+    }
+
+    T a = T(0);
+    T b = T(0);
+    T c = T(0);
+    T d = T(0);
+};
+
+using Plane = PlaneT<double>;
 
 } // namespace math

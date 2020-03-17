@@ -121,7 +121,7 @@ std::shared_ptr<StdMaterial> GizmoPlane::Create(DevicePtr& device, std::shared_p
     v0[axisNum0] = 1.f;
     dg::float3 v1 = {0, 0, 0};
     v1[axisNum1] = 1.f;
-    m_planeParams = math::GetPlaneByPointAndTwoVec(dg::float3(0, 0, 0), v0, v1);
+    m_planeParams = math::PlaneT<float>(dg::float3(0, 0, 0), v0, v1);
 
     return node;
 }

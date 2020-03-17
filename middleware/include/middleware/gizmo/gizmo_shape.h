@@ -56,7 +56,7 @@ private:
     static constexpr float m_selectScale = 1.1f;
 
     math::Axis2 m_axises = {math::Axis::X, math::Axis::Y};
-    dg::float4 m_planeParams;
+    math::PlaneT<float> m_planeParams;
     dg::float3 m_startMoveCoord;
 };
 
