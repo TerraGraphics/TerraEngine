@@ -263,8 +263,8 @@ using Rect = BasicRect<uint32_t>;
 using RectI = BasicRect<int32_t>;
 using Rectf = BasicRect<float>;
 
-template<typename T> class PlaneT {
-public:
+template<typename T>
+    struct PlaneT {
     PlaneT() = default;
     PlaneT(T a, T b, T c, T d) : a(a), b(b), c(c), d(d) {}
 
@@ -305,5 +305,34 @@ public:
 };
 
 using Plane = PlaneT<double>;
+
+template<typename T> struct RayT {
+    RayT() = default;
+    RayT(dg::Vector3<T> start, dg::Vector3<T> direction) : start(start), direction(direction) {}
+
+    RayT& operator*=(const dg::Matrix4x4<T>& right) {
+        start = static_cast<dg::Vector3<T>>(dg::Vector4<T>(start, 1) * right);
+        direction = dg::normalize(static_cast<dg::Vector3<T>>(dg::Vector4<T>(direction, 0) * right));
+
+        return *this;
+    }
+
+    template<typename U> void InverseAndApply(const dg::Matrix4x4<U>& right) {
+        if constexpr (std::is_same_v<T, U>) {
+            this->operator*=(right.Inverse());
+        } else {
+            this->operator*=(dg::Matrix4x4<T>(
+                static_cast<T>(right._11), static_cast<T>(right._12), static_cast<T>(right._13), static_cast<T>(right._14),
+                static_cast<T>(right._21), static_cast<T>(right._22), static_cast<T>(right._23), static_cast<T>(right._24),
+                static_cast<T>(right._31), static_cast<T>(right._32), static_cast<T>(right._33), static_cast<T>(right._34),
+                static_cast<T>(right._41), static_cast<T>(right._42), static_cast<T>(right._43), static_cast<T>(right._44)).Inverse());
+        }
+    }
+
+    dg::Vector3<T> start = {0, 0, 0};
+    dg::Vector3<T> direction = {1, 1, 1};
+};
+
+using Ray = RayT<double>;
 
 } // namespace math
