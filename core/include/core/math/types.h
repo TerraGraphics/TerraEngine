@@ -3,6 +3,34 @@
 #include <cstdint>
 #include "core/dg/math.h"
 
+namespace Diligent {
+
+using double2 = dg::Vector2<double>;
+using double3 = dg::Vector3<double>;
+using double4 = dg::Vector4<double>;
+using double4x4 = dg::Matrix4x4<double>;
+
+template<typename U, typename T> inline dg::Vector2<U> ToVector2(const dg::Vector2<T>& value) {
+    return dg::Vector2<U>(static_cast<U>(value.x), static_cast<U>(value.y));
+}
+
+template<typename U, typename T> inline dg::Vector3<U> ToVector3(const dg::Vector3<T>& value) {
+    return dg::Vector3<U>(static_cast<U>(value.x), static_cast<U>(value.y), static_cast<U>(value.z));
+}
+
+template<typename U, typename T> inline dg::Vector4<U> ToVector4(const dg::Vector4<T>& value) {
+    return dg::Vector4<U>(static_cast<U>(value.x), static_cast<U>(value.y), static_cast<U>(value.z), static_cast<U>(value.w));
+}
+
+template<typename U, typename T> inline dg::Matrix4x4<U> ToMatrix4x4(const dg::Matrix4x4<T>& value) {
+    return dg::Matrix4x4<U>(
+                static_cast<U>(value._11), static_cast<U>(value._12), static_cast<U>(value._13), static_cast<U>(value._14),
+                static_cast<U>(value._21), static_cast<U>(value._22), static_cast<U>(value._23), static_cast<U>(value._24),
+                static_cast<U>(value._31), static_cast<U>(value._32), static_cast<U>(value._33), static_cast<U>(value._34),
+                static_cast<U>(value._41), static_cast<U>(value._42), static_cast<U>(value._43), static_cast<U>(value._44));
+}
+
+}
 
 namespace math {
 
@@ -321,11 +349,7 @@ template<typename T> struct RayT {
         if constexpr (std::is_same_v<T, U>) {
             this->operator*=(right.Inverse());
         } else {
-            this->operator*=(dg::Matrix4x4<T>(
-                static_cast<T>(right._11), static_cast<T>(right._12), static_cast<T>(right._13), static_cast<T>(right._14),
-                static_cast<T>(right._21), static_cast<T>(right._22), static_cast<T>(right._23), static_cast<T>(right._24),
-                static_cast<T>(right._31), static_cast<T>(right._32), static_cast<T>(right._33), static_cast<T>(right._34),
-                static_cast<T>(right._41), static_cast<T>(right._42), static_cast<T>(right._43), static_cast<T>(right._44)).Inverse());
+            this->operator*=(dg::ToMatrix4x4<T>(right).Inverse());
         }
     }
 
