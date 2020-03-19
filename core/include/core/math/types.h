@@ -335,4 +335,16 @@ template<typename T> struct RayT {
 
 using Ray = RayT<double>;
 
+template<typename T> struct CylinderT {
+    CylinderT() = default;
+    CylinderT(T radius, T height, Axis axisUp) : radius(radius), height(height), axisUp(axisUp) {}
+
+    T radius = 1;
+    // along the axisUp, values: [0; height]
+    T height = 1;
+    Axis axisUp = Axis::X;
+};
+
+using Cylinder = CylinderT<double>;
+
 } // namespace math
