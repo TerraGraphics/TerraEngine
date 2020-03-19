@@ -21,19 +21,19 @@ void GizmoMove::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEve
     }
 }
 
-void GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
+void GizmoMove::Update(const math::Ray& ray) {
     if (m_isMoved && (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft))) {
         auto transform = m_selectedObject->GetBaseTransform();
         dg::float3 offset;
 
         if (m_isSelectedArrow) {
-            if (!m_arrows[m_moveItemIndex].GetMoveOffset(rayStart, rayDir, offset)) {
+            if (!m_arrows[m_moveItemIndex].GetMoveOffset(ray, offset)) {
                 return;
             }
         }
 
         if (m_isSelectedPlane) {
-            if (!m_planes[m_moveItemIndex].GetMoveOffset(rayStart, rayDir, offset)) {
+            if (!m_planes[m_moveItemIndex].GetMoveOffset(ray, offset)) {
                 return;
             }
         }
@@ -45,17 +45,17 @@ void GizmoMove::Update(dg::float3 rayStart, dg::float3 rayDir) {
         return;
     }
 
-    UpdateSelect(rayStart, rayDir);
+    UpdateSelect(ray);
     m_isMoved = false;
     if (!m_isSelectedArrow && !m_isSelectedPlane && !m_eventHandler->IsKeyPressedFirstTime(Key::MouseLeft)) {
         return;
     }
 
     if (m_isSelectedArrow) {
-        m_isMoved = m_arrows[m_moveItemIndex].StartMove(rayStart, rayDir);
+        m_isMoved = m_arrows[m_moveItemIndex].StartMove(ray);
     }
     if (m_isSelectedPlane) {
-        m_isMoved = m_planes[m_moveItemIndex].StartMove(rayStart, rayDir);
+        m_isMoved = m_planes[m_moveItemIndex].StartMove(ray);
     }
 
     if (m_isMoved) {
@@ -75,12 +75,12 @@ void GizmoMove::SelectNode(const std::shared_ptr<TransformNode>& node) {
     m_selectedObject = node;
 }
 
-void GizmoMove::UpdateSelect(dg::float3 rayStart, dg::float3 rayDir) {
+void GizmoMove::UpdateSelect(const math::Ray& ray) {
     m_isSelectedArrow = false;
     m_isSelectedPlane = false;
 
     for (uint i=0; i!=3; ++i) {
-        if (!m_isSelectedArrow && m_arrows[i].IsSelected(rayStart, rayDir)) {
+        if (!m_isSelectedArrow && m_arrows[i].IsSelected(ray)) {
             m_moveItemIndex = i;
             m_isSelectedArrow = true;
             m_arrowNodes[i]->SetTransform(m_arrows[i].GetSelectTransform());
@@ -89,7 +89,7 @@ void GizmoMove::UpdateSelect(dg::float3 rayStart, dg::float3 rayDir) {
         }
     }
     for (uint i=0; i!=3; ++i) {
-        if (!m_isSelectedArrow && !m_isSelectedPlane && m_planes[i].IsSelected(rayStart, rayDir)) {
+        if (!m_isSelectedArrow && !m_isSelectedPlane && m_planes[i].IsSelected(ray)) {
             m_moveItemIndex = i;
             m_isSelectedPlane = true;
             m_planeNodes[i]->SetTransform(m_planes[i].GetSelectTransform());

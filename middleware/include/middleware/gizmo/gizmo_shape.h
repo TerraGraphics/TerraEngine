@@ -15,14 +15,14 @@ public:
     ~GizmoArrow() = default;
 
     std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis, bool isMoveType);
-    bool StartMove(dg::float3 rayStart, dg::float3 rayDir);
-    bool GetMoveOffset(dg::float3 rayStart, dg::float3 rayDir, dg::float3& offset) const;
+    bool StartMove(const math::Ray& ray);
+    bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
 
     dg::float4x4 GetSelectTransform() const;
-    bool IsSelected(dg::float3 rayStart, dg::float3 rayDir) const;
+    bool IsSelected(const math::Ray& ray) const;
 
 private:
-    bool GetProjection(dg::float3 rayStart, dg::float3 rayDir, float& value) const;
+    bool GetProjection(const math::Ray& ray, float& value) const;
 
 private:
     static constexpr float m_height = 1.f;
@@ -32,6 +32,7 @@ private:
 
     math::Axis m_axis;
     float m_startMoveCoord;
+    math::Cylinder m_activeCylinder;
 };
 
 class GizmoPlane : Fixed {
@@ -40,14 +41,14 @@ public:
     ~GizmoPlane() = default;
 
     std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis2 axises);
-    bool StartMove(dg::float3 rayStart, dg::float3 rayDir);
-    bool GetMoveOffset(dg::float3 rayStart, dg::float3 rayDir, dg::float3& offset) const;
+    bool StartMove(const math::Ray& ray);
+    bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
 
     dg::float4x4 GetSelectTransform() const;
-    bool IsSelected(dg::float3 rayStart, dg::float3 rayDir) const;
+    bool IsSelected(const math::Ray& ray) const;
 
 private:
-    bool GetProjection(dg::float3 rayStart, dg::float3 rayDir, dg::float3& value) const;
+    bool GetProjection(const math::Ray& ray, dg::double3& value) const;
 
 private:
     static constexpr float m_spacing = .1f;
@@ -56,8 +57,8 @@ private:
     static constexpr float m_selectScale = 1.1f;
 
     math::Axis2 m_axises = {math::Axis::X, math::Axis::Y};
-    math::PlaneT<float> m_planeParams;
-    dg::float3 m_startMoveCoord;
+    math::Plane m_planeParams;
+    dg::double3 m_startMoveCoord;
 };
 
 class GizmoTorus : Fixed {
@@ -66,14 +67,14 @@ public:
     ~GizmoTorus() = default;
 
     std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis);
-    bool StartMove(dg::float3 rayStart, dg::float3 rayDir);
-    bool GetMoveOffset(dg::float3 rayStart, dg::float3 rayDir, dg::float3& offset) const;
+    bool StartMove(const math::Ray& ray);
+    bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
 
     dg::float4x4 GetSelectTransform() const;
-    bool IsSelected(dg::float3 rayStart, dg::float3 rayDir) const;
+    bool IsSelected(const math::Ray& ray) const;
 
 private:
-    bool GetProjection(dg::float3 rayStart, dg::float3 rayDir, dg::float3& value) const;
+    bool GetProjection(const math::Ray& ray, dg::float3& value) const;
 
 private:
     static constexpr float m_majorRadis = 0.5f;

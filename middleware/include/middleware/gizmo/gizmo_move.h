@@ -24,12 +24,12 @@ public:
 
     void Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
         std::shared_ptr<Material>& material, std::shared_ptr<TransformNode>& root);
-    void Update(dg::float3 rayStart, dg::float3 rayDir) final;
+    void Update(const math::Ray& ray) final;
     void SetEnable(bool value) final;
     void SelectNode(const std::shared_ptr<TransformNode>& node) final;
 
 private:
-    void UpdateSelect(dg::float3 rayStart, dg::float3 rayDir);
+    void UpdateSelect(const math::Ray& ray);
 
 private:
     bool m_isSelectedArrow = false;

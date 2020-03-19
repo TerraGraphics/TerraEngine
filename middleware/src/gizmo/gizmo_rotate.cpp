@@ -19,7 +19,7 @@ void GizmoRotate::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowE
     }
 }
 
-void GizmoRotate::Update(dg::float3 /* rayStart */, dg::float3 /* rayDir */) {
+void GizmoRotate::Update(const math::Ray& /* ray */) {
     // if (m_isMoved && (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft))) {
     //     auto transform = m_selectedObject->GetBaseTransform();
     //     dg::float3 offset;
@@ -73,7 +73,7 @@ void GizmoRotate::SelectNode(const std::shared_ptr<TransformNode>& node) {
     m_selectedObject = node;
 }
 
-void GizmoRotate::UpdateSelect(dg::float3 /* rayStart */, dg::float3 /* rayDir */) {
+void GizmoRotate::UpdateSelect(const math::Ray& /* ray */) {
 /*     m_isSelectedArrow = false;
     m_isSelectedPlane = false;
 
