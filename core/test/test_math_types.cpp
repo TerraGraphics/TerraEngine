@@ -10,10 +10,10 @@
 
 template<typename T> static T PlaneAbsError() {
     if constexpr (std::is_same<T, double>::value) {
-        return 1.e-14;
+        return 1.e-13;
     }
 
-    return 1.e-5f;
+    return 1.e-4f;
 }
 
 #define EXPECT_PLANE(actual, expected) \
