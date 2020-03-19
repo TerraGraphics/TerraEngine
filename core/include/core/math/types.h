@@ -291,8 +291,7 @@ using Rect = BasicRect<uint32_t>;
 using RectI = BasicRect<int32_t>;
 using Rectf = BasicRect<float>;
 
-template<typename T>
-    struct PlaneT {
+template<typename T> struct PlaneT {
     PlaneT() = default;
     PlaneT(T a, T b, T c, T d) : a(a), b(b), c(c), d(d) {}
 
@@ -370,5 +369,16 @@ template<typename T> struct CylinderT {
 };
 
 using Cylinder = CylinderT<double>;
+
+template<typename T> struct TorusT {
+    TorusT() = default;
+    TorusT(T minorRadius, T majorRadius, Axis axisUp) : minorRadius(minorRadius), majorRadius(majorRadius), axisUp(axisUp) {}
+
+    T minorRadius = 1;
+    T majorRadius = 1;
+    Axis axisUp = Axis::X;
+};
+
+using Torus = TorusT<double>;
 
 } // namespace math
