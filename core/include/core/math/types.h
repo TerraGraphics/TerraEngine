@@ -214,61 +214,52 @@ inline uint32_t BGRAToRGBA(uint32_t v) {
 }
 
 template <typename T>
-struct BasicPoint {
-    using Type = T;
-
-    BasicPoint() = default;
-    BasicPoint(T x, T y) noexcept : x(x), y(y) {}
+struct PointT {
+    PointT() = default;
+    PointT(T x, T y) noexcept : x(x), y(y) {}
 
     T x = 0;
     T y = 0;
 };
 
-using Point = BasicPoint<uint32_t>;
-using PointI = BasicPoint<int32_t>;
-using Pointf = BasicPoint<float>;
+using Point = PointT<uint32_t>;
+using PointI = PointT<int32_t>;
+using Pointf = PointT<float>;
 
 template <typename T>
-struct BasicSize {
-    using Type = T;
-
-    BasicSize() noexcept : w(0), h(0) {}
-    BasicSize(T w, T h) noexcept : w(w), h(h) {}
+struct SizeT {
+    SizeT() noexcept : w(0), h(0) {}
+    SizeT(T w, T h) noexcept : w(w), h(h) {}
 
     T w = 0;
     T h = 0;
 };
 
-using Size = BasicSize<uint32_t>;
-using Sizef = BasicSize<float>;
+using Size = SizeT<uint32_t>;
+using Sizef = SizeT<float>;
 
 template <typename T>
-struct BasicRect {
-    using Type = T;
-    using PointT = BasicPoint<T>;
-    using SizeT = BasicSize<T>;
-    using RectT = BasicRect<T>;
-
-    BasicRect() = default;
-    BasicRect(const PointT& posMin, const PointT& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
-    BasicRect(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
+struct RectT {
+    RectT() = default;
+    RectT(const PointT<T>& posMin, const PointT<T>& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
+    RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
 
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }
     T Left() const noexcept { return x; }
     T Right() const noexcept { return x + w; }
 
-    PointT Min() const noexcept { return PointT(x, y); }
-    PointT Max() const noexcept { return PointT(x + w, y + h); }
+    PointT<T> Min() const noexcept { return PointT<T>(x, y); }
+    PointT<T> Max() const noexcept { return PointT<T>(x + w, y + h); }
 
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
-    BasicSize<T> Size() const noexcept { return BasicSize<T>(w, h); }
-    template<typename U> BasicSize<U> SizeCast() const noexcept { return BasicSize<U>(static_cast<U>(w), static_cast<U>(h)); }
+    SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }
+    template<typename U> SizeT<U> SizeCast() const noexcept { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
 
     T CenterX() const noexcept { return x + w / 2; }
     T CenterY() const noexcept { return y + h / 2; }
-    PointT Center() const noexcept { return PointT(CenterX(), CenterY()); }
+    PointT<T> Center() const noexcept { return PointT<T>(CenterX(), CenterY()); }
 
     RectT CutOffTop(T height) {
         auto result = RectT(x, y, w, height);
@@ -287,9 +278,9 @@ struct BasicRect {
     T h = 0;
 };
 
-using Rect = BasicRect<uint32_t>;
-using RectI = BasicRect<int32_t>;
-using Rectf = BasicRect<float>;
+using Rect = RectT<uint32_t>;
+using RectI = RectT<int32_t>;
+using Rectf = RectT<float>;
 
 template<typename T> struct PlaneT {
     PlaneT() = default;
