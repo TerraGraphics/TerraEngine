@@ -327,6 +327,10 @@ template<typename T> struct RayT {
         return *this;
     }
 
+    dg::Vector3<T> operator[](T index) const noexcept {
+        return start + direction * index;
+    }
+
     dg::Vector3<T> start = {0, 0, 0};
     dg::Vector3<T> direction = {1, 1, 1};
 };
@@ -347,11 +351,16 @@ using Cylinder = CylinderT<double>;
 
 template<typename T> struct TorusT {
     TorusT() = default;
-    TorusT(T minorRadius, T majorRadius, Axis axisUp) : minorRadius(minorRadius), majorRadius(majorRadius), axisUp(axisUp) {}
+    TorusT(T minorRadius, T majorRadius, Axis axisRotation)
+        : minorRadius(minorRadius)
+        , majorRadius(majorRadius)
+        , axisRotation(axisRotation) {
+
+    }
 
     T minorRadius = 1;
     T majorRadius = 1;
-    Axis axisUp = Axis::X;
+    Axis axisRotation = Axis::X;
 };
 
 using Torus = TorusT<double>;

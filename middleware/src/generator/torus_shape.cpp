@@ -9,8 +9,8 @@
 #include "core/common/exception.h"
 
 
-TorusShape::TorusShape(float minorRadius, float majorRadius, uint32_t minorSegments, uint32_t majorSegments, const math::Axis axisUp)
-    : Shape("TorusShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
+TorusShape::TorusShape(float minorRadius, float majorRadius, uint32_t minorSegments, uint32_t majorSegments, const math::Axis axisRotation)
+    : Shape("TorusShape", {axisRotation, math::Prev(axisRotation), math::Next(axisRotation)})
     , m_generator(dg::uint2(minorSegments, majorSegments), [minorRadius, majorRadius](VertexPNC* begin, VertexPNC* end) {
         for (VertexPNC* it=begin; it != end; ++it) {
             auto majorAngle = TwoPI<float>() * it->uv.y;
