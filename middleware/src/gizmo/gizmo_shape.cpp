@@ -153,7 +153,7 @@ bool GizmoPlane::IsSelected(const math::Ray& ray) const {
     dg::double3 coord;
     const constexpr double minCoord = static_cast<double>(m_spacing + (m_size - m_activeSize) * 0.5f);
     const constexpr double maxCoord = minCoord + static_cast<double>(m_activeSize);
-    if (math::IsIntersection(ray, m_planeParams, coord)) {
+    if (math::Intersection(ray, m_planeParams, coord) != 0) {
         auto v = coord[static_cast<uint>(m_axises[0])];
         if ((v < minCoord) || (v > maxCoord)) {
             return false;
@@ -170,7 +170,7 @@ bool GizmoPlane::IsSelected(const math::Ray& ray) const {
 }
 
 bool GizmoPlane::GetProjection(const math::Ray& ray, dg::double3& value) const {
-    if (math::IsIntersection(ray, m_planeParams, value)) {
+    if (math::Intersection(ray, m_planeParams, value) != 0) {
         value[static_cast<uint>(math::GetThirdAxis(m_axises))] = 0;
         return true;
     }

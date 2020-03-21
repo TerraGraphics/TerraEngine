@@ -356,7 +356,7 @@ TYPED_TEST(MathIntersection, RayAndPlane) {
     auto ray = math::RayT(rayStart, rayDir);
 
     auto result = dg::Vector3<TypeParam>(0, 0, 0);
-    if (math::IsIntersection(ray, plane, result)) {
+    if (math::Intersection(ray, plane, result) != 0) {
         auto dir = dg::normalize(result - rayStart);
         ASSERT_VECTOR3_EQ(dir, rayDir);
         ASSERT_POINT_ON_PLANE(plane, result);

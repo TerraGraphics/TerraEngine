@@ -193,34 +193,34 @@ bool IsIntersection(const RayT<float>& ray, const TorusT<float>& torus) {
     intersection:
         plane.a * (x0 + l*t) + plane.b * (y0 + m*t) + plane.c * (z0 + n*t) + plane.d = 0
 */
-bool IsIntersection(const RayT<double>& ray, const PlaneT<double>& plane, dg::double3& result) {
+uint8_t Intersection(const RayT<double>& ray, const PlaneT<double>& plane, dg::double3& result) {
     double t = -
         dg::dot(static_cast<dg::double4>(plane), dg::double4(ray.start, 1.f)) /
         dg::dot(static_cast<dg::double3>(plane), ray.direction);
 
     // 0 <= t <= +inf
     if (t < 0) {
-        return false;
+        return 0;
     }
 
-    result = ray.start + ray.direction * t;
+    result = ray[t];
 
-    return true;
+    return 1;
 }
 
-bool IsIntersection(const RayT<float>& ray, const PlaneT<float>& plane, dg::float3& result) {
+uint8_t Intersection(const RayT<float>& ray, const PlaneT<float>& plane, dg::float3& result) {
     float t = -
         dg::dot(static_cast<dg::float4>(plane), dg::float4(ray.start, 1.f)) /
         dg::dot(static_cast<dg::float3>(plane), ray.direction);
 
     // 0 <= t <= +inf
     if (t < 0) {
-        return false;
+        return 0;
     }
 
-    result = ray.start + ray.direction * t;
+    result = ray[t];
 
-    return true;
+    return 1;
 }
 
 }
