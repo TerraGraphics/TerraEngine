@@ -5,11 +5,6 @@
 
 namespace Diligent {
 
-using double2 = dg::Vector2<double>;
-using double3 = dg::Vector3<double>;
-using double4 = dg::Vector4<double>;
-using double4x4 = dg::Matrix4x4<double>;
-
 template<typename U, typename T> inline dg::Vector2<U> ToVector2(const dg::Vector2<T>& value) {
     return dg::Vector2<U>(static_cast<U>(value.x), static_cast<U>(value.y));
 }
@@ -333,14 +328,6 @@ template<typename T> struct RayT {
         direction = dg::normalize(static_cast<dg::Vector3<T>>(dg::Vector4<T>(direction, 0) * right));
 
         return *this;
-    }
-
-    template<typename U> void InverseAndApply(const dg::Matrix4x4<U>& right) {
-        if constexpr (std::is_same_v<T, U>) {
-            this->operator*=(right.Inverse());
-        } else {
-            this->operator*=(dg::ToMatrix4x4<T>(right).Inverse());
-        }
     }
 
     dg::Vector3<T> start = {0, 0, 0};

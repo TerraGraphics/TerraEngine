@@ -44,6 +44,7 @@ public:
 
 private:
     Type m_type = Type::MOVE;
+    dg::double4x4 m_invRayMatrix;
     std::unique_ptr<IGizmo> m_gizmos[3];
     IGizmo* m_activeGizmo = nullptr;
     std::shared_ptr<TransformNode> m_rootNode = nullptr;

@@ -99,10 +99,14 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
         return;
     }
 
+    if (!m_activeGizmo->IsMoved()) {
+        m_invRayMatrix = dg::ToMatrix4x4<double>(nodeMatrix).Inverse();
+    }
+
     auto ray = math::Ray(
         dg::ToVector3<double>(camera->GetPosition()),
         dg::ToVector3<double>(camera->ScreenPointToRay(mousePos, windowRect.Size())));
-    ray.InverseAndApply(nodeMatrix);
+    ray *= m_invRayMatrix;
 
     m_activeGizmo->Update(ray);
     if (mouseFirstRelease && !m_activeGizmo->IsSelected() && !m_activeGizmo->IsMoved()) {
