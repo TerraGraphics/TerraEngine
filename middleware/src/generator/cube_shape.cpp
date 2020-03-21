@@ -7,10 +7,10 @@
 #include "core/common/exception.h"
 
 
-static auto MakeGenerator(const dg::float3 sizes, const math::UInt3 segments) {
+static auto MakeGenerator(const dg::float3 sizes, const dg::uint3 segments) {
     float offset = sizes.z * 0.5f;
     dg::float2 size = {sizes.x, sizes.y};
-    math::UInt2 sg = {segments.x, segments.y};
+    dg::uint2 sg = {segments.x, segments.y};
     math::Axis2 axes = {math::Axis::X, math::Axis::Y};
     auto p0 = PlaneShape(axes, math::Direction::POS_Z, size, sg);
     p0.SetCenter({0, 0, offset});
@@ -44,7 +44,7 @@ static auto MakeGenerator(const dg::float3 sizes, const math::UInt3 segments) {
         std::move(p5));
 }
 
-CubeShape::CubeShape(const dg::float3 sizes, const math::UInt3 segments)
+CubeShape::CubeShape(const dg::float3 sizes, const dg::uint3 segments)
     : Shape("CubeShape", {math::Axis::X, math::Axis::Y, math::Axis::Z})
     , m_generator(MakeGenerator(sizes, segments)) {
 

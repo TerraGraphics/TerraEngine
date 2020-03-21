@@ -8,7 +8,7 @@
 #include "core/common/exception.h"
 
 
-PlaneShape::PlaneShape(const math::Axis2 axes, math::Direction normalDir, const dg::float2 sizes, const math::UInt2 segments)
+PlaneShape::PlaneShape(const math::Axis2 axes, math::Direction normalDir, const dg::float2 sizes, const dg::uint2 segments)
     : Shape("PlaneShape", {axes[0], axes[1], math::GetAxis(normalDir)})
     , m_generator({segments, math::GetSign(normalDir) == -1}, [sizes, normalDir](VertexPNC* begin, VertexPNC* end) {
         auto normal = dg::float3(0, 0, static_cast<float>(math::GetSign(normalDir)));

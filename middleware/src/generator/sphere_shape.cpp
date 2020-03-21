@@ -9,7 +9,7 @@
 #include "core/common/exception.h"
 
 
-SphereShape::SphereShape(const math::UInt2 segments, const math::Axis axisUp, float radius)
+SphereShape::SphereShape(const dg::uint2 segments, const math::Axis axisUp, float radius)
     : Shape("SphereShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
     , m_generator(segments, [radius](VertexPNC* begin, VertexPNC* end) {
         for (VertexPNC* it=begin; it != end; ++it) {

@@ -9,7 +9,7 @@
 #include "core/common/exception.h"
 
 
-ConeShape::ConeShape(const math::UInt2 segments, const math::Axis axisUp, float radius, float height)
+ConeShape::ConeShape(const dg::uint2 segments, const math::Axis axisUp, float radius, float height)
     : Shape("ConeShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
     , m_generator(segments, [radius, height](VertexPNC* begin, VertexPNC* end) {
         // tan(coneAngle) == radius / height

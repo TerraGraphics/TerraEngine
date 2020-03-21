@@ -12,7 +12,7 @@ struct VertexPNC;
 class UVGridGenerator : public IShapeGenerator, Noncopyable {
 public:
     UVGridGenerator() = delete;
-    UVGridGenerator(math::UInt2 segments, bool counterClockwise = false);
+    UVGridGenerator(dg::uint2 segments, bool counterClockwise = false);
     UVGridGenerator(UVGridGenerator&& other) noexcept;
     UVGridGenerator& operator=(UVGridGenerator&& other) noexcept;
 
@@ -22,6 +22,6 @@ public:
     void FillIndex(uint32_t* indexes, uint32_t vertexStartIndex) const final;
 
 private:
-    math::UInt2 m_segments;
+    dg::uint2 m_segments;
     bool m_counterClockwise;
 };

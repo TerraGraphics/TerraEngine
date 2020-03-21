@@ -18,7 +18,7 @@ public:
         Cylinder radius equals 'radius' (radius > 0.f).
         Cylinder height equals 'height' (height > 0.f).
     */
-    CylinderShape(const math::UInt2 segments, const math::Axis axisUp, float radius = 0.5f, float height = 1.0f);
+    CylinderShape(const dg::uint2 segments, const math::Axis axisUp, float radius = 0.5f, float height = 1.0f);
     CylinderShape(CylinderShape&& other) noexcept;
     CylinderShape& operator=(CylinderShape&& other) noexcept;
 

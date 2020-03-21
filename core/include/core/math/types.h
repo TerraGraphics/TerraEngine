@@ -29,9 +29,6 @@ template<typename U, typename T> inline dg::Matrix4x4<U> ToMatrix4x4(const dg::M
 
 namespace math {
 
-using UInt2 = dg::Vector2<uint32_t>;
-using UInt3 = dg::Vector3<uint32_t>;
-
 enum class Axis : uint8_t {
     X = 0,
     Y = 1,

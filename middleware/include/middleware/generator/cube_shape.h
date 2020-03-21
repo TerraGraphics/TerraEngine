@@ -15,7 +15,7 @@ public:
         Edge sides of the cube is equal to "sizes" (sizes[N] > 0).
         The number of segments by axis is equal to "segments" (segments.N >= 3).
     */
-    CubeShape(const dg::float3 sizes = dg::float3(1.f, 1.f, 1.f), const math::UInt3 segments = {1, 1, 1});
+    CubeShape(const dg::float3 sizes = dg::float3(1.f, 1.f, 1.f), const dg::uint3 segments = {1, 1, 1});
     CubeShape(CubeShape&& other) noexcept;
     CubeShape& operator=(CubeShape&& other) noexcept;
 

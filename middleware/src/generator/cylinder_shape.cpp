@@ -9,7 +9,7 @@
 #include "core/common/exception.h"
 
 
-CylinderShape::CylinderShape(const math::UInt2 segments, const math::Axis axisUp, float radius, float height)
+CylinderShape::CylinderShape(const dg::uint2 segments, const math::Axis axisUp, float radius, float height)
     : Shape("CylinderShape", {axisUp, math::Prev(axisUp), math::Next(axisUp)})
     , m_generator(segments, [radius, height](VertexPNC* begin, VertexPNC* end) {
         for (VertexPNC* it=begin; it != end; ++it) {

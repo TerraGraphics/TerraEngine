@@ -4,7 +4,7 @@
 #include "core/scene/vertexes.h"
 
 
-UVGridGenerator::UVGridGenerator(math::UInt2 segments, bool counterClockwise)
+UVGridGenerator::UVGridGenerator(dg::uint2 segments, bool counterClockwise)
     : m_segments(segments)
     , m_counterClockwise(counterClockwise) {
 
