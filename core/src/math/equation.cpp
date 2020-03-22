@@ -96,7 +96,7 @@ uint8_t SolveCubic(double a, double b, double c, double* result) {
         return 3;
 
     } else {
-        double alpha = -std::pow(std::fabs(r) + std::sqrt(r2 - q3), 1. / 3.);
+        double alpha = -std::cbrt(std::fabs(r) + std::sqrt(r2 - q3));
         if (r < 0) {
             alpha = -alpha;
         }

@@ -10,7 +10,7 @@
 
 
 TorusShape::TorusShape(float minorRadius, float majorRadius, uint32_t minorSegments, uint32_t majorSegments, const math::Axis axisRotation)
-    : Shape("TorusShape", {axisRotation, math::Prev(axisRotation), math::Next(axisRotation)})
+    : Shape("TorusShape", {math::Prev(axisRotation), axisRotation, math::Next(axisRotation)})
     , m_generator(dg::uint2(minorSegments, majorSegments), [minorRadius, majorRadius](VertexPNC* begin, VertexPNC* end) {
         for (VertexPNC* it=begin; it != end; ++it) {
             auto majorAngle = TwoPI<float>() * it->uv.y;

@@ -34,15 +34,15 @@ void Camera::SetViewParams(const dg::float3& position, const dg::float3& directi
 	calcViewMatrix(direction);
 }
 
-dg::float3 Camera::ScreenPointToRay(math::Point mousePos, math::Size screenSize) const {
+dg::double3 Camera::ScreenPointToRay(math::Point mousePos, math::Size screenSize) const {
 	// see: http://antongerdelan.net/opengl/raycasting.html
-	float posX = (2.f * static_cast<float>(mousePos.x)) / static_cast<float>(screenSize.w) - 1.f;
-	float posY = 1.f - (2.f * static_cast<float>(mousePos.y)) / static_cast<float>(screenSize.h);
-	auto rayEye = dg::float4(posX, posY, -1.f, 1.f) * m_matProj.Inverse();
-	rayEye.z = m_isCoordSystemRH ? -1.f : 1.f;
-	rayEye.w = 0.0f;
-	dg::float4 ray = rayEye * m_matView.Inverse();
-	return dg::normalize(dg::float3(ray.x, ray.y, ray.z));
+	double posX = (2. * static_cast<double>(mousePos.x)) / static_cast<double>(screenSize.w) - 1.;
+	double posY = 1. - (2. * static_cast<double>(mousePos.y)) / static_cast<double>(screenSize.h);
+	auto rayEye = dg::double4(posX, posY, -1., 1.) * dg::ToMatrix4x4<double>(m_matProj).Inverse();
+	rayEye.z = m_isCoordSystemRH ? -1. : 1.;
+	rayEye.w = 0;
+	dg::double4 ray = dg::ToVector4<double>(rayEye) * dg::ToMatrix4x4<double>(m_matView).Inverse();
+	return dg::normalize(dg::double3(ray.x, ray.y, ray.z));
 }
 
 // see glm::perspectiveRH_ZO

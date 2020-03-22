@@ -103,9 +103,7 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
         m_invRayMatrix = dg::ToMatrix4x4<double>(nodeMatrix).Inverse();
     }
 
-    auto ray = math::Ray(
-        dg::ToVector3<double>(camera->GetPosition()),
-        dg::ToVector3<double>(camera->ScreenPointToRay(mousePos, windowRect.Size())));
+    auto ray = math::Ray(dg::ToVector3<double>(camera->GetPosition()), camera->ScreenPointToRay(mousePos, windowRect.Size()));
     ray *= m_invRayMatrix;
 
     m_activeGizmo->Update(ray);

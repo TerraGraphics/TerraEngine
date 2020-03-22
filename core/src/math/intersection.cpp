@@ -125,12 +125,13 @@ uint8_t IntersectionImpl(const RayT<double>& ray, const TorusT<double>& torus, d
     double r2 = torus.minorRadius * torus.minorRadius;
     double R2 = torus.majorRadius * torus.majorRadius;
     double xyzrR2 = x0*x0 + y0*y0 + z0*z0 - r2 - R2;
+    double dotSD = x0*l + y0*m + z0*n;
     double rotDir = direction[static_cast<uint8_t>(torus.axisRotation)]; // torus.axisRotation direction
     double rotPoint = start[static_cast<uint8_t>(torus.axisRotation)]; // torus.axisRotation start point
 
-    double B = 4*(x0*l + y0*m + z0*n);
-    double C = B*B*0.25 + 2*(2*rotDir*rotDir*R2 + xyzrR2);
-    double D = B*xyzrR2 + 8*rotPoint*rotDir*R2;
+    double B = 4*dotSD;
+    double C = 2*(2*(dotSD*dotSD + rotDir*rotDir*R2) + xyzrR2);
+    double D = 4*(dotSD*xyzrR2 + 2*rotPoint*rotDir*R2);
     double E = xyzrR2*xyzrR2 + 4*R2*(rotPoint*rotPoint - r2);
 
     auto cnt = SolveQuartic(B, C, D, E, t);
