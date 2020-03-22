@@ -1,6 +1,5 @@
 #include <memory>
 #include <random>
-#include <chrono>
 #include <type_traits>
 
 #include "gtest.h"

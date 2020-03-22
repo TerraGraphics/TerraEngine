@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstdint>
+
 #include "core/math/types.h"
+
 
 namespace math {
     /*
