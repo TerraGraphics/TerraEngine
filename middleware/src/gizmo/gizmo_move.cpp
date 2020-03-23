@@ -2,6 +2,7 @@
 
 #include <initializer_list>
 
+#include "core/math/matrix.h"
 #include "core/math/constants.h"
 #include "core/scene/transform_graph.h"
 #include "platforms/default_window_handler.h"
@@ -38,9 +39,7 @@ void GizmoMove::Update(const math::Ray& ray) {
             }
         }
 
-        transform._41 = m_startMoveCoord[0] - offset[0];
-        transform._42 = m_startMoveCoord[1] - offset[1];
-        transform._43 = m_startMoveCoord[2] - offset[2];
+        math::SetTransform(transform, m_startMoveCoord - offset);
         m_selectedObject->SetTransform(transform);
         return;
     }
@@ -59,8 +58,7 @@ void GizmoMove::Update(const math::Ray& ray) {
     }
 
     if (m_isMoved) {
-        auto& transform = m_selectedObject->GetBaseTransform();
-        m_startMoveCoord = dg::float3(transform._41, transform._42, transform._43);
+        m_startMoveCoord = math::GetTransform(m_selectedObject->GetBaseTransform());
     }
 }
 
