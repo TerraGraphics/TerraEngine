@@ -180,6 +180,7 @@ bool GizmoPlane::GetProjection(const math::Ray& ray, dg::double3& value) const {
 
 std::shared_ptr<StdMaterial> GizmoTorus::Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis) {
     m_axis = axis;
+    m_activeTorus = math::Torus(m_activeRadis, m_majorRadis, axis);
 
     TorusShape torusShape(m_minorRadis, m_majorRadis, 10, 30, axis);
 
@@ -192,21 +193,25 @@ std::shared_ptr<StdMaterial> GizmoTorus::Create(DevicePtr& device, std::shared_p
 }
 
 dg::float4x4 GizmoTorus::GetSelectTransform() const {
-    return dg::One4x4;
+    auto scale = dg::float3(m_selectScale, m_selectScale, m_selectScale);
+    return dg::float4x4::Scale(scale);
 }
 
 bool GizmoTorus::StartMove(const math::Ray& /* ray */) {
+    // TODO
     return false;
 }
 
 bool GizmoTorus::GetMoveOffset(const math::Ray& /* ray */, dg::float3& /* offset */) const {
+    // TODO
     return true;
 }
 
-bool GizmoTorus::IsSelected(const math::Ray& /* ray */) const {
-    return false;
+bool GizmoTorus::IsSelected(const math::Ray& ray) const {
+    return math::IsIntersection(ray, m_activeTorus);
 }
 
 bool GizmoTorus::GetProjection(const math::Ray& /* ray */, dg::float3& /* value */) const {
+    // TODO
     return false;
 }

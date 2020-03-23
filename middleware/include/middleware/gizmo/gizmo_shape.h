@@ -79,6 +79,9 @@ private:
 private:
     static constexpr float m_majorRadis = 0.5f;
     static constexpr float m_minorRadis = 0.02f;
+    static constexpr float m_activeRadis = 0.05f;
+    static constexpr float m_selectScale = 1.1f;
 
     math::Axis m_axis;
+    math::Torus m_activeTorus;
 };

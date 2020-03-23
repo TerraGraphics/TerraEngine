@@ -4,6 +4,7 @@
 #include <initializer_list>
 
 #include "core/scene/transform_graph.h"
+#include "platforms/default_window_handler.h"
 #include "middleware/std_material/std_material.h" // IWYU pragma: keep
 
 
@@ -19,8 +20,8 @@ void GizmoRotate::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowE
     }
 }
 
-void GizmoRotate::Update(const math::Ray& /* ray */) {
-    // if (m_isMoved && (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft))) {
+void GizmoRotate::Update(const math::Ray& ray) {
+    if (m_isMoved && (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft))) {
     //     auto transform = m_selectedObject->GetBaseTransform();
     //     dg::float3 offset;
 
@@ -40,21 +41,18 @@ void GizmoRotate::Update(const math::Ray& /* ray */) {
     //     transform._42 = m_startMoveCoord[1] - offset[1];
     //     transform._43 = m_startMoveCoord[2] - offset[2];
     //     m_selectedObject->SetTransform(transform);
-    //     return;
-    // }
+        return;
+    }
 
-    // UpdateSelect(rayStart, rayDir);
-    // m_isMoved = false;
-    // if (!m_isSelectedArrow && !m_isSelectedPlane && !m_eventHandler->IsKeyPressedFirstTime(Key::MouseLeft)) {
-    //     return;
-    // }
+    UpdateSelect(ray);
+    m_isMoved = false;
+    if (!m_isSelected && !m_eventHandler->IsKeyPressedFirstTime(Key::MouseLeft)) {
+        return;
+    }
 
-    // if (m_isSelectedArrow) {
-    //     m_isMoved = m_arrows[m_moveItemIndex].StartMove(rayStart, rayDir);
-    // }
-    // if (m_isSelectedPlane) {
-    //     m_isMoved = m_planes[m_moveItemIndex].StartMove(rayStart, rayDir);
-    // }
+    if (m_isSelected) {
+        m_isMoved = m_toruses[m_moveItemIndex].StartMove(ray);
+    }
 
     // if (m_isMoved) {
     //     auto& transform = m_selectedObject->GetBaseTransform();
@@ -64,35 +62,24 @@ void GizmoRotate::Update(const math::Ray& /* ray */) {
 
 void GizmoRotate::SetEnable(bool value) {
     m_root->SetVisible(value);
+    m_isSelected = false;
     m_isMoved = false;
-    m_isSelectedArrow = false;
-    m_isSelectedPlane = false;
 }
 
 void GizmoRotate::SelectNode(const std::shared_ptr<TransformNode>& node) {
     m_selectedObject = node;
 }
 
-void GizmoRotate::UpdateSelect(const math::Ray& /* ray */) {
-/*     m_isSelectedArrow = false;
-    m_isSelectedPlane = false;
+void GizmoRotate::UpdateSelect(const math::Ray& ray) {
+     m_isSelected = false;
 
     for (uint i=0; i!=3; ++i) {
-        if (!m_isSelectedArrow && m_arrows[i].IsSelected(rayStart, rayDir)) {
+        if (!m_isSelected && m_toruses[i].IsSelected(ray)) {
             m_moveItemIndex = i;
-            m_isSelectedArrow = true;
-            m_arrowNodes[i]->SetTransform(m_arrows[i].GetSelectTransform());
+            m_isSelected = true;
+            m_torusNodes[i]->SetTransform(m_toruses[i].GetSelectTransform());
         } else {
-            m_arrowNodes[i]->SetTransform(dg::One4x4);
+            m_torusNodes[i]->SetTransform(dg::One4x4);
         }
     }
-    for (uint i=0; i!=3; ++i) {
-        if (!m_isSelectedArrow && !m_isSelectedPlane && m_planes[i].IsSelected(rayStart, rayDir)) {
-            m_moveItemIndex = i;
-            m_isSelectedPlane = true;
-            m_planeNodes[i]->SetTransform(m_planes[i].GetSelectTransform());
-        } else {
-            m_planeNodes[i]->SetTransform(dg::One4x4);
-        }
-    } */
 }
