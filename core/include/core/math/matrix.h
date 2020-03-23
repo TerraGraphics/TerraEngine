@@ -5,7 +5,10 @@
 
 namespace math {
 
-dg::float3 GetTransform(const dg::float4x4& m);
-void SetTransform(dg::float4x4& m, const dg::float3& value);
+dg::float3 GetTranslation(const dg::float4x4& m);
+void SetTranslation(dg::float4x4& m, const dg::float3& value);
+
+dg::float3 GetScale(const dg::float4x4& m);
+void SetScale(dg::float4x4& m, const dg::float3& value);
 
 }

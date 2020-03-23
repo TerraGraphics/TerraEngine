@@ -39,7 +39,7 @@ void GizmoMove::Update(const math::Ray& ray) {
             }
         }
 
-        math::SetTransform(transform, m_startMoveCoord - offset);
+        math::SetTranslation(transform, m_startMoveCoord - offset);
         m_selectedObject->SetTransform(transform);
         return;
     }
@@ -58,7 +58,7 @@ void GizmoMove::Update(const math::Ray& ray) {
     }
 
     if (m_isMoved) {
-        m_startMoveCoord = math::GetTransform(m_selectedObject->GetBaseTransform());
+        m_startMoveCoord = math::GetTranslation(m_selectedObject->GetBaseTransform());
     }
 }
 

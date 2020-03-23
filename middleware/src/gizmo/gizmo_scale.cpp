@@ -2,6 +2,7 @@
 
 #include <initializer_list>
 
+#include "core/math/matrix.h"
 #include "core/math/constants.h"
 #include "core/scene/transform_graph.h"
 #include "platforms/default_window_handler.h"
@@ -38,9 +39,7 @@ void GizmoScale::Update(const math::Ray& ray) {
             }
         }
 
-        transform._11 = m_startScaleValue[0] - offset[0];
-        transform._22 = m_startScaleValue[1] - offset[1];
-        transform._33 = m_startScaleValue[2] - offset[2];
+        math::SetScale(transform, m_startScaleValue - offset);
         m_selectedObject->SetTransform(transform);
         return;
     }
@@ -59,8 +58,7 @@ void GizmoScale::Update(const math::Ray& ray) {
     }
 
     if (m_isMoved) {
-        auto& transform = m_selectedObject->GetBaseTransform();
-        m_startScaleValue = dg::float3(transform._11, transform._22, transform._33);
+        m_startScaleValue = math::GetScale(m_selectedObject->GetBaseTransform());
     }
 }
 
