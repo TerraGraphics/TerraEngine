@@ -34,7 +34,7 @@ private:
     bool m_isSelected = false;
     bool m_isMoved = false;
     uint m_moveItemIndex = 0;
-    dg::float3 m_startMoveCoord;
+    dg::double3 m_startMoveAngles;
     std::shared_ptr<TransformNode> m_root = nullptr;
     std::shared_ptr<TransformNode> m_torusNodes[3] = { nullptr };
     GizmoTorus m_toruses[3];

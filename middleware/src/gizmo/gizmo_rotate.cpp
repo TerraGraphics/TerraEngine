@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <initializer_list>
 
+#include "core/math/types.h"
+#include "core/math/matrix.h"
 #include "core/scene/transform_graph.h"
 #include "platforms/default_window_handler.h"
 #include "middleware/std_material/std_material.h" // IWYU pragma: keep
@@ -22,25 +24,16 @@ void GizmoRotate::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowE
 
 void GizmoRotate::Update(const math::Ray& ray) {
     if (m_isMoved && (m_eventHandler->IsKeyDown(Key::MouseLeft) || m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft))) {
-    //     auto transform = m_selectedObject->GetBaseTransform();
-    //     dg::float3 offset;
+        auto transform = m_selectedObject->GetBaseTransform();
+        double offset;
+        if (!m_toruses[m_moveItemIndex].GetMoveOffset(ray, offset)) {
+            return;
+        }
+        auto angles = m_startMoveAngles;
+        angles[m_moveItemIndex] -= offset;
 
-    //     if (m_isSelectedArrow) {
-    //         if (!m_arrows[m_moveItemIndex].GetMoveOffset(rayStart, rayDir, offset)) {
-    //             return;
-    //         }
-    //     }
-
-    //     if (m_isSelectedPlane) {
-    //         if (!m_planes[m_moveItemIndex].GetMoveOffset(rayStart, rayDir, offset)) {
-    //             return;
-    //         }
-    //     }
-
-    //     transform._41 = m_startMoveCoord[0] - offset[0];
-    //     transform._42 = m_startMoveCoord[1] - offset[1];
-    //     transform._43 = m_startMoveCoord[2] - offset[2];
-    //     m_selectedObject->SetTransform(transform);
+        math::SetRotate(transform, dg::ToVector3<float>(angles));
+        m_selectedObject->SetTransform(transform);
         return;
     }
 
@@ -54,10 +47,9 @@ void GizmoRotate::Update(const math::Ray& ray) {
         m_isMoved = m_toruses[m_moveItemIndex].StartMove(ray);
     }
 
-    // if (m_isMoved) {
-    //     auto& transform = m_selectedObject->GetBaseTransform();
-    //     m_startMoveCoord = dg::float3(transform._41, transform._42, transform._43);
-    // }
+    if (m_isMoved) {
+        m_startMoveAngles = dg::ToVector3<double>(math::GetRotate(m_selectedObject->GetBaseTransform()));
+    }
 }
 
 void GizmoRotate::SetEnable(bool value) {

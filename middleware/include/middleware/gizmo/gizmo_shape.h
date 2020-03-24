@@ -68,13 +68,13 @@ public:
 
     std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis);
     bool StartMove(const math::Ray& ray);
-    bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
+    bool GetMoveOffset(const math::Ray& ray, double& offset) const;
 
     dg::float4x4 GetSelectTransform() const;
     bool IsSelected(const math::Ray& ray) const;
 
 private:
-    bool GetProjection(const math::Ray& ray, dg::float3& value) const;
+    bool GetProjection(const math::Ray& ray, double& value) const;
 
 private:
     static constexpr float m_majorRadis = 0.5f;
@@ -84,4 +84,5 @@ private:
 
     math::Axis m_axis;
     math::Torus m_activeTorus;
+    double m_startPolarAngle;
 };

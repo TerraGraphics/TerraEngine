@@ -84,10 +84,8 @@ bool GizmoArrow::IsSelected(const math::Ray& ray) const {
 */
 bool GizmoArrow::GetProjection(const math::Ray& ray, float& value) const {
     auto ind0 = static_cast<uint>(m_axis);
-    auto axis1 = math::Next(m_axis);
-    auto ind1 = static_cast<uint>(axis1);
-    auto axis2 = math::Next(axis1);
-    auto ind2 = static_cast<uint>(axis2);
+    auto ind1 = static_cast<uint>(math::Next(m_axis));
+    auto ind2 = static_cast<uint>(math::Prev(m_axis));
 
     if (std::fpclassify(ray.direction[ind1]) != FP_ZERO) {
         value = static_cast<float>(ray.start[ind0] - ray.direction[ind0] * ray.start[ind1] / ray.direction[ind1]);
@@ -192,26 +190,57 @@ std::shared_ptr<StdMaterial> GizmoTorus::Create(DevicePtr& device, std::shared_p
     return node;
 }
 
+bool GizmoTorus::StartMove(const math::Ray& ray) {
+    return GetProjection(ray, m_startPolarAngle);
+}
+
+bool GizmoTorus::GetMoveOffset(const math::Ray& ray, double& offset) const {
+    double value;
+    if (!GetProjection(ray, value)) {
+        return false;
+    }
+
+    offset = m_startPolarAngle - value;
+
+    return true;
+}
+
 dg::float4x4 GizmoTorus::GetSelectTransform() const {
     auto scale = dg::float3(m_selectScale, m_selectScale, m_selectScale);
     return dg::float4x4::Scale(scale);
-}
-
-bool GizmoTorus::StartMove(const math::Ray& /* ray */) {
-    // TODO
-    return false;
-}
-
-bool GizmoTorus::GetMoveOffset(const math::Ray& /* ray */, dg::float3& /* offset */) const {
-    // TODO
-    return true;
 }
 
 bool GizmoTorus::IsSelected(const math::Ray& ray) const {
     return math::IsIntersection(ray, m_activeTorus);
 }
 
-bool GizmoTorus::GetProjection(const math::Ray& /* ray */, dg::float3& /* value */) const {
-    // TODO
-    return false;
+/*
+    for axis == Z: ray crosses a plane X0Y (z == 0)
+
+    ray:
+        z = z0 + n*t = 0 => t = -z0 / n
+        x = x0 + l*t = x0 + l*(-z0 / n)
+        y = y0 + m*t = y0 + m*(-z0 / n)
+
+    Find and return angle in polar coordinate system in [-pi; +pi]
+*/
+bool GizmoTorus::GetProjection(const math::Ray& ray, double& value) const {
+    auto ind0 = static_cast<uint>(m_axis);
+    auto indX2d = static_cast<uint>(math::Next(m_axis));
+    auto indY2d = static_cast<uint>(math::Prev(m_axis));
+
+    if (std::fpclassify(ray.direction[ind0]) == FP_ZERO) {
+        return false;
+    }
+
+    auto t = -ray.start[ind0] / ray.direction[ind0];
+    auto intersectionPoint = ray[t];
+
+    auto pointInPlane = dg::normalize(dg::double2(intersectionPoint[indX2d], intersectionPoint[indY2d]));
+    if ((std::fpclassify(pointInPlane.x) == FP_ZERO) && (std::fpclassify(pointInPlane.y) == FP_ZERO)) {
+        return false;
+    }
+    value = std::atan2(pointInPlane.x, pointInPlane.y);
+
+    return true;
 }
