@@ -87,7 +87,9 @@ void PreviewWindow::Update(double deltaTime) {
 
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     m_draw = ImGui::Begin("preview", pOpen, windowFlags);
+    ImGui::PopStyleVar(1);
     if (m_draw) {
         math::Rect rc = Image(m_renderTarget->GetColorTexture(0), ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
 
