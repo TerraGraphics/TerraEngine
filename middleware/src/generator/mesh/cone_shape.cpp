@@ -1,4 +1,4 @@
-#include "middleware/generator/cone_shape.h"
+#include "middleware/generator/mesh/cone_shape.h"
 
 #include <memory>
 #include <utility>

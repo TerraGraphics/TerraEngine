@@ -5,7 +5,7 @@
 
 #include "core/math/types.h"
 #include "core/common/ctor.h"
-#include "middleware/generator/shape_generator.h"
+#include "middleware/generator/mesh/shape_generator.h"
 
 
 struct VertexPNC;

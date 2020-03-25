@@ -1,4 +1,4 @@
-#include "middleware/generator/sphere_shape.h"
+#include "middleware/generator/mesh/sphere_shape.h"
 
 #include <memory>
 #include <utility>

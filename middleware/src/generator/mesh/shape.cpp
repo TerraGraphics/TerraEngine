@@ -1,4 +1,4 @@
-#include "middleware/generator/shape.h"
+#include "middleware/generator/mesh/shape.h"
 
 #include <utility>
 

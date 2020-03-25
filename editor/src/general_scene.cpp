@@ -22,7 +22,7 @@
 #include "core/material/vertex_decl.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"
-#include "middleware/generator/generator.h"
+#include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
 
 

@@ -5,7 +5,7 @@
 
 #include "core/math/constants.h"
 #include "core/math/intersection.h"
-#include "middleware/generator/generator.h"
+#include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
 
 

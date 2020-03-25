@@ -1,4 +1,4 @@
-#include "middleware/generator/shape_builder.h"
+#include "middleware/generator/mesh/shape_builder.h"
 
 #include <cstdint>
 
@@ -7,7 +7,7 @@
 #include "core/scene/index_buffer.h"
 #include "core/scene/geometry_node.h"
 #include "core/scene/vertex_buffer.h"
-#include "middleware/generator/shape_generator.h"
+#include "middleware/generator/mesh/shape_generator.h"
 
 
 ShapeBuilder::ShapeBuilder(const DevicePtr& device)

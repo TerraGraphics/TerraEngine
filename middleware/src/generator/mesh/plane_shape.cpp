@@ -1,4 +1,4 @@
-#include "middleware/generator/plane_shape.h"
+#include "middleware/generator/mesh/plane_shape.h"
 
 #include <memory>
 #include <utility>

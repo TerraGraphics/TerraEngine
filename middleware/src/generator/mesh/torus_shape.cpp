@@ -1,4 +1,4 @@
-#include "middleware/generator/torus_shape.h"
+#include "middleware/generator/mesh/torus_shape.h"
 
 #include <memory>
 #include <utility>

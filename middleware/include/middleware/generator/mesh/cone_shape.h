@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/math/types.h"
-#include "middleware/generator/shape.h"
-#include "middleware/generator/uv_grid_generator.h"
-#include "middleware/generator/vertex_eval_applyer.h"
+#include "middleware/generator/mesh/shape.h"
+#include "middleware/generator/mesh/uv_grid_generator.h"
+#include "middleware/generator/mesh/vertex_eval_applyer.h"
 
 
 class ConeShape : public Shape {

@@ -4,7 +4,7 @@
 
 #include "core/common/ctor.h"
 #include "core/scene/vertexes.h"
-#include "middleware/generator/shape_generator.h"
+#include "middleware/generator/mesh/shape_generator.h"
 
 
 template<class TShape>

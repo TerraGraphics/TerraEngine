@@ -1,6 +1,6 @@
 #pragma once
 
-#include "middleware/generator/shape_generator.h"
+#include "middleware/generator/mesh/shape_generator.h"
 
 
 class EmptyShape : public IShapeGenerator {

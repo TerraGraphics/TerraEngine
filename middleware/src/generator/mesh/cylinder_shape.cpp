@@ -1,4 +1,4 @@
-#include "middleware/generator/cylinder_shape.h"
+#include "middleware/generator/mesh/cylinder_shape.h"
 
 #include <memory>
 #include <utility>

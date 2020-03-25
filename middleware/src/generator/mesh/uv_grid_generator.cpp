@@ -1,4 +1,4 @@
-#include "middleware/generator/uv_grid_generator.h"
+#include "middleware/generator/mesh/uv_grid_generator.h"
 
 #include <utility>
 #include "core/scene/vertexes.h"

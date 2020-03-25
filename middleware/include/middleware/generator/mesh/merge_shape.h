@@ -3,8 +3,8 @@
 #include <vector>
 
 #include "core/common/ctor.h"
-#include "middleware/generator/empty_shape.h"
-#include "middleware/generator/shape_generator.h"
+#include "middleware/generator/mesh/empty_shape.h"
+#include "middleware/generator/mesh/shape_generator.h"
 
 
 template <class... T> class MergeShape;

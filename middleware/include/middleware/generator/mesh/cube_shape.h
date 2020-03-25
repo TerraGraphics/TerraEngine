@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/math/types.h"
-#include "middleware/generator/shape.h"
-#include "middleware/generator/merge_shape.h"
-#include "middleware/generator/plane_shape.h"
+#include "middleware/generator/mesh/shape.h"
+#include "middleware/generator/mesh/merge_shape.h"
+#include "middleware/generator/mesh/plane_shape.h"
 
 
 class CubeShape : public Shape {
