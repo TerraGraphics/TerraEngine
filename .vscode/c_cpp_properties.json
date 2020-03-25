@@ -3,7 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/src/**",
+                "${workspaceFolder}/core/**",
+                "${workspaceFolder}/editor/**",
+                "${workspaceFolder}/middleware/**",
                 "${workspaceFolder}/platforms/**"
             ],
             "defines": [],

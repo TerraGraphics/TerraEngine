@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include "core/dg/math.h"
 
 namespace math {
