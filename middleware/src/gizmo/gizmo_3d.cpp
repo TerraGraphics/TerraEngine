@@ -60,6 +60,10 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::sha
 }
 
 void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc) {
+    if (!mouseUnderWindow) {
+        return;
+    }
+
     bool mouseFirstRelease = m_eventHandler->IsKeyReleasedFirstTime(Key::MouseLeft);
 
     float absoluteMousePosX, absoluteMousePosY;
@@ -94,10 +98,6 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
     nodeMatrix._43 = gizmoPos.z;
     nodeMatrix._44 = 1.f;
     m_rootNode->SetTransform(nodeMatrix);
-
-    if (!mouseUnderWindow) {
-        return;
-    }
 
     if (!m_activeGizmo->IsMoved()) {
         m_invRayMatrix = dg::ToMatrix4x4<double>(nodeMatrix).Inverse();
