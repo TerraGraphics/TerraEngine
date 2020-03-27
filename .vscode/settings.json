@@ -82,5 +82,5 @@
         "-DTERRA_IWYU_ENABLE:BOOL=OFF",
     ],
     "C_Cpp.enhancedColorization": "Disabled",
-    "catch2TestExplorer.executables": [ "*test" ]
+    "catch2TestExplorer.executables": [ "*_test" ]
 }
