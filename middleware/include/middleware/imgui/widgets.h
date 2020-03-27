@@ -5,5 +5,5 @@
 
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
-    math::Pointf uv0 = math::Pointf(0, 0), math::Pointf uv1 = math::Pointf(1, 1),
+    math::PointF uv0 = math::PointF(0, 0), math::PointF uv1 = math::PointF(1, 1),
     math::Color tintCol = math::Color(255));

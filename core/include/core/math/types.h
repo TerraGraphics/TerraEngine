@@ -216,7 +216,8 @@ struct PointT {
 
 using Point = PointT<uint32_t>;
 using PointI = PointT<int32_t>;
-using Pointf = PointT<float>;
+using PointF = PointT<float>;
+using PointD = PointT<double>;
 
 template <typename T>
 struct SizeT {
@@ -272,7 +273,8 @@ struct RectT {
 
 using Rect = RectT<uint32_t>;
 using RectI = RectT<int32_t>;
-using Rectf = RectT<float>;
+using RectF = RectT<float>;
+using RectD = RectT<double>;
 
 template<typename T> struct PlaneT {
     PlaneT() = default;

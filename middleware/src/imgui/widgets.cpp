@@ -8,7 +8,7 @@
 #include "middleware/imgui/imgui_math.h"
 
 
-math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::Pointf uv0, math::Pointf uv1, math::Color tintCol) {
+math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::Rect();
