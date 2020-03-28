@@ -6,6 +6,7 @@ libucl/0.8.1@terragraphics/stable
 libnoise/1.0.032caf6@terragraphics/stable
 fastnoise/0.4.faba444@terragraphics/stable
 imgui/1.75.docking.16a9488@terragraphics/wip
+imgui_node_editor/0.9.9868e99@terragraphics/stable
 DiligentGraphics/2.4.e8300f4.faa30a9@terragraphics/wip
 
 [generators]
