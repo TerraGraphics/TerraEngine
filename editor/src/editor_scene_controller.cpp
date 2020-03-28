@@ -5,6 +5,7 @@
 #include <imgui_internal.h>
 
 #include "core/engine.h"
+#include "graph_window.h"
 #include "preview_window.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
@@ -13,12 +14,14 @@
 
 
 EditorSceneController::EditorSceneController()
-    : m_renderTarget(new RenderTarget())
+    : m_graphWindow(new GraphWindow())
+    , m_renderTarget(new RenderTarget())
     , m_previewWindow(new PreviewWindow()) {
 
 }
 
 EditorSceneController::~EditorSceneController() {
+    m_graphWindow.reset();
     m_renderTarget.reset();
     m_previewWindow.reset();
 }
@@ -27,6 +30,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     auto& engine = Engine::Get();
 
     m_gui = gui;
+    m_graphWindow->Create();
     m_renderTarget->Create(engine.GetDevice(), math::Color4f(1.f));
     m_previewWindow->Create(vsCameraVarId, psCameraVarId, gsCameraVarId);
 }
@@ -36,6 +40,7 @@ void EditorSceneController::Update(double deltaTime) {
 
     m_gui->StartFrame();
     DockSpace();
+    m_graphWindow->Update(deltaTime);
     m_previewWindow->Update(deltaTime);
     PropertyWindow();
     FooterWindow();
@@ -47,6 +52,7 @@ void EditorSceneController::Update(double deltaTime) {
 void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
 
+    m_graphWindow->Draw();
     m_previewWindow->Draw();
 
     m_renderTarget->Bind(engine.GetImmediateContext());
@@ -81,6 +87,7 @@ void EditorSceneController::DockSpace() {
         ImGuiID dockRight = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Right, 0.20f, NULL, &dockCentral);
         ImGuiID dockBottom = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Down, 0.20f, NULL, &dockCentral);
 
+        ImGui::DockBuilderDockWindow("graph", dockCentral);
         ImGui::DockBuilderDockWindow("preview", dockCentral);
         ImGui::DockBuilderDockWindow("Property", dockRight);
         ImGui::DockBuilderDockWindow("Footer", dockBottom);

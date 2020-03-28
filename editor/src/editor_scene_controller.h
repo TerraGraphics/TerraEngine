@@ -7,6 +7,7 @@
 
 
 class Gui;
+class GraphWindow;
 class RenderTarget;
 class PreviewWindow;
 class EditorSceneController : Fixed {
@@ -26,6 +27,7 @@ private:
 
 private:
     std::shared_ptr<Gui> m_gui = nullptr;
+    std::unique_ptr<GraphWindow> m_graphWindow;
     std::unique_ptr<RenderTarget> m_renderTarget;
     std::unique_ptr<PreviewWindow> m_previewWindow;
 };
