@@ -1,5 +1,7 @@
 #include "middleware/generator/texture/noise_rasterization.h"
 
+#include <algorithm>
+
 #include "core/dg/texture.h"
 #include "core/common/exception.h"
 #include "core/dg/render_device.h"
@@ -19,10 +21,6 @@ bool NoiseRasterization2D::AttachInputImpl(uint8_t /* number */, GraphNode* node
 
     m_noiseNode = noiseNode;
     return true;
-}
-
-double PlaneProjection::Get(double u, double v) {
-    return m_noiseNode->Get(u, v, m_coordZ);
 }
 
 NoiseToTexture::NoiseToTexture(DevicePtr& device, ContextPtr& context)
@@ -58,7 +56,7 @@ TexturePtr NoiseToTexture::Get() {
         desc.Format         = dg::TEX_FORMAT_RGBA8_UNORM;
         desc.MipLevels      = 0;
         desc.SampleCount    = 1;
-        desc.Usage          = dg::USAGE_DEFAULT;
+        desc.Usage          = dg::USAGE_DYNAMIC;
         desc.BindFlags      = dg::BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         desc.MiscFlags      = dg::MISC_TEXTURE_FLAG_GENERATE_MIPS;
@@ -71,17 +69,20 @@ TexturePtr NoiseToTexture::Get() {
 
     double uDelta  = m_noiseBound.Width() / static_cast<double>(m_textureSize.w);
     double vDelta  = m_noiseBound.Height() / static_cast<double>(m_textureSize.h);
-    double u = m_noiseBound.x;
     double v = m_noiseBound.y;
 
     dg::MappedTextureSubresource texData;
     m_context->MapTextureSubresource(m_texture, 0, 0, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, nullptr, texData);
+    if (texData.pData == nullptr) {
+        throw EngineError("NoiseToTexture: failed to map texture");
+    }
 
     for (uint32_t y=0; y!=m_textureSize.h; ++y) {
         auto* pDest = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(texData.pData) + texData.Stride * y);
-        u = m_noiseBound.x;
+        double u = m_noiseBound.x;
         for (uint32_t x=0; x!=m_textureSize.w; ++x) {
-            auto component = static_cast<uint8_t>(m_noiseNode->Get(u, v) * 255.);
+            double d = std::min(std::max((m_noiseNode->Get(u, v) + 1.) * 255. * 0.5, 0.), 255.);
+            auto component = static_cast<uint8_t>(std::min(std::max(static_cast<int>(d), 0), 255));
             *pDest = math::Color4(component, component, component).value;
 
             // Go to the next point.

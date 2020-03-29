@@ -31,5 +31,5 @@ private:
     ContextPtr m_context;
     TexturePtr m_texture;
     math::Size m_textureSize = math::Size(256, 256);
-    math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(1, 1));
+    math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(1000, 1000));
 };

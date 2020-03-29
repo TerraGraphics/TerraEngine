@@ -6,7 +6,7 @@ Noise3D::Noise3D()
 }
 
 CoherentNoise::CoherentNoise() {
-    m_generator.SetSeed(1);
+    m_generator.SetNoiseType(FastNoise::PerlinFractal);
 }
 
 double CoherentNoise::Get(double x, double y, double z) {

@@ -17,6 +17,9 @@
 #include "core/material/material_builder.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
+#include "middleware/generator/texture/coherent_noise.h"
+#include "middleware/generator/texture/noise_pojection.h"
+#include "middleware/generator/texture/noise_rasterization.h"
 
 
 static const auto& additionalVDecl = VertexDecl({
@@ -69,6 +72,20 @@ void PreviewScene::CreateTextures() {
         CreateTextureFromFile("assets/ground.jpg", loadInfo, m_device, &Tex);
         m_TextureCube = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
+    auto* cNoise = new CoherentNoise();
+    auto* planePr = new PlaneProjection();
+    if (!planePr->AttachInput(0, cNoise)) {
+        throw EngineError("attach failed 0");
+    }
+    auto* texGen = new NoiseToTexture(m_device, Engine::Get().GetImmediateContext());
+    if (!texGen->AttachInput(0, planePr)) {
+        throw EngineError("attach failed 1");
+    }
+    TexturePtr texNoise = texGen->Get();
+    if (!texNoise) {
+        throw EngineError("get failed");
+    }
+    m_TextureNoise = texNoise->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 void PreviewScene::CreateMaterials() {
@@ -108,16 +125,17 @@ void PreviewScene::CreateMaterials() {
 }
 
 void PreviewScene::GenerateMeshes() {
-    TorusShape shape1(0.25f, 1.f, 10, 30, math::Axis::Y);
+    // TorusShape shape1(0.25f, 1.f, 10, 30, math::Axis::Y);
     // CubeShape shape1({1.f, 2.f, 3.f}, {2, 3, 4});
     // ConeShape shape1({30, 30}, math::Axis::Y);
     // PlaneShape shape1({math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
+    PlaneShape shape1({math::Axis::Y, math::Axis::Z}, math::Direction::POS_X);
     SphereShape shape2({30, 30}, math::Axis::Y);
     auto model1 = ShapeBuilder(m_device).Join({&shape1}, "Model1");
     auto model2 = ShapeBuilder(m_device).Join({&shape2}, "Model2");
 
     auto modelNode1 = std::make_shared<StdMaterial>(m_matTexPhong, model1);
-    modelNode1->SetBaseTexture(m_TextureCube);
+    modelNode1->SetBaseTexture(m_TextureNoise);
     auto modelNode2 = std::make_shared<StdMaterial>(m_matTexPhong, model2);
     modelNode2->SetBaseTexture(m_TextureCube);
 

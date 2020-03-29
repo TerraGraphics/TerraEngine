@@ -4,7 +4,7 @@
 #include "middleware/generator/texture/fast_noise.h"
 
 
-class Noise3D : GraphNode {
+class Noise3D : public GraphNode {
 protected:
     Noise3D();
     bool AttachInputImpl(uint8_t /* number */, GraphNode* /* node */) override { return false; }

@@ -29,6 +29,7 @@ private:
 private:
     // textures
     TextureViewPtr m_TextureCube;
+    TextureViewPtr m_TextureNoise;
 
     // materials
     std::shared_ptr<Material> m_matTexNoLight;
