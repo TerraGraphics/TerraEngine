@@ -4,8 +4,7 @@
 
 
 GraphNode::GraphNode(uint8_t inputPinNumber)
-    : m_isFull(inputPinNumber == 0)
-    , m_inputs(inputPinNumber, 0) {
+    : m_inputs(inputPinNumber, nullptr) {
 
 }
 
@@ -18,8 +17,17 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
         return false;
     }
 
-    m_inputs[number]++;
-    m_isFull = (std::count_if(m_inputs.begin(), m_inputs.end(), [](uint16_t v) {return v == 0;}) == 0);
+    m_inputs[number] = node;
+
+    return true;
+}
+
+bool GraphNode::IsFull() const noexcept {
+    for (auto* pin : m_inputs) {
+        if ((!pin) || (!pin->IsFull())) {
+            return false;
+        }
+    }
 
     return true;
 }

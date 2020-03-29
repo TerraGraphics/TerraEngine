@@ -13,12 +13,11 @@ protected:
 
 public:
     bool AttachInput(uint8_t number, GraphNode* node);
-    bool IsFull() const noexcept { return m_isFull; }
+    bool IsFull() const noexcept;
 
 protected:
     virtual bool AttachInputImpl(uint8_t number, GraphNode* node) = 0;
 
 private:
-    bool m_isFull = false;
-    std::vector<uint16_t> m_inputs;
+    std::vector<GraphNode*> m_inputs;
 };
