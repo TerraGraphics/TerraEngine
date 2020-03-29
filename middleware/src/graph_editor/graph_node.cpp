@@ -1,10 +1,11 @@
-#include "middleware/generator/texture/node.h"
+#include "middleware/graph_editor/graph_node.h"
 
 #include <algorithm>
 
 
-GraphNode::GraphNode(uint8_t inputPinNumber)
-    : m_inputs(inputPinNumber, nullptr) {
+GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint8_t inputPinNumber)
+    : dg::ObjectBase<dg::IObject>(refCounters)
+    , m_inputs(inputPinNumber, nullptr) {
 
 }
 
@@ -30,4 +31,8 @@ bool GraphNode::IsFull() const noexcept {
     }
 
     return true;
+}
+
+void GraphNode::Draw() {
+
 }

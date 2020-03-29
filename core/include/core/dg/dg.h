@@ -48,3 +48,5 @@ using EngineFactoryPtr = dg::RefCntAutoPtr<dg::IEngineFactory>;
 using PipelineStatePtr = dg::RefCntAutoPtr<dg::IPipelineState>;
 using ShaderResourceBindingPtr = dg::RefCntAutoPtr<dg::IShaderResourceBinding>;
 using ShaderSourceInputStreamFactoryPtr = dg::RefCntAutoPtr<dg::IShaderSourceInputStreamFactory>;
+
+#define NEW_OBJ(Allocator, Desc, Type) dg::MakeNewRCObj<Type, typename std::remove_reference<decltype(Allocator)>::type>(Allocator, Desc, __FILE__, __LINE__)
