@@ -3,6 +3,7 @@
 #include "core/dg/dg.h"
 #include "core/math/types.h"
 #include "middleware/graph_editor/graph_node.h"
+#include "middleware/generator/texture/texture_consts.h"
 #include "middleware/generator/texture/noise_pojection.h"
 
 
@@ -13,10 +14,12 @@ protected:
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
 
 public:
+    static uint32_t TypeID() { return static_cast<uint32_t>(TextureGenTypeIDs::NoiseRasterization2D); }
+
     virtual TexturePtr Get() = 0;
 
 protected:
-    Noise2D* m_noiseNode;
+    Noise2D* m_noiseNode = nullptr;
 };
 
 class NoiseToTexture : public NoiseRasterization2D {

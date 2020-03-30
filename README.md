@@ -22,7 +22,7 @@ conan remote add terragraphics https://api.bintray.com/conan/terragraphics/conan
 yay -S include-what-you-use
 ```
 
-#### Install [scc](https://github.com/boyter/scc) for command "make cloc":
+#### Install [scc](https://github.com/boyter/scc) for command "make cloc"
 
 ```console
 go get -u github.com/boyter/scc/
