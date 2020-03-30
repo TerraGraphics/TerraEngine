@@ -15,6 +15,8 @@ protected:
     GraphNode(dg::IReferenceCounters* refCounters, uint8_t inputPinNumber);
 
 public:
+    using Ref = dg::RefCntAutoPtr<GraphNode>;
+
     bool AttachInput(uint8_t number, GraphNode* node);
     bool IsFull() const noexcept;
 
@@ -24,5 +26,5 @@ protected:
     virtual bool AttachInputImpl(uint8_t number, GraphNode* node) = 0;
 
 private:
-    std::vector<GraphNode*> m_inputs;
+    std::vector<Ref> m_inputs;
 };

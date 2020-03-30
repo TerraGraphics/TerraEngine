@@ -5,7 +5,7 @@
 
 GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint8_t inputPinNumber)
     : dg::ObjectBase<dg::IObject>(refCounters)
-    , m_inputs(inputPinNumber, nullptr) {
+    , m_inputs(inputPinNumber, Ref()) {
 
 }
 
@@ -24,7 +24,7 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
 }
 
 bool GraphNode::IsFull() const noexcept {
-    for (auto* pin : m_inputs) {
+    for (const auto& pin : m_inputs) {
         if ((!pin) || (!pin->IsFull())) {
             return false;
         }
