@@ -2,26 +2,27 @@
 
 #include "core/dg/dg.h"
 #include "core/math/types.h"
-#include "middleware/generator/texture/node.h"
+#include "middleware/graph_editor/graph_node.h"
 #include "middleware/generator/texture/noise_pojection.h"
 
 
 class NoiseRasterization2D : public GraphNode {
 protected:
-    NoiseRasterization2D();
+    NoiseRasterization2D() = delete;
+    NoiseRasterization2D(dg::IReferenceCounters* refCounters);
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
 
 public:
     virtual TexturePtr Get() = 0;
 
 protected:
-    Noise2D* m_noiseNode = nullptr;
+    Noise2D* m_noiseNode;
 };
 
 class NoiseToTexture : public NoiseRasterization2D {
 public:
     NoiseToTexture() = delete;
-    NoiseToTexture(DevicePtr& device, ContextPtr& context);
+    NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context);
     ~NoiseToTexture();
 
     TexturePtr Get() override;

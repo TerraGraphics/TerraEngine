@@ -1,11 +1,14 @@
 #include "middleware/generator/texture/coherent_noise.h"
 
-Noise3D::Noise3D()
-    : GraphNode(0) {
+
+Noise3D::Noise3D(dg::IReferenceCounters* refCounters)
+    : GraphNode(refCounters, 0) {
 
 }
 
-CoherentNoise::CoherentNoise() {
+CoherentNoise::CoherentNoise(dg::IReferenceCounters* refCounters)
+    : Noise3D(refCounters) {
+
     m_generator.SetNoiseType(FastNoise::PerlinFractal);
 }
 

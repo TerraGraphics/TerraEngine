@@ -8,8 +8,8 @@
 #include "core/dg/device_context.h"
 
 
-NoiseRasterization2D::NoiseRasterization2D()
-    : GraphNode(1) {
+NoiseRasterization2D::NoiseRasterization2D(dg::IReferenceCounters* refCounters)
+    : GraphNode(refCounters, 1) {
 
 }
 
@@ -23,8 +23,9 @@ bool NoiseRasterization2D::AttachInputImpl(uint8_t /* number */, GraphNode* node
     return true;
 }
 
-NoiseToTexture::NoiseToTexture(DevicePtr& device, ContextPtr& context)
-    : m_device(device)
+NoiseToTexture::NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context)
+    : NoiseRasterization2D(refCounters)
+    , m_device(device)
     , m_context(context) {
 
 }

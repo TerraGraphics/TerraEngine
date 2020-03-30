@@ -1,12 +1,13 @@
 #pragma once
 
-#include "middleware/generator/texture/node.h"
+#include "middleware/graph_editor/graph_node.h"
 #include "middleware/generator/texture/coherent_noise.h"
 
 
 class Noise2D : public GraphNode {
 protected:
-    Noise2D();
+    Noise2D() = delete;
+    Noise2D(dg::IReferenceCounters* refCounters);
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
 
 public:
@@ -18,6 +19,9 @@ protected:
 
 class PlaneProjection : public Noise2D {
 public:
+    PlaneProjection() = delete;
+    PlaneProjection(dg::IReferenceCounters* refCounters);
+
     double Get(double u, double v) override;
 
 private:
