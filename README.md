@@ -1,5 +1,7 @@
 # TerraEngine - Game engine
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e40797b1630c4f12be1f1e1077073fba)](https://app.codacy.com/gh/TerraGraphics/TerraEngine?utm_source=github.com&utm_medium=referral&utm_content=TerraGraphics/TerraEngine&utm_campaign=Badge_Grade_Settings)
+
 ## Build
 
 ### Required packages installation
