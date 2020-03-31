@@ -11,11 +11,13 @@
 
 class GraphNode;
 struct GraphPin {
-    GraphPin(bool isInput, uint32_t pinType, GraphNode* parent);
+    GraphPin(bool isInput, uint32_t pinType, GraphNode* node);
 
     bool isInput = true;
+    bool isConnected = false;
+    uint8_t pinNum = 0;
     uint32_t pinType = 0;
-    GraphNode* parent = nullptr;
+    GraphNode* node = nullptr;
 };
 
 class GraphNode : Fixed, public dg::ObjectBase<dg::IObject> {
@@ -27,6 +29,7 @@ public:
     using Ref = dg::RefCntAutoPtr<GraphNode>;
 
     bool AttachInput(uint8_t number, GraphNode* node);
+    void DetachInput(uint8_t number);
     bool IsFull() const noexcept;
 
     void Draw();

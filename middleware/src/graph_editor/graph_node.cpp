@@ -3,10 +3,10 @@
 #include <algorithm>
 
 
-GraphPin::GraphPin(bool isInput, uint32_t pinType, GraphNode* parent)
+GraphPin::GraphPin(bool isInput, uint32_t pinType, GraphNode* node)
     : isInput(isInput)
     , pinType(pinType)
-    , parent(parent) {
+    , node(node) {
 
 }
 
@@ -16,9 +16,11 @@ GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint32_t outputPinType
     , m_inputPins(inputPinsType.size(), GraphPin(true, 0, this))
     , m_inputs(inputPinsType.size(), Ref()) {
 
-    uint i = 0;
+    uint8_t pinNum = 0;
     for (auto pinType: inputPinsType) {
-        m_inputPins[i++].pinType = pinType;
+        m_inputPins[pinNum].pinNum = pinNum;
+        m_inputPins[pinNum].pinType = pinType;
+        ++pinNum;
     }
 }
 
@@ -34,6 +36,10 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
     m_inputs[number] = node;
 
     return true;
+}
+
+void GraphNode::DetachInput(uint8_t /* number */) {
+
 }
 
 bool GraphNode::IsFull() const noexcept {
