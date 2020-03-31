@@ -3,10 +3,23 @@
 #include <algorithm>
 
 
-GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint8_t inputPinNumber)
-    : dg::ObjectBase<dg::IObject>(refCounters)
-    , m_inputs(inputPinNumber, Ref()) {
+GraphPin::GraphPin(bool isInput, uint32_t pinType, GraphNode* parent)
+    : isInput(isInput)
+    , pinType(pinType)
+    , parent(parent) {
 
+}
+
+GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType)
+    : dg::ObjectBase<dg::IObject>(refCounters)
+    , m_outputPin(false, outputPinType, this)
+    , m_inputPins(inputPinsType.size(), GraphPin(true, 0, this))
+    , m_inputs(inputPinsType.size(), Ref()) {
+
+    uint i = 0;
+    for (auto pinType: inputPinsType) {
+        m_inputPins[i++].pinType = pinType;
+    }
 }
 
 bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {

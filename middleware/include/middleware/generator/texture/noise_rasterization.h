@@ -14,7 +14,7 @@ protected:
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
 
 public:
-    static uint32_t TypeID() { return static_cast<uint32_t>(TextureGenTypeIDs::NoiseRasterization2D); }
+    static uint32_t OutputTypeID() { return static_cast<uint32_t>(TexturePinType::Texture); }
 
     virtual TexturePtr Get() = 0;
 
