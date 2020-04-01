@@ -1,7 +1,9 @@
 #pragma once
 
+#define FN_USE_DOUBLES
+#include <FastNoise.h>
+
 #include "middleware/graph_editor/graph_node.h"
-#include "middleware/generator/texture/fast_noise.h"
 #include "middleware/generator/texture/texture_consts.h"
 
 

@@ -6,6 +6,10 @@
 
 namespace ne = ax::NodeEditor;
 
+GraphStorage::GraphStorage() {
+
+}
+
 GraphStorage::~GraphStorage() {
     m_nodes.clear();
     m_links.clear();

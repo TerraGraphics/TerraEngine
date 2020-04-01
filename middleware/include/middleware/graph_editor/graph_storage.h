@@ -25,7 +25,7 @@ struct LinkInfo {
 class GraphNode;
 class GraphStorage : Fixed {
 public:
-    GraphStorage() = default;
+    GraphStorage();
     ~GraphStorage();
 
     void AddNode(GraphNode* node);
