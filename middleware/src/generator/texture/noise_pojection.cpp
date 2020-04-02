@@ -16,6 +16,11 @@ bool Noise2D::AttachInputImpl(uint8_t /* number */, GraphNode* node) {
     return true;
 }
 
+bool Noise2D::DetachInputImpl(uint8_t /* number */) {
+    m_noiseNode = nullptr;
+    return true;
+}
+
 PlaneProjection::PlaneProjection(dg::IReferenceCounters* refCounters)
     : Noise2D(refCounters) {
 

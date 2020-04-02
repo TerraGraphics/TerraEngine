@@ -23,6 +23,11 @@ bool NoiseRasterization2D::AttachInputImpl(uint8_t /* number */, GraphNode* node
     return true;
 }
 
+bool NoiseRasterization2D::DetachInputImpl(uint8_t /* number */) {
+    m_noiseNode = nullptr;
+    return true;
+}
+
 NoiseToTexture::NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context)
     : NoiseRasterization2D(refCounters)
     , m_device(device)

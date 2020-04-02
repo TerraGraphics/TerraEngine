@@ -12,6 +12,7 @@ protected:
     NoiseRasterization2D() = delete;
     NoiseRasterization2D(dg::IReferenceCounters* refCounters);
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
+    bool DetachInputImpl(uint8_t number) override;
 
 public:
     static uint32_t OutputTypeID() { return static_cast<uint32_t>(TexturePinType::Texture); }

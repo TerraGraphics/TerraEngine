@@ -24,6 +24,16 @@ GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint32_t outputPinType
     }
 }
 
+bool GraphNode::IsFull() const noexcept {
+    for (const auto& pin : m_inputs) {
+        if ((!pin) || (!pin->IsFull())) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
     if (number >= m_inputs.size()) {
         return false;
@@ -38,16 +48,16 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
     return true;
 }
 
-void GraphNode::DetachInput(uint8_t /* number */) {
-
-}
-
-bool GraphNode::IsFull() const noexcept {
-    for (const auto& pin : m_inputs) {
-        if ((!pin) || (!pin->IsFull())) {
-            return false;
-        }
+bool GraphNode::DetachInput(uint8_t number) {
+    if (number >= m_inputs.size()) {
+        return false;
     }
+
+    if (!DetachInputImpl(number)) {
+        return false;
+    }
+
+    m_inputs[number] = nullptr;
 
     return true;
 }

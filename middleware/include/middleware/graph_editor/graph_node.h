@@ -28,14 +28,16 @@ protected:
 public:
     using Ref = dg::RefCntAutoPtr<GraphNode>;
 
-    bool AttachInput(uint8_t number, GraphNode* node);
-    void DetachInput(uint8_t number);
     bool IsFull() const noexcept;
+
+    bool AttachInput(uint8_t number, GraphNode* node);
+    bool DetachInput(uint8_t number);
 
     void Draw();
 
 protected:
     virtual bool AttachInputImpl(uint8_t number, GraphNode* node) = 0;
+    virtual bool DetachInputImpl(uint8_t number) = 0;
 
 private:
     GraphPin m_outputPin;
