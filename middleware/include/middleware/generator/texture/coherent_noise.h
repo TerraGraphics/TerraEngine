@@ -24,6 +24,7 @@ class CoherentNoise : public Noise3D {
 public:
     CoherentNoise() = delete;
     CoherentNoise(dg::IReferenceCounters* refCounters);
+    static const char* GetName() { return "Coherent noise"; }
 
     double Get(double x, double y, double z) override;
 

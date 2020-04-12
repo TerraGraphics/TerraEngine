@@ -28,6 +28,7 @@ public:
     NoiseToTexture() = delete;
     NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context);
     ~NoiseToTexture();
+    static const char* GetName() { return "Noise to texture"; }
 
     TexturePtr Get() override;
 

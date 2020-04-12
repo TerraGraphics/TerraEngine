@@ -1,13 +1,13 @@
 #pragma once
 
 #include "core/dg/dg.h"
-#include "core/common/ctor.h"
+#include "middleware/graph_editor/graph_node_factory.h"
 
 
 class CoherentNoise;
 class NoiseToTexture;
 class PlaneProjection;
-class TextureNodeFactory : Fixed {
+class TextureNodeFactory : GraphNodeFactory {
 public:
     TextureNodeFactory() = delete;
     TextureNodeFactory(DevicePtr& device, ContextPtr& context);

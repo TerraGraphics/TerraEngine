@@ -25,6 +25,7 @@ class PlaneProjection : public Noise2D {
 public:
     PlaneProjection() = delete;
     PlaneProjection(dg::IReferenceCounters* refCounters);
+    static const char* GetName() { return "Plane projection"; }
 
     double Get(double u, double v) override;
 

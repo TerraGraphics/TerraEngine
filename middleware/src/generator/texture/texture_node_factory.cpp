@@ -10,7 +10,12 @@
 
 
 TextureNodeFactory::TextureNodeFactory(DevicePtr& device, ContextPtr& context)
-    : m_device(device)
+    : GraphNodeFactory ({
+        { CoherentNoise::GetName(), [this]() { return CreateCoherentNoise(); }},
+        { PlaneProjection::GetName(), [this]() { return CreatePlaneProjection(); }},
+        { NoiseToTexture::GetName(), [this]() { return CreateNoiseToTexture(); }},
+    })
+    , m_device(device)
     , m_context(context) {
 
 }
@@ -21,13 +26,13 @@ TextureNodeFactory::~TextureNodeFactory() {
 }
 
 CoherentNoise* TextureNodeFactory::CreateCoherentNoise() {
-    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), "CoherentNoise", CoherentNoise)();
+    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), CoherentNoise::GetName(), CoherentNoise)();
 }
 
 PlaneProjection* TextureNodeFactory::CreatePlaneProjection() {
-    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), "PlaneProjection", PlaneProjection)();
+    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), PlaneProjection::GetName(), PlaneProjection)();
 }
 
 NoiseToTexture* TextureNodeFactory::CreateNoiseToTexture() {
-    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), "NoiseToTexture", NoiseToTexture)(m_device, m_context);
+    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), NoiseToTexture::GetName(), NoiseToTexture)(m_device, m_context);
 }
