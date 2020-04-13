@@ -7,7 +7,7 @@
 class CoherentNoise;
 class NoiseToTexture;
 class PlaneProjection;
-class TextureNodeFactory : GraphNodeFactory {
+class TextureNodeFactory : public GraphNodeFactory {
 public:
     TextureNodeFactory() = delete;
     TextureNodeFactory(DevicePtr& device, ContextPtr& context);
