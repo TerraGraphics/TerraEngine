@@ -23,7 +23,7 @@ struct GraphPin {
 class GraphNode : Fixed, public dg::ObjectBase<dg::IObject> {
 protected:
     GraphNode() = delete;
-    GraphNode(dg::IReferenceCounters* refCounters, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType);
+    GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType);
 
 public:
     using Ref = dg::RefCntAutoPtr<GraphNode>;
@@ -40,6 +40,7 @@ protected:
     virtual bool DetachInputImpl(uint8_t number) = 0;
 
 private:
+    const char* m_name;
     GraphPin m_outputPin;
     std::vector<GraphPin> m_inputPins;
     std::vector<Ref> m_inputs;

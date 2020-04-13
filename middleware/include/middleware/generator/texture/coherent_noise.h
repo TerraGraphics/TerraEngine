@@ -10,7 +10,7 @@
 class Noise3D : public GraphNode {
 protected:
     Noise3D() = delete;
-    Noise3D(dg::IReferenceCounters* refCounters);
+    Noise3D(dg::IReferenceCounters* refCounters, const char* name);
     bool AttachInputImpl(uint8_t /* number */, GraphNode* /* node */) override { return false; }
     bool DetachInputImpl(uint8_t /* number */) override { return false; }
 

@@ -1,8 +1,8 @@
 #include "middleware/generator/texture/noise_pojection.h"
 
 
-Noise2D::Noise2D(dg::IReferenceCounters* refCounters)
-    : GraphNode(refCounters, Noise3D::OutputTypeID(), {Noise3D::OutputTypeID()}) {
+Noise2D::Noise2D(dg::IReferenceCounters* refCounters, const char* name)
+    : GraphNode(refCounters, name, Noise3D::OutputTypeID(), {Noise3D::OutputTypeID()}) {
 
 }
 
@@ -22,7 +22,7 @@ bool Noise2D::DetachInputImpl(uint8_t /* number */) {
 }
 
 PlaneProjection::PlaneProjection(dg::IReferenceCounters* refCounters)
-    : Noise2D(refCounters) {
+    : Noise2D(refCounters, GetName()) {
 
 }
 

@@ -8,7 +8,7 @@
 class Noise2D : public GraphNode {
 protected:
     Noise2D() = delete;
-    Noise2D(dg::IReferenceCounters* refCounters);
+    Noise2D(dg::IReferenceCounters* refCounters, const char* name);
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
     bool DetachInputImpl(uint8_t number) override;
 

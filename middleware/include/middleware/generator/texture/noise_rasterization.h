@@ -10,7 +10,7 @@
 class NoiseRasterization2D : public GraphNode {
 protected:
     NoiseRasterization2D() = delete;
-    NoiseRasterization2D(dg::IReferenceCounters* refCounters);
+    NoiseRasterization2D(dg::IReferenceCounters* refCounters, const char* name);
     bool AttachInputImpl(uint8_t number, GraphNode* node) override;
     bool DetachInputImpl(uint8_t number) override;
 

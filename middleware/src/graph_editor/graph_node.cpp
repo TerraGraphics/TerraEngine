@@ -10,8 +10,9 @@ GraphPin::GraphPin(bool isInput, uint32_t pinType, GraphNode* node)
 
 }
 
-GraphNode::GraphNode(dg::IReferenceCounters* refCounters, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType)
+GraphNode::GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType)
     : dg::ObjectBase<dg::IObject>(refCounters)
+    , m_name(name)
     , m_outputPin(false, outputPinType, this)
     , m_inputPins(inputPinsType.size(), GraphPin(true, 0, this))
     , m_inputs(inputPinsType.size(), Ref()) {
