@@ -68,28 +68,47 @@ bool GraphNode::DetachInput(uint8_t number) {
     return true;
 }
 
-void GraphNode::Draw(uint8_t alpha) {
+    float nodePaddingLeft = 8;
+    float nodePaddingRight = 8;
+    auto iconSize = math::Size(24, 24);
+    float leftOffset = nodePaddingLeft;
+    ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, 4, nodePaddingRight, 8));
+
     ne::NodeId id(this);
     ne::BeginNode(id);
 
-    ImGui::TextUnformatted(m_name);
-
+    // Header
     ImGui::BeginGroup();
-    for (auto& pin : m_inputPins) {
-        ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
-        NodeIcon(math::Size(24, 24), IconType::Circle, pin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
-        ne::EndPin();
-    }
+    ImGui::TextUnformatted(m_name);
+    auto headerMin = ImGui::GetItemRectMin();
+    auto headerMax = ImGui::GetItemRectMax();
+    auto headerSize = ImGui::GetItemRectSize();
     ImGui::EndGroup();
 
-    ImGui::SameLine();
-    ImGui::BeginGroup();
-        if (m_outputPin.pinType != 0) {
-            ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
-            NodeIcon(math::Size(24, 24), IconType::Circle, m_outputPin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
+    // Input pins
+    if (!m_inputPins.empty()) {
+        ImGui::BeginGroup();
+        for (auto& pin : m_inputPins) {
+            ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
+            NodeIcon(iconSize, IconType::Circle, pin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
             ne::EndPin();
         }
-    ImGui::EndGroup();
+        leftOffset += ImGui::GetItemRectSize().x;
+        ImGui::EndGroup();
+        ImGui::SameLine();
+    }
+
+    ImGui::Dummy(ImVec2(headerSize.x - leftOffset - iconSize.w - nodePaddingRight, 1.0f));
+
+    // Output pin
+    if (m_outputPin.pinType != 0) {
+        ImGui::SameLine();
+        ImGui::BeginGroup();
+            ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
+            NodeIcon(iconSize, IconType::Circle, m_outputPin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
+            ne::EndPin();
+        ImGui::EndGroup();
+    }
 
     ne::EndNode();
 }
