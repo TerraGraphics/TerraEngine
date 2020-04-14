@@ -33,7 +33,7 @@ public:
     bool AttachInput(uint8_t number, GraphNode* node);
     bool DetachInput(uint8_t number);
 
-    void Draw();
+    void Draw(uint8_t alpha);
 
 protected:
     virtual bool AttachInputImpl(uint8_t number, GraphNode* node) = 0;

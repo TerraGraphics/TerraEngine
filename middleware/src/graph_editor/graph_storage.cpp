@@ -74,8 +74,10 @@ bool GraphStorage::DelLink(const ne::LinkId linkId, bool checkOnly) {
 }
 
 void GraphStorage::Draw() {
+    auto alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
+
     for (auto& node: m_nodes) {
-        node->Draw();
+        node->Draw(alpha);
     }
 
     for (const auto& [linkId, info] : m_links) {

@@ -1,7 +1,12 @@
 #include "middleware/graph_editor/graph_node.h"
 
 #include <algorithm>
+#include <imgui_node_editor.h>
 
+#include "middleware/imgui/widgets.h"
+
+
+namespace ne = ax::NodeEditor;
 
 GraphPin::GraphPin(bool isInput, uint32_t pinType, GraphNode* node)
     : isInput(isInput)
@@ -63,6 +68,28 @@ bool GraphNode::DetachInput(uint8_t number) {
     return true;
 }
 
-void GraphNode::Draw() {
+void GraphNode::Draw(uint8_t alpha) {
+    ne::NodeId id(this);
+    ne::BeginNode(id);
 
+    ImGui::TextUnformatted(m_name);
+
+    ImGui::BeginGroup();
+    for (auto& pin : m_inputPins) {
+        ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
+        NodeIcon(math::Size(24, 24), IconType::Circle, pin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
+        ne::EndPin();
+    }
+    ImGui::EndGroup();
+
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+        if (m_outputPin.pinType != 0) {
+            ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
+            NodeIcon(math::Size(24, 24), IconType::Circle, m_outputPin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
+            ne::EndPin();
+        }
+    ImGui::EndGroup();
+
+    ne::EndNode();
 }
