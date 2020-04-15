@@ -26,8 +26,17 @@ GraphEditor::~GraphEditor() {
     }
 }
 
+void GraphEditor::AddNode(GraphNode* node) {
+    if (node) {
+        m_storage->AddNode(node);
+    }
+}
+
 void GraphEditor::Draw() {
     ne::SetCurrentEditor(m_context);
+    ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
+    ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
+    ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
     ne::Begin(m_name.c_str());
 
     m_storage->Draw();
@@ -88,6 +97,7 @@ void GraphEditor::Draw() {
     ne::Resume();
 
     ne::End();
+    ne::PopStyleVar(3);
 }
 
 GraphNode* GraphEditor::EditorMenu() {

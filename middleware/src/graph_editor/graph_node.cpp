@@ -68,17 +68,34 @@ bool GraphNode::DetachInput(uint8_t number) {
     return true;
 }
 
+static math::Color GetColorByPinType(uint32_t pinType, uint8_t alpha) {
+    static const std::array<math::Color, 7> pinColorByType = {
+        math::Color(255, 0, 0),
+        math::Color(0, 255, 0),
+        math::Color(0, 0, 255),
+        math::Color(255, 255, 0),
+        math::Color(255, 0, 255),
+        math::Color(0, 255, 255),
+        math::Color(255, 255, 255),
+    };
+
+    auto color = pinColorByType[(pinType & 0xFFFF) % pinColorByType.size()];
+    color.alpha = alpha;
+
+    return color;
+}
+
 void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight) {
     const float nodePaddingLeft = 8;
     const float nodePaddingRight = 8;
     const float nodePaddingTop = 4;
     const float nodePaddingBottom = 8;
     const auto iconSize = math::Size(24, 24);
-    const auto pinColor = math::Color(0, 255, 0, alpha);
+    const auto innerPinColor = math::Color(32, 32, 32, alpha);
     const auto headerColor = math::Color(0, 125, 0, alpha).value;
     const auto headerLineColor = math::Color(255, 255, 255, 96 * alpha / (3 * 255)).value;
 
-    ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
+
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, nodePaddingTop, nodePaddingRight, nodePaddingBottom));
     ne::NodeId id(this);
     ne::BeginNode(id);
@@ -98,7 +115,7 @@ void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth
         ImGui::BeginGroup();
         for (auto& pin : m_inputPins) {
             ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
-            NodeIcon(iconSize, IconType::Circle, pin.isConnected, pinColor, math::Color(32, 32, 32, alpha));
+            NodeIcon(iconSize, IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
             ne::EndPin();
         }
         dummySize -= (iconSize.w + 8);
@@ -113,7 +130,7 @@ void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth
         ImGui::SameLine();
         ImGui::BeginGroup();
             ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
-            NodeIcon(iconSize, IconType::Circle, m_outputPin.isConnected, pinColor, math::Color(32, 32, 32, alpha));
+            NodeIcon(iconSize, IconType::Circle, m_outputPin.isConnected, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
             ne::EndPin();
         ImGui::EndGroup();
     }
@@ -141,5 +158,5 @@ void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth
         drawList->AddImageRounded(texBackgroundID, imageTopLeft, imageBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
         drawList->AddLine(imageBottomLeft, imageBottomRight, headerLineColor, 1.0f);
     }
-    ne::PopStyleVar(2);
+    ne::PopStyleVar(1);
 }
