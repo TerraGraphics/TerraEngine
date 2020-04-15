@@ -8,10 +8,12 @@ namespace ne = ax::NodeEditor;
 
 GraphEditor::GraphEditor(const std::string& name, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
     : m_name(name)
-    , m_context(ne::CreateEditor())
+    , m_config(new ne::Config())
     , m_storage(new GraphStorage(texBackground))
     , m_factory(std::move(factory)) {
 
+    m_config->SettingsFile = "";
+    m_context = ne::CreateEditor(m_config);
 }
 
 GraphEditor::~GraphEditor() {
@@ -23,6 +25,11 @@ GraphEditor::~GraphEditor() {
     if (m_context) {
         ne::DestroyEditor(m_context);
         m_context = nullptr;
+    }
+
+    if (m_config) {
+        delete m_config;
+        m_config = nullptr;
     }
 }
 

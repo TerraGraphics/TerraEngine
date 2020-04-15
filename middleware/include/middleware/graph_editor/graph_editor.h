@@ -8,6 +8,7 @@
 
 namespace ax {
     namespace NodeEditor {
+        struct Config;
         struct EditorContext;
     }
 }
@@ -29,6 +30,7 @@ private:
 
 private:
     std::string m_name;
+    ax::NodeEditor::Config* m_config = nullptr;
     ax::NodeEditor::EditorContext* m_context = nullptr;
     GraphStorage* m_storage = nullptr;
     std::unique_ptr<GraphNodeFactory> m_factory;
