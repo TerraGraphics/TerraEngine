@@ -1,13 +1,16 @@
 #include "middleware/graph_editor/graph_storage.h"
 
+#include "core/dg/texture.h"
 #include "core/common/exception.h"
 #include "middleware/graph_editor/graph_node.h"
 
 
 namespace ne = ax::NodeEditor;
 
-GraphStorage::GraphStorage() {
-
+GraphStorage::GraphStorage(TexturePtr& texBackground)
+    : m_texBackground(texBackground->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE)) {
+    m_texBackgroundWidht = static_cast<float>(texBackground->GetDesc().Width);
+    m_texBackgroundheight = static_cast<float>(texBackground->GetDesc().Height);
 }
 
 GraphStorage::~GraphStorage() {
@@ -75,9 +78,10 @@ bool GraphStorage::DelLink(const ne::LinkId linkId, bool checkOnly) {
 
 void GraphStorage::Draw() {
     auto alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
+    auto texBackgroundRaw = m_texBackground.RawPtr();
 
     for (auto& node: m_nodes) {
-        node->Draw(alpha);
+        node->Draw(alpha, texBackgroundRaw, m_texBackgroundWidht, m_texBackgroundheight);
     }
 
     for (const auto& [linkId, info] : m_links) {

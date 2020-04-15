@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "core/dg/dg.h"
 #include "core/common/ctor.h"
 
 
@@ -17,9 +18,10 @@ class GraphNodeFactory;
 class GraphEditor : Fixed {
 public:
     GraphEditor() = delete;
-    GraphEditor(const std::string& name, std::unique_ptr<GraphNodeFactory>&& factory);
+    GraphEditor(const std::string& name, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory);
     ~GraphEditor();
 
+    void AddNode(GraphNode* node);
     void Draw();
 
 private:

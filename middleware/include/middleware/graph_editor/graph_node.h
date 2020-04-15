@@ -33,7 +33,7 @@ public:
     bool AttachInput(uint8_t number, GraphNode* node);
     bool DetachInput(uint8_t number);
 
-    void Draw(uint8_t alpha);
+    void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
 
 protected:
     virtual bool AttachInputImpl(uint8_t number, GraphNode* node) = 0;

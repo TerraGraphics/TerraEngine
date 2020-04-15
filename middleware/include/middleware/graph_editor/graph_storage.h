@@ -25,7 +25,8 @@ struct LinkInfo {
 class GraphNode;
 class GraphStorage : Fixed {
 public:
-    GraphStorage();
+    GraphStorage() = delete;
+    GraphStorage(TexturePtr& texBackground);
     ~GraphStorage();
 
     void AddNode(GraphNode* node);
@@ -36,6 +37,9 @@ public:
 
 private:
     uintptr_t m_nextId = 1;
+    float m_texBackgroundWidht = 1.f;
+    float m_texBackgroundheight = 1.f;
+    TextureViewPtr m_texBackground;
     std::vector<dg::RefCntAutoPtr<GraphNode>> m_nodes;
     std::unordered_map<ax::NodeEditor::LinkId, LinkInfo> m_links;
 };

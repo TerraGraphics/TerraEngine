@@ -68,12 +68,18 @@ bool GraphNode::DetachInput(uint8_t number) {
     return true;
 }
 
-    float nodePaddingLeft = 8;
-    float nodePaddingRight = 8;
-    auto iconSize = math::Size(24, 24);
-    float leftOffset = nodePaddingLeft;
-    ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, 4, nodePaddingRight, 8));
+void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight) {
+    const float nodePaddingLeft = 8;
+    const float nodePaddingRight = 8;
+    const float nodePaddingTop = 4;
+    const float nodePaddingBottom = 8;
+    const auto iconSize = math::Size(24, 24);
+    const auto pinColor = math::Color(0, 255, 0, alpha);
+    const auto headerColor = math::Color(0, 125, 0, alpha).value;
+    const auto headerLineColor = math::Color(255, 255, 255, 96 * alpha / (3 * 255)).value;
 
+    ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
+    ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, nodePaddingTop, nodePaddingRight, nodePaddingBottom));
     ne::NodeId id(this);
     ne::BeginNode(id);
 
@@ -83,6 +89,8 @@ bool GraphNode::DetachInput(uint8_t number) {
     auto headerMin = ImGui::GetItemRectMin();
     auto headerMax = ImGui::GetItemRectMax();
     auto headerSize = ImGui::GetItemRectSize();
+    float dummySize = headerSize.x - (iconSize.w + 8);
+    ImGui::Dummy(ImVec2(1.0f, nodePaddingTop));
     ImGui::EndGroup();
 
     // Input pins
@@ -90,25 +98,48 @@ bool GraphNode::DetachInput(uint8_t number) {
         ImGui::BeginGroup();
         for (auto& pin : m_inputPins) {
             ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
-            NodeIcon(iconSize, IconType::Circle, pin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
+            NodeIcon(iconSize, IconType::Circle, pin.isConnected, pinColor, math::Color(32, 32, 32, alpha));
             ne::EndPin();
         }
-        leftOffset += ImGui::GetItemRectSize().x;
+        dummySize -= (iconSize.w + 8);
         ImGui::EndGroup();
         ImGui::SameLine();
     }
 
-    ImGui::Dummy(ImVec2(headerSize.x - leftOffset - iconSize.w - nodePaddingRight, 1.0f));
+    ImGui::Dummy(ImVec2(dummySize, 1.0f));
 
     // Output pin
     if (m_outputPin.pinType != 0) {
         ImGui::SameLine();
         ImGui::BeginGroup();
             ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
-            NodeIcon(iconSize, IconType::Circle, m_outputPin.isConnected, math::Color(0, 255, 0, alpha), math::Color(32, 32, 32, alpha));
+            NodeIcon(iconSize, IconType::Circle, m_outputPin.isConnected, pinColor, math::Color(32, 32, 32, alpha));
             ne::EndPin();
         ImGui::EndGroup();
     }
 
     ne::EndNode();
+
+    // Header
+    if (ImGui::IsItemVisible()) {
+        auto drawList = ne::GetNodeBackgroundDrawList(id);
+        const auto texBackgroundID = reinterpret_cast<ImTextureID>(texBackground);
+        const auto rounding = ne::GetStyle().NodeRounding;
+        const auto roundingCorners = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_TopRight;
+        const auto uvMin = ImVec2(0.0f, 0.0f);
+        const auto uvMax = ImVec2(headerSize.x / texWidth, headerSize.y / texHeight);
+
+        const auto halfBorderWidth = ne::GetStyle().NodeBorderWidth * 0.5f;
+        const auto imageTopLeft = ImVec2(
+            headerMin.x - nodePaddingLeft + halfBorderWidth,
+            headerMin.y - nodePaddingTop + halfBorderWidth);
+        const auto imageBottomRight = ImVec2(
+            headerMax.x + nodePaddingRight - halfBorderWidth,
+            headerMax.y + nodePaddingTop);
+        const auto imageBottomLeft = ImVec2(imageTopLeft.x, imageBottomRight.y);
+
+        drawList->AddImageRounded(texBackgroundID, imageTopLeft, imageBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
+        drawList->AddLine(imageBottomLeft, imageBottomRight, headerLineColor, 1.0f);
+    }
+    ne::PopStyleVar(2);
 }

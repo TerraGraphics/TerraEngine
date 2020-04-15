@@ -6,10 +6,10 @@
 
 namespace ne = ax::NodeEditor;
 
-GraphEditor::GraphEditor(const std::string& name, std::unique_ptr<GraphNodeFactory>&& factory)
+GraphEditor::GraphEditor(const std::string& name, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
     : m_name(name)
     , m_context(ne::CreateEditor())
-    , m_storage(new GraphStorage())
+    , m_storage(new GraphStorage(texBackground))
     , m_factory(std::move(factory)) {
 
 }
@@ -81,7 +81,6 @@ void GraphEditor::Draw() {
             m_storage->AddNode(node);
             ne::SetNodePosition(ne::NodeId(node), openPopupPosition);
         }
-
         ImGui::EndPopup();
     }
 
