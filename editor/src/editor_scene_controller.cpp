@@ -7,6 +7,7 @@
 #include "core/engine.h"
 #include "graph_window.h"
 #include "preview_window.h"
+#include "property_window.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
 #include "core/dg/render_device.h" // IWYU pragma: keep
@@ -16,7 +17,8 @@
 EditorSceneController::EditorSceneController()
     : m_graphWindow(new GraphWindow())
     , m_renderTarget(new RenderTarget())
-    , m_previewWindow(new PreviewWindow()) {
+    , m_previewWindow(new PreviewWindow())
+    , m_propertyWindow(new PropertyWindow()) {
 
 }
 
@@ -24,6 +26,7 @@ EditorSceneController::~EditorSceneController() {
     m_graphWindow.reset();
     m_renderTarget.reset();
     m_previewWindow.reset();
+    m_propertyWindow.reset();
 }
 
 void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui) {
@@ -33,6 +36,7 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     m_graphWindow->Create();
     m_renderTarget->Create(engine.GetDevice(), math::Color4f(1.f));
     m_previewWindow->Create(vsCameraVarId, psCameraVarId, gsCameraVarId);
+    m_propertyWindow->Create();
 }
 
 void EditorSceneController::Update(double deltaTime) {
@@ -40,9 +44,9 @@ void EditorSceneController::Update(double deltaTime) {
 
     m_gui->StartFrame();
     DockSpace();
-    m_graphWindow->Update(deltaTime);
     m_previewWindow->Update(deltaTime);
-    PropertyWindow();
+    m_graphWindow->Draw();
+    m_propertyWindow->Draw();
     FooterWindow();
     // ImGui::ShowDemoWindow(nullptr);
 
@@ -52,7 +56,6 @@ void EditorSceneController::Update(double deltaTime) {
 void EditorSceneController::Draw() {
     auto& engine = Engine::Get();
 
-    m_graphWindow->Draw();
     m_previewWindow->Draw();
 
     m_renderTarget->Bind(engine.GetImmediateContext());
@@ -96,14 +99,6 @@ void EditorSceneController::DockSpace() {
 
     ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
     ImGui::End();
-}
-
-void EditorSceneController::PropertyWindow() {
-    bool* pOpen = nullptr;
-    ImGuiWindowFlags windowFlags = 0;
-    if (ImGui::Begin("Property", pOpen, windowFlags)) {
-        ImGui::End();
-    }
 }
 
 void EditorSceneController::FooterWindow() {
