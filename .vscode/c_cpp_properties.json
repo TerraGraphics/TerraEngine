@@ -3,10 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/core/**",
-                "${workspaceFolder}/editor/**",
-                "${workspaceFolder}/middleware/**",
-                "${workspaceFolder}/platforms/**"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
