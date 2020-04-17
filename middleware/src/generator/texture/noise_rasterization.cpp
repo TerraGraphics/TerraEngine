@@ -9,7 +9,7 @@
 
 
 NoiseRasterization2D::NoiseRasterization2D(dg::IReferenceCounters* refCounters, const char* name)
-    : GraphNode(refCounters, name, Noise3D::OutputTypeID(), {Noise2D::OutputTypeID()}) {
+    : GraphNode(refCounters, name, NoiseRasterization2D::OutputTypeID(), {Noise2D::OutputTypeID()}) {
 
 }
 

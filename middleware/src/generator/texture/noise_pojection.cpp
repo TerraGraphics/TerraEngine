@@ -2,7 +2,7 @@
 
 
 Noise2D::Noise2D(dg::IReferenceCounters* refCounters, const char* name)
-    : GraphNode(refCounters, name, Noise3D::OutputTypeID(), {Noise3D::OutputTypeID()}) {
+    : GraphNode(refCounters, name, Noise2D::OutputTypeID(), {Noise3D::OutputTypeID()}) {
 
 }
 
