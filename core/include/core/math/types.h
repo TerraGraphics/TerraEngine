@@ -61,9 +61,10 @@ int8_t GetSign(Direction value);
 template <typename T> bool IsEqual(T a, T b) {
     if constexpr (std::is_integral_v<T>) {
         return (a == b);
-    }
-    if constexpr (std::is_floating_point_v<T>) {
-        return std::abs(a - b) <= std::numeric_limits<T>::epsilon();
+    } else if constexpr (std::is_floating_point_v<T>) {
+        return (std::abs(a - b) <= std::numeric_limits<T>::epsilon());
+    } else {
+        return (a == b);
     }
 }
 
@@ -234,6 +235,7 @@ struct SizeT {
     SizeT(T w, T h) noexcept : w(w), h(h) {}
 
     bool operator==(SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
+    bool operator!=(SizeT other) const noexcept { return (!operator==(other)); }
 
     T w = 0;
     T h = 0;
@@ -251,6 +253,7 @@ struct RectT {
     bool operator==(RectT other) const noexcept {
         return (IsEqual(x, other.x) && IsEqual(y, other.y) && IsEqual(w, other.w) && IsEqual(h, other.h));
     }
+    bool operator!=(RectT other) const noexcept { return (!operator==(other)); }
 
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }

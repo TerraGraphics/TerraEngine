@@ -44,11 +44,19 @@ TexturePtr NoiseToTexture::Get() {
 }
 
 TexturePtr NoiseToTexture::GetTexture(math::Size size) {
-    if ((m_noiseBound.Width() <= 0) || (m_noiseBound.Height() <= 0) || (m_noiseNode == nullptr)) {
-        throw EngineError("NoiseToTexture: invalid params");
+    if ((m_noiseBound.Width() <= 0) || (m_noiseBound.Height() <= 0)) {
+        throw EngineError("NoiseToTexture: invalid param: bound");
+    }
+    if (m_noiseNode == nullptr) {
+        throw EngineError("NoiseToTexture: one of the inputs is empty");
     }
 
-    auto texture = GetTextureForDraw(size);
+    TexturePtr texture;
+    bool isChanged = GetTextureForDraw(size, texture);
+    if (!isChanged && !IsBoundChanged(size)) {
+        return texture;
+    }
+
     double uDelta  = m_noiseBound.Width() / static_cast<double>(size.w);
     double vDelta  = m_noiseBound.Height() / static_cast<double>(size.h);
     double v = m_noiseBound.y;
@@ -56,7 +64,7 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
     dg::MappedTextureSubresource texData;
     m_context->MapTextureSubresource(texture, 0, 0, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, nullptr, texData);
     if (texData.pData == nullptr) {
-        throw EngineError("NoiseToTexture: failed to map texture");
+        throw EngineError("NoiseToTexture: failed to lock texture");
     }
 
     for (uint32_t y=0; y!=size.h; ++y) {
@@ -78,19 +86,33 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
     m_context->UnmapTextureSubresource(texture, 0, 0);
     m_context->GenerateMips(texture->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
 
+    if (size == m_textureSize) {
+        m_noiseBoundCacheMain = m_noiseBound;
+    } else {
+        m_noiseBoundCacheCustom = m_noiseBound;
+    }
+
     return texture;
 }
 
-TexturePtr NoiseToTexture::GetTextureForDraw(math::Size size) {
+bool NoiseToTexture::IsBoundChanged(math::Size size) {
+    if (size == m_textureSize) {
+        return (m_noiseBoundCacheMain != m_noiseBound);
+    } else {
+        return (m_noiseBoundCacheCustom != m_noiseBound);
+    }
+}
+
+bool NoiseToTexture::GetTextureForDraw(math::Size size, TexturePtr& output) {
     if ((size.w <= 0) || (size.h <= 0)) {
-        throw EngineError("NoiseToTexture: invalid size params");
+        throw EngineError("NoiseToTexture: invalid param: size");
     }
 
-    auto texture = (size == m_textureSize) ? m_textureCacheMain : m_textureCacheCustom;
+    output = (size == m_textureSize) ? m_textureCacheMain : m_textureCacheCustom;
 
-    bool needCreateTexture = !texture;
+    bool needCreateTexture = !output;
     if (!needCreateTexture) {
-        needCreateTexture = ((texture->GetDesc().Width != size.w) || (texture->GetDesc().Height != size.h));
+        needCreateTexture = ((output->GetDesc().Width != size.w) || (output->GetDesc().Height != size.h));
     }
 
     if (needCreateTexture) {
@@ -107,17 +129,17 @@ TexturePtr NoiseToTexture::GetTextureForDraw(math::Size size) {
         desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
         desc.MiscFlags      = dg::MISC_TEXTURE_FLAG_GENERATE_MIPS;
 
-        m_device->CreateTexture(desc, nullptr, &texture);
-        if (!texture) {
+        m_device->CreateTexture(desc, nullptr, &output);
+        if (!output) {
             throw EngineError("NoiseToTexture: failed to create texture");
         }
 
         if (size == m_textureSize) {
-            m_textureCacheMain = texture;
+            m_textureCacheMain = output;
          } else {
-            m_textureCacheCustom = texture;
+            m_textureCacheCustom = output;
          }
     }
 
-    return texture;
+    return needCreateTexture;
 }

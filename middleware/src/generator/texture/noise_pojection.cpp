@@ -1,5 +1,7 @@
 #include "middleware/generator/texture/noise_pojection.h"
 
+#include "core/common/exception.h"
+
 
 Noise2D::Noise2D(dg::IReferenceCounters* refCounters, const char* name)
     : GraphNode(refCounters, name, Noise2D::OutputTypeID(), {Noise3D::OutputTypeID()}) {
@@ -27,5 +29,9 @@ PlaneProjection::PlaneProjection(dg::IReferenceCounters* refCounters)
 }
 
 double PlaneProjection::Get(double u, double v) {
+    if (m_noiseNode == nullptr) {
+        throw EngineError("PlaneProjection: one of the inputs is empty");
+    }
+
     return m_noiseNode->Get(u, v, m_coordZ);
 }

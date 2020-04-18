@@ -35,7 +35,8 @@ public:
     TexturePtr GetTexture(math::Size size) override;
 
 private:
-    TexturePtr GetTextureForDraw(math::Size size);
+    bool IsBoundChanged(math::Size size);
+    bool GetTextureForDraw(math::Size size, TexturePtr& output);
 
 private:
     DevicePtr m_device;
@@ -44,4 +45,6 @@ private:
     TexturePtr m_textureCacheCustom;
     math::Size m_textureSize = math::Size(256, 256);
     math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(1000, 1000));
+    math::RectD m_noiseBoundCacheMain = m_noiseBound;
+    math::RectD m_noiseBoundCacheCustom = m_noiseBound;
 };
