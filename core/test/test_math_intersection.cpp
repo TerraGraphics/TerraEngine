@@ -10,7 +10,7 @@
 
 
 template<typename T> static T Vector3AbsError() {
-    if constexpr (std::is_same<T, double>::value) {
+    if constexpr (std::is_same_v<T, double>) {
         return 1.e-14;
     }
 
@@ -24,7 +24,7 @@ template<typename T> static T Vector3AbsError() {
 
 
 template<typename T> static T PointOnPlaneAbsError() {
-    if constexpr (std::is_same<T, double>::value) {
+    if constexpr (std::is_same_v<T, double>) {
         return 1.e-14;
     }
 
@@ -35,7 +35,7 @@ template<typename T> static T PointOnPlaneAbsError() {
     EXPECT_NEAR(dg::dot(static_cast<dg::Vector4<TypeParam>>(plane), dg::Vector4<TypeParam>(point, 1)), 0, PointOnPlaneAbsError<decltype(plane.a)>()); \
 
 template<typename T> static T TorusAbsError() {
-    if constexpr (std::is_same<T, double>::value) {
+    if constexpr (std::is_same_v<T, double>) {
         return 1.e-10;
     }
 

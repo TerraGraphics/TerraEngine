@@ -26,15 +26,15 @@ template<typename T> Layout ItemDecl(const std::string& name, uint32_t bufferSlo
 
     if constexpr (std::is_same_v<T, float>) {
         return Layout{msh::Decl(name, "float"),  dg::LayoutElement(0, bufferSlot, 1, dg::VT_FLOAT32, false, frequency)};
-    } else if constexpr (std::is_same<T, dg::float2>::value) {
+    } else if constexpr (std::is_same_v<T, dg::float2>) {
         return Layout{msh::Decl(name, "float2"), dg::LayoutElement(0, bufferSlot, 2, dg::VT_FLOAT32, false, frequency)};
-    } else if constexpr (std::is_same<T, dg::float3>::value) {
+    } else if constexpr (std::is_same_v<T, dg::float3>) {
         return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_FLOAT32, false, frequency)};
-    } else if constexpr (std::is_same<T, dg::float4>::value) {
+    } else if constexpr (std::is_same_v<T, dg::float4>) {
         return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_FLOAT32, false, frequency)};
-    } else if constexpr (std::is_same<T, math::Color3>::value) {
+    } else if constexpr (std::is_same_v<T, math::Color3>) {
         return Layout{msh::Decl(name, "float3"), dg::LayoutElement(0, bufferSlot, 3, dg::VT_UINT8, true, frequency)};
-    } else if constexpr (std::is_same<T, math::Color4>::value) {
+    } else if constexpr (std::is_same_v<T, math::Color4>) {
         return Layout{msh::Decl(name, "float4"), dg::LayoutElement(0, bufferSlot, 4, dg::VT_UINT8, true, frequency)};
     } else {
         throw EngineError("unknown type for Layout");

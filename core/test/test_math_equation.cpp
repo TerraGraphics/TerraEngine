@@ -13,7 +13,7 @@ template<typename T> static T Linear(T a, T b, T result) {
     EXPECT_PRED_FORMAT2(::testing::internal::CmpHelperFloatingPointEQ<decltype(a)>, Linear(a, b, result), 0)
 
 template<typename T> static T QuadAbsError() {
-    if constexpr (std::is_same<T, double>::value) {
+    if constexpr (std::is_same_v<T, double>) {
         return 1.e-15;
     }
 
@@ -32,7 +32,7 @@ template<typename T> static T Quad(T a, T b, T c, T result) {
     EXPECT_NEAR(Quad(a, b, c, result), 0, QuadAbsError<decltype(a)>());
 
 template<typename T> static T CubicAbsError() {
-    if constexpr (std::is_same<T, double>::value) {
+    if constexpr (std::is_same_v<T, double>) {
         return 1.e-13;
     }
 
@@ -51,7 +51,7 @@ template<typename T> static T Cubic(T a, T b, T c, T d, T result) {
     EXPECT_NEAR(Cubic(a, b, c, d, result), 0, CubicAbsError<decltype(a)>());
 
 template<typename T> static T QuarticAbsError() {
-    if constexpr (std::is_same<T, double>::value) {
+    if constexpr (std::is_same_v<T, double>) {
         return 1.e-12;
     }
 

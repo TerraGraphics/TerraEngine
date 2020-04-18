@@ -58,6 +58,15 @@ Direction GetDirection(Axis value);
 // For POX_ return +1, for NEG_ return -1
 int8_t GetSign(Direction value);
 
+template <typename T> bool IsEqual(T a, T b) {
+    if constexpr (std::is_integral_v<T>) {
+        return (a == b);
+    }
+    if constexpr (std::is_floating_point_v<T>) {
+        return std::abs(a - b) <= std::numeric_limits<T>::epsilon();
+    }
+}
+
 struct Color4f {
     Color4f() = default;
     Color4f(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
@@ -224,6 +233,8 @@ struct SizeT {
     SizeT() noexcept : w(0), h(0) {}
     SizeT(T w, T h) noexcept : w(w), h(h) {}
 
+    bool operator==(SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
+
     T w = 0;
     T h = 0;
 };
@@ -236,6 +247,10 @@ struct RectT {
     RectT() = default;
     RectT(const PointT<T>& posMin, const PointT<T>& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
     RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
+
+    bool operator==(RectT other) const noexcept {
+        return (IsEqual(x, other.x) && IsEqual(y, other.y) && IsEqual(w, other.w) && IsEqual(h, other.h));
+    }
 
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }
