@@ -3,6 +3,7 @@
 #include "core/dg/dg.h"
 #include "core/math/types.h"
 #include "middleware/graph_editor/graph_node.h"
+#include "middleware/graph_editor/graph_node_preview.h"
 #include "middleware/generator/texture/texture_consts.h"
 #include "middleware/generator/texture/noise_pojection.h"
 
@@ -23,7 +24,7 @@ protected:
     Noise2D* m_noiseNode = nullptr;
 };
 
-class NoiseToTexture : public NoiseRasterization2D {
+class NoiseToTexture : public NoiseRasterization2D, public INodePreview {
 public:
     NoiseToTexture() = delete;
     NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context);
@@ -31,11 +32,16 @@ public:
     static const char* GetName() { return "Noise to texture"; }
 
     TexturePtr Get() override;
+    TexturePtr GetTexture(math::Size size) override;
+
+private:
+    TexturePtr GetTextureForDraw(math::Size size);
 
 private:
     DevicePtr m_device;
     ContextPtr m_context;
-    TexturePtr m_texture;
+    TexturePtr m_textureCacheMain;
+    TexturePtr m_textureCacheCustom;
     math::Size m_textureSize = math::Size(256, 256);
     math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(1000, 1000));
 };

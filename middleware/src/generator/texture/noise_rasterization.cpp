@@ -40,53 +40,29 @@ NoiseToTexture::~NoiseToTexture() {
 }
 
 TexturePtr NoiseToTexture::Get() {
-    if ((m_noiseBound.Width() <= 0) ||
-        (m_noiseBound.Height() <= 0) ||
-        (m_textureSize.w <= 0) ||
-        (m_textureSize.h <= 0) ||
-        (m_noiseNode == nullptr)) {
+    return GetTexture(m_textureSize);
+}
+
+TexturePtr NoiseToTexture::GetTexture(math::Size size) {
+    if ((m_noiseBound.Width() <= 0) || (m_noiseBound.Height() <= 0) || (m_noiseNode == nullptr)) {
         throw EngineError("NoiseToTexture: invalid params");
     }
 
-    bool needCreateTexture = !m_texture;
-    if (!needCreateTexture) {
-        needCreateTexture = ((m_texture->GetDesc().Width != m_textureSize.w) || (m_texture->GetDesc().Height != m_textureSize.h));
-    }
-
-    if (needCreateTexture) {
-        dg::TextureDesc desc;
-        desc.Name           = "tex::noise";
-        desc.Type           = dg::RESOURCE_DIM_TEX_2D;
-        desc.Width          = m_textureSize.w;
-        desc.Height         = m_textureSize.h;
-        desc.Format         = dg::TEX_FORMAT_RGBA8_UNORM;
-        desc.MipLevels      = 0;
-        desc.SampleCount    = 1;
-        desc.Usage          = dg::USAGE_DYNAMIC;
-        desc.BindFlags      = dg::BIND_SHADER_RESOURCE;
-        desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
-        desc.MiscFlags      = dg::MISC_TEXTURE_FLAG_GENERATE_MIPS;
-
-        m_device->CreateTexture(desc, nullptr, &m_texture);
-        if (!m_texture) {
-            throw EngineError("NoiseToTexture: failed to create texture");
-        }
-    }
-
-    double uDelta  = m_noiseBound.Width() / static_cast<double>(m_textureSize.w);
-    double vDelta  = m_noiseBound.Height() / static_cast<double>(m_textureSize.h);
+    auto texture = GetTextureForDraw(size);
+    double uDelta  = m_noiseBound.Width() / static_cast<double>(size.w);
+    double vDelta  = m_noiseBound.Height() / static_cast<double>(size.h);
     double v = m_noiseBound.y;
 
     dg::MappedTextureSubresource texData;
-    m_context->MapTextureSubresource(m_texture, 0, 0, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, nullptr, texData);
+    m_context->MapTextureSubresource(texture, 0, 0, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, nullptr, texData);
     if (texData.pData == nullptr) {
         throw EngineError("NoiseToTexture: failed to map texture");
     }
 
-    for (uint32_t y=0; y!=m_textureSize.h; ++y) {
+    for (uint32_t y=0; y!=size.h; ++y) {
         auto* pDest = reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(texData.pData) + texData.Stride * y);
         double u = m_noiseBound.x;
-        for (uint32_t x=0; x!=m_textureSize.w; ++x) {
+        for (uint32_t x=0; x!=size.w; ++x) {
             double d = std::min(std::max((m_noiseNode->Get(u, v) + 1.) * 255. * 0.5, 0.), 255.);
             auto component = static_cast<uint8_t>(std::min(std::max(static_cast<int>(d), 0), 255));
             *pDest = math::Color4(component, component, component).value;
@@ -99,8 +75,49 @@ TexturePtr NoiseToTexture::Get() {
     }
 
     // TODO RAII unmap
-    m_context->UnmapTextureSubresource(m_texture, 0, 0);
-    m_context->GenerateMips(m_texture->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
+    m_context->UnmapTextureSubresource(texture, 0, 0);
+    m_context->GenerateMips(texture->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
 
-    return m_texture;
+    return texture;
+}
+
+TexturePtr NoiseToTexture::GetTextureForDraw(math::Size size) {
+    if ((size.w <= 0) || (size.h <= 0)) {
+        throw EngineError("NoiseToTexture: invalid size params");
+    }
+
+    auto texture = (size == m_textureSize) ? m_textureCacheMain : m_textureCacheCustom;
+
+    bool needCreateTexture = !texture;
+    if (!needCreateTexture) {
+        needCreateTexture = ((texture->GetDesc().Width != size.w) || (texture->GetDesc().Height != size.h));
+    }
+
+    if (needCreateTexture) {
+        dg::TextureDesc desc;
+        desc.Name           = "tex::noise";
+        desc.Type           = dg::RESOURCE_DIM_TEX_2D;
+        desc.Width          = size.w;
+        desc.Height         = size.h;
+        desc.Format         = dg::TEX_FORMAT_RGBA8_UNORM;
+        desc.MipLevels      = 0;
+        desc.SampleCount    = 1;
+        desc.Usage          = dg::USAGE_DYNAMIC;
+        desc.BindFlags      = dg::BIND_SHADER_RESOURCE;
+        desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
+        desc.MiscFlags      = dg::MISC_TEXTURE_FLAG_GENERATE_MIPS;
+
+        m_device->CreateTexture(desc, nullptr, &texture);
+        if (!texture) {
+            throw EngineError("NoiseToTexture: failed to create texture");
+        }
+
+        if (size == m_textureSize) {
+            m_textureCacheMain = texture;
+         } else {
+            m_textureCacheCustom = texture;
+         }
+    }
+
+    return texture;
 }
