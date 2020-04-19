@@ -3,10 +3,32 @@
 #include <algorithm>
 #include <imgui_node_editor.h>
 
+#include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
 
 
 namespace ne = ax::NodeEditor;
+
+namespace {
+
+static math::Color GetColorByPinType(uint32_t pinType, uint8_t alpha) {
+    static const std::array<math::Color, 7> pinColorByType = {
+        math::Color(255, 0, 0),
+        math::Color(0, 255, 0),
+        math::Color(0, 0, 255),
+        math::Color(255, 255, 0),
+        math::Color(255, 0, 255),
+        math::Color(0, 255, 255),
+        math::Color(255, 255, 255),
+    };
+
+    auto color = pinColorByType[(pinType & 0xFFFF) % pinColorByType.size()];
+    color.alpha = alpha;
+
+    return color;
+}
+
+}
 
 GraphPin::GraphPin(bool isInput, uint32_t pinType, GraphNode* node)
     : isInput(isInput)
@@ -50,6 +72,7 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
     }
 
     m_inputs[number] = node;
+    node->AttachOutput(this);
 
     return true;
 }
@@ -63,26 +86,10 @@ bool GraphNode::DetachInput(uint8_t number) {
         return false;
     }
 
+    m_inputs[number]->DetachOutput(this);
     m_inputs[number] = nullptr;
 
     return true;
-}
-
-static math::Color GetColorByPinType(uint32_t pinType, uint8_t alpha) {
-    static const std::array<math::Color, 7> pinColorByType = {
-        math::Color(255, 0, 0),
-        math::Color(0, 255, 0),
-        math::Color(0, 0, 255),
-        math::Color(255, 255, 0),
-        math::Color(255, 0, 255),
-        math::Color(0, 255, 255),
-        math::Color(255, 255, 255),
-    };
-
-    auto color = pinColorByType[(pinType & 0xFFFF) % pinColorByType.size()];
-    color.alpha = alpha;
-
-    return color;
 }
 
 void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight) {
@@ -159,4 +166,22 @@ void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth
         drawList->AddLine(imageBottomLeft, imageBottomRight, headerLineColor, 1.0f);
     }
     ne::PopStyleVar(1);
+}
+
+void GraphNode::AttachOutput(GraphNode* node) {
+    if (m_outputs.find(node) != m_outputs.end()) {
+        throw EngineError("GraphNode: double add node for AttachOutput");
+    }
+    m_outputs[node] = Weak(node);
+}
+
+void GraphNode::DetachOutput(GraphNode* node) {
+    auto it = m_outputs.find(node);
+    if (it == m_outputs.end()) {
+        throw EngineError("GraphNode: not found node for delete in DetachOutput");
+    }
+    if (!it->second.IsValid()) {
+        throw EngineError("GraphNode: node for delete in DetachOutput is removed");
+    }
+    m_outputs.erase(it);
 }
