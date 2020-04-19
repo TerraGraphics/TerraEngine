@@ -26,6 +26,9 @@ public:
     CoherentNoise(dg::IReferenceCounters* refCounters);
     static const char* GetName() { return "Coherent noise"; }
 
+    int GetSeed() const;
+    void SetSeed(int value);
+
     double Get(double x, double y, double z) override;
 
 private:

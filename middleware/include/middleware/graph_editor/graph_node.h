@@ -38,14 +38,20 @@ public:
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
 
 protected:
-    void AttachOutput(GraphNode* node);
-    void DetachOutput(GraphNode* node);
+    virtual void StateChanged();
+    bool GetIsDirty() { return m_isDirty; }
+    void ResetIsDirty() { m_isDirty = false; }
 
     virtual bool AttachInputImpl(uint8_t number, GraphNode* node) = 0;
     virtual bool DetachInputImpl(uint8_t number) = 0;
 
 private:
+    void AttachOutput(GraphNode* node);
+    void DetachOutput(GraphNode* node);
+
+private:
     const char* m_name;
+    bool m_isDirty = true;
     GraphPin m_outputPin;
     std::vector<GraphPin> m_inputPins;
     std::vector<Ref> m_inputs;

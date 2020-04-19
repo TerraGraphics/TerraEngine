@@ -39,6 +39,24 @@ NoiseToTexture::~NoiseToTexture() {
 
 }
 
+math::Size NoiseToTexture::GetSize() const {
+    return m_textureSize;
+}
+
+void NoiseToTexture::SetSize(math::Size value) {
+    m_textureSize = value;
+    StateChanged();
+}
+
+math::RectD NoiseToTexture::GetBound() const {
+    return m_noiseBound;
+}
+
+void NoiseToTexture::SetBound(math::RectD value) {
+    m_noiseBound = value;
+    StateChanged();
+}
+
 TexturePtr NoiseToTexture::Get() {
     return GetTexture(m_textureSize);
 }
@@ -53,8 +71,16 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
 
     TexturePtr texture;
     bool isChanged = GetTextureForDraw(size, texture);
-    if (!isChanged && !IsBoundChanged(size)) {
-        return texture;
+    if (!isChanged) {
+        if (size == m_textureSize) {
+            if (!GetIsDirty()) {
+                return texture;
+            }
+        } else {
+            if (!m_isCustomDirty) {
+                return texture;
+            }
+        }
     }
 
     double uDelta  = m_noiseBound.Width() / static_cast<double>(size.w);
@@ -86,21 +112,16 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
     m_context->UnmapTextureSubresource(texture, 0, 0);
     m_context->GenerateMips(texture->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
 
-    if (size == m_textureSize) {
-        m_noiseBoundCacheMain = m_noiseBound;
-    } else {
-        m_noiseBoundCacheCustom = m_noiseBound;
+    if (size != m_textureSize) {
+        m_isCustomDirty = false;
     }
 
     return texture;
 }
 
-bool NoiseToTexture::IsBoundChanged(math::Size size) {
-    if (size == m_textureSize) {
-        return (m_noiseBoundCacheMain != m_noiseBound);
-    } else {
-        return (m_noiseBoundCacheCustom != m_noiseBound);
-    }
+void NoiseToTexture::StateChanged() {
+    GraphNode::StateChanged();
+    m_isCustomDirty = true;
 }
 
 bool NoiseToTexture::GetTextureForDraw(math::Size size, TexturePtr& output) {

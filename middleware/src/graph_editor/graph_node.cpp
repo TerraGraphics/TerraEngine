@@ -73,6 +73,7 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
 
     m_inputs[number] = node;
     node->AttachOutput(this);
+    StateChanged();
 
     return true;
 }
@@ -88,6 +89,7 @@ bool GraphNode::DetachInput(uint8_t number) {
 
     m_inputs[number]->DetachOutput(this);
     m_inputs[number] = nullptr;
+    StateChanged();
 
     return true;
 }
@@ -168,9 +170,19 @@ void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth
     ne::PopStyleVar(1);
 }
 
+void GraphNode::StateChanged() {
+    m_isDirty = true;
+    for (auto& [node, nodeWeak]: m_outputs) {
+        if (!nodeWeak.IsValid()) {
+            throw EngineError("GraphNode: output node is removed, can't StateChanged");
+        }
+        node->StateChanged();
+    }
+}
+
 void GraphNode::AttachOutput(GraphNode* node) {
     if (m_outputs.find(node) != m_outputs.end()) {
-        throw EngineError("GraphNode: double add node for AttachOutput");
+        throw EngineError("GraphNode: double add output node for AttachOutput");
     }
     m_outputs[node] = Weak(node);
 }
@@ -178,10 +190,10 @@ void GraphNode::AttachOutput(GraphNode* node) {
 void GraphNode::DetachOutput(GraphNode* node) {
     auto it = m_outputs.find(node);
     if (it == m_outputs.end()) {
-        throw EngineError("GraphNode: not found node for delete in DetachOutput");
+        throw EngineError("GraphNode: not found output node for delete in DetachOutput");
     }
     if (!it->second.IsValid()) {
-        throw EngineError("GraphNode: node for delete in DetachOutput is removed");
+        throw EngineError("GraphNode: output node for delete in DetachOutput is removed");
     }
     m_outputs.erase(it);
 }

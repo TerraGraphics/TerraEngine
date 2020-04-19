@@ -27,6 +27,9 @@ public:
     PlaneProjection(dg::IReferenceCounters* refCounters);
     static const char* GetName() { return "Plane projection"; }
 
+    double GetCoordZ() const;
+    void SetCoordZ(double value);
+
     double Get(double u, double v) override;
 
 private:

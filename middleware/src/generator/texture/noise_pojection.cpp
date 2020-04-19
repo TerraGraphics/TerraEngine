@@ -28,6 +28,15 @@ PlaneProjection::PlaneProjection(dg::IReferenceCounters* refCounters)
 
 }
 
+double PlaneProjection::GetCoordZ() const {
+    return m_coordZ;
+}
+
+void PlaneProjection::SetCoordZ(double value) {
+    m_coordZ = value;
+    StateChanged();
+}
+
 double PlaneProjection::Get(double u, double v) {
     if (m_noiseNode == nullptr) {
         throw EngineError("PlaneProjection: one of the inputs is empty");

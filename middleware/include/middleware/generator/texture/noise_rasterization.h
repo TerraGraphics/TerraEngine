@@ -31,11 +31,18 @@ public:
     ~NoiseToTexture();
     static const char* GetName() { return "Noise to texture"; }
 
+    math::Size GetSize() const;
+    void SetSize(math::Size value);
+    math::RectD GetBound() const;
+    void SetBound(math::RectD value);
+
     TexturePtr Get() override;
     TexturePtr GetTexture(math::Size size) override;
 
+protected:
+    void StateChanged() override;
+
 private:
-    bool IsBoundChanged(math::Size size);
     bool GetTextureForDraw(math::Size size, TexturePtr& output);
 
 private:
@@ -45,6 +52,5 @@ private:
     TexturePtr m_textureCacheCustom;
     math::Size m_textureSize = math::Size(256, 256);
     math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(1000, 1000));
-    math::RectD m_noiseBoundCacheMain = m_noiseBound;
-    math::RectD m_noiseBoundCacheCustom = m_noiseBound;
+    bool m_isCustomDirty = true;
 };
