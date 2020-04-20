@@ -57,6 +57,14 @@ void NoiseToTexture::SetBound(math::RectD value) {
     StateChanged();
 }
 
+NoiseToTexture* NoiseToTexture::SetInputs(Noise2D* input) {
+    if (!AttachInput(0, input)) {
+        throw EngineError("NoiseRasterization2D: can't set input number 0");
+    }
+
+    return this;
+}
+
 TexturePtr NoiseToTexture::Get() {
     return GetTexture(m_textureSize);
 }

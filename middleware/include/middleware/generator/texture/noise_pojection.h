@@ -29,6 +29,7 @@ public:
 
     double GetCoordZ() const;
     void SetCoordZ(double value);
+    PlaneProjection* SetInputs(Noise3D* input);
 
     double Get(double u, double v) override;
 

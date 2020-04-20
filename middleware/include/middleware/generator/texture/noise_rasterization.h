@@ -35,6 +35,7 @@ public:
     void SetSize(math::Size value);
     math::RectD GetBound() const;
     void SetBound(math::RectD value);
+    NoiseToTexture* SetInputs(Noise2D* input);
 
     TexturePtr Get() override;
     TexturePtr GetTexture(math::Size size) override;

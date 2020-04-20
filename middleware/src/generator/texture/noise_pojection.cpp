@@ -37,6 +37,14 @@ void PlaneProjection::SetCoordZ(double value) {
     StateChanged();
 }
 
+PlaneProjection* PlaneProjection::SetInputs(Noise3D* input) {
+    if (!AttachInput(0, input)) {
+        throw EngineError("PlaneProjection: can't set input number 0");
+    }
+
+    return this;
+}
+
 double PlaneProjection::Get(double u, double v) {
     if (m_noiseNode == nullptr) {
         throw EngineError("PlaneProjection: one of the inputs is empty");
