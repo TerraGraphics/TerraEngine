@@ -33,10 +33,10 @@ void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarI
     auto& engine = Engine::Get();
 
     m_gui = gui;
-    m_graphWindow->Create();
+    m_propertyWindow->Create();
+    m_graphWindow->Create(m_propertyWindow);
     m_renderTarget->Create(engine.GetDevice(), math::Color4f(1.f));
     m_previewWindow->Create(vsCameraVarId, psCameraVarId, gsCameraVarId);
-    m_propertyWindow->Create();
 }
 
 void EditorSceneController::Update(double deltaTime) {

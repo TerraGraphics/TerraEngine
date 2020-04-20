@@ -5,7 +5,7 @@
 #include "core/dg/texture.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
-#include "middleware/generator/texture/noise_rasterization.h"
+#include "middleware/graph_editor/graph_node_preview.h"
 
 
 NodePreview::NodePreview(bool isOpenGL)
@@ -13,7 +13,11 @@ NodePreview::NodePreview(bool isOpenGL)
 
 }
 
-void NodePreview::SetNode(NoiseRasterization2D* node) {
+NodePreview::~NodePreview() {
+
+}
+
+void NodePreview::SetNode(INodePreview* node) {
     m_node = node;
 }
 
@@ -22,11 +26,14 @@ void NodePreview::ResetNode() {
 }
 
 void NodePreview::Draw() {
-    if (!m_node || !m_node->IsFull()) {
+    auto nodePtr = m_node.Lock();
+    if (!nodePtr || !nodePtr->IsFull()) {
         return;
     }
+    auto size = ToSize(ImGui::GetContentRegionAvail());
+    size.h = size.w;
 
     TextureViewPtr texView;
-    texView = m_node->Get()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
-    Image(texView.RawPtr(), ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
+    texView = nodePtr->GetTexture(size)->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+    Image(texView.RawPtr(), size, m_isOpenGL);
 }

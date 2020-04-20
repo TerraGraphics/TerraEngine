@@ -4,18 +4,18 @@
 #include "core/common/ctor.h"
 
 
-class NoiseRasterization2D;
+class INodePreview;
 class NodePreview : Fixed {
 public:
     NodePreview() = delete;
     NodePreview(bool isOpenGL);
-    ~NodePreview() = default;
+    ~NodePreview();
 
-    void SetNode(NoiseRasterization2D* node);
+    void SetNode(INodePreview* node);
     void ResetNode();
     void Draw();
 
 private:
     bool m_isOpenGL = false;
-    dg::RefCntAutoPtr<NoiseRasterization2D> m_node;
+    dg::RefCntWeakPtr<INodePreview> m_node;
 };

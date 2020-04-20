@@ -8,7 +8,7 @@
 #include "middleware/generator/texture/noise_pojection.h"
 
 
-class NoiseRasterization2D : public GraphNode {
+class NoiseRasterization2D : public INodePreview {
 protected:
     NoiseRasterization2D() = delete;
     NoiseRasterization2D(dg::IReferenceCounters* refCounters, const char* name);
@@ -24,7 +24,7 @@ protected:
     Noise2D* m_noiseNode = nullptr;
 };
 
-class NoiseToTexture : public NoiseRasterization2D, public INodePreview {
+class NoiseToTexture : public NoiseRasterization2D {
 public:
     NoiseToTexture() = delete;
     NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context);

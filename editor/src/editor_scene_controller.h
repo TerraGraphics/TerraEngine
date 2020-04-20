@@ -30,5 +30,5 @@ private:
     std::unique_ptr<GraphWindow> m_graphWindow;
     std::unique_ptr<RenderTarget> m_renderTarget;
     std::unique_ptr<PreviewWindow> m_previewWindow;
-    std::unique_ptr<PropertyWindow> m_propertyWindow;
+    std::shared_ptr<PropertyWindow> m_propertyWindow;
 };
