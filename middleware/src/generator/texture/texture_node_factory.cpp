@@ -3,6 +3,7 @@
 #include <DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp>
 
 #include "core/dg/render_device.h"
+#include "core/common/exception.h"
 #include "core/dg/device_context.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
@@ -35,4 +36,32 @@ PlaneProjection* TextureNodeFactory::CreatePlaneProjection() {
 
 NoiseToTexture* TextureNodeFactory::CreateNoiseToTexture() {
     return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), NoiseToTexture::GetName(), NoiseToTexture)(m_device, m_context);
+}
+
+INodePreview* TextureNodeFactory::CompleteToPreview(CoherentNoise* node) {
+    return CompleteToPreview(CreatePlaneProjection()->SetInputs(node));
+}
+
+INodePreview* TextureNodeFactory::CompleteToPreview(PlaneProjection* node) {
+    return CompleteToPreview(CreateNoiseToTexture()->SetInputs(node));
+}
+
+INodePreview* TextureNodeFactory::CompleteToPreview(NoiseToTexture* node) {
+    return node;
+}
+
+INodePreview* TextureNodeFactory::GetPreview(GraphNode* node) {
+    if (auto* typedNode = dynamic_cast<CoherentNoise*>(node)) {
+        return CompleteToPreview(typedNode);
+    }
+
+    if (auto* typedNode = dynamic_cast<PlaneProjection*>(node)) {
+        return CompleteToPreview(typedNode);
+    }
+
+    if (auto* typedNode = dynamic_cast<NoiseToTexture*>(node)) {
+        return CompleteToPreview(typedNode);
+    }
+
+    throw EngineError("TextureNodeFactory: unknown type for GetPreview");
 }
