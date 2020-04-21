@@ -12,6 +12,7 @@ public:
     SelectedNode(bool isOpenGL);
     ~SelectedNode();
 
+    GraphNode* GetNode();
     void SetNode(GraphNode* node, INodePreview* previewNode);
     void ResetNode();
     void Draw();

@@ -35,7 +35,7 @@ public:
 
     GraphNode* GetSelectedNode() { return m_selectedNode; }
 
-    void Draw();
+    void Draw(GraphNode* previewNode);
 
 private:
     uintptr_t m_nextId = 1;

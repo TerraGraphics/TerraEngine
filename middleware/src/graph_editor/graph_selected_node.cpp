@@ -17,6 +17,16 @@ SelectedNode::~SelectedNode() {
 
 }
 
+GraphNode* SelectedNode::GetNode() {
+    if (m_node.IsValid()) {
+        if (auto nodePtr = m_node.Lock()) {
+            return nodePtr.RawPtr();
+        }
+    }
+
+    return nullptr;
+}
+
 void SelectedNode::SetNode(GraphNode* node, INodePreview* previewNode) {
     m_node = node;
     m_previewNode = previewNode;

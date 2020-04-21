@@ -52,10 +52,11 @@ void GraphEditor::Draw() {
     ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
     ne::Begin(m_name.c_str());
 
-    m_storage->Draw();
-    auto* node = m_storage->GetSelectedNode();
-    if (node) {
+    m_storage->Draw(m_selectedNode->GetNode());
+    if (auto* node = m_storage->GetSelectedNode()) {
         m_selectedNode->SetNode(node, m_factory->GetPreview(node));
+    } else if (ne::IsBackgroundClicked()) {
+        m_selectedNode->ResetNode();
     }
 
     if (ne::BeginCreate()) {

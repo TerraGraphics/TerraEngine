@@ -102,7 +102,7 @@ bool GraphNode::DetachInput(uint8_t number) {
     return true;
 }
 
-void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight) {
+void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight) {
     const float nodePaddingLeft = 8;
     const float nodePaddingRight = 8;
     const float nodePaddingTop = 4;
@@ -147,7 +147,8 @@ void GraphNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth
         ImGui::SameLine();
         ImGui::BeginGroup();
             ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
-            NodeIcon(iconSize, IconType::Circle, m_outputPin.isConnected, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
+            bool filled = ((isSelected && (m_outputs.size() > 1)) || (!isSelected && !m_outputs.empty()));
+            NodeIcon(iconSize, IconType::Circle, filled, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
             ne::EndPin();
         ImGui::EndGroup();
     }
