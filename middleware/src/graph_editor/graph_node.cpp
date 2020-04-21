@@ -52,9 +52,15 @@ GraphNode::GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint
     }
 }
 
+GraphNode::~GraphNode() {
+    for (auto& node : m_inputs) {
+        node->DetachOutput(this);
+    }
+}
+
 bool GraphNode::IsFull() const noexcept {
-    for (const auto& pin : m_inputs) {
-        if ((!pin) || (!pin->IsFull())) {
+    for (const auto& node : m_inputs) {
+        if ((!node) || (!node->IsFull())) {
             return false;
         }
     }
@@ -191,9 +197,6 @@ void GraphNode::DetachOutput(GraphNode* node) {
     auto it = m_outputs.find(node);
     if (it == m_outputs.end()) {
         throw EngineError("GraphNode: not found output node for delete in DetachOutput");
-    }
-    if (!it->second.IsValid()) {
-        throw EngineError("GraphNode: output node for delete in DetachOutput is removed");
     }
     m_outputs.erase(it);
 }

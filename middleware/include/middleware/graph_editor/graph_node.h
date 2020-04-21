@@ -25,6 +25,7 @@ class GraphNode : Fixed, public dg::ObjectBase<dg::IObject> {
 protected:
     GraphNode() = delete;
     GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType);
+    virtual ~GraphNode();
 
 public:
     using Ref = dg::RefCntAutoPtr<GraphNode>;
