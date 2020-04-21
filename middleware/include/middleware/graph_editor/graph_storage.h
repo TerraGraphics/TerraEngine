@@ -33,6 +33,8 @@ public:
     bool AddLink(const ax::NodeEditor::PinId pinIdFirst, const ax::NodeEditor::PinId pinIdSecond, bool checkOnly);
     bool DelLink(const ax::NodeEditor::LinkId linkId, bool checkOnly);
 
+    GraphNode* GetSelectedNode() { return m_selectedNode; }
+
     void Draw();
 
 private:
@@ -40,6 +42,7 @@ private:
     float m_texBackgroundWidht = 1.f;
     float m_texBackgroundheight = 1.f;
     TextureViewPtr m_texBackground;
+    GraphNode* m_selectedNode = nullptr;
     std::vector<dg::RefCntAutoPtr<GraphNode>> m_nodes;
     std::unordered_map<ax::NodeEditor::LinkId, LinkInfo> m_links;
 };

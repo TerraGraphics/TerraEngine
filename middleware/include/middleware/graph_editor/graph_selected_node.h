@@ -4,6 +4,7 @@
 #include "core/common/ctor.h"
 
 
+class GraphNode;
 class INodePreview;
 class SelectedNode : Fixed {
 public:
@@ -11,11 +12,12 @@ public:
     SelectedNode(bool isOpenGL);
     ~SelectedNode();
 
-    void SetNode(INodePreview* node);
+    void SetNode(GraphNode* node, INodePreview* previewNode);
     void ResetNode();
     void Draw();
 
 private:
     bool m_isOpenGL = false;
-    dg::RefCntWeakPtr<INodePreview> m_node;
+    dg::RefCntWeakPtr<GraphNode> m_node;
+    dg::RefCntAutoPtr<INodePreview> m_previewNode;
 };

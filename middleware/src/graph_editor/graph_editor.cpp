@@ -2,11 +2,12 @@
 
 #include "middleware/graph_editor/graph_storage.h"
 #include "middleware/graph_editor/graph_node_factory.h"
+#include "middleware/graph_editor/graph_selected_node.h"
 
 
 namespace ne = ax::NodeEditor;
 
-GraphEditor::GraphEditor(const std::string& name, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
+GraphEditor::GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
     : m_name(name)
     , m_config(new ne::Config())
     , m_storage(new GraphStorage(texBackground))
@@ -14,6 +15,7 @@ GraphEditor::GraphEditor(const std::string& name, TexturePtr& texBackground, std
 
     m_config->SettingsFile = "";
     m_context = ne::CreateEditor(m_config);
+    m_selectedNode = std::make_shared<SelectedNode>(isGLDevice);
 }
 
 GraphEditor::~GraphEditor() {
@@ -39,6 +41,10 @@ void GraphEditor::AddNode(GraphNode* node) {
     }
 }
 
+std::shared_ptr<SelectedNode> GraphEditor::GetSelectedNode() {
+    return m_selectedNode;
+}
+
 void GraphEditor::Draw() {
     ne::SetCurrentEditor(m_context);
     ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
@@ -47,6 +53,10 @@ void GraphEditor::Draw() {
     ne::Begin(m_name.c_str());
 
     m_storage->Draw();
+    auto* node = m_storage->GetSelectedNode();
+    if (node) {
+        m_selectedNode->SetNode(node, m_factory->GetPreview(node));
+    }
 
     if (ne::BeginCreate()) {
         ne::PinId pinIdFirst, pinIdSecond;

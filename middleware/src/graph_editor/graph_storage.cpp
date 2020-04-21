@@ -80,8 +80,13 @@ void GraphStorage::Draw() {
     auto alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
     auto texBackgroundRaw = m_texBackground.RawPtr();
 
+    m_selectedNode = nullptr;
+    auto doubleClickedNode = ne::GetDoubleClickedNode();
     for (auto& node: m_nodes) {
         node->Draw(alpha, texBackgroundRaw, m_texBackgroundWidht, m_texBackgroundheight);
+        if (doubleClickedNode == ne::NodeId(node.RawPtr())) {
+           m_selectedNode = node.RawPtr();
+        }
     }
 
     for (const auto& [linkId, info] : m_links) {
