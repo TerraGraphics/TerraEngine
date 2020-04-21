@@ -5,11 +5,11 @@
 
 
 class INodePreview;
-class NodePreview : Fixed {
+class SelectedNode : Fixed {
 public:
-    NodePreview() = delete;
-    NodePreview(bool isOpenGL);
-    ~NodePreview();
+    SelectedNode() = delete;
+    SelectedNode(bool isOpenGL);
+    ~SelectedNode();
 
     void SetNode(INodePreview* node);
     void ResetNode();

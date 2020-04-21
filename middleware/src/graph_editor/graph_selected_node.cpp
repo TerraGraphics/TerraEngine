@@ -1,4 +1,4 @@
-#include "middleware/graph_editor/node_preview.h"
+#include "middleware/graph_editor/graph_selected_node.h"
 
 #include <imgui.h>
 
@@ -8,24 +8,24 @@
 #include "middleware/graph_editor/graph_node_preview.h"
 
 
-NodePreview::NodePreview(bool isOpenGL)
+SelectedNode::SelectedNode(bool isOpenGL)
     : m_isOpenGL(isOpenGL) {
 
 }
 
-NodePreview::~NodePreview() {
+SelectedNode::~SelectedNode() {
 
 }
 
-void NodePreview::SetNode(INodePreview* node) {
+void SelectedNode::SetNode(INodePreview* node) {
     m_node = node;
 }
 
-void NodePreview::ResetNode() {
+void SelectedNode::ResetNode() {
     m_node.Release();
 }
 
-void NodePreview::Draw() {
+void SelectedNode::Draw() {
     auto nodePtr = m_node.Lock();
     if (!nodePtr || !nodePtr->IsFull()) {
         return;
