@@ -77,6 +77,7 @@ bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
         return false;
     }
 
+    m_inputPins[number].isConnected = true;
     m_inputs[number] = node;
     node->AttachOutput(this);
     StateChanged();
@@ -93,6 +94,7 @@ bool GraphNode::DetachInput(uint8_t number) {
         return false;
     }
 
+    m_inputPins[number].isConnected = false;
     m_inputs[number]->DetachOutput(this);
     m_inputs[number] = nullptr;
     StateChanged();
@@ -190,6 +192,7 @@ void GraphNode::AttachOutput(GraphNode* node) {
     if (m_outputs.find(node) != m_outputs.end()) {
         throw EngineError("GraphNode: double add output node for AttachOutput");
     }
+    m_outputPin.isConnected = true;
     m_outputs[node] = Weak(node);
 }
 
@@ -199,4 +202,7 @@ void GraphNode::DetachOutput(GraphNode* node) {
         throw EngineError("GraphNode: not found output node for delete in DetachOutput");
     }
     m_outputs.erase(it);
+    if (m_outputs.empty()) {
+        m_outputPin.isConnected = false;
+    }
 }

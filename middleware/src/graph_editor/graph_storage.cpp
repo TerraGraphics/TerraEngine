@@ -46,7 +46,6 @@ bool GraphStorage::AddLink(const ne::PinId pinIdFirst, const ne::PinId pinIdSeco
     }
 
     if (!checkOnly) {
-        dstPin->isConnected = true;
         if (!dstPin->node->AttachInput(dstPin->pinNum, srcPin->node)) {
             throw EngineError("unexpected node attach error");
         }
@@ -67,7 +66,6 @@ bool GraphStorage::DelLink(const ne::LinkId linkId, bool checkOnly) {
 
     if (!checkOnly) {
         GraphPin* dstPin = it->second.dstPin.AsPointer<GraphPin>();
-        dstPin->isConnected = false;
         dstPin->node->DetachInput(dstPin->pinNum);
 
         m_links.erase(it);
