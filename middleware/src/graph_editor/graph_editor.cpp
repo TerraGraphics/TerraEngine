@@ -61,11 +61,13 @@ void GraphEditor::Draw() {
         ne::PinId pinIdFirst, pinIdSecond;
         if (ne::QueryNewLink(&pinIdFirst, &pinIdSecond)) {
             bool checkOnly = true;
-            if (!m_storage->AddLink(pinIdFirst, pinIdSecond, checkOnly)) {
+            auto* pinFirst = pinIdFirst.AsPointer<GraphPin>();
+            auto* pinSecond = pinIdSecond.AsPointer<GraphPin>();
+            if (!m_storage->AddLink(pinFirst, pinSecond, checkOnly)) {
                 ne::RejectNewItem();
             } else if (ne::AcceptNewItem()) {
                 checkOnly = false;
-                m_storage->AddLink(pinIdFirst, pinIdSecond, checkOnly);
+                m_storage->AddLink(pinFirst, pinSecond, checkOnly);
             }
         }
         ne::EndCreate();

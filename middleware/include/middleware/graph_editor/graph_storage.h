@@ -16,9 +16,10 @@ namespace std {
     };
 }
 
+struct GraphPin;
 struct LinkInfo {
-    ax::NodeEditor::PinId srcPin;
-    ax::NodeEditor::PinId dstPin;
+    GraphPin* srcPin;
+    GraphPin* dstPin;
 };
 
 class GraphNode;
@@ -30,7 +31,7 @@ public:
 
     bool AddNode(GraphNode* node);
     bool DelNode(GraphNode* node, bool checkOnly);
-    bool AddLink(const ax::NodeEditor::PinId pinIdFirst, const ax::NodeEditor::PinId pinIdSecond, bool checkOnly);
+    bool AddLink(GraphPin* pinFirst, GraphPin* pinSecond, bool checkOnly);
     bool DelLink(const ax::NodeEditor::LinkId linkId, bool checkOnly);
 
     GraphNode* GetSelectedNode() { return m_selectedNode; }

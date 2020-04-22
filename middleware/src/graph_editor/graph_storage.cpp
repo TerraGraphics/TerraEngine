@@ -42,12 +42,11 @@ bool GraphStorage::DelNode(GraphNode* node, bool checkOnly) {
 
     std::vector<ne::LinkId> delLinks;
     for (auto& [linkId, linkInfo] : m_links) {
-        if ((linkInfo.dstPin.AsPointer<GraphPin>()->node == node) || (linkInfo.srcPin.AsPointer<GraphPin>()->node == node)) {
+        if ((linkInfo.dstPin->node == node) || (linkInfo.srcPin->node == node)) {
             delLinks.push_back(linkId);
         }
     }
 
-    std::cout << delLinks.size() << std::endl;
     for (auto& linkId : delLinks) {
         if (!DelLink(linkId, checkOnly)) {
             return false;
@@ -62,15 +61,11 @@ bool GraphStorage::DelNode(GraphNode* node, bool checkOnly) {
     return true;
 }
 
-bool GraphStorage::AddLink(const ne::PinId pinIdFirst, const ne::PinId pinIdSecond, bool checkOnly) {
-    if ((!pinIdFirst) || (!pinIdSecond) || (pinIdFirst == pinIdSecond)) {
-        return false;
-    }
-
-    GraphPin* pinFirst = pinIdFirst.AsPointer<GraphPin>();
-    GraphPin* pinSecond = pinIdSecond.AsPointer<GraphPin>();
-
-    if ((pinFirst->isInput == pinSecond->isInput) ||
+bool GraphStorage::AddLink(GraphPin* pinFirst, GraphPin* pinSecond, bool checkOnly) {
+    if ((!pinFirst) ||
+        (!pinSecond) ||
+        (pinFirst == pinSecond) ||
+        (pinFirst->isInput == pinSecond->isInput) ||
         (pinFirst->node == pinSecond->node) ||
         (pinFirst->node == nullptr) ||
         (pinSecond->node == nullptr) ||
@@ -91,7 +86,7 @@ bool GraphStorage::AddLink(const ne::PinId pinIdFirst, const ne::PinId pinIdSeco
         }
 
         auto linkId = ne::LinkId(m_nextId++);
-        m_links[linkId] = LinkInfo{ne::PinId(srcPin), ne::PinId(dstPin)};
+        m_links[linkId] = LinkInfo{srcPin, dstPin};
         ne::Link(linkId, ne::PinId(srcPin), ne::PinId(dstPin));
     }
 
@@ -105,7 +100,7 @@ bool GraphStorage::DelLink(const ne::LinkId linkId, bool checkOnly) {
     }
 
     if (!checkOnly) {
-        GraphPin* dstPin = it->second.dstPin.AsPointer<GraphPin>();
+        GraphPin* dstPin = it->second.dstPin;
         dstPin->node->DetachInput(dstPin->pinNum);
 
         m_links.erase(it);
@@ -128,6 +123,6 @@ void GraphStorage::Draw(GraphNode* previewNode) {
     }
 
     for (const auto& [linkId, info] : m_links) {
-        ne::Link(linkId, info.srcPin, info.dstPin);
+        ne::Link(linkId, ne::PinId(info.srcPin), ne::PinId(info.dstPin));
     }
 }
