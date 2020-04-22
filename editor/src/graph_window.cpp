@@ -1,7 +1,6 @@
 #include "graph_window.h"
 
 #include <imgui.h>
-#include <imgui_node_editor.h>
 
 #include "core/engine.h"
 #include "property_window.h"
@@ -16,8 +15,6 @@
 #include "middleware/generator/texture/noise_rasterization.h"
 #include "middleware/generator/texture/texture_node_factory.h"
 
-
-namespace ed = ax::NodeEditor;
 
 GraphWindow::GraphWindow() {
 

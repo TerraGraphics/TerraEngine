@@ -1,5 +1,7 @@
 #include "middleware/graph_editor/graph_editor.h"
 
+#include <imgui_node_editor.h>
+
 #include "middleware/graph_editor/graph_storage.h"
 #include "middleware/graph_editor/graph_node_factory.h"
 #include "middleware/graph_editor/graph_selected_node.h"
@@ -77,11 +79,11 @@ void GraphEditor::Draw() {
         ne::LinkId linkId = 0;
         while (ne::QueryDeletedLink(&linkId)) {
             bool checkOnly = true;
-            if (!m_storage->DelLink(linkId, checkOnly)) {
+            if (!m_storage->DelLink(linkId.Get(), checkOnly)) {
                 ne::RejectDeletedItem();
             } else if (ne::AcceptDeletedItem()) {
                 checkOnly = false;
-                m_storage->DelLink(linkId, checkOnly);
+                m_storage->DelLink(linkId.Get(), checkOnly);
             }
         }
 

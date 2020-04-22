@@ -1,5 +1,7 @@
 #include "middleware/graph_editor/graph_storage.h"
 
+#include <imgui_node_editor.h>
+
 #include "core/dg/texture.h"
 #include "core/common/exception.h"
 #include "middleware/graph_editor/graph_node.h"
@@ -40,7 +42,7 @@ bool GraphStorage::DelNode(GraphNode* node, bool checkOnly) {
         return false;
     }
 
-    std::vector<ne::LinkId> delLinks;
+    std::vector<uintptr_t> delLinks;
     for (auto& [linkId, linkInfo] : m_links) {
         if ((linkInfo.dstPin->node == node) || (linkInfo.srcPin->node == node)) {
             delLinks.push_back(linkId);
@@ -85,15 +87,15 @@ bool GraphStorage::AddLink(GraphPin* pinFirst, GraphPin* pinSecond, bool checkOn
             throw EngineError("unexpected node attach error");
         }
 
-        auto linkId = ne::LinkId(m_nextId++);
+        auto linkId = m_nextId++;
         m_links[linkId] = LinkInfo{srcPin, dstPin};
-        ne::Link(linkId, ne::PinId(srcPin), ne::PinId(dstPin));
+        ne::Link(ne::LinkId(linkId), ne::PinId(srcPin), ne::PinId(dstPin));
     }
 
     return true;
 }
 
-bool GraphStorage::DelLink(const ne::LinkId linkId, bool checkOnly) {
+bool GraphStorage::DelLink(uintptr_t linkId, bool checkOnly) {
     const auto it = m_links.find(linkId);
     if (it == m_links.cend()) {
         return false;
@@ -114,15 +116,15 @@ void GraphStorage::Draw(GraphNode* previewNode) {
     auto texBackgroundRaw = m_texBackground.RawPtr();
 
     m_selectedNode = nullptr;
-    auto doubleClickedNode = ne::GetDoubleClickedNode();
+    auto* doubleClickedNode = ne::GetDoubleClickedNode().AsPointer<GraphNode>();
     for (auto& [nodeRaw, _]: m_nodes) {
         nodeRaw->Draw((previewNode == nodeRaw), alpha, texBackgroundRaw, m_texBackgroundWidht, m_texBackgroundheight);
-        if (doubleClickedNode == ne::NodeId(nodeRaw)) {
+        if (doubleClickedNode == nodeRaw) {
            m_selectedNode = nodeRaw;
         }
     }
 
     for (const auto& [linkId, info] : m_links) {
-        ne::Link(linkId, ne::PinId(info.srcPin), ne::PinId(info.dstPin));
+        ne::Link(ne::LinkId(linkId), ne::PinId(info.srcPin), ne::PinId(info.dstPin));
     }
 }
