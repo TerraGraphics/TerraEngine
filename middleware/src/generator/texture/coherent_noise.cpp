@@ -1,6 +1,7 @@
 #include "middleware/generator/texture/coherent_noise.h"
 
 #include "core/common/exception.h"
+#include "middleware/imgui/widgets.h"
 
 
 namespace {
@@ -95,5 +96,11 @@ double CoherentNoise::Get(double x, double y, double z) {
 }
 
 void CoherentNoise::DrawGui() {
+    static const char* noiseTypes[] = {
+        "Value", "ValueFractal", "Perlin", "PerlinFractal", "Simplex", "SimplexFractal", "Cellular", "WhiteNoise", "Cubic", "CubicFractal"};
 
+    auto noiseType = GetNoiseType();
+    if (Combo("Noise type", noiseType, noiseTypes, NoiseType::LastItem)) {
+        SetNoiseType(noiseType);
+    }
 }

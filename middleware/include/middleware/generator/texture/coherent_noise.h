@@ -33,6 +33,7 @@ public:
         WhiteNoise,
         Cubic,
         CubicFractal,
+        LastItem
     };
 public:
     CoherentNoise() = delete;

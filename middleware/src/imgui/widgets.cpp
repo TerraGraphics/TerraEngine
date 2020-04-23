@@ -9,6 +9,24 @@
 
 namespace detail {
 
+bool Combo(const char* label, size_t& currentIndex, const char** itemNames, const size_t numberItems) {
+    bool changed = false;
+    const char* itemCurrent = itemNames[currentIndex];
+    if (ImGui::BeginCombo(label, itemCurrent, ImGuiComboFlags(0))) {
+        for (size_t i=0; i!=numberItems; ++i) {
+            bool selected = (currentIndex == i);
+            if (ImGui::Selectable(itemNames[i], selected)) {
+                changed = (i != currentIndex);
+                currentIndex = i;
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    return changed;
+}
+
 void DrawNodeIcon(ImDrawList* drawList, math::RectI rect, IconType type, bool filled, ImU32 color, ImU32 innerColor) {
     const auto outline_scale  = rect.w / 24.0f;
     const auto extra_segments = static_cast<int>(2 * outline_scale); // for full circle
