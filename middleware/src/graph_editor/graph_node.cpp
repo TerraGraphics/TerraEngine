@@ -54,7 +54,9 @@ GraphNode::GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint
 
 GraphNode::~GraphNode() {
     for (auto& node : m_inputs) {
-        node->DetachOutput(this);
+        if (node) {
+            node->DetachOutput(this);
+        }
     }
 }
 
@@ -69,7 +71,7 @@ bool GraphNode::IsFull() const noexcept {
 }
 
 bool GraphNode::AttachInput(uint8_t number, GraphNode* node) {
-    if (number >= m_inputs.size()) {
+    if ((number >= m_inputs.size()) || (!node)) {
         return false;
     }
 
@@ -95,7 +97,9 @@ bool GraphNode::DetachInput(uint8_t number) {
     }
 
     m_inputPins[number].isConnected = false;
-    m_inputs[number]->DetachOutput(this);
+    if (auto node = m_inputs[number]) {
+        node->DetachOutput(this);
+    }
     m_inputs[number] = nullptr;
     StateChanged();
 

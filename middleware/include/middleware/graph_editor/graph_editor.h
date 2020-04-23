@@ -23,7 +23,7 @@ public:
     GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory);
     ~GraphEditor();
 
-    void AddNode(GraphNode* node);
+    bool AddNode(GraphNode* node);
     std::shared_ptr<SelectedNode> GetSelectedNode();
     void Draw();
 

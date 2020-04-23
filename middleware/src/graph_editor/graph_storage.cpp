@@ -18,8 +18,48 @@ GraphStorage::~GraphStorage() {
     m_links.clear();
 }
 
-void GraphStorage::AddNode(GraphNode* node) {
-    m_nodes.push_back(GraphNode::Ref(node));
+bool GraphStorage::AddNode(GraphNode* node) {
+    if (!node) {
+        return false;
+    }
+
+    if (m_nodes.find(node) != m_nodes.end()) {
+        return false;
+    }
+    m_nodes[node] = GraphNode::Ref(node);
+
+    return true;
+}
+
+bool GraphStorage::DelNode(GraphNode* node, bool checkOnly) {
+    if (!node) {
+        return false;
+    }
+    auto it = m_nodes.find(node);
+    if (it == m_nodes.end()) {
+        return false;
+    }
+
+    std::vector<ne::LinkId> delLinks;
+    for (auto& [linkId, linkInfo] : m_links) {
+        if ((linkInfo.dstPin.AsPointer<GraphPin>()->node == node) || (linkInfo.srcPin.AsPointer<GraphPin>()->node == node)) {
+            delLinks.push_back(linkId);
+        }
+    }
+
+    std::cout << delLinks.size() << std::endl;
+    for (auto& linkId : delLinks) {
+        if (!DelLink(linkId, checkOnly)) {
+            return false;
+        }
+    }
+
+
+    if (!checkOnly) {
+        m_nodes.erase(it);
+    }
+
+    return true;
 }
 
 bool GraphStorage::AddLink(const ne::PinId pinIdFirst, const ne::PinId pinIdSecond, bool checkOnly) {
@@ -80,9 +120,8 @@ void GraphStorage::Draw(GraphNode* previewNode) {
 
     m_selectedNode = nullptr;
     auto doubleClickedNode = ne::GetDoubleClickedNode();
-    for (auto& node: m_nodes) {
-        auto* nodeRaw = node.RawPtr();
-        node->Draw((previewNode == nodeRaw), alpha, texBackgroundRaw, m_texBackgroundWidht, m_texBackgroundheight);
+    for (auto& [nodeRaw, _]: m_nodes) {
+        nodeRaw->Draw((previewNode == nodeRaw), alpha, texBackgroundRaw, m_texBackgroundWidht, m_texBackgroundheight);
         if (doubleClickedNode == ne::NodeId(nodeRaw)) {
            m_selectedNode = nodeRaw;
         }

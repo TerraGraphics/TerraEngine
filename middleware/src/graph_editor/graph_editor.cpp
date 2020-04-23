@@ -35,10 +35,8 @@ GraphEditor::~GraphEditor() {
     }
 }
 
-void GraphEditor::AddNode(GraphNode* node) {
-    if (node) {
-        m_storage->AddNode(node);
-    }
+bool GraphEditor::AddNode(GraphNode* node) {
+    return m_storage->AddNode(node);
 }
 
 std::shared_ptr<SelectedNode> GraphEditor::GetSelectedNode() {
@@ -74,7 +72,7 @@ void GraphEditor::Draw() {
     }
 
     if (ne::BeginDelete()) {
-        ne::LinkId linkId;
+        ne::LinkId linkId = 0;
         while (ne::QueryDeletedLink(&linkId)) {
             bool checkOnly = true;
             if (!m_storage->DelLink(linkId, checkOnly)) {
@@ -82,6 +80,21 @@ void GraphEditor::Draw() {
             } else if (ne::AcceptDeletedItem()) {
                 checkOnly = false;
                 m_storage->DelLink(linkId, checkOnly);
+            }
+        }
+
+        ne::NodeId nodeId = 0;
+        while (ne::QueryDeletedNode(&nodeId)) {
+            bool checkOnly = true;
+            auto node = nodeId.AsPointer<GraphNode>();
+            if (!m_storage->DelNode(node, checkOnly)) {
+                ne::RejectDeletedItem();
+            } else if (ne::AcceptDeletedItem()) {
+                if (m_selectedNode->GetNode() == node) {
+                    m_selectedNode->ResetNode();
+                }
+                checkOnly = false;
+                m_storage->DelNode(node, checkOnly);
             }
         }
         ne::EndDelete();
@@ -104,8 +117,7 @@ void GraphEditor::Draw() {
 
     if (ImGui::BeginPopup("Create New Node")) {
         auto* node = EditorMenu();
-        if (node) {
-            m_storage->AddNode(node);
+        if (m_storage->AddNode(node)) {
             ne::SetNodePosition(ne::NodeId(node), openPopupPosition);
         }
         ImGui::EndPopup();

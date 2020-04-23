@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <unordered_map>
 #include <imgui_node_editor.h>
 
@@ -29,7 +28,8 @@ public:
     GraphStorage(TexturePtr& texBackground);
     ~GraphStorage();
 
-    void AddNode(GraphNode* node);
+    bool AddNode(GraphNode* node);
+    bool DelNode(GraphNode* node, bool checkOnly);
     bool AddLink(const ax::NodeEditor::PinId pinIdFirst, const ax::NodeEditor::PinId pinIdSecond, bool checkOnly);
     bool DelLink(const ax::NodeEditor::LinkId linkId, bool checkOnly);
 
@@ -43,6 +43,6 @@ private:
     float m_texBackgroundheight = 1.f;
     TextureViewPtr m_texBackground;
     GraphNode* m_selectedNode = nullptr;
-    std::vector<dg::RefCntAutoPtr<GraphNode>> m_nodes;
+    std::unordered_map<GraphNode*, dg::RefCntAutoPtr<GraphNode>> m_nodes;
     std::unordered_map<ax::NodeEditor::LinkId, LinkInfo> m_links;
 };
