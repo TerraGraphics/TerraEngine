@@ -39,6 +39,7 @@ public:
 
     TexturePtr Get() override;
     TexturePtr GetTexture(math::Size size) override;
+    void DrawGui() override;
 
 protected:
     void StateChanged() override;

@@ -32,6 +32,7 @@ public:
     PlaneProjection* SetInputs(Noise3D* input);
 
     double Get(double u, double v) override;
+    void DrawGui() override;
 
 private:
     double m_coordZ = 0;

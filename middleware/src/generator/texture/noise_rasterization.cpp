@@ -127,6 +127,10 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
     return texture;
 }
 
+void NoiseToTexture::DrawGui() {
+
+}
+
 void NoiseToTexture::StateChanged() {
     GraphNode::StateChanged();
     m_isCustomDirty = true;

@@ -42,6 +42,12 @@ void SelectedNode::ResetNode() {
 }
 
 void SelectedNode::Draw() {
+    if (auto nodePtr = m_node.Lock()) {
+        nodePtr->DrawGui();
+    } else {
+        return;
+    }
+
     if (!m_previewNode || !m_previewNode->IsFull()) {
         return;
     }

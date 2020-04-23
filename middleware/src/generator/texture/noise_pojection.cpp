@@ -52,3 +52,7 @@ double PlaneProjection::Get(double u, double v) {
 
     return m_noiseNode->Get(u, v, m_coordZ);
 }
+
+void PlaneProjection::DrawGui() {
+
+}

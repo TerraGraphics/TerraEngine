@@ -93,3 +93,7 @@ void CoherentNoise::SetSeed(int value) {
 double CoherentNoise::Get(double x, double y, double z) {
     return m_generator.GetNoise(x, y, z);
 }
+
+void CoherentNoise::DrawGui() {
+
+}

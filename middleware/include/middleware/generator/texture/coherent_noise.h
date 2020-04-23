@@ -46,6 +46,7 @@ public:
     void SetSeed(int value);
 
     double Get(double x, double y, double z) override;
+    void DrawGui() override;
 
 private:
     FastNoise m_generator;

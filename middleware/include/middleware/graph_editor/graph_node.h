@@ -37,6 +37,7 @@ public:
     bool DetachInput(uint8_t number);
 
     void Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
+    virtual void DrawGui() = 0;
 
 protected:
     virtual void StateChanged();
