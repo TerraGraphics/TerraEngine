@@ -22,9 +22,25 @@ public:
 
 class CoherentNoise : public Noise3D {
 public:
+    enum class NoiseType : uint8_t {
+        Value,
+        ValueFractal,
+        Perlin,
+        PerlinFractal,
+        Simplex,
+        SimplexFractal,
+        Cellular,
+        WhiteNoise,
+        Cubic,
+        CubicFractal,
+    };
+public:
     CoherentNoise() = delete;
     CoherentNoise(dg::IReferenceCounters* refCounters);
     static const char* GetName() { return "Coherent noise"; }
+
+    NoiseType GetNoiseType() const;
+    void SetNoiseType(NoiseType value);
 
     int GetSeed() const;
     void SetSeed(int value);
