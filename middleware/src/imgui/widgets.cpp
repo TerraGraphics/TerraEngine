@@ -5,9 +5,35 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
+#include "core/common/exception.h"
 #include "middleware/imgui/imgui_math.h"
 
+namespace {
+
+static ImGuiDataType_ ToImGui(detail::DataType value) {
+    switch (value) {
+        case detail::DataType::S8: return ImGuiDataType_S8;
+        case detail::DataType::U8: return ImGuiDataType_U8;
+        case detail::DataType::S16: return ImGuiDataType_S16;
+        case detail::DataType::U16: return ImGuiDataType_U16;
+        case detail::DataType::S32: return ImGuiDataType_S32;
+        case detail::DataType::U32: return ImGuiDataType_U32;
+        case detail::DataType::S64: return ImGuiDataType_S64;
+        case detail::DataType::U64: return ImGuiDataType_U64;
+        case detail::DataType::Float: return ImGuiDataType_Float;
+        case detail::DataType::Double: return ImGuiDataType_Double;
+        default:
+            throw EngineError("unknown value of widget type: '{}'", static_cast<uint8_t>(value));
+    }
+}
+
+}
+
 namespace detail {
+
+bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const void* stepFast, const char* format) {
+    return ImGui::InputScalar(label, ToImGui(dataType), value, step, stepFast, format, ImGuiInputTextFlags(0));
+}
 
 bool Combo(const char* label, size_t& currentIndex, const char** itemNames, const size_t numberItems) {
     bool changed = false;

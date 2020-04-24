@@ -103,4 +103,9 @@ void CoherentNoise::DrawGui() {
     if (Combo("Noise type", noiseType, noiseTypes, NoiseType::LastItem)) {
         SetNoiseType(noiseType);
     }
+
+    auto seed = GetSeed();
+    if (InputScalar("Seed", seed)) {
+        SetSeed(seed);
+    }
 }
