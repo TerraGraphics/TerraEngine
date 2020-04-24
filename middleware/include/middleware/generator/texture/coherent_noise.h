@@ -32,8 +32,13 @@ public:
         Cellular,
         WhiteNoise,
         Cubic,
-        CubicFractal,
-        LastItem
+        CubicFractal
+    };
+
+    enum class Interpolation : uint8_t {
+        Linear,
+        Hermite,
+        Quintic
     };
 public:
     CoherentNoise() = delete;
@@ -48,6 +53,9 @@ public:
 
     double GetFrequency() const;
     void SetFrequency(double value);
+
+    Interpolation GetInterpolation() const;
+    void SetInterpolation(Interpolation value);
 
     double Get(double x, double y, double z) override;
     void DrawGui() override;

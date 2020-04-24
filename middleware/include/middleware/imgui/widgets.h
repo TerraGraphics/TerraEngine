@@ -49,7 +49,7 @@ template <typename T>
     };
 
 bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const void* stepFast, const char* format);
-bool Combo(const char* label, size_t& currentIndex, const char** itemNames, const size_t numberItems);
+bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames, const size_t numberItems);
 }
 
 enum class IconType : uint8_t {
@@ -102,10 +102,10 @@ template<typename T>
         return InputScalar(label, value, Step<T>(normalStep, fastStep), format);
     }
 
-template<typename T>
-    bool Combo(const char* label, T& value, const char** itemNames, const T numberItems) {
+template<typename T, size_t N>
+    bool Combo(const char* label, T& value, const std::array<const char*, N>& itemNames) {
         size_t currentIndex = static_cast<size_t>(value);
-        if (detail::Combo(label, currentIndex, itemNames, static_cast<size_t>(numberItems))) {
+        if (detail::Combo(label, currentIndex, itemNames.begin(), itemNames.size())) {
             value = static_cast<T>(currentIndex);
             return true;
         }

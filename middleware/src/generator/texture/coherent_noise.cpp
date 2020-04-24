@@ -60,6 +60,32 @@ static CoherentNoise::NoiseType FromFastNoise(FastNoise::NoiseType value) {
     }
 }
 
+static FastNoise::Interp ToFastNoise(CoherentNoise::Interpolation value) {
+    switch (value) {
+    case CoherentNoise::Interpolation::Linear:
+        return FastNoise::Interp::Linear;
+    case CoherentNoise::Interpolation::Hermite:
+        return FastNoise::Interp::Hermite;
+    case CoherentNoise::Interpolation::Quintic:
+        return FastNoise::Interp::Quintic;
+    default:
+        throw EngineError("Unknown CoherentNoise::Interpolation value = {}", value);
+    }
+}
+
+static CoherentNoise::Interpolation FromFastNoise(FastNoise::Interp value) {
+    switch (value) {
+    case FastNoise::Interp::Linear:
+        return CoherentNoise::Interpolation::Linear;
+    case FastNoise::Interp::Hermite:
+        return CoherentNoise::Interpolation::Hermite;
+    case FastNoise::Interp::Quintic:
+        return CoherentNoise::Interpolation::Quintic;
+    default:
+        throw EngineError("Unknown FastNoise::Interp value = {}", value);
+    }
+}
+
 }
 
 Noise3D::Noise3D(dg::IReferenceCounters* refCounters, const char* name)
@@ -100,16 +126,27 @@ void CoherentNoise::SetFrequency(double value) {
     StateChanged();
 }
 
+CoherentNoise::Interpolation CoherentNoise::GetInterpolation() const {
+    return FromFastNoise(m_generator.GetInterp());
+}
+
+void CoherentNoise::SetInterpolation(Interpolation value) {
+    m_generator.SetInterp(ToFastNoise(value));
+    StateChanged();
+}
+
 double CoherentNoise::Get(double x, double y, double z) {
     return m_generator.GetNoise(x, y, z);
 }
 
 void CoherentNoise::DrawGui() {
-    static const char* noiseTypes[] = {
+    static constexpr const std::array<const char*, 10> noiseTypeStr = {
         "Value", "ValueFractal", "Perlin", "PerlinFractal", "Simplex", "SimplexFractal", "Cellular", "WhiteNoise", "Cubic", "CubicFractal"};
+    static constexpr const std::array<const char*, 3>  interpolationStr = {
+        "Linear", "Hermite", "Quintic"};
 
     auto noiseType = GetNoiseType();
-    if (Combo("Noise type", noiseType, noiseTypes, NoiseType::LastItem)) {
+    if (Combo("Noise type", noiseType, noiseTypeStr)) {
         SetNoiseType(noiseType);
     }
 
@@ -121,5 +158,10 @@ void CoherentNoise::DrawGui() {
     auto frequency = GetFrequency();
     if (InputScalar("Frequency", frequency, Step(0.001, 0.01), Range(0.001, .1), "%.3f")) {
         SetFrequency(frequency);
+    }
+
+    auto interpolation = GetInterpolation();
+    if (Combo("Interpolation", interpolation, interpolationStr)) {
+        SetInterpolation(interpolation);
     }
 }
