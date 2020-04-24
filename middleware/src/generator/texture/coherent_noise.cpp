@@ -91,6 +91,15 @@ void CoherentNoise::SetSeed(int value) {
     StateChanged();
 }
 
+double CoherentNoise::GetFrequency() const {
+    return m_generator.GetFrequency();
+}
+
+void CoherentNoise::SetFrequency(double value) {
+    m_generator.SetFrequency(value);
+    StateChanged();
+}
+
 double CoherentNoise::Get(double x, double y, double z) {
     return m_generator.GetNoise(x, y, z);
 }
@@ -105,7 +114,12 @@ void CoherentNoise::DrawGui() {
     }
 
     auto seed = GetSeed();
-    if (InputScalar("Seed", seed)) {
+    if (InputScalar("Seed", seed, 1)) {
         SetSeed(seed);
+    }
+
+    auto frequency = GetFrequency();
+    if (InputScalar("Frequency", frequency, Step(0.001, 0.01), Range(0.001, .1), "%.3f")) {
+        SetFrequency(frequency);
     }
 }

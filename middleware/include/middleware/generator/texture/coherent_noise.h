@@ -46,6 +46,9 @@ public:
     int GetSeed() const;
     void SetSeed(int value);
 
+    double GetFrequency() const;
+    void SetFrequency(double value);
+
     double Get(double x, double y, double z) override;
     void DrawGui() override;
 

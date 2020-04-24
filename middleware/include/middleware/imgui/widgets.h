@@ -91,16 +91,15 @@ template<typename T, typename = typename detail::IsSupportedType<T>::value>
 
 template<typename T>
     bool InputScalar(const char* label, T& value, const Step<T>& step, const char* format = nullptr) {
-        static constexpr const T minValue = std::numeric_limits<T>::min();
+        static constexpr const T minValue = std::numeric_limits<T>::lowest();
         static constexpr const T maxValue = std::numeric_limits<T>::max();
         return InputScalar(label, value, step, Range<T>(minValue, maxValue), format);
     }
 
 template<typename T>
-    bool InputScalar(const char* label, T& value, const char* format = nullptr) {
-        static constexpr const T normal = static_cast<T>(1);
-        static constexpr const T fast = static_cast<T>(10);
-        return InputScalar(label, value, Step<T>(normal, fast), format);
+    bool InputScalar(const char* label, T& value, const T normalStep, const char* format = nullptr) {
+        const T fastStep = normalStep * static_cast<T>(10);
+        return InputScalar(label, value, Step<T>(normalStep, fastStep), format);
     }
 
 template<typename T>
