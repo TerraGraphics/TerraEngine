@@ -1,6 +1,7 @@
 #include "middleware/generator/texture/noise_pojection.h"
 
 #include "core/common/exception.h"
+#include "middleware/imgui/widgets.h"
 
 
 Noise2D::Noise2D(dg::IReferenceCounters* refCounters, const char* name)
@@ -54,5 +55,7 @@ double PlaneProjection::Get(double u, double v) {
 }
 
 void PlaneProjection::DrawGui() {
-
+    if (gui::InputScalar("Z coordinate", m_coordZ, gui::Step(0.1, 1.), "%.1f")) {
+        StateChanged();
+    }
 }

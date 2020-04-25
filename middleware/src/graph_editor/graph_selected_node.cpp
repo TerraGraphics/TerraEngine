@@ -56,5 +56,5 @@ void SelectedNode::Draw() {
 
     TextureViewPtr texView;
     texView = m_previewNode->GetTexture(size)->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
-    Image(texView.RawPtr(), size, m_isOpenGL);
+    gui::Image(texView.RawPtr(), size, m_isOpenGL);
 }

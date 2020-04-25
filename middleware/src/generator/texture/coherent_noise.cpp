@@ -340,52 +340,52 @@ void CoherentNoise::DrawGui() {
         "CellValue", "NoiseLookup", "Distance", "Distance2", "Distance2Add", "Distance2Sub", "Distance2Mul", "Distance2Div"};
 
     auto noiseType = GetNoiseType();
-    if (Combo("Noise type", noiseType, noiseTypeStr)) {
+    if (gui::Combo("Noise type", noiseType, noiseTypeStr)) {
         SetNoiseType(noiseType);
     }
 
     auto interpolation = GetInterpolation();
-    if (Combo("Interpolation", interpolation, interpolationStr)) {
+    if (gui::Combo("Interpolation", interpolation, interpolationStr)) {
         SetInterpolation(interpolation);
     }
 
     auto seed = GetSeed();
-    if (InputScalar("Seed", seed, 1)) {
+    if (gui::InputScalar("Seed", seed, 1)) {
         SetSeed(seed);
     }
 
     auto frequency = GetFrequency();
-    if (InputScalar("Frequency", frequency, Step(0.001, 0.01), Range(0.001, .1), "%.3f")) {
+    if (gui::InputScalar("Frequency", frequency, gui::Step(0.001, 0.01), gui::Range(0.001, .1), "%.3f")) {
         SetFrequency(frequency);
     }
 
     auto octaves = GetFractalOctaves();
-    if (InputScalar("Octaves", octaves, 1)) {
+    if (gui::InputScalar("Octaves", octaves, 1)) {
         SetFractalOctaves(octaves);
     }
 
     auto lacunarity = GetFractalLacunarity();
-    if (InputScalar("Lacunarity", lacunarity, Step(0.1, 1.), Range(-10., 10.), "%.1f")) {
+    if (gui::InputScalar("Lacunarity", lacunarity, gui::Step(0.1, 1.), gui::Range(-10., 10.), "%.1f")) {
         SetFractalLacunarity(lacunarity);
     }
 
     auto gain = GetFractalGain();
-    if (InputScalar("Gain", gain, Step(0.1, 1.), Range(-10., 10.), "%.1f")) {
+    if (gui::InputScalar("Gain", gain, gui::Step(0.1, 1.), gui::Range(-10., 10.), "%.1f")) {
         SetFractalGain(gain);
     }
 
     auto fractalType = GetFractalType();
-    if (Combo("Fractal type", fractalType, fractalTypeStr)) {
+    if (gui::Combo("Fractal type", fractalType, fractalTypeStr)) {
         SetFractalType(fractalType);
     }
 
     auto cellularDistanceFunction = GetCellularDistanceFunction();
-    if (Combo("Cellular distance function", cellularDistanceFunction, cellularDistanceFunctionStr)) {
+    if (gui::Combo("Cellular distance function", cellularDistanceFunction, cellularDistanceFunctionStr)) {
         SetCellularDistanceFunction(cellularDistanceFunction);
     }
 
     auto cellularReturnType = GetCellularReturnType();
-    if (Combo("Cellular teturn type", cellularReturnType, cellularReturnTypeStr)) {
+    if (gui::Combo("Cellular teturn type", cellularReturnType, cellularReturnTypeStr)) {
         SetCellularReturnType(cellularReturnType);
     }
 
@@ -393,12 +393,12 @@ void CoherentNoise::DrawGui() {
     // GetCellularDistance2Indices
 
     auto cellularJitter = GetCellularJitter();
-    if (InputScalar("Cellular jitter", cellularJitter, Step(0.01, 0.1), Range(-10., 10.), "%.2f")) {
+    if (gui::InputScalar("Cellular jitter", cellularJitter, gui::Step(0.01, 0.1), gui::Range(-10., 10.), "%.2f")) {
         SetCellularJitter(cellularJitter);
     }
 
     auto gradientPerturbAmp = GetGradientPerturbAmp();
-    if (InputScalar("Gradient perturb amp", gradientPerturbAmp, Step(0.01, 0.1), Range(-10., 10.), "%.2f")) {
+    if (gui::InputScalar("Gradient perturb amp", gradientPerturbAmp, gui::Step(0.01, 0.1), gui::Range(-10., 10.), "%.2f")) {
         SetGradientPerturbAmp(gradientPerturbAmp);
     }
 }

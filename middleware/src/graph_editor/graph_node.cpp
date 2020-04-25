@@ -136,7 +136,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
         ImGui::BeginGroup();
         for (auto& pin : m_inputPins) {
             ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
-            NodeIcon(iconSize, IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
+            gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
             ne::EndPin();
         }
         dummySize -= (iconSize.w + 8);
@@ -152,7 +152,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
         ImGui::BeginGroup();
             ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
             bool filled = ((isSelected && (m_outputs.size() > 1)) || (!isSelected && !m_outputs.empty()));
-            NodeIcon(iconSize, IconType::Circle, filled, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
+            gui::NodeIcon(iconSize, gui::IconType::Circle, filled, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
             ne::EndPin();
         ImGui::EndGroup();
     }

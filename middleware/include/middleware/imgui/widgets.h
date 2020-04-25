@@ -4,6 +4,7 @@
 #include "core/math/types.h"
 
 
+namespace gui {
 namespace detail {
 
 enum class DataType : uint8_t {
@@ -50,7 +51,8 @@ template <typename T>
 
 bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const void* stepFast, const char* format);
 bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames, const size_t numberItems);
-}
+
+} // end namespace gui::detail
 
 enum class IconType : uint8_t {
     Flow,
@@ -120,3 +122,5 @@ math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
 
 void NodeIcon(const math::Size& size, IconType type, bool filled,
     math::Color color = math::Color(255), math::Color innerColor = math::Color(0));
+
+} // end namespace gui

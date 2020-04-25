@@ -10,18 +10,18 @@
 
 namespace {
 
-static ImGuiDataType_ ToImGui(detail::DataType value) {
+static ImGuiDataType_ ToImGui(gui::detail::DataType value) {
     switch (value) {
-        case detail::DataType::S8: return ImGuiDataType_S8;
-        case detail::DataType::U8: return ImGuiDataType_U8;
-        case detail::DataType::S16: return ImGuiDataType_S16;
-        case detail::DataType::U16: return ImGuiDataType_U16;
-        case detail::DataType::S32: return ImGuiDataType_S32;
-        case detail::DataType::U32: return ImGuiDataType_U32;
-        case detail::DataType::S64: return ImGuiDataType_S64;
-        case detail::DataType::U64: return ImGuiDataType_U64;
-        case detail::DataType::Float: return ImGuiDataType_Float;
-        case detail::DataType::Double: return ImGuiDataType_Double;
+        case gui::detail::DataType::S8: return ImGuiDataType_S8;
+        case gui::detail::DataType::U8: return ImGuiDataType_U8;
+        case gui::detail::DataType::S16: return ImGuiDataType_S16;
+        case gui::detail::DataType::U16: return ImGuiDataType_U16;
+        case gui::detail::DataType::S32: return ImGuiDataType_S32;
+        case gui::detail::DataType::U32: return ImGuiDataType_U32;
+        case gui::detail::DataType::S64: return ImGuiDataType_S64;
+        case gui::detail::DataType::U64: return ImGuiDataType_U64;
+        case gui::detail::DataType::Float: return ImGuiDataType_Float;
+        case gui::detail::DataType::Double: return ImGuiDataType_Double;
         default:
             throw EngineError("unknown value of widget type: '{}'", static_cast<uint8_t>(value));
     }
@@ -29,6 +29,7 @@ static ImGuiDataType_ ToImGui(detail::DataType value) {
 
 }
 
+namespace gui {
 namespace detail {
 
 bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const void* stepFast, const char* format) {
@@ -270,3 +271,5 @@ void NodeIcon(const math::Size& size, IconType type, bool filled, math::Color co
 
     ImGui::Dummy(imSize);
 }
+
+} // end namespace gui
