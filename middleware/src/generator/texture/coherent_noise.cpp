@@ -86,6 +86,104 @@ static CoherentNoise::Interpolation FromFastNoise(FastNoise::Interp value) {
     }
 }
 
+static FastNoise::FractalType ToFastNoise(CoherentNoise::FractalType value) {
+    switch (value) {
+    case CoherentNoise::FractalType::FBM:
+        return FastNoise::FractalType::FBM;
+    case CoherentNoise::FractalType::Billow:
+        return FastNoise::FractalType::Billow;
+    case CoherentNoise::FractalType::RigidMulti:
+        return FastNoise::FractalType::RigidMulti;
+    default:
+        throw EngineError("Unknown CoherentNoise::FractalType value = {}", value);
+    }
+}
+
+static CoherentNoise::FractalType FromFastNoise(FastNoise::FractalType value) {
+    switch (value) {
+    case FastNoise::FractalType::FBM:
+        return CoherentNoise::FractalType::FBM;
+    case FastNoise::FractalType::Billow:
+        return CoherentNoise::FractalType::Billow;
+    case FastNoise::FractalType::RigidMulti:
+        return CoherentNoise::FractalType::RigidMulti;
+    default:
+        throw EngineError("Unknown FastNoise::FractalType value = {}", value);
+    }
+}
+
+static FastNoise::CellularDistanceFunction ToFastNoise(CoherentNoise::CellularDistanceFunction value) {
+    switch (value) {
+    case CoherentNoise::CellularDistanceFunction::Euclidean:
+        return FastNoise::CellularDistanceFunction::Euclidean;
+    case CoherentNoise::CellularDistanceFunction::Manhattan:
+        return FastNoise::CellularDistanceFunction::Manhattan;
+    case CoherentNoise::CellularDistanceFunction::Natural:
+        return FastNoise::CellularDistanceFunction::Natural;
+    default:
+        throw EngineError("Unknown CoherentNoise::CellularDistanceFunction value = {}", value);
+    }
+}
+
+static CoherentNoise::CellularDistanceFunction FromFastNoise(FastNoise::CellularDistanceFunction value) {
+    switch (value) {
+    case FastNoise::CellularDistanceFunction::Euclidean:
+        return CoherentNoise::CellularDistanceFunction::Euclidean;
+    case FastNoise::CellularDistanceFunction::Manhattan:
+        return CoherentNoise::CellularDistanceFunction::Manhattan;
+    case FastNoise::CellularDistanceFunction::Natural:
+        return CoherentNoise::CellularDistanceFunction::Natural;
+    default:
+        throw EngineError("Unknown FastNoise::CellularDistanceFunction value = {}", value);
+    }
+}
+
+static FastNoise::CellularReturnType ToFastNoise(CoherentNoise::CellularReturnType value) {
+    switch (value) {
+    case CoherentNoise::CellularReturnType::CellValue:
+        return FastNoise::CellularReturnType::CellValue;
+    case CoherentNoise::CellularReturnType::NoiseLookup:
+        return FastNoise::CellularReturnType::NoiseLookup;
+    case CoherentNoise::CellularReturnType::Distance:
+        return FastNoise::CellularReturnType::Distance;
+    case CoherentNoise::CellularReturnType::Distance2:
+        return FastNoise::CellularReturnType::Distance2;
+    case CoherentNoise::CellularReturnType::Distance2Add:
+        return FastNoise::CellularReturnType::Distance2Add;
+    case CoherentNoise::CellularReturnType::Distance2Sub:
+        return FastNoise::CellularReturnType::Distance2Sub;
+    case CoherentNoise::CellularReturnType::Distance2Mul:
+        return FastNoise::CellularReturnType::Distance2Mul;
+    case CoherentNoise::CellularReturnType::Distance2Div:
+        return FastNoise::CellularReturnType::Distance2Div;
+    default:
+        throw EngineError("Unknown CoherentNoise::CellularReturnType value = {}", value);
+    }
+}
+
+static CoherentNoise::CellularReturnType FromFastNoise(FastNoise::CellularReturnType value) {
+    switch (value) {
+    case FastNoise::CellularReturnType::CellValue:
+        return CoherentNoise::CellularReturnType::CellValue;
+    case FastNoise::CellularReturnType::NoiseLookup:
+        return CoherentNoise::CellularReturnType::NoiseLookup;
+    case FastNoise::CellularReturnType::Distance:
+        return CoherentNoise::CellularReturnType::Distance;
+    case FastNoise::CellularReturnType::Distance2:
+        return CoherentNoise::CellularReturnType::Distance2;
+    case FastNoise::CellularReturnType::Distance2Add:
+        return CoherentNoise::CellularReturnType::Distance2Add;
+    case FastNoise::CellularReturnType::Distance2Sub:
+        return CoherentNoise::CellularReturnType::Distance2Sub;
+    case FastNoise::CellularReturnType::Distance2Mul:
+        return CoherentNoise::CellularReturnType::Distance2Mul;
+    case FastNoise::CellularReturnType::Distance2Div:
+        return CoherentNoise::CellularReturnType::Distance2Div;
+    default:
+        throw EngineError("Unknown FastNoise::CellularReturnType value = {}", value);
+    }
+}
+
 }
 
 Noise3D::Noise3D(dg::IReferenceCounters* refCounters, const char* name)
@@ -135,6 +233,96 @@ void CoherentNoise::SetInterpolation(Interpolation value) {
     StateChanged();
 }
 
+int CoherentNoise::GetFractalOctaves() const {
+    return m_generator.GetFractalOctaves();
+}
+
+void CoherentNoise::SetFractalOctaves(int value) {
+    m_generator.SetFractalOctaves(value);
+    StateChanged();
+}
+
+double CoherentNoise::GetFractalLacunarity() const {
+    return m_generator.GetFractalLacunarity();
+}
+
+void CoherentNoise::SetFractalLacunarity(double value) {
+    m_generator.SetFractalLacunarity(value);
+    StateChanged();
+}
+
+double CoherentNoise::GetFractalGain() const {
+    return m_generator.GetFractalGain();
+}
+
+void CoherentNoise::SetFractalGain(double value) {
+    m_generator.SetFractalGain(value);
+    StateChanged();
+}
+
+CoherentNoise::FractalType CoherentNoise::GetFractalType() const {
+    return FromFastNoise(m_generator.GetFractalType());
+}
+
+void CoherentNoise::SetFractalType(FractalType value) {
+    m_generator.SetFractalType(ToFastNoise(value));
+    StateChanged();
+}
+
+CoherentNoise::CellularDistanceFunction CoherentNoise::GetCellularDistanceFunction() const {
+    return FromFastNoise(m_generator.GetCellularDistanceFunction());
+}
+
+void CoherentNoise::SetCellularDistanceFunction(CellularDistanceFunction value) {
+    m_generator.SetCellularDistanceFunction(ToFastNoise(value));
+    StateChanged();
+}
+
+CoherentNoise::CellularReturnType CoherentNoise::GetCellularReturnType() const {
+    return FromFastNoise(m_generator.GetCellularReturnType());
+}
+
+void CoherentNoise::SetCellularReturnType(CellularReturnType value) {
+    m_generator.SetCellularReturnType(ToFastNoise(value));
+    StateChanged();
+}
+
+FastNoise* CoherentNoise::GetCellularNoiseLookup() const {
+    return m_generator.GetCellularNoiseLookup();
+}
+
+void CoherentNoise::SetCellularNoiseLookup(FastNoise* value) {
+    m_generator.SetCellularNoiseLookup(value);
+    StateChanged();
+}
+
+void CoherentNoise::GetCellularDistance2Indices(int& cellularDistanceIndex0, int& cellularDistanceIndex1) const {
+    m_generator.GetCellularDistance2Indices(cellularDistanceIndex0, cellularDistanceIndex1);
+}
+
+void CoherentNoise::SetCellularDistance2Indices(int cellularDistanceIndex0, int cellularDistanceIndex1) {
+    m_generator.SetCellularDistance2Indices(cellularDistanceIndex0, cellularDistanceIndex1);
+    StateChanged();
+}
+
+double CoherentNoise::GetCellularJitter() const {
+    return m_generator.GetCellularJitter();
+}
+
+void CoherentNoise::SetCellularJitter(double value) {
+    m_generator.SetCellularJitter(value);
+    StateChanged();
+}
+
+double CoherentNoise::GetGradientPerturbAmp() const {
+    return m_generator.GetGradientPerturbAmp();
+}
+
+void CoherentNoise::SetGradientPerturbAmp(double value) {
+    m_generator.SetGradientPerturbAmp(value);
+    StateChanged();
+}
+
 double CoherentNoise::Get(double x, double y, double z) {
     return m_generator.GetNoise(x, y, z);
 }
@@ -144,10 +332,21 @@ void CoherentNoise::DrawGui() {
         "Value", "ValueFractal", "Perlin", "PerlinFractal", "Simplex", "SimplexFractal", "Cellular", "WhiteNoise", "Cubic", "CubicFractal"};
     static constexpr const std::array<const char*, 3>  interpolationStr = {
         "Linear", "Hermite", "Quintic"};
+    static constexpr const std::array<const char*, 3>  fractalTypeStr = {
+        "FBM", "Billow", "RigidMulti"};
+    static constexpr const std::array<const char*, 3>  cellularDistanceFunctionStr = {
+        "Euclidean", "Manhattan", "Natural"};
+    static constexpr const std::array<const char*, 8>  cellularReturnTypeStr = {
+        "CellValue", "NoiseLookup", "Distance", "Distance2", "Distance2Add", "Distance2Sub", "Distance2Mul", "Distance2Div"};
 
     auto noiseType = GetNoiseType();
     if (Combo("Noise type", noiseType, noiseTypeStr)) {
         SetNoiseType(noiseType);
+    }
+
+    auto interpolation = GetInterpolation();
+    if (Combo("Interpolation", interpolation, interpolationStr)) {
+        SetInterpolation(interpolation);
     }
 
     auto seed = GetSeed();
@@ -160,8 +359,46 @@ void CoherentNoise::DrawGui() {
         SetFrequency(frequency);
     }
 
-    auto interpolation = GetInterpolation();
-    if (Combo("Interpolation", interpolation, interpolationStr)) {
-        SetInterpolation(interpolation);
+    auto octaves = GetFractalOctaves();
+    if (InputScalar("Octaves", octaves, 1)) {
+        SetFractalOctaves(octaves);
+    }
+
+    auto lacunarity = GetFractalLacunarity();
+    if (InputScalar("Lacunarity", lacunarity, Step(0.1, 1.), Range(-10., 10.), "%.1f")) {
+        SetFractalLacunarity(lacunarity);
+    }
+
+    auto gain = GetFractalGain();
+    if (InputScalar("Gain", gain, Step(0.1, 1.), Range(-10., 10.), "%.1f")) {
+        SetFractalGain(gain);
+    }
+
+    auto fractalType = GetFractalType();
+    if (Combo("Fractal type", fractalType, fractalTypeStr)) {
+        SetFractalType(fractalType);
+    }
+
+    auto cellularDistanceFunction = GetCellularDistanceFunction();
+    if (Combo("Cellular distance function", cellularDistanceFunction, cellularDistanceFunctionStr)) {
+        SetCellularDistanceFunction(cellularDistanceFunction);
+    }
+
+    auto cellularReturnType = GetCellularReturnType();
+    if (Combo("Cellular teturn type", cellularReturnType, cellularReturnTypeStr)) {
+        SetCellularReturnType(cellularReturnType);
+    }
+
+    // GetCellularNoiseLookup
+    // GetCellularDistance2Indices
+
+    auto cellularJitter = GetCellularJitter();
+    if (InputScalar("Cellular jitter", cellularJitter, Step(0.01, 0.1), Range(-10., 10.), "%.2f")) {
+        SetCellularJitter(cellularJitter);
+    }
+
+    auto gradientPerturbAmp = GetGradientPerturbAmp();
+    if (InputScalar("Gradient perturb amp", gradientPerturbAmp, Step(0.01, 0.1), Range(-10., 10.), "%.2f")) {
+        SetGradientPerturbAmp(gradientPerturbAmp);
     }
 }
