@@ -36,6 +36,10 @@ bool InputScalar(const char* label, DataType dataType, void* value, const void* 
     return ImGui::InputScalar(label, ToImGui(dataType), value, step, stepFast, format, ImGuiInputTextFlags(0));
 }
 
+bool InputScalarN(const char* label, DataType dataType, void* value, size_t components, const void* step, const void* stepFast, const char* format) {
+    return ImGui::InputScalarN(label, ToImGui(dataType), value, static_cast<int>(components), step, stepFast, format, ImGuiInputTextFlags(0));
+}
+
 bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames, const size_t numberItems) {
     bool changed = false;
     const char* itemCurrent = itemNames[currentIndex];

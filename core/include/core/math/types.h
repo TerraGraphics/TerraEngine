@@ -237,8 +237,17 @@ struct SizeT {
     bool operator==(SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
     bool operator!=(SizeT other) const noexcept { return (!operator==(other)); }
 
-    T w = 0;
-    T h = 0;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+    union {
+        T values[2] = {0, 0};
+        struct {
+            T w;
+            T h;
+        };
+    };
+#pragma clang diagnostic pop
 };
 
 using Size = SizeT<uint32_t>;
@@ -283,10 +292,20 @@ struct RectT {
         return RectT(w, y, width, h);
     }
 
-    T x = 0;
-    T y = 0;
-    T w = 0;
-    T h = 0;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+    union {
+        T values[4] = {0, 0, 0, 0};
+        struct {
+            T x;
+            T y;
+            T w;
+            T h;
+        };
+    };
+#pragma clang diagnostic pop
 };
 
 using Rect = RectT<uint32_t>;

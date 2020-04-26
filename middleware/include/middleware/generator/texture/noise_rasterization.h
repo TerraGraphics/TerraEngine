@@ -31,12 +31,14 @@ public:
     ~NoiseToTexture();
     static const char* GetName() { return "Noise to texture"; }
 
+public:
     math::Size GetSize() const;
     void SetSize(math::Size value);
     math::RectD GetBound() const;
     void SetBound(math::RectD value);
     NoiseToTexture* SetInputs(Noise2D* input);
 
+public:
     TexturePtr Get() override;
     TexturePtr GetTexture(math::Size size) override;
     void DrawGui() override;
