@@ -55,7 +55,7 @@ double PlaneProjection::Get(double u, double v) {
 }
 
 void PlaneProjection::DrawGui() {
-    if (gui::InputScalar("Z coordinate", m_coordZ, gui::Step(0.1, 1.), "%.1f")) {
+    if (gui::InputScalar("Z coordinate", m_coordZ, 0.1, "%.1f")) {
         StateChanged();
     }
 }

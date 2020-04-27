@@ -5,6 +5,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
+#include "middleware/imgui/font.h"
 #include "core/common/exception.h"
 #include "middleware/imgui/imgui_math.h"
 
@@ -32,12 +33,106 @@ static ImGuiDataType_ ToImGui(gui::detail::DataType value) {
 namespace gui {
 namespace detail {
 
-bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const void* stepFast, const char* format) {
-    return ImGui::InputScalar(label, ToImGui(dataType), value, step, stepFast, format, ImGuiInputTextFlags(0));
+bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const char* format) {
+    if (step == nullptr) {
+        throw EngineError("InputScalar: field step is null");
+    }
+
+    bool valueChanged = false;
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems) {
+        return valueChanged;
+    }
+
+    ImGuiDataType dataTypeImGui = ToImGui(dataType);
+    if (format == nullptr) {
+        format = ImGui::DataTypeGetInfo(dataTypeImGui)->PrintFmt;
+    }
+
+    const int bufSize = 64;
+    char buf[bufSize];
+    ImGui::DataTypeFormatString(buf, bufSize, dataTypeImGui, value, format);
+
+    ImGuiContext& g = *GImGui;
+    const float buttonSize = ImGui::GetFrameHeight();
+    const ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_NoMarkEdited;
+    ImGuiButtonFlags buttonFlags = ImGuiButtonFlags_Repeat | ImGuiButtonFlags_DontClosePopups;
+    if (flags & ImGuiInputTextFlags_ReadOnly) {
+        buttonFlags |= ImGuiButtonFlags_Disabled;
+    }
+
+    ImGui::BeginGroup(); // The only purpose of the group here is to allow the caller to query item data e.g. IsItemActive()
+    ImGui::PushID(label);
+    ImGui::SetNextItemWidth(ImMax(1.0f, ImGui::CalcItemWidth() - buttonSize));
+    if (ImGui::InputText("", buf, bufSize, flags)) { // PushId(label) + "" gives us the expected ID from outside point of view
+        valueChanged = ImGui::DataTypeApplyOpFromText(buf, g.InputTextState.InitialTextA.Data, dataTypeImGui, value, format);
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+    ImGui::SameLine(0, 0);
+    ImGui::BeginGroup();
+    auto systemDisplayOffsetY = g.Font->DisplayOffset.y;
+    g.Font->DisplayOffset.y = -3;
+    if (ImGui::ButtonEx(ICON_FA_ANGLE_UP, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
+        ImGui::DataTypeApplyOp(dataTypeImGui, '-', value, value, step);
+        valueChanged = true;
+    }
+    if (ImGui::ButtonEx(ICON_FA_ANGLE_DOWN, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
+        ImGui::DataTypeApplyOp(dataTypeImGui, '+', value, value, step);
+        valueChanged = true;
+    }
+    g.Font->DisplayOffset.y = systemDisplayOffsetY;
+    ImGui::EndGroup();
+    ImGui::PopStyleVar(1);
+
+    const char* labelEnd = ImGui::FindRenderedTextEnd(label);
+    if (label != labelEnd) {
+        ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
+        ImGui::TextEx(label, labelEnd);
+    }
+
+    ImGui::PopID();
+    ImGui::EndGroup();
+
+    if (valueChanged) {
+        ImGui::MarkItemEdited(window->DC.LastItemId);
+    }
+
+    return valueChanged;
 }
 
-bool InputScalarN(const char* label, DataType dataType, void* value, size_t components, const void* step, const void* stepFast, const char* format) {
-    return ImGui::InputScalarN(label, ToImGui(dataType), value, static_cast<int>(components), step, stepFast, format, ImGuiInputTextFlags(0));
+bool InputScalarN(const char* label, DataType dataType, void* value, size_t components, const void* step, const char* format) {
+    ImGuiDataType data_type = ToImGui(dataType);
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    bool value_changed = false;
+    ImGui::BeginGroup();
+    ImGui::PushID(label);
+    ImGui::PushMultiItemsWidths(static_cast<int>(components), ImGui::CalcItemWidth());
+    size_t type_size = ImGui::DataTypeGetInfo(data_type)->Size;
+    for (size_t i = 0; i!=components; ++i) {
+        ImGui::PushID(static_cast<int>(i));
+        if (i > 0)
+            ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
+        value_changed |= InputScalar("", dataType, value, step, format);
+        ImGui::PopID();
+        ImGui::PopItemWidth();
+        value = reinterpret_cast<void*>(reinterpret_cast<char*>(value) + type_size);
+    }
+    ImGui::PopID();
+
+    const char* label_end = ImGui::FindRenderedTextEnd(label);
+    if (label != label_end)
+    {
+        ImGui::SameLine(0.0f, g.Style.ItemInnerSpacing.x);
+        ImGui::TextEx(label, label_end);
+    }
+
+    ImGui::EndGroup();
+    return value_changed;
 }
 
 bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames, const size_t numberItems) {

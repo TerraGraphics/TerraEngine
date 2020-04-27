@@ -21,6 +21,7 @@
 #include "core/dg/texture.h"
 #include "core/dg/sampler.h"
 #include "platforms/platforms.h"
+#include "middleware/imgui/font.h"
 #include "core/dg/render_device.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
@@ -423,18 +424,10 @@ void Gui::CreateFonts() {
         throw EngineError("failed to load a default font");
     }
 
-    // Full range
-    // const ImWchar startRange = 0xf000;
-    // const ImWchar stopRange = 0xf976;
-
-    // Used range
-    const ImWchar startRange = 0xf106;
-    const ImWchar stopRange = 0xf107;
-    static const ImWchar iconRanges[] = { startRange, stopRange, 0 };
-
     ImFontConfig config;
     config.MergeMode = true;
     config.PixelSnapH = true;
+    static const ImWchar iconRanges[] = { gui::startUsedRange, gui::stopUsedRange, 0 };
     const auto faSolid900Path = std::filesystem::current_path() / "assets" / "fonts" / "fa-solid-900.ttf";
     if (io.Fonts->AddFontFromFileTTF(faSolid900Path.c_str(), 13.0f, &config, iconRanges) == nullptr) {
         throw EngineError("failed to load a font {}", faSolid900Path.c_str());

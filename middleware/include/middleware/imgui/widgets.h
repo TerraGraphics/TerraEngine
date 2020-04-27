@@ -49,8 +49,8 @@ template <typename T>
         >::type;
     };
 
-bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const void* stepFast, const char* format);
-bool InputScalarN(const char* label, DataType dataType, void* value, size_t components, const void* step, const void* stepFast, const char* format);
+bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const char* format);
+bool InputScalarN(const char* label, DataType dataType, void* value, size_t components, const void* step, const char* format);
 bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames, const size_t numberItems);
 
 } // end namespace gui::detail
@@ -62,13 +62,6 @@ enum class IconType : uint8_t {
     Grid,
     RoundSquare,
     Diamond
-};
-
-template<typename T> struct Step {
-    Step(const T& normal, const T& fast) : normal(normal), fast(fast) {}
-
-    const T& normal;
-    const T& fast;
 };
 
 template<typename T> struct Range {
@@ -89,9 +82,9 @@ template<typename T> struct Range {
 };
 
 template<typename T, typename = typename detail::IsSupportedType<T>::value>
-    bool InputScalar(const char* label, T& value, const Step<T>& step, const Range<T>& range, const char* format = nullptr) {
+    bool InputScalar(const char* label, T& value, const T step, const Range<T>& range, const char* format = nullptr) {
         T tmpValue = value;
-        if (detail::InputScalar(label, detail::TypeID<T>(), &tmpValue, &step.normal, &step.fast, format)) {
+        if (detail::InputScalar(label, detail::TypeID<T>(), &tmpValue, &step, format)) {
             if (range.Check(tmpValue)) {
                 value = tmpValue;
                 return true;
@@ -102,27 +95,20 @@ template<typename T, typename = typename detail::IsSupportedType<T>::value>
     }
 
 template<typename T>
-    bool InputScalar(const char* label, T& value, const Step<T>& step, const char* format = nullptr) {
-        static constexpr const T minValue = std::numeric_limits<T>::lowest();
-        static constexpr const T maxValue = std::numeric_limits<T>::max();
+    bool InputScalar(const char* label, T& value, const T step, const char* format = nullptr) {
+        constexpr const T minValue = std::numeric_limits<T>::lowest();
+        constexpr const T maxValue = std::numeric_limits<T>::max();
         return InputScalar(label, value, step, Range<T>(minValue, maxValue), format);
     }
 
-template<typename T>
-    bool InputScalar(const char* label, T& value, const T normalStep, const char* format = nullptr) {
-        const T fastStep = normalStep * static_cast<T>(10);
-        return InputScalar(label, value, Step<T>(normalStep, fastStep), format);
-    }
+template<typename T, size_t N, typename = typename detail::IsSupportedType<T>::value>
+    bool InputScalarN(const char* label, T (&values)[N], const T step, const Range<T>& range, const char* format = nullptr) {
+        T tmpValues[N];
+        std::copy(std::begin(values), std::end(values), std::begin(tmpValues));
 
-template<typename T, typename = typename detail::IsSupportedType<T>::value>
-    bool InputScalarN(const char* label, T* values, size_t valuesNumber, const Step<T>& step, const Range<T>& range, const char* format = nullptr) {
-        std::unique_ptr<T[]> tmpValuesPtr(new T[valuesNumber]);
-        T* tmpValues = tmpValuesPtr.get();
-        std::copy(values, values + valuesNumber, tmpValues);
-
-        if (detail::InputScalarN(label, detail::TypeID<T>(), tmpValues, valuesNumber, &step.normal, &step.fast, format)) {
-            if (range.Check(tmpValues, valuesNumber)) {
-                std::copy(tmpValues, tmpValues + valuesNumber, values);
+        if (detail::InputScalarN(label, detail::TypeID<T>(), tmpValues, N, &step, format)) {
+            if (range.Check(tmpValues, N)) {
+                std::copy(std::begin(tmpValues), std::end(tmpValues), std::begin(values));
                 return true;
             }
         }
@@ -130,11 +116,11 @@ template<typename T, typename = typename detail::IsSupportedType<T>::value>
         return false;
     }
 
-template<typename T>
-    bool InputScalarN(const char* label, T* values, size_t valuesNumber, const Step<T>& step, const char* format = nullptr) {
-        static constexpr const T minValue = std::numeric_limits<T>::lowest();
-        static constexpr const T maxValue = std::numeric_limits<T>::max();
-        return InputScalarN(label, values, valuesNumber, step, Range<T>(minValue, maxValue), format);
+template<typename T, size_t N>
+    bool InputScalarN(const char* label, T (&values)[N], const T step, const char* format = nullptr) {
+        constexpr const T minValue = std::numeric_limits<T>::lowest();
+        constexpr const T maxValue = std::numeric_limits<T>::max();
+        return InputScalarN<T, N>(label, values, step, Range<T>(minValue, maxValue), format);
     }
 
 template<typename T, size_t N>

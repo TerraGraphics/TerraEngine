@@ -355,7 +355,7 @@ void CoherentNoise::DrawGui() {
     }
 
     auto frequency = GetFrequency();
-    if (gui::InputScalar("Frequency", frequency, gui::Step(0.001, 0.01), gui::Range(0.001, .1), "%.3f")) {
+    if (gui::InputScalar("Frequency", frequency, 0.001, gui::Range(0.001, .1), "%.3f")) {
         SetFrequency(frequency);
     }
 
@@ -365,12 +365,12 @@ void CoherentNoise::DrawGui() {
     }
 
     auto lacunarity = GetFractalLacunarity();
-    if (gui::InputScalar("Lacunarity", lacunarity, gui::Step(0.1, 1.), gui::Range(-10., 10.), "%.1f")) {
+    if (gui::InputScalar("Lacunarity", lacunarity, 0.1, gui::Range(-10., 10.), "%.1f")) {
         SetFractalLacunarity(lacunarity);
     }
 
     auto gain = GetFractalGain();
-    if (gui::InputScalar("Gain", gain, gui::Step(0.1, 1.), gui::Range(-10., 10.), "%.1f")) {
+    if (gui::InputScalar("Gain", gain, 0.1, gui::Range(-10., 10.), "%.1f")) {
         SetFractalGain(gain);
     }
 
@@ -393,12 +393,12 @@ void CoherentNoise::DrawGui() {
     // GetCellularDistance2Indices
 
     auto cellularJitter = GetCellularJitter();
-    if (gui::InputScalar("Cellular jitter", cellularJitter, gui::Step(0.01, 0.1), gui::Range(-10., 10.), "%.2f")) {
+    if (gui::InputScalar("Cellular jitter", cellularJitter, 0.01, gui::Range(-10., 10.), "%.2f")) {
         SetCellularJitter(cellularJitter);
     }
 
     auto gradientPerturbAmp = GetGradientPerturbAmp();
-    if (gui::InputScalar("Gradient perturb amp", gradientPerturbAmp, gui::Step(0.01, 0.1), gui::Range(-10., 10.), "%.2f")) {
+    if (gui::InputScalar("Gradient perturb amp", gradientPerturbAmp, 0.01, gui::Range(-10., 10.), "%.2f")) {
         SetGradientPerturbAmp(gradientPerturbAmp);
     }
 }
