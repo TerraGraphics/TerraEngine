@@ -6,7 +6,9 @@
 #include "core/common/ctor.h"
 
 
-class Gui;
+namespace gui {
+    class Gui;
+}
 class GraphWindow;
 class RenderTarget;
 class PreviewWindow;
@@ -17,7 +19,7 @@ public:
     ~EditorSceneController();
 
 public:
-    void Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui);
+    void Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<gui::Gui>& gui);
     void Update(double deltaTime);
     void Draw();
 
@@ -26,7 +28,7 @@ private:
     void FooterWindow();
 
 private:
-    std::shared_ptr<Gui> m_gui = nullptr;
+    std::shared_ptr<gui::Gui> m_gui = nullptr;
     std::unique_ptr<GraphWindow> m_graphWindow;
     std::unique_ptr<RenderTarget> m_renderTarget;
     std::unique_ptr<PreviewWindow> m_previewWindow;

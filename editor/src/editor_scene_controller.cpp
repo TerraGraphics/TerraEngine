@@ -29,7 +29,7 @@ EditorSceneController::~EditorSceneController() {
     m_propertyWindow.reset();
 }
 
-void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<Gui>& gui) {
+void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<gui::Gui>& gui) {
     auto& engine = Engine::Get();
 
     m_gui = gui;

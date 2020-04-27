@@ -10,6 +10,9 @@
 
 class RenderWindow;
 class DefaultWindowEventsHandler;
+
+namespace gui {
+
 class Gui : Fixed {
 public:
     Gui() = delete;
@@ -47,3 +50,5 @@ private:
 
     bool m_enableInput = true;
 };
+
+}

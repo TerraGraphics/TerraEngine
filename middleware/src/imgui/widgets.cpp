@@ -74,11 +74,11 @@ bool InputScalar(const char* label, DataType dataType, void* value, const void* 
     auto systemDisplayOffsetY = g.Font->DisplayOffset.y;
     g.Font->DisplayOffset.y = -3;
     if (ImGui::ButtonEx(ICON_FA_ANGLE_UP, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
-        ImGui::DataTypeApplyOp(dataTypeImGui, '-', value, value, step);
+        ImGui::DataTypeApplyOp(dataTypeImGui, '+', value, value, step);
         valueChanged = true;
     }
     if (ImGui::ButtonEx(ICON_FA_ANGLE_DOWN, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
-        ImGui::DataTypeApplyOp(dataTypeImGui, '+', value, value, step);
+        ImGui::DataTypeApplyOp(dataTypeImGui, '-', value, value, step);
         valueChanged = true;
     }
     g.Font->DisplayOffset.y = systemDisplayOffsetY;

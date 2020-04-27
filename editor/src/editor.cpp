@@ -62,7 +62,7 @@ void Editor::Create() {
     // engine.GetWindow()->SetCursor(CursorType::Disabled);
     engine.GetWindow()->SetCursor(CursorType::Arrow);
 
-    m_gui = std::make_shared<Gui>(m_device, m_context, m_swapChain->GetDesc().ColorBufferFormat, m_swapChain->GetDesc().DepthBufferFormat, engine.GetWindow());
+    m_gui = std::make_shared<gui::Gui>(m_device, m_context, m_swapChain->GetDesc().ColorBufferFormat, m_swapChain->GetDesc().DepthBufferFormat, engine.GetWindow());
     m_gui->Create();
 
     m_editorSceneController = std::make_shared<EditorSceneController>();

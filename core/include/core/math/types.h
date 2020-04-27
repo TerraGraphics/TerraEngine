@@ -297,10 +297,15 @@ struct RectT {
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
     union {
-        T values[4] = {0, 0, 0, 0};
+        T valuesStart[2] = {0, 0};
         struct {
             T x;
             T y;
+        };
+    };
+    union {
+        T valuesSize[2] = {0, 0};
+        struct {
             T w;
             T h;
         };

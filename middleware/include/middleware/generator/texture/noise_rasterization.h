@@ -55,6 +55,6 @@ private:
     TexturePtr m_textureCacheMain;
     TexturePtr m_textureCacheCustom;
     math::Size m_textureSize = math::Size(256, 256);
-    math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(1000, 1000));
+    math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(100, 100));
     bool m_isCustomDirty = true;
 };

@@ -11,7 +11,10 @@ namespace Diligent {
     struct DisplayModeAttribs;
 }
 
-class Gui;
+namespace gui {
+    class Gui;
+}
+
 struct ImFont;
 class EditorSceneController;
 class GeneralSceneController;
@@ -36,7 +39,7 @@ private:
     bool m_bFullScreenMode = false;
 
     CyclicalCounter<double, 120> m_performanceCounter = CyclicalCounter<double, 120>(1./100.);
-    std::shared_ptr<Gui> m_gui = nullptr;
+    std::shared_ptr<gui::Gui> m_gui = nullptr;
     std::shared_ptr<EditorSceneController> m_editorSceneController = nullptr;
     std::shared_ptr<GeneralSceneController> m_generalSceneController = nullptr;
 };

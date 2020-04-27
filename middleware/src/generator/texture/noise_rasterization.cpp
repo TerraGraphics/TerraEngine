@@ -129,10 +129,13 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
 }
 
 void NoiseToTexture::DrawGui() {
-    if (gui::InputScalarN("Size", m_textureSize.values, uint32_t(1), gui::Range<uint32_t>(1, 8192))) {
+    if (gui::InputScalarN("Size w/h", m_textureSize.values, uint32_t(1), gui::Range<uint32_t>(1, 8192))) {
         StateChanged();
     }
-    if (gui::InputScalarN("Bound", m_noiseBound.values, 0.1, "%.1f")) {
+    if (gui::InputScalarN("Bound x/y", m_noiseBound.valuesStart, 0.1, "%.1f")) {
+        StateChanged();
+    }
+    if (gui::InputScalarN("Bound w/h", m_noiseBound.valuesSize, 0.1, gui::Range(0.1, std::numeric_limits<double>::max()), "%.1f")) {
         StateChanged();
     }
 }

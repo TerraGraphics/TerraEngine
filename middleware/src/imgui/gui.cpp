@@ -68,6 +68,7 @@ float4 main(in PSInput psIn) : SV_TARGET {
 }
 )";
 
+namespace gui {
 
 Gui::Gui(const DevicePtr& device, const ContextPtr& context, dg::TEXTURE_FORMAT backBufferFormat, dg::TEXTURE_FORMAT depthBufferFormat, const std::shared_ptr<RenderWindow>& window)
     : m_device(device)
@@ -427,7 +428,7 @@ void Gui::CreateFonts() {
     ImFontConfig config;
     config.MergeMode = true;
     config.PixelSnapH = true;
-    static const ImWchar iconRanges[] = { gui::startUsedRange, gui::stopUsedRange, 0 };
+    static const ImWchar iconRanges[] = { startUsedRange, stopUsedRange, 0 };
     const auto faSolid900Path = std::filesystem::current_path() / "assets" / "fonts" / "fa-solid-900.ttf";
     if (io.Fonts->AddFontFromFileTTF(faSolid900Path.c_str(), 13.0f, &config, iconRanges) == nullptr) {
         throw EngineError("failed to load a font {}", faSolid900Path.c_str());
@@ -575,4 +576,6 @@ void Gui::DestroyGraphics() {
         binding.Release();
     }
     m_fontTex.Release();
+}
+
 }
