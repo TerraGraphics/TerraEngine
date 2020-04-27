@@ -39,7 +39,4 @@ private:
     std::shared_ptr<Gui> m_gui = nullptr;
     std::shared_ptr<EditorSceneController> m_editorSceneController = nullptr;
     std::shared_ptr<GeneralSceneController> m_generalSceneController = nullptr;
-
-    ImFont* m_fontDefault = nullptr;
-    ImFont* m_fontMono = nullptr;
 };

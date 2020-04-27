@@ -22,6 +22,7 @@ public:
     void RenderFrame();
 
 private:
+    void CreateFonts();
     void CreateGraphics();
     void CreateFontsTexture();
     void DestroyGraphics();

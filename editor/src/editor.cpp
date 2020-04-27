@@ -65,20 +65,6 @@ void Editor::Create() {
     m_gui = std::make_shared<Gui>(m_device, m_context, m_swapChain->GetDesc().ColorBufferFormat, m_swapChain->GetDesc().DepthBufferFormat, engine.GetWindow());
     m_gui->Create();
 
-
-    const auto monoFontPath = std::filesystem::current_path() / "data" / "fonts" / "NotoSans" / "NotoSans-Regular.ttf";
-    auto& io = ImGui::GetIO();
-    m_fontDefault = io.Fonts->AddFontDefault();
-    if (m_fontDefault == nullptr) {
-        throw std::runtime_error("failed to load a default font");
-    }
-
-    m_fontMono = io.Fonts->AddFontFromFileTTF("/home/rean/projects/terra/TerraEngine/DroidSans.ttf", 16, nullptr, io.Fonts->GetGlyphRangesCyrillic());
-    if (m_fontMono == nullptr) {
-        throw std::runtime_error("failed to load a font from file");
-    }
-    io.Fonts->Build();
-
     m_editorSceneController = std::make_shared<EditorSceneController>();
     m_editorSceneController->Create(vsCameraVarId, psCameraVarId, gsCameraVarId, m_gui);
     m_generalSceneController = std::make_shared<GeneralSceneController>();

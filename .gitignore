@@ -1,5 +1,9 @@
+/assets/*
+!/assets/fonts/
+/assets/fonts/*
+!/assets/fonts/fa-solid-900.ttf
+
 /build/
-/assets/
 /terra
 /*_test
 /imgui.ini
