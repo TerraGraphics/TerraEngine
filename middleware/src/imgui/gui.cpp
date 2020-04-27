@@ -421,17 +421,30 @@ void Gui::RenderFrame() {
 void Gui::CreateFonts() {
     ImGuiIO& io = ImGui::GetIO();
 
-    if (io.Fonts->AddFontDefault() == nullptr) {
-        throw EngineError("failed to load a default font");
+    // if (io.Fonts->AddFontDefault() == nullptr) {
+    //     throw EngineError("failed to load a default font");
+    // }
+
+    {
+        ImFontConfig config;
+        config.OversampleH = 3;
+        config.OversampleV = 1;
+        config.PixelSnapH = false;
+        const auto bFontPath = std::filesystem::current_path() / "assets" / "fonts" / "bfont.ttf";
+        if (io.Fonts->AddFontFromFileTTF(bFontPath.c_str(), 15.0f, nullptr, nullptr) == nullptr) {
+            throw EngineError("failed to load a font {}", bFontPath.c_str());
+        }
     }
 
-    ImFontConfig config;
-    config.MergeMode = true;
-    config.PixelSnapH = true;
-    static const ImWchar iconRanges[] = { startUsedRange, stopUsedRange, 0 };
-    const auto faSolid900Path = std::filesystem::current_path() / "assets" / "fonts" / "fa-solid-900.ttf";
-    if (io.Fonts->AddFontFromFileTTF(faSolid900Path.c_str(), 13.0f, &config, iconRanges) == nullptr) {
-        throw EngineError("failed to load a font {}", faSolid900Path.c_str());
+    {
+        ImFontConfig config;
+        config.MergeMode = true;
+        config.PixelSnapH = true;
+        static const ImWchar iconRanges[] = { startUsedRange, stopUsedRange, 0 };
+        const auto faSolid900Path = std::filesystem::current_path() / "assets" / "fonts" / "fa-solid-900.ttf";
+        if (io.Fonts->AddFontFromFileTTF(faSolid900Path.c_str(), 13.0f, &config, iconRanges) == nullptr) {
+            throw EngineError("failed to load a font {}", faSolid900Path.c_str());
+        }
     }
 }
 

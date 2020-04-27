@@ -72,7 +72,7 @@ bool InputScalar(const char* label, DataType dataType, void* value, const void* 
     ImGui::SameLine(0, 0);
     ImGui::BeginGroup();
     auto systemDisplayOffsetY = g.Font->DisplayOffset.y;
-    g.Font->DisplayOffset.y = -3;
+    g.Font->DisplayOffset.y = -5;
     if (ImGui::ButtonEx(ICON_FA_ANGLE_UP, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
         ImGui::DataTypeApplyOp(dataTypeImGui, '+', value, value, step);
         valueChanged = true;
