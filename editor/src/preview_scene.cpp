@@ -20,6 +20,7 @@
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"
+#include "middleware/generator/texture/texture_node_factory.h"
 
 
 static const auto& additionalVDecl = VertexDecl({
@@ -63,6 +64,8 @@ void PreviewScene::Draw() {
     m_scene->Draw();
 }
 
+#include <DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp>
+
 void PreviewScene::CreateTextures() {
     dg::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = true;
@@ -72,20 +75,12 @@ void PreviewScene::CreateTextures() {
         CreateTextureFromFile("assets/ground.jpg", loadInfo, m_device, &Tex);
         m_TextureCube = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
-    auto* cNoise = new CoherentNoise();
-    auto* planePr = new PlaneProjection();
-    if (!planePr->AttachInput(0, cNoise)) {
-        throw EngineError("attach failed 0");
-    }
-    auto* texGen = new NoiseToTexture(m_device, Engine::Get().GetImmediateContext());
-    if (!texGen->AttachInput(0, planePr)) {
-        throw EngineError("attach failed 1");
-    }
-    TexturePtr texNoise = texGen->Get();
-    if (!texNoise) {
-        throw EngineError("get failed");
-    }
-    m_TextureNoise = texNoise->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+
+    auto factory = std::make_unique<TextureNodeFactory>(m_device, Engine::Get().GetImmediateContext());
+    auto* cNoise = factory->CreateCoherentNoise();
+    auto* planePr = factory->CreatePlaneProjection()->SetInputs(cNoise);
+    auto* texGen = factory->CreateNoiseToTexture()->SetInputs(planePr);
+    m_TextureNoise = texGen->Get()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 void PreviewScene::CreateMaterials() {
@@ -136,6 +131,7 @@ void PreviewScene::GenerateMeshes() {
 
     auto modelNode1 = std::make_shared<StdMaterial>(m_matTexPhong, model1);
     modelNode1->SetBaseTexture(m_TextureNoise);
+    // modelNode1->SetBaseTexture(m_TextureCube);
     auto modelNode2 = std::make_shared<StdMaterial>(m_matTexPhong, model2);
     modelNode2->SetBaseTexture(m_TextureCube);
 
