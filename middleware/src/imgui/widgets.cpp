@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <imgui.h>
+#include <fmt/format.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
@@ -11,47 +12,69 @@
 
 namespace {
 
-static ImGuiDataType_ ToImGui(gui::detail::DataType value) {
-    switch (value) {
-        case gui::detail::DataType::S8: return ImGuiDataType_S8;
-        case gui::detail::DataType::U8: return ImGuiDataType_U8;
-        case gui::detail::DataType::S16: return ImGuiDataType_S16;
-        case gui::detail::DataType::U16: return ImGuiDataType_U16;
-        case gui::detail::DataType::S32: return ImGuiDataType_S32;
-        case gui::detail::DataType::U32: return ImGuiDataType_U32;
-        case gui::detail::DataType::S64: return ImGuiDataType_S64;
-        case gui::detail::DataType::U64: return ImGuiDataType_U64;
-        case gui::detail::DataType::Float: return ImGuiDataType_Float;
-        case gui::detail::DataType::Double: return ImGuiDataType_Double;
-        default:
-            throw EngineError("unknown value of widget type: '{}'", static_cast<uint8_t>(value));
+struct ApplyOperation {
+    ApplyOperation(bool isAdd, const gui::detail::NumberVariant& step) : isAdd(isAdd), step(step) {}
+
+template<typename T> void operator()(T& value) {
+        if (isAdd) {
+            value = ImAddClampOverflow(value, std::get<T>(step), std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max());
+        } else {
+            value = ImSubClampOverflow(value, std::get<T>(step), std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max());
+        }
     }
-}
+
+    bool isAdd;
+    const gui::detail::NumberVariant& step;
+};
+
+struct FormatVariant {
+    FormatVariant(const char* format) : format(format) {}
+
+    template<typename T> void operator()(T& value) {
+        if (format == nullptr) {
+            fmt::format_to(buffer, "{}", value);
+        } else {
+            fmt::format_to(buffer, format, value);
+        }
+        buffer[buffer.size()] = 0;
+    }
+
+    fmt::basic_memory_buffer<char, 64> buffer;
+    const char* format;
+};
+
+struct Parse {
+    Parse(const char* buffer) : buffer(buffer) {}
+
+    template<typename T> bool operator()(T& value) {
+        try {
+            std::istringstream ss(buffer);
+            ss >> value;
+            return true;
+        } catch(const std::exception& e) {
+            return false;
+        }
+    }
+
+    const char* buffer;
+};
 
 }
 
 namespace gui {
 namespace detail {
 
-bool InputScalar(const char* label, DataType dataType, void* value, const void* step, const char* format) {
-    if (step == nullptr) {
-        throw EngineError("InputScalar: field step is null");
-    }
-
+bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& step, const char* format) {
     bool valueChanged = false;
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return valueChanged;
     }
 
-    ImGuiDataType dataTypeImGui = ToImGui(dataType);
-    if (format == nullptr) {
-        format = ImGui::DataTypeGetInfo(dataTypeImGui)->PrintFmt;
-    }
-
-    const int bufSize = 64;
-    char buf[bufSize];
-    ImGui::DataTypeFormatString(buf, bufSize, dataTypeImGui, value, format);
+    FormatVariant formater(format);
+    std::visit(formater, value);
+    char* buffer = formater.buffer.data();
+    size_t bufferSize = formater.buffer.capacity();
 
     ImGuiContext& g = *GImGui;
     const float buttonSize = ImGui::GetFrameHeight();
@@ -64,8 +87,8 @@ bool InputScalar(const char* label, DataType dataType, void* value, const void* 
     ImGui::BeginGroup(); // The only purpose of the group here is to allow the caller to query item data e.g. IsItemActive()
     ImGui::PushID(label);
     ImGui::SetNextItemWidth(ImMax(1.0f, ImGui::CalcItemWidth() - buttonSize));
-    if (ImGui::InputText("", buf, bufSize, flags)) { // PushId(label) + "" gives us the expected ID from outside point of view
-        valueChanged = ImGui::DataTypeApplyOpFromText(buf, g.InputTextState.InitialTextA.Data, dataTypeImGui, value, format);
+    if (ImGui::InputText("", buffer, bufferSize, flags)) { // PushId(label) + "" gives us the expected ID from outside point of view
+        valueChanged = std::visit(Parse(buffer), value);
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -74,11 +97,11 @@ bool InputScalar(const char* label, DataType dataType, void* value, const void* 
     auto systemDisplayOffsetY = g.Font->DisplayOffset.y;
     g.Font->DisplayOffset.y = -5;
     if (ImGui::ButtonEx(ICON_FA_ANGLE_UP, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
-        ImGui::DataTypeApplyOp(dataTypeImGui, '+', value, value, step);
+        std::visit(ApplyOperation(true, step), value);
         valueChanged = true;
     }
     if (ImGui::ButtonEx(ICON_FA_ANGLE_DOWN, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
-        ImGui::DataTypeApplyOp(dataTypeImGui, '-', value, value, step);
+        std::visit(ApplyOperation(false, step), value);
         valueChanged = true;
     }
     g.Font->DisplayOffset.y = systemDisplayOffsetY;
@@ -101,38 +124,36 @@ bool InputScalar(const char* label, DataType dataType, void* value, const void* 
     return valueChanged;
 }
 
-bool InputScalarN(const char* label, DataType dataType, void* value, size_t components, const void* step, const char* format) {
-    ImGuiDataType data_type = ToImGui(dataType);
+bool InputScalarN(const char* label, NumberVariant* values, size_t components, const NumberVariant& step, const char* format) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems)
-        return false;
+    bool valueChanged = false;
+    if (window->SkipItems) {
+        return valueChanged;
+    }
 
     ImGuiContext& g = *GImGui;
-    bool value_changed = false;
     ImGui::BeginGroup();
     ImGui::PushID(label);
     ImGui::PushMultiItemsWidths(static_cast<int>(components), ImGui::CalcItemWidth());
-    size_t type_size = ImGui::DataTypeGetInfo(data_type)->Size;
     for (size_t i = 0; i!=components; ++i) {
         ImGui::PushID(static_cast<int>(i));
-        if (i > 0)
+        if (i > 0) {
             ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
-        value_changed |= InputScalar("", dataType, value, step, format);
+        }
+        valueChanged |= InputScalar("", values[i], step, format);
         ImGui::PopID();
         ImGui::PopItemWidth();
-        value = reinterpret_cast<void*>(reinterpret_cast<char*>(value) + type_size);
     }
     ImGui::PopID();
 
     const char* label_end = ImGui::FindRenderedTextEnd(label);
-    if (label != label_end)
-    {
+    if (label != label_end) {
         ImGui::SameLine(0.0f, g.Style.ItemInnerSpacing.x);
         ImGui::TextEx(label, label_end);
     }
 
     ImGui::EndGroup();
-    return value_changed;
+    return valueChanged;
 }
 
 bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames, const size_t numberItems) {
