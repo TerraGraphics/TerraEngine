@@ -135,7 +135,7 @@ void NoiseToTexture::DrawGui() {
     if (gui::InputScalarN("Bound x/y", m_noiseBound.valuesStart, 0.1, "{:.1f}")) {
         StateChanged();
     }
-    if (gui::InputScalarN("Bound w/h", m_noiseBound.valuesSize, 0.1, gui::Range(0.1, std::numeric_limits<double>::max()), "{:.1f}")) {
+    if (gui::InputScalarN("Bound w/h", m_noiseBound.valuesSize, 0.1, gui::Range(0.1), "{:.1f}")) {
         StateChanged();
     }
 }

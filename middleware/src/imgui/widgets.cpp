@@ -13,18 +13,25 @@
 namespace {
 
 struct ApplyOperation {
-    ApplyOperation(bool isAdd, const gui::detail::NumberVariant& step) : isAdd(isAdd), step(step) {}
+    ApplyOperation(bool isAdd, const gui::detail::NumberVariant& step, const gui::detail::NumberVariant& minValue, const gui::detail::NumberVariant& maxValue)
+    : isAdd(isAdd)
+    , step(step)
+    , minValue(minValue)
+    , maxValue(maxValue)
+    {}
 
-template<typename T> void operator()(T& value) {
+    template<typename T> void operator()(T& value) {
         if (isAdd) {
-            value = ImAddClampOverflow(value, std::get<T>(step), std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max());
+            value = ImAddClampOverflow(value, std::get<T>(step), std::get<T>(minValue), std::get<T>(maxValue));
         } else {
-            value = ImSubClampOverflow(value, std::get<T>(step), std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max());
+            value = ImSubClampOverflow(value, std::get<T>(step), std::get<T>(minValue), std::get<T>(maxValue));
         }
     }
 
     bool isAdd;
     const gui::detail::NumberVariant& step;
+    const gui::detail::NumberVariant& minValue;
+    const gui::detail::NumberVariant& maxValue;
 };
 
 struct FormatVariant {
@@ -44,12 +51,21 @@ struct FormatVariant {
 };
 
 struct Parse {
-    Parse(const char* buffer) : buffer(buffer) {}
+    Parse(const char* buffer, const gui::detail::NumberVariant& minValue, const gui::detail::NumberVariant& maxValue)
+    : buffer(buffer)
+    , minValue(minValue)
+    , maxValue(maxValue)
+    {}
 
     template<typename T> bool operator()(T& value) {
         try {
             std::istringstream ss(buffer);
-            ss >> value;
+            T tmp;
+            ss >> tmp;
+            if ((tmp < std::get<T>(minValue)) || (tmp > std::get<T>(maxValue))) {
+                return false;
+            }
+            value = tmp;
             return true;
         } catch(const std::exception& e) {
             return false;
@@ -57,6 +73,8 @@ struct Parse {
     }
 
     const char* buffer;
+    const gui::detail::NumberVariant& minValue;
+    const gui::detail::NumberVariant& maxValue;
 };
 
 }
@@ -64,7 +82,7 @@ struct Parse {
 namespace gui {
 namespace detail {
 
-bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& step, const char* format) {
+bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& step, const NumberVariant& minValue, const NumberVariant& maxValue, const char* format) {
     bool valueChanged = false;
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
@@ -88,7 +106,7 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
     ImGui::PushID(label);
     ImGui::SetNextItemWidth(ImMax(1.0f, ImGui::CalcItemWidth() - buttonSize));
     if (ImGui::InputText("", buffer, bufferSize, flags)) { // PushId(label) + "" gives us the expected ID from outside point of view
-        valueChanged = std::visit(Parse(buffer), value);
+        valueChanged = std::visit(Parse(buffer, minValue, maxValue), value);
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -97,11 +115,11 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
     auto systemDisplayOffsetY = g.Font->DisplayOffset.y;
     g.Font->DisplayOffset.y = -5;
     if (ImGui::ButtonEx(ICON_FA_ANGLE_UP, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
-        std::visit(ApplyOperation(true, step), value);
+        std::visit(ApplyOperation(true, step, minValue, maxValue), value);
         valueChanged = true;
     }
     if (ImGui::ButtonEx(ICON_FA_ANGLE_DOWN, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
-        std::visit(ApplyOperation(false, step), value);
+        std::visit(ApplyOperation(false, step, minValue, maxValue), value);
         valueChanged = true;
     }
     g.Font->DisplayOffset.y = systemDisplayOffsetY;
@@ -124,7 +142,7 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
     return valueChanged;
 }
 
-bool InputScalarN(const char* label, NumberVariant* values, size_t components, const NumberVariant& step, const char* format) {
+bool InputScalarN(const char* label, NumberVariant* values, size_t components, const NumberVariant& step, const NumberVariant& minValue, const NumberVariant& maxValue, const char* format) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     bool valueChanged = false;
     if (window->SkipItems) {
@@ -140,7 +158,7 @@ bool InputScalarN(const char* label, NumberVariant* values, size_t components, c
         if (i > 0) {
             ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
         }
-        valueChanged |= InputScalar("", values[i], step, format);
+        valueChanged |= InputScalar("", values[i], step, minValue, maxValue, format);
         ImGui::PopID();
         ImGui::PopItemWidth();
     }
