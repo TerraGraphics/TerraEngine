@@ -117,7 +117,7 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
         v += vDelta;
     }
 
-    // TODO RAII unmap
+    // TODO: RAII unmap
     m_context->UnmapTextureSubresource(texture, 0, 0);
     m_context->GenerateMips(texture->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
 

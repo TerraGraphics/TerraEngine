@@ -32,6 +32,7 @@ public:
     using Weak = dg::RefCntWeakPtr<GraphNode>;
 
     bool IsFull() const noexcept;
+    const char* GetName() const noexcept { return m_name; }
 
     bool AttachInput(uint8_t number, GraphNode* node);
     bool DetachInput(uint8_t number);

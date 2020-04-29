@@ -35,7 +35,6 @@ template<typename T> struct Range {
     const T maxValue;
 };
 
-
 template<typename T>
     bool InputScalar(const char* label, T& value, const T step, const Range<T> range, const char* format = nullptr) {
         detail::NumberVariant tmpValue = value;
@@ -83,9 +82,11 @@ template<typename T, size_t N>
         return false;
     }
 
+void Text(const std::string& text);
+
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
     math::PointF uv0 = math::PointF(0, 0), math::PointF uv1 = math::PointF(1, 1),
-    math::Color tintCol = math::Color(255));
+    math::Color tintCol = math::Color(255), math::Color borderCol = math::Color(0));
 
 
 void NodeIcon(const math::Size& size, IconType type, bool filled,

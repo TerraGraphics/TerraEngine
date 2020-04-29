@@ -43,6 +43,7 @@ void SelectedNode::ResetNode() {
 
 void SelectedNode::Draw() {
     if (auto nodePtr = m_node.Lock()) {
+        gui::Text(nodePtr->GetName() + std::string(":"));
         nodePtr->DrawGui();
     } else {
         return;
@@ -51,10 +52,13 @@ void SelectedNode::Draw() {
     if (!m_previewNode || !m_previewNode->IsFull()) {
         return;
     }
+
+    gui::Text("Preview:");
+
     auto size = ToSize(ImGui::GetContentRegionAvail());
-    size.h = size.w;
+    size.h = size.w = std::min(size.h, size.w);
 
     TextureViewPtr texView;
     texView = m_previewNode->GetTexture(size)->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
-    gui::Image(texView.RawPtr(), size, m_isOpenGL);
+    gui::Image(texView.RawPtr(), size, m_isOpenGL, math::PointF(0, 0), math::PointF(1, 1), math::Color(255), math::Color(16, 89, 0));
 }

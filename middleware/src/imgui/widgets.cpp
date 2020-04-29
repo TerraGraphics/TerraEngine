@@ -204,8 +204,7 @@ void DrawNodeIcon(ImDrawList* drawList, math::RectI rect, IconType type, bool fi
         const auto margin     = (filled ? 2.0f : 2.0f) * origin_scale;
         const auto rounding   = 0.1f * origin_scale;
         const auto tip_round  = 0.7f; // percentage of triangle edge (for tip)
-        //const auto edge_round = 0.7f; // percentage of triangle edge (for corner)
-        // const auto canvas = rectf(
+
         const auto canvas = math::RectF(
             rect.x + margin + offset_x,
             rect.y + margin + offset_y,
@@ -217,7 +216,6 @@ void DrawNodeIcon(ImDrawList* drawList, math::RectI rect, IconType type, bool fi
         const auto top    = canvas.y + canvas.h            * 0.5f * 0.2f;
         const auto bottom = canvas.y + canvas.h - canvas.h * 0.5f * 0.2f;
         const auto center_y = (top + bottom) * 0.5f;
-        //const auto angle = AX_PI * 0.5f * 0.5f * 0.5f;
 
         const auto tip_top    = ImVec2(canvas.x + canvas.w * 0.5f, top);
         const auto tip_right  = ImVec2(right, center_y);
@@ -375,14 +373,21 @@ void DrawNodeIcon(ImDrawList* drawList, math::RectI rect, IconType type, bool fi
 
 } // end namespace gui::detail
 
+void Text(const std::string& text) {
+    ImGui::TextEx(text.c_str(), nullptr, ImGuiTextFlags_NoWidthForLargeClippedText);
+}
 
-math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol) {
+math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol, math::Color borderCol) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::Rect();
     }
 
     ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ToImGui(size));
+    if (borderCol.alpha > 0) {
+        bb.Max += ImVec2(2, 2);
+    }
+
     ImGui::ItemSize(bb);
     if (!ImGui::ItemAdd(bb, 0)) {
         return math::Rect();
@@ -392,7 +397,12 @@ math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::P
         std::swap(uv0.y, uv1.y);
     }
 
-    window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min, bb.Max, ToImGui(uv0), ToImGui(uv1), tintCol.value);
+    if (borderCol.alpha > 0) {
+        window->DrawList->AddRect(bb.Min, bb.Max, borderCol.value, 0.0f);
+        window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min + ImVec2(1, 1), bb.Max - ImVec2(1, 1), ToImGui(uv0), ToImGui(uv1), tintCol.value);
+    } else {
+        window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min, bb.Max, ToImGui(uv0), ToImGui(uv1), tintCol.value);
+    }
 
     return math::Rect(ToPoint(bb.Min), ToPoint(bb.Max));
 }

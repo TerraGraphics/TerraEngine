@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <functional>
 
-#include <imgui.h>
 #include <fmt/format.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
