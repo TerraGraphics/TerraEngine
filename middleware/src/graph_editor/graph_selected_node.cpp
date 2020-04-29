@@ -55,10 +55,14 @@ void SelectedNode::Draw() {
 
     gui::Text("Preview:");
 
-    auto size = ToSize(ImGui::GetContentRegionAvail());
-    size.h = size.w = std::min(size.h, size.w);
+    const auto size = gui::ToSize(ImGui::GetContentRegionAvail());
+    const uint32_t borderSize = 2;
+    auto minDim = std::min(size.h, size.w) - borderSize;
+    minDim -= (minDim % 4);
 
     TextureViewPtr texView;
-    texView = m_previewNode->GetTexture(size)->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
-    gui::Image(texView.RawPtr(), size, m_isOpenGL, math::PointF(0, 0), math::PointF(1, 1), math::Color(255), math::Color(16, 89, 0));
+    texView = m_previewNode->GetTexture(math::Size(minDim, minDim))->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+    gui::Image(texView.RawPtr(), math::Size(minDim + borderSize, minDim + borderSize), m_isOpenGL,
+        math::PointF(0, 0), math::PointF(1, 1),
+        math::Color(255), math::Color(16, 89, 0));
 }

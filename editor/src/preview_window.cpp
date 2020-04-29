@@ -91,7 +91,7 @@ void PreviewWindow::Update(double deltaTime) {
     m_draw = ImGui::Begin("preview", pOpen, windowFlags);
     ImGui::PopStyleVar(1);
     if (m_draw) {
-        math::Rect rc = gui::Image(m_renderTarget->GetColorTexture(0), ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
+        math::Rect rc = gui::Image(m_renderTarget->GetColorTexture(0), gui::ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
 
         m_controller->Update(handler, rc.Width(), rc.Height(), static_cast<float>(deltaTime));
         m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
@@ -100,7 +100,7 @@ void PreviewWindow::Update(double deltaTime) {
         m_renderTarget->Update(engine.GetSwapChain(), rc.Width(), rc.Height());
 
         bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
-                                 ImGui::IsMouseHoveringRect(ToImGui(rc.Min()), ToImGui(rc.Max())));
+                                 ImGui::IsMouseHoveringRect(gui::ToImGui(rc.Min()), gui::ToImGui(rc.Max())));
 
         bool findSelectedId = false;
         if (m_waitTextureCopy) {

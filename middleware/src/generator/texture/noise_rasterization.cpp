@@ -9,6 +9,25 @@
 #include "middleware/imgui/widgets.h"
 
 
+namespace {
+    bool IsCorrentTextureSize(math::Size size) {
+        if ((size.w == 0) || (size.h == 0)) {
+            return false;
+        }
+
+        if ((size.w == 1) && (size.h == 1)) {
+            return true;
+        }
+
+        if (((size.w % 4) == 0) && ((size.h % 4) == 0)) {
+            return true;
+        }
+
+        return false;
+    }
+}
+
+
 NoiseRasterization2D::NoiseRasterization2D(dg::IReferenceCounters* refCounters, const char* name)
     : INodePreview(refCounters, name, NoiseRasterization2D::OutputTypeID(), {Noise2D::OutputTypeID()}) {
 
@@ -45,6 +64,9 @@ math::Size NoiseToTexture::GetSize() const {
 }
 
 void NoiseToTexture::SetSize(math::Size value) {
+    if (!IsCorrentTextureSize(value)) {
+        throw EngineError("NoiseToTexture: size must be non-zero and multiple of 4 or equal to 1");
+    }
     m_textureSize = value;
     StateChanged();
 }
@@ -54,13 +76,16 @@ math::RectD NoiseToTexture::GetBound() const {
 }
 
 void NoiseToTexture::SetBound(math::RectD value) {
+    if ((value.Width() <= 0) || (value.Height() <= 0)) {
+        throw EngineError("NoiseToTexture: bound need to be above zero");
+    }
     m_noiseBound = value;
     StateChanged();
 }
 
 NoiseToTexture* NoiseToTexture::SetInputs(Noise2D* input) {
     if (!AttachInput(0, input)) {
-        throw EngineError("NoiseRasterization2D: can't set input number 0");
+        throw EngineError("NoiseToTexture: can't set input number 0");
     }
 
     return this;
@@ -129,8 +154,12 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
 }
 
 void NoiseToTexture::DrawGui() {
-    if (gui::InputScalarN("Size w/h", m_textureSize.values, uint32_t(1), gui::Range<uint32_t>(1, 8192))) {
-        StateChanged();
+    auto tmpSize = m_textureSize;
+    if (gui::InputScalarN("Size w/h", tmpSize.values, uint32_t(4), gui::Range<uint32_t>(4, 8192))) {
+        if (IsCorrentTextureSize(tmpSize)) {
+            m_textureSize = tmpSize;
+            StateChanged();
+        }
     }
     if (gui::InputScalarN("Bound x/y", m_noiseBound.valuesStart, 0.1, "{:.1f}")) {
         StateChanged();
@@ -146,8 +175,8 @@ void NoiseToTexture::StateChanged() {
 }
 
 bool NoiseToTexture::GetTextureForDraw(math::Size size, TexturePtr& output) {
-    if ((size.w <= 0) || (size.h <= 0)) {
-        throw EngineError("NoiseToTexture: invalid param: size");
+    if (!IsCorrentTextureSize(size)) {
+        throw EngineError("NoiseToTexture: size must be non-zero and multiple of 4 or equal to 1");
     }
 
     output = (size == m_textureSize) ? m_textureCacheMain : m_textureCacheCustom;

@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <cstdint>
 
+namespace gui {
 
 ImVec2 ToImGui(math::Size value) {
     return ImVec2(static_cast<float>(value.w), static_cast<float>(value.h));
@@ -35,3 +36,5 @@ math::Size ToSize(ImVec2 value) {
 math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax) {
     return math::RectF(ToPointF(pointMin), ToPointF(pointMax));
 }
+
+} // namespace gui
