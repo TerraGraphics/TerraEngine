@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
+#include "core/dg/device.h" // IWYU pragma: keep
 #include "core/scene/vertexes.h"
-#include "core/dg/render_device.h" // IWYU pragma: keep
 #include "core/scene/index_buffer.h"
 #include "core/scene/geometry_node.h"
 #include "core/scene/vertex_buffer.h"

@@ -17,15 +17,15 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/math.h"
+#include "core/dg/device.h"
 #include "core/dg/buffer.h"
 #include "core/dg/texture.h"
 #include "core/dg/sampler.h"
+#include "core/dg/context.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/font.h"
-#include "core/dg/render_device.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
-#include "core/dg/device_context.h"
 #include "core/dg/rasterizer_state.h"
 
 

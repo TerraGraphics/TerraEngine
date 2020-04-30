@@ -44,7 +44,7 @@ public:
 
     DevicePtr& GetDevice() noexcept { return m_device; }
     SwapChainPtr& GetSwapChain() noexcept { return m_swapChain; }
-    ContextPtr& GetImmediateContext() noexcept { return m_immediateContext; }
+    ContextPtr& GetContext() noexcept { return m_context; }
     EngineFactoryPtr& GetEngineFactory() noexcept { return m_engineFactory; }
 
     std::shared_ptr<RenderWindow>& GetWindow() noexcept { return m_window; }
@@ -72,7 +72,7 @@ private:
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
-    ContextPtr m_immediateContext;
+    ContextPtr m_context;
     EngineFactoryPtr m_engineFactory;
 
     bool m_isVSync = true;

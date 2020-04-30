@@ -6,8 +6,8 @@
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
+#include "core/dg/device.h"
 #include "property_window.h"
-#include "core/dg/render_device.h"
 #include "core/dg/texture_utilities.h"
 #include "middleware/graph_editor/graph_editor.h"
 #include "middleware/graph_editor/graph_selected_node.h"
@@ -35,7 +35,7 @@ void GraphWindow::Create(const std::shared_ptr<PropertyWindow>& propertyWindow) 
     loadInfo.IsSRGB = true;
     CreateTextureFromFile("assets/graph_node_background.png", loadInfo, device, &texBackground);
 
-    auto factory = std::make_unique<TextureNodeFactory>(device, engine.GetImmediateContext());
+    auto factory = std::make_unique<TextureNodeFactory>(device, engine.GetContext());
     NoiseToTexture* node = factory->CreateNoiseToTexture();
     m_graphEditor = std::make_shared<GraphEditor>("NodeEditor", device->GetDeviceCaps().IsGLDevice(), texBackground, std::move(factory));
     m_graphEditor->AddNode(static_cast<GraphNode*>(node));

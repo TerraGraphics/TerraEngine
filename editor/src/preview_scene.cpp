@@ -5,11 +5,11 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/engine.h"
+#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/math/types.h"
 #include "core/dg/texture.h"
 #include "core/scene/scene.h"
 #include "core/scene/vertexes.h"
-#include "core/dg/device_context.h" // IWYU pragma: keep
 #include "core/dg/graphics_types.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/material/vertex_decl.h"
@@ -45,7 +45,7 @@ PreviewScene::~PreviewScene() {
 void PreviewScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
-    m_scene = std::make_shared<Scene>(m_device, engine.GetImmediateContext(), true);
+    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), true);
 
     CreateTextures();
     CreateMaterials();
@@ -74,7 +74,7 @@ void PreviewScene::CreateTextures() {
         m_TextureCube = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
 
-    auto factory = std::make_unique<TextureNodeFactory>(m_device, Engine::Get().GetImmediateContext());
+    auto factory = std::make_unique<TextureNodeFactory>(m_device, Engine::Get().GetContext());
     auto* cNoise = factory->CreateCoherentNoise();
     auto* planePr = factory->CreatePlaneProjection()->SetInputs(cNoise);
     auto* texGen = factory->CreateNoiseToTexture()->SetInputs(planePr);

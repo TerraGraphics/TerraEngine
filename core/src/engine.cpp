@@ -4,12 +4,12 @@
 #include <utility>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
+#include "core/dg/device.h" // IWYU pragma: keep
+#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/common/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
-#include "core/dg/render_device.h" // IWYU pragma: keep
-#include "core/dg/device_context.h" // IWYU pragma: keep
 #include "core/dg/graphics_types.h"
 #include "core/material/material_builder.h"
 
@@ -44,9 +44,9 @@ void Engine::Create(EngineDesc&& desc) {
 
     m_device = m_gAPI->GetDevice();
     m_swapChain = m_gAPI->GetSwapChain();
-    m_immediateContext = m_gAPI->GetImmediateContext();
+    m_context = m_gAPI->GetContext();
     m_engineFactory = m_gAPI->GetEngineFactory();
-    m_materialBuilder = std::make_shared<MaterialBuilder>(m_device, m_immediateContext, m_swapChain, m_engineFactory);
+    m_materialBuilder = std::make_shared<MaterialBuilder>(m_device, m_context, m_swapChain, m_engineFactory);
 
     m_application->Create();
 }
@@ -91,7 +91,7 @@ void Engine::Destroy() {
     if (m_gAPI) {
         m_device.Release();
         m_swapChain.Release();
-        m_immediateContext.Release();
+        m_context.Release();
         m_engineFactory.Release();
         m_gAPI->Destroy();
         m_gAPI = nullptr;

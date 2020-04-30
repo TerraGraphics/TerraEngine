@@ -6,11 +6,11 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/dg.h"
+#include "core/dg/device.h"
 #include "core/dg/buffer.h"
-#include "core/dg/render_device.h"
+#include "core/dg/context.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
-#include "core/dg/device_context.h"
 #include "core/dg/graphics_accessories.h"
 
 

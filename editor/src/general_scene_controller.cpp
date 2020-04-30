@@ -6,10 +6,10 @@
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "general_scene.h"
+#include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
-#include "core/dg/render_device.h"
 #include "core/dg/graphics_types.h"
 #include "core/render/render_target.h"
 #include "core/material/material_builder.h"
@@ -70,7 +70,7 @@ void GeneralSceneController::Draw() {
     auto& engine = Engine::Get();
     auto builder = engine.GetMaterialBuilder();
 
-    m_sceneRenderTarget->Bind(engine.GetImmediateContext());
+    m_sceneRenderTarget->Bind(engine.GetContext());
     builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
     builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);

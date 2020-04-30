@@ -7,13 +7,13 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/engine.h"
+#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/dg/texture.h"
 #include "core/math/types.h"
 #include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"
 #include "core/math/constants.h"
-#include "core/dg/device_context.h" // IWYU pragma: keep
 #include "core/dg/graphics_types.h"
 #include "core/scene/vertex_buffer.h"
 #include "core/scene/geometry_node.h"
@@ -29,7 +29,7 @@
 void GeneralScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
-    m_scene = std::make_shared<Scene>(m_device, engine.GetImmediateContext(), false);
+    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), false);
 
     CreateTextures();
     CreateMaterials();

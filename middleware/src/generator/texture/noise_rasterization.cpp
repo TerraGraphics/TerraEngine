@@ -2,11 +2,11 @@
 
 #include <algorithm>
 
+#include "core/dg/device.h"
+#include "core/dg/context.h"
 #include "core/dg/texture.h"
 #include "core/common/exception.h"
-#include "core/dg/render_device.h"
 #include "core/dg/graphics_types.h"
-#include "core/dg/device_context.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/graph_editor/graph_node.h"
 #include "middleware/generator/texture/texture_consts.h"

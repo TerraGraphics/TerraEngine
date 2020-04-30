@@ -1,6 +1,6 @@
 #include "core/material/material.h"
 
-#include "core/dg/device_context.h"
+#include "core/dg/context.h"
 
 
 Material::Material(const PipelineStatePtr& pipelineState)

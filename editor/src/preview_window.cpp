@@ -8,10 +8,10 @@
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "preview_scene.h"
+#include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
-#include "core/dg/render_device.h"
 #include "core/dg/graphics_types.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gizmo/gizmo_3d.h"
@@ -83,7 +83,7 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
 void PreviewWindow::Update(double deltaTime) {
     auto& engine = Engine::Get();
     auto& handler = engine.GetEventHandler();
-    auto& context = engine.GetImmediateContext();
+    auto& context = engine.GetContext();
 
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
@@ -145,7 +145,7 @@ void PreviewWindow::Draw() {
     auto& builder = engine.GetMaterialBuilder();
 
     if (m_draw) {
-        m_renderTarget->Bind(engine.GetImmediateContext());
+        m_renderTarget->Bind(engine.GetContext());
         builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
         builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
         builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);

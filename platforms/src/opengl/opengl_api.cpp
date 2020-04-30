@@ -55,7 +55,7 @@ void OpenGLAPI::Create(int /* validationLevel */) {
         throw std::runtime_error("failed to initialize OpenGL");
     }
 
-    m_immediateContext.Attach(contexts[0]);
+    m_context.Attach(contexts[0]);
     auto numDeferredCtx = contexts.size() - 1;
     m_deferredContexts.resize(numDeferredCtx);
     for (uint32_t ctx = 0; ctx != numDeferredCtx; ++ctx) {

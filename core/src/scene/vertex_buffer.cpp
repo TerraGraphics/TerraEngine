@@ -1,9 +1,9 @@
 #include "core/scene/vertex_buffer.h"
 
 #include "core/dg/buffer.h"
+#include "core/dg/device.h"
+#include "core/dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/render_device.h"
-#include "core/dg/device_context.h"
 
 
 VertexBuffer::VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name) {

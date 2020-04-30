@@ -15,11 +15,11 @@ GraphicAPI::~GraphicAPI() {
 }
 
 void GraphicAPI::Destroy() {
-    if (m_immediateContext) {
-        m_immediateContext->Flush();
+    if (m_context) {
+        m_context->Flush();
     }
     m_deferredContexts.clear();
-    m_immediateContext.Release();
+    m_context.Release();
     m_swapChain.Release();
     m_device.Release();
     m_engineFactory.Release();

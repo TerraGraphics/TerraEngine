@@ -1,7 +1,7 @@
 #include "core/scene/geometry_node.h"
 
+#include "core/dg/context.h"
 #include "core/dg/graphics_types.h"
-#include "core/dg/device_context.h"
 #include "core/scene/index_buffer.h"
 #include "core/scene/vertex_buffer.h"
 

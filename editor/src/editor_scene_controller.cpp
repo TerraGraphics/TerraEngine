@@ -6,11 +6,11 @@
 
 #include "core/engine.h"
 #include "graph_window.h"
+#include "core/dg/device.h" // IWYU pragma: keep
 #include "preview_window.h"
 #include "property_window.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
-#include "core/dg/render_device.h" // IWYU pragma: keep
 #include "core/render/render_target.h"
 
 
@@ -58,7 +58,7 @@ void EditorSceneController::Draw() {
 
     m_previewWindow->Draw();
 
-    m_renderTarget->Bind(engine.GetImmediateContext());
+    m_renderTarget->Bind(engine.GetContext());
     m_gui->RenderFrame();
 }
 

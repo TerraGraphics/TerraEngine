@@ -9,12 +9,12 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
+#include "core/dg/device.h" // IWYU pragma: keep
+#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/common/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/gui.h"
-#include "core/dg/render_device.h" // IWYU pragma: keep
-#include "core/dg/device_context.h" // IWYU pragma: keep
 #include "core/dg/graphics_types.h"
 #include "editor_scene_controller.h"
 #include "general_scene_controller.h"
@@ -35,7 +35,7 @@ void Editor::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
     m_swapChain = engine.GetSwapChain();
-    m_context = engine.GetImmediateContext();
+    m_context = engine.GetContext();
 
     auto fileManager = engine.GetFileManager();
     // fileManager->AddRootAlias("$shader", fileManager->CurrentPath() / "materials");

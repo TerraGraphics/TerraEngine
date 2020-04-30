@@ -4,8 +4,8 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
+#include "core/dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/device_context.h"
 #include "core/material/material.h"
 #include "core/scene/geometry_node.h"
 

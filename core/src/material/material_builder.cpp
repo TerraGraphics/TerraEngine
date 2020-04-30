@@ -10,7 +10,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/errors.h"
-#include "core/dg/render_device.h"
+#include "core/dg/device.h"
 #include "core/material/material.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/material/shader_builder.h"
