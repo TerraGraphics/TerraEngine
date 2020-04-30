@@ -3,13 +3,15 @@
 #include <map>
 #include <vector>
 #include <cstdint>
+#include <initializer_list>
 
 #include "core/dg/dg.h"
-#include "core/common/ctor.h"
-
-#include <DiligentCore/Common/interface/ObjectBase.hpp>
+#include "core/dg/object_base.h"
 
 
+namespace Diligent {
+    class IReferenceCounters;
+}
 class GraphNode;
 struct GraphPin {
     GraphPin(bool isInput, uint32_t pinType, GraphNode* node);
@@ -21,7 +23,7 @@ struct GraphPin {
     GraphNode* node = nullptr;
 };
 
-class GraphNode : Fixed, public dg::ObjectBase<dg::IObject> {
+class GraphNode : public dg::ObjectBase<dg::IObject> {
 protected:
     GraphNode() = delete;
     GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint32_t outputPinType, std::initializer_list<uint32_t> inputPinsType);

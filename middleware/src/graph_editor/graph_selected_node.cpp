@@ -1,10 +1,16 @@
 #include "middleware/graph_editor/graph_selected_node.h"
 
+#include <string>
 #include <imgui.h>
+#include <cstdint>
+#include <algorithm>
 
 #include "core/dg/texture.h"
+#include "core/math/types.h"
+#include "core/dg/graphics_types.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/graph_editor/graph_node.h"
 #include "middleware/graph_editor/graph_node_preview.h"
 
 

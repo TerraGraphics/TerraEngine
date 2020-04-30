@@ -2,6 +2,8 @@
 
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/generator/texture/coherent_noise.h"
+#include "middleware/generator/texture/texture_consts.h"
 
 
 Noise2D::Noise2D(dg::IReferenceCounters* refCounters, const char* name)
@@ -22,6 +24,10 @@ bool Noise2D::AttachInputImpl(uint8_t /* number */, GraphNode* node) {
 bool Noise2D::DetachInputImpl(uint8_t /* number */) {
     m_noiseNode = nullptr;
     return true;
+}
+
+uint32_t Noise2D::OutputTypeID() {
+    return static_cast<uint32_t>(TexturePinType::Noise2D);
 }
 
 PlaneProjection::PlaneProjection(dg::IReferenceCounters* refCounters)

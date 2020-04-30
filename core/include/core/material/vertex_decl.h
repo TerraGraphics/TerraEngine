@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <cstdint>
-#include <type_traits>
 #include <unordered_map>
 #include <initializer_list>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>

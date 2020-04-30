@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+
 const uint32_t TextureGenGroupID = 1;
 
 enum class TexturePinType : uint32_t {

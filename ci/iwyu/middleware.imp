@@ -8,4 +8,6 @@
     { include: ['"middleware/generator/mesh/sphere_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/shape_builder.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/cylinder_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
+
+    { include: ['"FastNoise.h"', private, "<FastNoise.h>", public] },
 ]

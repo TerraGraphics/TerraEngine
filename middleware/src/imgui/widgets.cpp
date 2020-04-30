@@ -1,6 +1,8 @@
 #include "middleware/imgui/widgets.h"
 
+#include <cmath>
 #include <utility>
+#include <istream>
 #include <imgui.h>
 #include <fmt/format.h>
 #define IMGUI_DEFINE_MATH_OPERATORS

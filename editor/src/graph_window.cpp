@@ -1,21 +1,21 @@
 #include "graph_window.h"
 
+#include <utility>
 #include <imgui.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
+#include "core/dg/dg.h"
 #include "core/engine.h"
 #include "property_window.h"
-#include "core/dg/texture.h"
-#include "core/math/types.h"
-#include "core/math/constants.h"
-#include "middleware/imgui/widgets.h"
+#include "core/dg/render_device.h"
 #include "core/dg/texture_utilities.h"
-#include "middleware/graph_editor/graph_node.h"
 #include "middleware/graph_editor/graph_editor.h"
 #include "middleware/graph_editor/graph_selected_node.h"
 #include "middleware/generator/texture/noise_rasterization.h"
 #include "middleware/generator/texture/texture_node_factory.h"
 
 
+class GraphNode;
 GraphWindow::GraphWindow() {
 
 }

@@ -1,10 +1,15 @@
 #include "middleware/generator/texture/texture_node_factory.h"
 
+#include <string>
+#include <functional>
+#include <type_traits>
+
 #include <DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp>
 
-#include "core/dg/render_device.h"
+#include "core/dg/render_device.h" // IWYU pragma: keep
 #include "core/common/exception.h"
-#include "core/dg/device_context.h"
+#include "core/dg/device_context.h" // IWYU pragma: keep
+#include "middleware/graph_editor/graph_node.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"

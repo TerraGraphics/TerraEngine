@@ -1,5 +1,7 @@
 #include "gtest.h"
 
+#include <memory>
+
 
 namespace {
 

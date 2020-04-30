@@ -1,6 +1,12 @@
 #pragma once
 
+#include <array>
+#include <limits>
+#include <string>
 #include <variant>
+#include <cstddef>
+#include <cstdint>
+
 #include "core/dg/dg.h"
 #include "core/math/types.h"
 

@@ -64,8 +64,6 @@ void PreviewScene::Draw() {
     m_scene->Draw();
 }
 
-#include <DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp>
-
 void PreviewScene::CreateTextures() {
     dg::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = true;

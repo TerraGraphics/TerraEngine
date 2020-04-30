@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <cstdint>
 #include <unordered_map>
 
 #include "core/dg/dg.h"

@@ -1,5 +1,9 @@
 #include "middleware/graph_editor/graph_editor.h"
 
+#include <map>
+#include <utility>
+#include <imgui.h>
+#include <type_traits>
 #include <imgui_node_editor.h>
 
 #include "middleware/graph_editor/graph_storage.h"
@@ -7,6 +11,7 @@
 #include "middleware/graph_editor/graph_selected_node.h"
 
 
+struct GraphPin;
 namespace ne = ax::NodeEditor;
 
 GraphEditor::GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)

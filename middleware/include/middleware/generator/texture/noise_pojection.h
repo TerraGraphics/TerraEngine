@@ -1,10 +1,14 @@
 #pragma once
 
+#include <cstdint>
+
 #include "middleware/graph_editor/graph_node.h"
-#include "middleware/generator/texture/coherent_noise.h"
-#include "middleware/generator/texture/texture_consts.h"
 
 
+namespace Diligent {
+    class IReferenceCounters;
+}
+class Noise3D;
 class Noise2D : public GraphNode {
 protected:
     Noise2D() = delete;
@@ -13,7 +17,7 @@ protected:
     bool DetachInputImpl(uint8_t number) override;
 
 public:
-    static uint32_t OutputTypeID() { return static_cast<uint32_t>(TexturePinType::Noise2D); }
+    static uint32_t OutputTypeID();
 
     virtual double Get(double u, double v) = 0;
 

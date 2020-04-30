@@ -2,7 +2,6 @@
 
 #include <string>
 #include <ctype.h>
-#include <stdexcept>
 #include <filesystem>
 #include <functional>
 

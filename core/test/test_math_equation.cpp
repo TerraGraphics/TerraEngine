@@ -1,5 +1,4 @@
 #include <memory>
-#include <type_traits>
 
 #include "gtest.h"
 #include "core/math/equation.h"

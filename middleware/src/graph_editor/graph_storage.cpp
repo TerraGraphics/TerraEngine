@@ -1,9 +1,14 @@
 #include "middleware/graph_editor/graph_storage.h"
 
+#include <vector>
+#include <utility>
+#include <imgui.h>
+#include <type_traits>
 #include <imgui_node_editor.h>
 
 #include "core/dg/texture.h"
 #include "core/common/exception.h"
+#include "core/dg/graphics_types.h"
 #include "middleware/graph_editor/graph_node.h"
 
 

@@ -1,7 +1,9 @@
 #include "middleware/generator/texture/coherent_noise.h"
 
+#include <array>
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/generator/texture/texture_consts.h"
 
 
 namespace {
@@ -189,6 +191,10 @@ static CoherentNoise::CellularReturnType FromFastNoise(FastNoise::CellularReturn
 Noise3D::Noise3D(dg::IReferenceCounters* refCounters, const char* name)
     : GraphNode(refCounters, name, Noise3D::OutputTypeID(), {}) {
 
+}
+
+uint32_t Noise3D::OutputTypeID() {
+    return static_cast<uint32_t>(TexturePinType::Noise3D);
 }
 
 CoherentNoise::CoherentNoise(dg::IReferenceCounters* refCounters)

@@ -1,8 +1,12 @@
 #include "middleware/graph_editor/graph_node.h"
 
-#include <algorithm>
+#include <array>
+#include <memory>
+#include <imgui.h>
+#include <ext/alloc_traits.h>
 #include <imgui_node_editor.h>
 
+#include "core/math/types.h"
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
 

@@ -1,6 +1,5 @@
 #include <memory>
 #include <random>
-#include <type_traits>
 
 #include "gtest.h"
 #include "test_helpers.h"

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <limits>
 #include <cstdint>
+#include <cstdlib>
+
 #include "core/dg/math.h"
 
 namespace Diligent {

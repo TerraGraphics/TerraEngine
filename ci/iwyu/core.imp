@@ -2,9 +2,11 @@
     { ref: "./common.imp" },
 
     { include: ['"core/dg/math.h"', public, '"core/math/types.h"', public] },
+    { include: ['"DiligentCore/Primitives/interface/Object.h"', private, '"core/dg/dg.h"', public] },
     { include: ['"DiligentCore/Common/interface/BasicMath.hpp"', private, '"core/dg/math.h"', public] },
     { include: ['"DiligentCore/Common/interface/RefCntAutoPtr.hpp"', private, '"core/dg/dg.h"', public] },
     { include: ['"DiligentCore/Primitives/interface/Errors.hpp"', private, '"core/dg/errors.h"', public] },
+    { include: ['"DiligentCore/Common/interface/ObjectBase.hpp"', private, '"core/dg/object_base.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/Buffer.h"', private, '"core/dg/buffer.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/Sampler.h"', private, '"core/dg/sampler.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/Texture.h"', private, '"core/dg/texture.h"', public] },

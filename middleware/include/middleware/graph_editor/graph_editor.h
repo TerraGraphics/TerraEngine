@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"

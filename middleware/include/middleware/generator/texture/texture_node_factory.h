@@ -4,6 +4,7 @@
 #include "middleware/graph_editor/graph_node_factory.h"
 
 
+class GraphNode;
 class INodePreview;
 class CoherentNoise;
 class NoiseToTexture;

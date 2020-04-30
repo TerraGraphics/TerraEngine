@@ -1,12 +1,15 @@
 #pragma once
 
+#include <cstdint>
 #define FN_USE_DOUBLES
 #include <FastNoise.h>
 
 #include "middleware/graph_editor/graph_node.h"
-#include "middleware/generator/texture/texture_consts.h"
 
 
+namespace Diligent {
+    class IReferenceCounters;
+}
 class Noise3D : public GraphNode {
 protected:
     Noise3D() = delete;
@@ -15,7 +18,7 @@ protected:
     bool DetachInputImpl(uint8_t /* number */) override { return false; }
 
 public:
-    static uint32_t OutputTypeID() { return static_cast<uint32_t>(TexturePinType::Noise3D); }
+    static uint32_t OutputTypeID();
 
     virtual double Get(double x, double y, double z) = 0;
 };

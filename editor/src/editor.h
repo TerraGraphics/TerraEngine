@@ -15,7 +15,6 @@ namespace gui {
     class Gui;
 }
 
-struct ImFont;
 class EditorSceneController;
 class GeneralSceneController;
 class Editor final : public Application {

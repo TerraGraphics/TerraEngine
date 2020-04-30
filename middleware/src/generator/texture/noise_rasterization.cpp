@@ -5,8 +5,12 @@
 #include "core/dg/texture.h"
 #include "core/common/exception.h"
 #include "core/dg/render_device.h"
+#include "core/dg/graphics_types.h"
 #include "core/dg/device_context.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/graph_editor/graph_node.h"
+#include "middleware/generator/texture/texture_consts.h"
+#include "middleware/generator/texture/noise_pojection.h"
 
 
 namespace {
@@ -46,6 +50,10 @@ bool NoiseRasterization2D::AttachInputImpl(uint8_t /* number */, GraphNode* node
 bool NoiseRasterization2D::DetachInputImpl(uint8_t /* number */) {
     m_noiseNode = nullptr;
     return true;
+}
+
+uint32_t NoiseRasterization2D::OutputTypeID() {
+    return static_cast<uint32_t>(TexturePinType::Texture);
 }
 
 NoiseToTexture::NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context)

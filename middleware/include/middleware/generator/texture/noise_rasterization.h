@@ -1,13 +1,17 @@
 #pragma once
 
+#include <cstdint>
+
 #include "core/dg/dg.h"
 #include "core/math/types.h"
-#include "middleware/graph_editor/graph_node.h"
 #include "middleware/graph_editor/graph_node_preview.h"
-#include "middleware/generator/texture/texture_consts.h"
-#include "middleware/generator/texture/noise_pojection.h"
 
 
+namespace Diligent {
+    class IReferenceCounters;
+}
+class Noise2D;
+class GraphNode;
 class NoiseRasterization2D : public INodePreview {
 protected:
     NoiseRasterization2D() = delete;
@@ -16,7 +20,7 @@ protected:
     bool DetachInputImpl(uint8_t number) override;
 
 public:
-    static uint32_t OutputTypeID() { return static_cast<uint32_t>(TexturePinType::Texture); }
+    static uint32_t OutputTypeID();
 
     virtual TexturePtr Get() = 0;
 
