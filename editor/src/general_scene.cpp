@@ -234,7 +234,7 @@ void GeneralScene::GenerateGrassBillboard() {
     flower0MatNode->SetBaseTexture(m_TextureFlower0);
 
     RandSeed(15);
-    auto materialNode = grass0MatNode;
+    auto material = grass0MatNode;
     auto multiplier = 10;
     for (int i=0; i!=multiplier * 1000; ++i) {
         auto matScale = dg::float4x4::Scale(LinearRand(0.3f, 1.f));
@@ -243,10 +243,10 @@ void GeneralScene::GenerateGrassBillboard() {
         auto matModelPosition = dg::float4x4::Translation(vecPos);
 
         if (i == multiplier * 450) {
-            materialNode = grass1MatNode;
+            material = grass1MatNode;
         } else  if (i == multiplier * 900) {
-            materialNode = flower0MatNode;
+            material = flower0MatNode;
         }
-        m_scene->NewChild(bush, materialNode, matScale * matModelPosition);
+        m_scene->NewChild(bush, material, matScale * matModelPosition);
     }
 }

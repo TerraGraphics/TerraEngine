@@ -8,11 +8,11 @@
 
 
 class Material;
-class MaterialNode : Fixed {
+class MaterialInstance : Fixed {
 public:
-    MaterialNode() = delete;
-    MaterialNode(const std::shared_ptr<Material>& material);
-    virtual ~MaterialNode();
+    MaterialInstance() = delete;
+    MaterialInstance(const std::shared_ptr<Material>& material);
+    virtual ~MaterialInstance();
 
     void SetVertexShaderVar(const char* name, DeviceRaw value);
     void SetPixelShaderVar(const char* name, DeviceRaw value);

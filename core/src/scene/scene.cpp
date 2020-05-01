@@ -7,9 +7,9 @@
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/scene/geometry.h"
 #include "core/dg/graphics_types.h"
-#include "core/scene/material_node.h"
 #include "core/scene/vertex_buffer.h"
 #include "core/dg/graphics_utilities.h" // IWYU pragma: keep
+#include "core/scene/material_instance.h"
 
 
 Scene::Scene(DevicePtr device, ContextPtr context, bool addId)
@@ -49,7 +49,7 @@ std::shared_ptr<TransformNode> Scene::Update(uint32_t findId) {
     }
     m_transformBuffer->Unmap(m_context);
     for (const auto& node: nodeList) {
-        node->GetMaterialNode()->Update(m_device, m_context);
+        node->GetMaterial()->Update(m_device, m_context);
     }
 
     std::shared_ptr<TransformNode> result;
@@ -65,7 +65,7 @@ uint32_t Scene::Draw() {
     m_transformBuffer->BindExclusively(m_context, 1);
     for (const auto& node: m_updateDesc.nodeList) {
         node->GetGeometry()->Bind(m_context);
-        node->GetMaterialNode()->Bind(m_context);
+        node->GetMaterial()->Bind(m_context);
         primitiveCount += node->GetGeometry()->Draw(m_context, ind);
         ++ind;
     }

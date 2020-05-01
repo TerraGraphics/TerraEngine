@@ -5,12 +5,12 @@
 
 #include "core/dg/dg.h"
 #include "core/math/types.h"
-#include "core/scene/material_node.h"
+#include "core/scene/material_instance.h"
 #include "middleware/std_material/structures.h"
 
 
 class Material;
-class StdMaterial : public MaterialNode {
+class StdMaterial : public MaterialInstance {
 public:
     StdMaterial() = delete;
     StdMaterial(const std::shared_ptr<Material>& material);

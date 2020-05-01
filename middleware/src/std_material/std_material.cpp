@@ -12,7 +12,7 @@
 
 
 StdMaterial::StdMaterial(const std::shared_ptr<Material>& material)
-    : MaterialNode(material) {
+    : MaterialInstance(material) {
 
 }
 

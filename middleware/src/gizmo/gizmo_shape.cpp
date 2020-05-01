@@ -42,10 +42,10 @@ std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, std::share
     }
 
     color[axisNum] = 1.0f;
-    auto materialNode = std::make_shared<StdMaterial>(material);
-    materialNode->SetBaseColor(color);
+    auto materialInstance = std::make_shared<StdMaterial>(material);
+    materialInstance->SetBaseColor(color);
 
-    return std::make_shared<TransformNode>(geometry, materialNode);
+    return std::make_shared<TransformNode>(geometry, materialInstance);
 }
 
 bool GizmoArrow::StartMove(const math::Ray& ray) {
@@ -121,13 +121,13 @@ std::shared_ptr<TransformNode> GizmoPlane::GetNode(DevicePtr& device, std::share
     planeShape.SetCenter(center);
     auto geometry = ShapeBuilder(device).Join({&planeShape}, "gizmo plane");
 
-    auto materialNode = std::make_shared<StdMaterial>(material);
+    auto materialInstance = std::make_shared<StdMaterial>(material);
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
     color[axisNum0] = 1.0f;
     color[axisNum1] = 1.0f;
-    materialNode->SetBaseColor(color);
+    materialInstance->SetBaseColor(color);
 
-    return std::make_shared<TransformNode>(geometry, materialNode);
+    return std::make_shared<TransformNode>(geometry, materialInstance);
 }
 
 dg::float4x4 GizmoPlane::GetSelectTransform() const {
@@ -190,12 +190,12 @@ std::shared_ptr<TransformNode> GizmoTorus::GetNode(DevicePtr& device, std::share
     TorusShape torusShape(m_minorRadis, m_majorRadis, 10, 30, m_axis);
     auto geometry = ShapeBuilder(device).Join({&torusShape}, "gizmo torus");
 
-    auto materialNode = std::make_shared<StdMaterial>(material);
+    auto materialInstance = std::make_shared<StdMaterial>(material);
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
     color[static_cast<uint>(m_axis)] = 1.0f;
-    materialNode->SetBaseColor(color);
+    materialInstance->SetBaseColor(color);
 
-    return std::make_shared<TransformNode>(geometry, materialNode);
+    return std::make_shared<TransformNode>(geometry, materialInstance);
 }
 
 bool GizmoTorus::StartMove(const math::Ray& ray) {
