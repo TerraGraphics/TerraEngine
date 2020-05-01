@@ -8,10 +8,10 @@
 #include "core/common/counter.h"
 
 
-class GeometryNode : public Counter<GeometryNode>, Fixed {
+class Geometry : public Counter<Geometry>, Fixed {
 protected:
-    GeometryNode();
-    virtual ~GeometryNode();
+    Geometry();
+    virtual ~Geometry();
 
 public:
     virtual void Bind(ContextPtr& context) = 0;
@@ -19,11 +19,11 @@ public:
 };
 
 class VertexBuffer;
-class GeometryNodeUnindexed final : public GeometryNode {
+class GeometryUnindexed final : public Geometry {
 public:
-    GeometryNodeUnindexed() = delete;
-    GeometryNodeUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount);
-    ~GeometryNodeUnindexed() final;
+    GeometryUnindexed() = delete;
+    GeometryUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount);
+    ~GeometryUnindexed() final;
 
 public:
     void Bind(ContextPtr& context) final;
@@ -36,12 +36,12 @@ private:
 };
 
 class IndexBuffer;
-class GeometryNodeIndexed final : public GeometryNode {
+class GeometryIndexed final : public Geometry {
 public:
-    GeometryNodeIndexed() = delete;
-    GeometryNodeIndexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
+    GeometryIndexed() = delete;
+    GeometryIndexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
         const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32);
-    ~GeometryNodeIndexed() final;
+    ~GeometryIndexed() final;
 
 public:
     void Bind(ContextPtr& context) final;

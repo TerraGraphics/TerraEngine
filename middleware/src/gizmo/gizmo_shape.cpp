@@ -27,7 +27,7 @@ std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, std::share
     center[axisNum] = arrowSpacing + cylinderHeight * 0.5f;
     cylinderShape.SetCenter(center);
 
-    std::shared_ptr<GeometryNode> geometry;
+    std::shared_ptr<Geometry> geometry;
     if (isMoveType) {
         float coneRadius = coneHeight * .3f;
         ConeShape coneShape({10, 1}, m_axis, coneRadius, coneHeight);

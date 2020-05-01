@@ -17,7 +17,7 @@ TransformNode::TransformNode(const dg::float4x4& transform, const std::weak_ptr<
 
 }
 
-TransformNode::TransformNode(const std::shared_ptr<GeometryNode>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform)
+TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform)
     : m_geometry(geometry)
     , m_materialNode(materialNode)
     , m_baseTransform(transform) {
@@ -67,7 +67,7 @@ std::shared_ptr<TransformNode> TransformNode::NewChild(const dg::float4x4& trans
     return node;
 }
 
-std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<GeometryNode>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
     auto node = std::make_shared<TransformNode>(transform, shared_from_this());
     if (!geometry) {
         throw EngineError("TransformNode: geometry param is empty");
@@ -134,7 +134,7 @@ std::shared_ptr<TransformNode> TransformGraph::NewChild(const dg::float4x4& tran
     return m_root->NewChild(transform);
 }
 
-std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<GeometryNode>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
     return m_root->NewChild(geometry, materialNode, transform);
 }
 

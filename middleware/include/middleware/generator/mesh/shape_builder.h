@@ -6,7 +6,7 @@
 #include "core/dg/dg.h"
 
 
-class GeometryNode;
+class Geometry;
 class IShapeGenerator;
 class ShapeBuilder {
 public:
@@ -14,7 +14,7 @@ public:
     ShapeBuilder(const DevicePtr& device);
     ~ShapeBuilder();
 
-    std::shared_ptr<GeometryNode> Join(const std::initializer_list<const IShapeGenerator*>& shapes, const char* name = nullptr);
+    std::shared_ptr<Geometry> Join(const std::initializer_list<const IShapeGenerator*>& shapes, const char* name = nullptr);
 
 private:
     DevicePtr m_device;

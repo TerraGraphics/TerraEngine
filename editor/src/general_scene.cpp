@@ -14,9 +14,9 @@
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"
 #include "core/math/constants.h"
+#include "core/scene/geometry.h"
 #include "core/dg/graphics_types.h"
 #include "core/scene/vertex_buffer.h"
-#include "core/scene/geometry_node.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/dg/texture_utilities.h"
 #include "core/material/vertex_decl.h"
@@ -194,16 +194,16 @@ void GeneralScene::GenerateGrass() {
     }
 
     uint32_t vbOffsetBytes = 0;
-    auto geometryNode = std::make_shared<GeometryNodeUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
+    auto geometry = std::make_shared<GeometryUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
 
     auto grassMatNode = std::make_shared<StdMaterial>(m_matGrass);
     grassMatNode->SetBaseTexture(m_TextureGrassBlade1);
 
-    // auto grassMatNode = std::make_shared<StdMaterial>(m_matGrassAlpha, geometryNode);
+    // auto grassMatNode = std::make_shared<StdMaterial>(m_matGrassAlpha, geometry);
     // grassMatNode->SetAlphaThreshold(0.2f);
     // grassMatNode->SetBaseTexture(m_TextureGrassBlade0);
 
-    m_scene->NewChild(geometryNode, grassMatNode);
+    m_scene->NewChild(geometry, grassMatNode);
 }
 
 void GeneralScene::GenerateGrassBillboard() {

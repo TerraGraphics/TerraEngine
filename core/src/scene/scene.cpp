@@ -5,10 +5,10 @@
 
 #include "core/dg/math.h"
 #include "core/dg/context.h" // IWYU pragma: keep
+#include "core/scene/geometry.h"
 #include "core/dg/graphics_types.h"
 #include "core/scene/material_node.h"
 #include "core/scene/vertex_buffer.h"
-#include "core/scene/geometry_node.h"
 #include "core/dg/graphics_utilities.h" // IWYU pragma: keep
 
 
