@@ -7,12 +7,10 @@
 #include "core/dg/context.h"
 #include "core/common/exception.h"
 #include "core/material/material.h"
-#include "core/scene/geometry_node.h"
 
 
-MaterialNode::MaterialNode(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry)
+MaterialNode::MaterialNode(const std::shared_ptr<Material>& material)
     : m_material(material)
-    , m_geometry(geometry)
     , m_binding(material->CreateShaderResourceBinding()) {
 
 }
@@ -39,9 +37,7 @@ void MaterialNode::SetPixelShaderVar(const char* name, DeviceRaw value) {
     var->Set(value);
 }
 
-uint32_t MaterialNode::Draw(ContextPtr& context, uint32_t firstInstanceIndex) {
-    m_geometry->Bind(context);
+void MaterialNode::Bind(ContextPtr& context) {
     m_material->Bind(context);
     context->CommitShaderResources(m_binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    return m_geometry->Draw(context, firstInstanceIndex);
 }

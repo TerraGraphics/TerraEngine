@@ -147,11 +147,11 @@ void GeneralScene::GenerateGround() {
     shape.SetUVScale({128, 128});
     auto plane = ShapeBuilder(m_device).Join({&shape}, "Ground");
 
-    auto groundNode = std::make_shared<StdMaterial>(m_matTexNoLight, plane);
+    auto groundNode = std::make_shared<StdMaterial>(m_matTexNoLight);
     groundNode->SetBaseTexture(m_TextureGround);
 
     auto matModel = dg::float4x4::Scale(256, 1, 256);
-    m_scene->NewChild(groundNode, matModel);
+    m_scene->NewChild(plane, groundNode, matModel);
 }
 
 void GeneralScene::GenerateTrees() {
@@ -159,18 +159,21 @@ void GeneralScene::GenerateTrees() {
     auto tree = std::make_shared<TransformNode>();
 
     CylinderShape trunkShape({5, 1}, math::Axis::Y);
-    auto trunkMatNode = std::make_shared<StdMaterial>(m_matClrPhong, ShapeBuilder(m_device).Join({&trunkShape}, "trunk"));
+    auto trunkGeometry = ShapeBuilder(m_device).Join({&trunkShape}, "trunk");
+
+    auto trunkMatNode = std::make_shared<StdMaterial>(m_matClrPhong);
     trunkMatNode->SetBaseColor(139, 69, 19);
 
     auto matModelTrunk = dg::float4x4::Scale(0.5, 4, 0.5) * dg::float4x4::Translation(0, 2, 0);
-    tree->NewChild(trunkMatNode, matModelTrunk);
+    tree->NewChild(trunkGeometry, trunkMatNode, matModelTrunk);
 
     SphereShape crownShape({10, 5}, math::Axis::Y);
-    auto crownMatNode = std::make_shared<StdMaterial>(m_matClrPhong, ShapeBuilder(m_device).Join({&crownShape}, "crown"));
+    auto crownGeometry = ShapeBuilder(m_device).Join({&crownShape}, "crown");
+    auto crownMatNode = std::make_shared<StdMaterial>(m_matClrPhong);
     crownMatNode->SetBaseColor(0, 128, 0);
 
     auto matModelCrown = dg::float4x4::Scale(4, 8, 4) * dg::float4x4::Translation(0, 7, 0);
-    tree->NewChild(crownMatNode, matModelCrown);
+    tree->NewChild(crownGeometry, crownMatNode, matModelCrown);
 
     RandSeed(5);
     for (auto i=0; i!=100; ++i) {
@@ -193,14 +196,14 @@ void GeneralScene::GenerateGrass() {
     uint32_t vbOffsetBytes = 0;
     auto geometryNode = std::make_shared<GeometryNodeUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
 
-    auto grassMatNode = std::make_shared<StdMaterial>(m_matGrass, geometryNode);
+    auto grassMatNode = std::make_shared<StdMaterial>(m_matGrass);
     grassMatNode->SetBaseTexture(m_TextureGrassBlade1);
 
     // auto grassMatNode = std::make_shared<StdMaterial>(m_matGrassAlpha, geometryNode);
     // grassMatNode->SetAlphaThreshold(0.2f);
     // grassMatNode->SetBaseTexture(m_TextureGrassBlade0);
 
-    m_scene->NewChild(grassMatNode);
+    m_scene->NewChild(geometryNode, grassMatNode);
 }
 
 void GeneralScene::GenerateGrassBillboard() {
@@ -218,15 +221,15 @@ void GeneralScene::GenerateGrassBillboard() {
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 
-    auto grass0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight, bush);
+    auto grass0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight);
     grass0MatNode->SetAlphaThreshold(0.2f);
     grass0MatNode->SetBaseTexture(m_TextureGrass0);
 
-    auto grass1MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight, bush);
+    auto grass1MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight);
     grass1MatNode->SetAlphaThreshold(0.2f);
     grass1MatNode->SetBaseTexture(m_TextureGrass1);
 
-    auto flower0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight, bush);
+    auto flower0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight);
     flower0MatNode->SetAlphaThreshold(0.2f);
     flower0MatNode->SetBaseTexture(m_TextureFlower0);
 
@@ -244,6 +247,6 @@ void GeneralScene::GenerateGrassBillboard() {
         } else  if (i == multiplier * 900) {
             materialNode = flower0MatNode;
         }
-        m_scene->NewChild(materialNode, matScale * matModelPosition);
+        m_scene->NewChild(bush, materialNode, matScale * matModelPosition);
     }
 }

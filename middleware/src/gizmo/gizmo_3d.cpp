@@ -39,19 +39,16 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::sha
     m_eventHandler = eventHandler;
     m_rootNode = std::make_shared<TransformNode>();
 
-    auto moveRoot = m_rootNode->NewChild();
     auto move = std::make_unique<GizmoMove>();
-    move->Create(device, eventHandler, material, moveRoot);
+    m_rootNode->AddChild(move->Create(device, eventHandler, material));
     m_gizmos[static_cast<uint32_t>(Type::MOVE)] = std::move(move);
 
-    auto rotateRoot = m_rootNode->NewChild();
     auto rotate = std::make_unique<GizmoRotate>();
-    rotate->Create(device, eventHandler, material, rotateRoot);
+    m_rootNode->AddChild(rotate->Create(device, eventHandler, material));
     m_gizmos[static_cast<uint32_t>(Type::ROTATE)] = std::move(rotate);
 
-    auto scaleRoot = m_rootNode->NewChild();
     auto scale = std::make_unique<GizmoScale>();
-    scale->Create(device, eventHandler, material, scaleRoot);
+    m_rootNode->AddChild(scale->Create(device, eventHandler, material));
     m_gizmos[static_cast<uint32_t>(Type::SCALE)] = std::move(scale);
 
     SetType(m_type);

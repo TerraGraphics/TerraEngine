@@ -8,13 +8,16 @@
 
 
 class Material;
-class StdMaterial;
+class TransformNode;
 class GizmoArrow : Fixed {
 public:
     GizmoArrow() = default;
     ~GizmoArrow() = default;
 
-    std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis, bool isMoveType);
+    void Create(math::Axis axis);
+
+    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, std::shared_ptr<Material>& material, bool isMoveType);
+
     bool StartMove(const math::Ray& ray);
     bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
 
@@ -40,7 +43,10 @@ public:
     GizmoPlane() = default;
     ~GizmoPlane() = default;
 
-    std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis2 axises);
+    void Create(math::Axis2 axises);
+
+    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, std::shared_ptr<Material>& material);
+
     bool StartMove(const math::Ray& ray);
     bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
 
@@ -66,7 +72,10 @@ public:
     GizmoTorus() = default;
     ~GizmoTorus() = default;
 
-    std::shared_ptr<StdMaterial> Create(DevicePtr& device, std::shared_ptr<Material>& material, math::Axis axis);
+    void Create(math::Axis axis);
+
+    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, std::shared_ptr<Material>& material);
+
     bool StartMove(const math::Ray& ray);
     bool GetMoveOffset(const math::Ray& ray, double& offset) const;
 

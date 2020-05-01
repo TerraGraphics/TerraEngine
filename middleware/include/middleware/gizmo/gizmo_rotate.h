@@ -22,8 +22,8 @@ public:
     bool IsSelected() const noexcept final { return m_isSelected; }
     bool IsMoved() const noexcept final { return m_isMoved; }
 
-    void Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-        std::shared_ptr<Material>& material, std::shared_ptr<TransformNode>& root);
+    std::shared_ptr<TransformNode> Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
+        std::shared_ptr<Material>& material);
     void Update(const math::Ray& ray) final;
     void SetEnable(bool value) final;
     void SelectNode(const std::shared_ptr<TransformNode>& node) final;

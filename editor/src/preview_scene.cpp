@@ -127,14 +127,14 @@ void PreviewScene::GenerateMeshes() {
     auto model1 = ShapeBuilder(m_device).Join({&shape1}, "Model1");
     auto model2 = ShapeBuilder(m_device).Join({&shape2}, "Model2");
 
-    auto modelNode1 = std::make_shared<StdMaterial>(m_matTexPhong, model1);
+    auto modelNode1 = std::make_shared<StdMaterial>(m_matTexPhong);
     modelNode1->SetBaseTexture(m_TextureNoise);
     // modelNode1->SetBaseTexture(m_TextureCube);
-    auto modelNode2 = std::make_shared<StdMaterial>(m_matTexPhong, model2);
+    auto modelNode2 = std::make_shared<StdMaterial>(m_matTexPhong);
     modelNode2->SetBaseTexture(m_TextureCube);
 
     auto matModel = dg::float4x4::Scale(1, 1, 1);
-    m_scene->NewChild(modelNode1, matModel);
+    m_scene->NewChild(model1, modelNode1, matModel);
     matModel = dg::float4x4::Translation(1, 1, 1);
-    m_scene->NewChild(modelNode2, matModel);
+    m_scene->NewChild(model2, modelNode2, matModel);
 }

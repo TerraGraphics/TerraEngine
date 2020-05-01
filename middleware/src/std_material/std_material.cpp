@@ -11,8 +11,8 @@
 #include "core/dg/graphics_types.h"
 
 
-StdMaterial::StdMaterial(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry)
-    : MaterialNode(material, geometry) {
+StdMaterial::StdMaterial(const std::shared_ptr<Material>& material)
+    : MaterialNode(material) {
 
 }
 

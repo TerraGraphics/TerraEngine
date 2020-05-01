@@ -8,23 +8,19 @@
 
 
 class Material;
-class GeometryNode;
 class MaterialNode : Fixed {
 public:
     MaterialNode() = delete;
-    MaterialNode(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry);
+    MaterialNode(const std::shared_ptr<Material>& material);
     virtual ~MaterialNode();
-
-    std::shared_ptr<GeometryNode>& GetGeometry() noexcept { return m_geometry; }
 
     void SetVertexShaderVar(const char* name, DeviceRaw value);
     void SetPixelShaderVar(const char* name, DeviceRaw value);
 
     virtual void Update(DevicePtr& device, ContextPtr& context) = 0;
-    uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0);
+    void Bind(ContextPtr& context);
 
 protected:
     std::shared_ptr<Material> m_material;
-    std::shared_ptr<GeometryNode> m_geometry;
     ShaderResourceBindingPtr m_binding;
 };

@@ -8,6 +8,7 @@
 #include "core/dg/graphics_types.h"
 #include "core/scene/material_node.h"
 #include "core/scene/vertex_buffer.h"
+#include "core/scene/geometry_node.h"
 #include "core/dg/graphics_utilities.h" // IWYU pragma: keep
 
 
@@ -63,7 +64,9 @@ uint32_t Scene::Draw() {
     uint32_t ind = 0;
     m_transformBuffer->BindExclusively(m_context, 1);
     for (const auto& node: m_updateDesc.nodeList) {
-        primitiveCount += node->GetMaterialNode()->Draw(m_context, ind);
+        node->GetGeometry()->Bind(m_context);
+        node->GetMaterialNode()->Bind(m_context);
+        primitiveCount += node->GetGeometry()->Draw(m_context, ind);
         ++ind;
     }
 

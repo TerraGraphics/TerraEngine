@@ -10,11 +10,10 @@
 
 
 class Material;
-class GeometryNode;
 class StdMaterial : public MaterialNode {
 public:
     StdMaterial() = delete;
-    StdMaterial(const std::shared_ptr<Material>& material, const std::shared_ptr<GeometryNode>& geometry);
+    StdMaterial(const std::shared_ptr<Material>& material);
     ~StdMaterial() override;
 
     void SetBaseColor(const math::Color4f& value);

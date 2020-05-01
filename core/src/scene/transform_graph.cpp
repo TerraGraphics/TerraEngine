@@ -1,6 +1,8 @@
 #include "core/scene/transform_graph.h"
 
 #include <algorithm>
+
+#include "core/common/exception.h"
 #include "core/math/normal_matrix.h"
 
 
@@ -15,9 +17,23 @@ TransformNode::TransformNode(const dg::float4x4& transform, const std::weak_ptr<
 
 }
 
+TransformNode::TransformNode(const std::shared_ptr<GeometryNode>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform)
+    : m_geometry(geometry)
+    , m_materialNode(materialNode)
+    , m_baseTransform(transform) {
+
+    if (!geometry) {
+        throw EngineError("TransformNode: geometry param is empty");
+    }
+    if (!geometry) {
+        throw EngineError("TransformNode: materialNode param is empty");
+    }
+}
+
 std::shared_ptr<TransformNode> TransformNode::Clone(const dg::float4x4& transform) const {
     auto node = std::make_shared<TransformNode>(transform);
-    if (m_materialNode) {
+    if (m_geometry) {
+        node->m_geometry = m_geometry;
         node->m_materialNode = m_materialNode;
     }
 
@@ -31,7 +47,8 @@ std::shared_ptr<TransformNode> TransformNode::Clone(const dg::float4x4& transfor
 
 std::shared_ptr<TransformNode> TransformNode::Clone(const std::weak_ptr<TransformNode>& parent) const {
     auto node = std::make_shared<TransformNode>(m_baseTransform, parent);
-    if (m_materialNode) {
+    if (m_geometry) {
+        node->m_geometry = m_geometry;
         node->m_materialNode = m_materialNode;
     }
 
@@ -50,8 +67,15 @@ std::shared_ptr<TransformNode> TransformNode::NewChild(const dg::float4x4& trans
     return node;
 }
 
-std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<GeometryNode>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
     auto node = std::make_shared<TransformNode>(transform, shared_from_this());
+    if (!geometry) {
+        throw EngineError("TransformNode: geometry param is empty");
+    }
+    if (!geometry) {
+        throw EngineError("TransformNode: materialNode param is empty");
+    }
+    node->m_geometry = geometry;
     node->m_materialNode = materialNode;
     m_children.push_back(node);
 
@@ -86,7 +110,7 @@ void TransformNode::Update(TransformUpdateDesc& value, bool isDirty) {
         }
     }
 
-    if (m_materialNode) {
+    if (m_geometry) {
         if (m_id == 0) {
             m_id = ++value.lastId;
         }
@@ -110,8 +134,8 @@ std::shared_ptr<TransformNode> TransformGraph::NewChild(const dg::float4x4& tran
     return m_root->NewChild(transform);
 }
 
-std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
-    return m_root->NewChild(materialNode, transform);
+std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<GeometryNode>& geometry, const std::shared_ptr<MaterialNode>& materialNode, const dg::float4x4& transform) {
+    return m_root->NewChild(geometry, materialNode, transform);
 }
 
 void TransformGraph::AddChild(const std::shared_ptr<TransformNode>& node) {
