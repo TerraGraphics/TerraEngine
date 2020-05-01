@@ -4,6 +4,7 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
+#include "core/engine.h"
 #include "core/camera/camera.h"
 #include "core/scene/vertexes.h"
 #include "core/dg/rasterizer_state.h"
@@ -26,8 +27,11 @@ Gizmo3D::~Gizmo3D() {
     m_eventHandler.reset();
 }
 
-std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-    std::shared_ptr<MaterialBuilder>& materialBuilder, const VertexDecl& additionalVertexDecl) {
+std::shared_ptr<TransformNode> Gizmo3D::Create(const VertexDecl& additionalVertexDecl) {
+    auto& engine = Engine::Get();
+    auto& device = engine.GetDevice();
+    auto& materialBuilder = engine.GetMaterialBuilder();
+    m_eventHandler = engine.GetEventHandler();
 
     auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetDecl(), additionalVertexDecl).
         DepthEnable(false).
@@ -36,19 +40,18 @@ std::shared_ptr<TransformNode> Gizmo3D::Create(DevicePtr& device, const std::sha
         Build("mat::gizmo::arrow");
 
 
-    m_eventHandler = eventHandler;
     m_rootNode = std::make_shared<TransformNode>();
 
     auto move = std::make_unique<GizmoMove>();
-    m_rootNode->AddChild(move->Create(device, eventHandler, material));
+    m_rootNode->AddChild(move->Create(device, m_eventHandler, material));
     m_gizmos[static_cast<uint32_t>(Type::MOVE)] = std::move(move);
 
     auto rotate = std::make_unique<GizmoRotate>();
-    m_rootNode->AddChild(rotate->Create(device, eventHandler, material));
+    m_rootNode->AddChild(rotate->Create(device, m_eventHandler, material));
     m_gizmos[static_cast<uint32_t>(Type::ROTATE)] = std::move(rotate);
 
     auto scale = std::make_unique<GizmoScale>();
-    m_rootNode->AddChild(scale->Create(device, eventHandler, material));
+    m_rootNode->AddChild(scale->Create(device, m_eventHandler, material));
     m_gizmos[static_cast<uint32_t>(Type::SCALE)] = std::move(scale);
 
     SetType(m_type);

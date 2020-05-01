@@ -77,7 +77,7 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
     ));
 
     m_scene->Create();
-    m_scene->AddChild(m_gizmo->Create(device, engine.GetEventHandler(), engine.GetMaterialBuilder(), additionalVDecl));
+    m_scene->AddChild(m_gizmo->Create(additionalVDecl));
 }
 
 void PreviewWindow::Update(double deltaTime) {

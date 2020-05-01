@@ -3,7 +3,6 @@
 #include <memory>
 #include <cstdint>
 
-#include "core/dg/dg.h"
 #include "core/math/types.h"
 #include "core/common/ctor.h"
 #include "core/material/vertex_decl.h"
@@ -34,8 +33,7 @@ public:
     ~Gizmo3D();
 
 public:
-    std::shared_ptr<TransformNode> Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-        std::shared_ptr<MaterialBuilder>& materialBuilder, const VertexDecl& additionalVertexDecl);
+    std::shared_ptr<TransformNode> Create(const VertexDecl& additionalVertexDecl);
     void Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc);
     void SelectNode(const std::shared_ptr<TransformNode>& node);
 
