@@ -3,7 +3,6 @@
 #include <cstdint>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/engine.h"
@@ -93,13 +92,13 @@ void GeneralScene::CreateMaterials() {
     const auto& vDecl = VertexPNC::GetDecl();
     const auto& grassVDecl = VertexP::GetDecl();
     const auto& additionalVDecl = VertexDecl({
-        ItemDecl<dg::float4>("WorldRow0", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float4>("WorldRow1", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float4>("WorldRow2", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float4>("WorldRow3", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float3>("NormalRow0", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float3>("NormalRow1", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
-        ItemDecl<dg::float3>("NormalRow2", 1, dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE),
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
     });
 
     m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, vDecl, additionalVDecl).

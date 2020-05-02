@@ -5,13 +5,16 @@
 
 
 const VertexDecl& VertexP::GetDecl() {
-    static const auto desc = VertexDecl({ItemDecl<dg::float3>("position")});
+    static const auto desc = VertexDecl({VDeclItem("position", VDeclType::Float3)});
 
     return desc;
 }
 
 const VertexDecl& VertexPNC::GetDecl() {
-    static const auto desc = VertexDecl({ItemDecl<dg::float3>("position"), ItemDecl<dg::float3>("normal"), ItemDecl<dg::float2>("uv")});
+    static const auto desc = VertexDecl({
+        VDeclItem("position", VDeclType::Float3),
+        VDeclItem("normal", VDeclType::Float3),
+        VDeclItem("uv", VDeclType::Float2)});
 
     return desc;
 }
