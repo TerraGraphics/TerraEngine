@@ -4,6 +4,7 @@
 #include <utility>
 #include <istream>
 #include <imgui.h>
+#include <charconv>
 #include <fmt/format.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
@@ -60,18 +61,35 @@ struct Parse {
     {}
 
     template<typename T> bool operator()(T& value) {
-        try {
-            std::istringstream ss(buffer);
+        // TODO: wait from_chars for float and double
+        if constexpr (std::is_integral_v<T>) {
             T tmp;
-            ss >> tmp;
-            if ((tmp < std::get<T>(minValue)) || (tmp > std::get<T>(maxValue))) {
+            if(auto [p, ec] = std::from_chars(buffer, buffer + std::strlen(buffer), tmp); ec == std::errc()) {
+                if ((tmp < std::get<T>(minValue)) || (tmp > std::get<T>(maxValue))) {
+                    return false;
+                }
+
+                value = tmp;
+                return true;
+            }
+
+            return false;
+        } else if constexpr (std::is_floating_point_v<T>) {
+            try {
+                std::istringstream ss(buffer);
+                T tmp;
+                ss >> tmp;
+                if ((tmp < std::get<T>(minValue)) || (tmp > std::get<T>(maxValue))) {
+                    return false;
+                }
+                value = tmp;
+                return true;
+            } catch(const std::exception& e) {
                 return false;
             }
-            value = tmp;
-            return true;
-        } catch(const std::exception& e) {
-            return false;
         }
+
+        return false;
     }
 
     const char* buffer;
