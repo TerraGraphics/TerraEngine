@@ -1,7 +1,5 @@
 #include "core/scene/transform_graph.h"
 
-#include <algorithm>
-
 #include "core/common/exception.h"
 #include "core/math/normal_matrix.h"
 

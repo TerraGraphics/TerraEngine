@@ -8,6 +8,9 @@
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
 
+
+class Geometry;
+
 void GizmoArrow::Create(math::Axis axis) {
     m_axis = axis;
     m_activeCylinder = math::Cylinder(m_activeRadius, m_height, m_axis);

@@ -4,7 +4,9 @@
 #include <utility>
 #include <istream>
 #include <imgui.h>
+#include <cstring>
 #include <charconv>
+#include <system_error>
 #include <fmt/format.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>

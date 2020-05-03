@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <cstddef>
-#include <algorithm>
 #include <ext/alloc_traits.h>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Fence.h>

@@ -11,7 +11,6 @@
 class Camera;
 class IGizmo;
 class TransformNode;
-class MaterialBuilder;
 class DefaultWindowEventsHandler;
 struct GizmoFoundDesc {
     bool needFound = false;

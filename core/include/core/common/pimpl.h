@@ -2,7 +2,6 @@
 
 #include <new>
 #include <utility>
-// #include <type_traits>
 
 
 template<class T, std::size_t Size, std::size_t Alignment> class Pimpl {

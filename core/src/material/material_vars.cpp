@@ -1,8 +1,6 @@
 #include "core/material/material_vars.h"
 
 #include <cstring>
-#include <algorithm>
-
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/dg.h"
