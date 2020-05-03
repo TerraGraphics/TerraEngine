@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iosfwd>
 #include <string>
+#include <cstddef>
 #include <unordered_map>
 
 #include "core/dg/dg.h"
@@ -24,7 +24,7 @@ private:
         std::string source;
 
         // hash function
-        std::size_t operator()(const CacheKey& value) const;
+        size_t operator()(const CacheKey& value) const;
         bool operator==(const CacheKey& other) const;
     };
 

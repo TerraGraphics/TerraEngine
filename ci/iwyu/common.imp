@@ -1,6 +1,9 @@
 [
     { include: ['"fmt/core.h"', private, "<fmt/format.h>", public] },
 
+    { symbol: ["std::hash", public, '"core/common/hash.h"', public] },
+    { symbol: ["std::size_t", public, '"core/common/hash.h"', public] },
+
     { include: ["<bits/exception.h>", private, "<exception>", public] },
     { include: ["<exception>", public, "<stdexcept>", public] },
 

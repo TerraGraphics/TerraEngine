@@ -4,6 +4,8 @@
 
 
 template <typename T, typename Tag> struct NamedType {
+    using RawType = T;
+
     template <typename Enable = typename std::is_default_constructible<T>::type>
         NamedType() : m_value() {}
 

@@ -10,17 +10,16 @@
 
 #include "core/dg/errors.h"
 #include "core/dg/device.h"
+#include "core/common/hash.h"
 #include "core/common/exception.h"
-#include "core/common/hash_combine.h"
 #include "core/dg/graphics_accessories.h"
 
 
-std::size_t ShaderBuilder::CacheKey::operator()(const ShaderBuilder::CacheKey& value) const {
-    std::size_t h = 0;
-    hash_combine(h, value.shaderType);
-    hash_combine(h, value.source);
+size_t ShaderBuilder::CacheKey::operator()(const ShaderBuilder::CacheKey& value) const {
+    auto hash = std::hash<dg::SHADER_TYPE>()(value.shaderType);
+    HashCombine(hash, value.source);
 
-    return h;
+    return hash;
 }
 
 bool ShaderBuilder::CacheKey::operator==(const ShaderBuilder::CacheKey& other) const {
