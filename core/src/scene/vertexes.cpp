@@ -1,20 +1,23 @@
 #include "core/scene/vertexes.h"
 
 #include <memory>
+
+#include "core/engine.h"
 #include "core/material/vertex_decl.h"
+#include "core/material/vdecl_storage.h"
 
 
-const VertexDecl& VertexP::GetDecl() {
-    static const auto desc = VertexDecl({VDeclItem("position", VDeclType::Float3)});
+uint32_t VertexP::GetVDeclId() {
+    static auto vDeclId = Engine::Get().GetVDeclStorage()->Add({VDeclItem("position", VDeclType::Float3)});
 
-    return desc;
+    return vDeclId;
 }
 
-const VertexDecl& VertexPNC::GetDecl() {
-    static const auto desc = VertexDecl({
+uint32_t VertexPNC::GetVDeclId() {
+    static auto vDeclId = Engine::Get().GetVDeclStorage()->Add({
         VDeclItem("position", VDeclType::Float3),
         VDeclItem("normal", VDeclType::Float3),
         VDeclItem("uv", VDeclType::Float2)});
 
-    return desc;
+    return vDeclId;
 }

@@ -51,7 +51,7 @@ void Editor::Create() {
         return res;
     };
 
-    auto materialBuilder = engine.GetMaterialBuilder();
+    auto& materialBuilder = engine.GetMaterialBuilder();
     materialBuilder->Load(materialDesc);
     auto vsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_VERTEX, "Camera");
     auto psCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_PIXEL, "Camera");

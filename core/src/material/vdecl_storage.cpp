@@ -33,6 +33,14 @@ struct VDeclStorage::Impl {
     std::unordered_map<uint64_t, uint32_t> m_joinCache;
 };
 
+VDeclStorage::VDeclStorage() {
+
+}
+
+VDeclStorage::~VDeclStorage() {
+
+}
+
 uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
     auto itemsSize = items.size();
     auto [it, ok] = impl->m_vDecls.emplace(std::move(items), impl->m_nextIndex);
@@ -48,7 +56,7 @@ uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
 
     static const auto prefix = dg::LayoutElement{}.HLSLSemantic;
     uint32_t index = 0;
-    for (const auto& item: items) {
+    for (const auto& item: it->first) {
         semanticDecls.push_back(item.GetSemanticDecl(prefix + fmt::format_int(index).str()));
         layoutElements.push_back(item.GetLayoutElement(index));
         ++index;
@@ -68,8 +76,7 @@ uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
 
 uint32_t VDeclStorage::Join(uint32_t vDeclVertex, uint32_t vDeclinstance) {
     uint64_t key = ((static_cast<uint64_t>(vDeclVertex) << uint64_t(32)) | static_cast<uint64_t>(vDeclinstance));
-    auto it = impl->m_joinCache.find(key);
-    if (it == impl->m_joinCache.cend()) {
+    if (const auto it=impl->m_joinCache.find(key); it != impl->m_joinCache.cend()) {
         return it->second;
     }
 
@@ -117,9 +124,17 @@ uint32_t VDeclStorage::Join(uint32_t vDeclVertex, uint32_t vDeclinstance) {
 }
 
 const msh::SemanticDecls& VDeclStorage::GetSemanticDecls(uint32_t id) const {
+     if (impl->m_semanticDeclsStorage.size() <= id) {
+        throw EngineError("VDeclStorage: wrong index for m_semanticDeclsStorage");
+    }
+
     return impl->m_semanticDeclsStorage[id];
 }
 
 const std::vector<dg::LayoutElement>& VDeclStorage::GetLayoutElements(uint32_t id) const {
+     if (impl->m_layoutElementsStorage.size() <= id) {
+        throw EngineError("VDeclStorage: wrong index for m_layoutElementsStorage");
+    }
+
     return impl->m_layoutElementsStorage[id];
 }

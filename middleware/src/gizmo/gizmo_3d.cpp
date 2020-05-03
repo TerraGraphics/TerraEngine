@@ -27,13 +27,13 @@ Gizmo3D::~Gizmo3D() {
     m_eventHandler.reset();
 }
 
-std::shared_ptr<TransformNode> Gizmo3D::Create(const VertexDecl& additionalVertexDecl) {
+std::shared_ptr<TransformNode> Gizmo3D::Create(uint32_t vDeclinstance) {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
     auto& materialBuilder = engine.GetMaterialBuilder();
     m_eventHandler = engine.GetEventHandler();
 
-    auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetDecl(), additionalVertexDecl).
+    auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetVDeclId(), vDeclinstance).
         DepthEnable(false).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).

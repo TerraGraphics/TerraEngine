@@ -18,8 +18,8 @@ namespace dg = Diligent;
 class VDeclItem;
 class VDeclStorage : Fixed {
 public:
-    VDeclStorage() = default;
-    ~VDeclStorage() = default;
+    VDeclStorage();
+    ~VDeclStorage();
 
     uint32_t Add(std::vector<VDeclItem>&& items);
     uint32_t Join(uint32_t vDeclVertex, uint32_t vDeclinstance);
@@ -29,5 +29,5 @@ public:
 
 private:
     struct Impl;
-    Pimpl<Impl, 1, 1> impl;
+    Pimpl<Impl, 168, 8> impl;
 };

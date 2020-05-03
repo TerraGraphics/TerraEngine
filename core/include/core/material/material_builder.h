@@ -18,6 +18,7 @@
 
 
 class Material;
+class VDeclStorage;
 class ShaderBuilder;
 class MicroshaderLoader;
 struct MaterialBuilderDesc;
@@ -62,7 +63,9 @@ public:
 
 public:
     MaterialBuilder() = delete;
-    MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory);
+    MaterialBuilder(const DevicePtr& device, const ContextPtr& context,
+        const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory,
+        const std::shared_ptr<VDeclStorage>& vDeclStorage);
     ~MaterialBuilder();
 
     uint64_t GetShaderMask(const std::string& name) const;
@@ -80,13 +83,14 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    Builder Create(uint64_t mask, const VertexDecl& vertexDecl, const VertexDecl& additionalVertexDecl);
+    Builder Create(uint64_t mask, uint32_t vDeclVertex, uint32_t vDeclinstance);
 
 private:
     std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc);
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
+    std::shared_ptr<VDeclStorage> m_vDeclStorage;
     VertexDeclCache* m_vertexDeclCache = nullptr;
     ShaderBuilder* m_shaderBuilder = nullptr;
     MicroshaderLoader* m_microShaderLoader = nullptr;

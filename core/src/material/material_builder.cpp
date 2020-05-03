@@ -13,6 +13,7 @@
 #include "core/dg/device.h"
 #include "core/material/material.h"
 #include "core/dg/rasterizer_state.h"
+#include "core/material/vdecl_storage.h"
 #include "core/material/shader_builder.h"
 #include "core/dg/graphics_accessories.h"
 #include "core/material/microshader_loader.h"
@@ -113,9 +114,11 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const char* name) {
     return m_builder->Build(m_desc);
 }
 
-MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory)
+MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context,
+    const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory, const std::shared_ptr<VDeclStorage>& vDeclStorage)
     : m_device(device)
     , m_swapChain(swapChain)
+    , m_vDeclStorage(vDeclStorage)
     , m_vertexDeclCache(new VertexDeclCache())
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_microShaderLoader(new MicroshaderLoader())
@@ -151,9 +154,10 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl& vertexDecl, const VertexDecl& additionalVertexDecl) {
-    auto& vDecl = m_vertexDeclCache->GetFullVertexDecl(vertexDecl, additionalVertexDecl);
-    auto src = m_microShaderLoader->GetSources(mask, vDecl.GetVertexInput());
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclVertex, uint32_t vDeclinstance) {
+    auto vDeclId =  m_vDeclStorage->Join(vDeclVertex, vDeclinstance);
+    auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
+    const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
     auto shaders = m_shaderBuilder->Build(src);
 
     dg::PipelineStateDesc desc;
@@ -171,7 +175,7 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, const VertexDecl
     gp.pVS = shaders.vs;
     gp.pPS = shaders.ps;
     gp.pGS = shaders.gs;
-    gp.InputLayout = vDecl.GetInputLayoutDesc();
+    gp.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
     gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
     gp.RasterizerDesc.FrontCounterClockwise = false;
 

@@ -16,25 +16,13 @@
 #include "middleware/gizmo/gizmo_3d.h"
 #include "core/material/vertex_decl.h"
 #include "core/render/render_target.h"
+#include "core/material/vdecl_storage.h"
 #include "middleware/imgui/imgui_math.h"
 #include "core/material/material_builder.h"
 #include "middleware/camera/editor_controller.h"
 
+
 class TransformNode;
-
-
-// TODO: remove it
-static const auto& additionalVDecl = VertexDecl({
-        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
-        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
-        VDeclItem("IdColor", VDeclType::Color4, 1, false),
-    });
-
 
 PreviewWindow::PreviewWindow()
     : m_scene(new PreviewScene())
@@ -75,8 +63,19 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
         CPUTargetDesc(1, 1, 1, "rt::color::cpu")
     ));
 
+    const auto vDeclinstance = engine.GetVDeclStorage()->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+        VDeclItem("IdColor", VDeclType::Color4, 1, false),
+    });
+
     m_scene->Create();
-    m_scene->AddChild(m_gizmo->Create(additionalVDecl));
+    m_scene->AddChild(m_gizmo->Create(vDeclinstance));
 }
 
 void PreviewWindow::Update(double deltaTime) {

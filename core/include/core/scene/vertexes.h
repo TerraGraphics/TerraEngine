@@ -1,13 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include "core/dg/math.h"
 
 
-class VertexDecl;
 struct VertexP {
 	dg::float3 position;
 
-    static const VertexDecl& GetDecl();
+    static uint32_t GetVDeclId();
 };
 
 struct VertexPNC {
@@ -15,5 +15,5 @@ struct VertexPNC {
 	dg::float3 normal;
 	dg::float2 uv;
 
-    static const VertexDecl& GetDecl();
+    static uint32_t GetVDeclId();
 };

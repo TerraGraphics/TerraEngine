@@ -68,7 +68,7 @@ void GeneralSceneController::Update(double deltaTime) {
 
 void GeneralSceneController::Draw() {
     auto& engine = Engine::Get();
-    auto builder = engine.GetMaterialBuilder();
+    auto& builder = engine.GetMaterialBuilder();
 
     m_sceneRenderTarget->Bind(engine.GetContext());
     builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);

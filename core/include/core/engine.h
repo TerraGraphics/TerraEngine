@@ -30,6 +30,7 @@ struct EngineDesc {
 };
 
 class FileManager;
+class VDeclStorage;
 class MaterialBuilder;
 class Engine final : Fixed {
 private:
@@ -51,6 +52,7 @@ public:
     std::shared_ptr<DefaultWindowEventsHandler>& GetEventHandler() noexcept { return m_eventHandler; }
 
     std::shared_ptr<FileManager>& GetFileManager() noexcept { return m_fileManager; }
+    std::shared_ptr<VDeclStorage>& GetVDeclStorage() noexcept { return m_vDeclStorage; }
     std::shared_ptr<MaterialBuilder>& GetMaterialBuilder() noexcept { return m_materialBuilder; }
 
     float GetFps() const noexcept {
@@ -68,6 +70,7 @@ private:
     std::unique_ptr<Application> m_application = nullptr;
 
     std::shared_ptr<FileManager> m_fileManager;
+    std::shared_ptr<VDeclStorage> m_vDeclStorage;
     std::shared_ptr<MaterialBuilder> m_materialBuilder;
 
     DevicePtr m_device;
