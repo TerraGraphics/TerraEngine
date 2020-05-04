@@ -13,6 +13,8 @@ public:
     MaterialInstance(const std::shared_ptr<Material>& material);
     virtual ~MaterialInstance();
 
+    uint32_t GetVDeclId() const noexcept;
+
     void SetVertexShaderVar(const char* name, DeviceRaw value);
     void SetPixelShaderVar(const char* name, DeviceRaw value);
 

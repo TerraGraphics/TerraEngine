@@ -22,7 +22,7 @@ public:
     ~VDeclStorage();
 
     uint32_t Add(std::vector<VDeclItem>&& items);
-    uint32_t Join(uint32_t vDeclVertex, uint32_t vDeclinstance);
+    uint32_t Join(uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance);
 
     const msh::SemanticDecls& GetSemanticDecls(uint32_t id) const;
     const std::vector<dg::LayoutElement>& GetLayoutElements(uint32_t id) const;

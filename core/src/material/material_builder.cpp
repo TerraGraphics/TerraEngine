@@ -30,9 +30,10 @@ MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE s
 
 }
 
-MaterialBuilder::Builder::Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc)
+MaterialBuilder::Builder::Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint32_t vDeclIdPerVertex)
     : m_builder(builder)
-    , m_desc(std::move(desc)) {
+    , m_desc(std::move(desc))
+    , m_vDeclIdPerVertex(vDeclIdPerVertex) {
 }
 
 MaterialBuilder::Builder& MaterialBuilder::Builder::DepthEnable(bool value) noexcept {
@@ -111,7 +112,7 @@ std::shared_ptr<Material> MaterialBuilder::Builder::Build(const char* name) {
     }
     m_desc.ResourceLayout.NumStaticSamplers = static_cast<uint32_t>(m_samplers.size());
 
-    return m_builder->Build(m_desc);
+    return m_builder->Build(m_desc, m_vDeclIdPerVertex);
 }
 
 MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context,
@@ -149,8 +150,8 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclVertex, uint32_t vDeclinstance) {
-    auto vDeclId =  m_vDeclStorage->Join(vDeclVertex, vDeclinstance);
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclPerIdInstance) {
+    auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclPerIdInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
     auto shaders = m_shaderBuilder->Build(src);
@@ -174,13 +175,13 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclVe
     gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
     gp.RasterizerDesc.FrontCounterClockwise = false;
 
-    return Builder(this, std::move(desc));
+    return Builder(this, std::move(desc), vDeclIdPerVertex);
 }
 
-std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc) {
+std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc, uint32_t vDeclIdPerVertex) {
     PipelineStatePtr pipelineState;
     m_device->CreatePipelineState(desc, &pipelineState);
     m_staticVarsStorage->SetVars(pipelineState);
 
-    return std::make_shared<Material>(pipelineState);
+    return std::make_shared<Material>(pipelineState, vDeclIdPerVertex);
 }

@@ -19,6 +19,10 @@ MaterialInstance::~MaterialInstance() {
 
 }
 
+uint32_t MaterialInstance::GetVDeclId() const noexcept {
+    return m_material->GetVDeclId();
+}
+
 void MaterialInstance::SetVertexShaderVar(const char* name, DeviceRaw value) {
     ShaderResourceVariableRaw var = m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name);
     if (!var) {

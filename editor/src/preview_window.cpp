@@ -63,7 +63,7 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
         CPUTargetDesc(1, 1, 1, "rt::color::cpu")
     ));
 
-    const auto vDeclinstance = engine.GetVDeclStorage()->Add({
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
         VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
         VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
         VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
@@ -75,7 +75,7 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
     });
 
     m_scene->Create();
-    m_scene->AddChild(m_gizmo->Create(vDeclinstance));
+    m_scene->AddChild(m_gizmo->Create(vDeclIdPerInstance));
 }
 
 void PreviewWindow::Update(double deltaTime) {

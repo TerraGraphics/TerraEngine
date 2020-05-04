@@ -91,9 +91,9 @@ void GeneralScene::CreateMaterials() {
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
     const auto GRASS = materialBuilder->GetShaderMask("GRASS");
-    const auto vDeclPNC = VertexPNC::GetVDeclId();
-    const auto vDeclGrass = VertexP::GetVDeclId();
-    const auto vDeclinstance = engine.GetVDeclStorage()->Add({
+    const auto vDeclIdPNC = VertexPNC::GetVDeclId();
+    const auto vDeclIdGrass = VertexP::GetVDeclId();
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
         VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
         VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
         VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
@@ -103,39 +103,39 @@ void GeneralScene::CreateMaterials() {
         VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
     });
 
-    m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, vDeclPNC, vDeclinstance).
+    m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::noLight");
 
-    m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST, vDeclPNC, vDeclinstance).
+    m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::discard::noLight");
 
-    m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, vDeclPNC, vDeclinstance).
+    m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::phong");
 
-    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL, vDeclPNC, vDeclinstance).
+    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::noLight");
 
-    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG, vDeclPNC, vDeclinstance).
+    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");
 
-    m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, vDeclGrass, vDeclinstance).
+    m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, vDeclIdGrass, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::grass");
 
-    m_matGrassAlpha = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | ALPHA_TEST, vDeclGrass, vDeclinstance).
+    m_matGrassAlpha = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | ALPHA_TEST, vDeclIdGrass, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).

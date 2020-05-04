@@ -121,23 +121,23 @@ uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
     return impl->m_nextIndex++;
 }
 
-uint32_t VDeclStorage::Join(uint32_t vDeclVertex, uint32_t vDeclinstance) {
-    uint64_t key = ((static_cast<uint64_t>(vDeclVertex) << uint64_t(32)) | static_cast<uint64_t>(vDeclinstance));
+uint32_t VDeclStorage::Join(uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance) {
+    uint64_t key = ((static_cast<uint64_t>(vDeclIdPerVertex) << uint64_t(32)) | static_cast<uint64_t>(vDeclIdPerInstance));
     if (const auto it=impl->m_joinCache.find(key); it != impl->m_joinCache.cend()) {
         return it->second;
     }
 
-    if (impl->m_semanticDeclsStorage.size() <= vDeclVertex) {
-        throw EngineError("VDeclStorage: wrong vDeclVertex arg");
+    if (impl->m_semanticDeclsStorage.size() <= vDeclIdPerVertex) {
+        throw EngineError("VDeclStorage: wrong vDeclIdPerVertex arg");
     }
-    if (impl->m_semanticDeclsStorage.size() <= vDeclinstance) {
-        throw EngineError("VDeclStorage: wrong vDeclinstance arg");
+    if (impl->m_semanticDeclsStorage.size() <= vDeclIdPerInstance) {
+        throw EngineError("VDeclStorage: wrong vDeclIdPerInstance arg");
     }
 
-    const auto& semanticDeclsVertex = impl->m_semanticDeclsStorage[vDeclVertex].GetData();
-    const auto& semanticDeclslinstance = impl->m_semanticDeclsStorage[vDeclinstance].GetData();
-    const auto& layoutElementsVertex = impl->m_layoutElementsStorage[vDeclVertex];
-    const auto& layoutElementslinstance = impl->m_layoutElementsStorage[vDeclinstance];
+    const auto& semanticDeclsVertex = impl->m_semanticDeclsStorage[vDeclIdPerVertex].GetData();
+    const auto& semanticDeclslinstance = impl->m_semanticDeclsStorage[vDeclIdPerInstance].GetData();
+    const auto& layoutElementsVertex = impl->m_layoutElementsStorage[vDeclIdPerVertex];
+    const auto& layoutElementslinstance = impl->m_layoutElementsStorage[vDeclIdPerInstance];
 
     uint32_t resultSize = static_cast<uint32_t>(semanticDeclsVertex.size() + semanticDeclslinstance.size());
 

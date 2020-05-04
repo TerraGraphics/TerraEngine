@@ -78,8 +78,8 @@ void PreviewScene::CreateMaterials() {
     const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
     const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
     const auto COLOR_PICKER = materialBuilder->GetShaderMask("COLOR_PICKER");
-    const auto vDeclPNC = VertexPNC::GetVDeclId();
-    const auto vDeclinstance = engine.GetVDeclStorage()->Add({
+    const auto vDeclIdPNC = VertexPNC::GetVDeclId();
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
         VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
         VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
         VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
@@ -90,28 +90,28 @@ void PreviewScene::CreateMaterials() {
         VDeclItem("IdColor", VDeclType::Color4, 1, false),
     });
 
-    m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | COLOR_PICKER, vDeclPNC, vDeclinstance).
+    m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::noLight");
 
-    m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST | COLOR_PICKER, vDeclPNC, vDeclinstance).
+    m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::discard::noLight");
 
-    m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | COLOR_PICKER, vDeclPNC, vDeclinstance).
+    m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::tex::phong");
 
-    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL | COLOR_PICKER, vDeclPNC, vDeclinstance).
+    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::noLight");
 
-    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG | COLOR_PICKER, vDeclPNC, vDeclinstance).
+    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
         CullMode(dg::CULL_MODE_NONE).
         Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
         Build("mat::clr::phong");

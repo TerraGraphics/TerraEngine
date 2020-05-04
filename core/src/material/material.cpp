@@ -3,8 +3,9 @@
 #include "core/dg/context.h"
 
 
-Material::Material(const PipelineStatePtr& pipelineState)
-    : m_pipelineState(pipelineState) {
+Material::Material(const PipelineStatePtr& pipelineState, uint32_t vDeclId)
+    : m_vDeclId(vDeclId)
+    , m_pipelineState(pipelineState) {
 
 }
 

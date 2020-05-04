@@ -1,7 +1,9 @@
 #include "core/scene/transform_graph.h"
 
+#include "core/scene/geometry.h"
 #include "core/common/exception.h"
 #include "core/math/normal_matrix.h"
+#include "core/scene/material_instance.h"
 
 
 TransformNode::TransformNode(const dg::float4x4& transform)
@@ -25,6 +27,9 @@ TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const st
     }
     if (!geometry) {
         throw EngineError("TransformNode: material param is empty");
+    }
+    if (geometry->GetVDeclId() != material->GetVDeclId()) {
+        throw EngineError("TransformNode: geometry and material vDecl is not compatible");
     }
 }
 
@@ -73,6 +78,10 @@ std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<Geo
     if (!geometry) {
         throw EngineError("TransformNode: material param is empty");
     }
+    if (geometry->GetVDeclId() != material->GetVDeclId()) {
+        throw EngineError("TransformNode: geometry and material vDecl is not compatible");
+    }
+
     node->m_geometry = geometry;
     node->m_material = material;
     m_children.push_back(node);
