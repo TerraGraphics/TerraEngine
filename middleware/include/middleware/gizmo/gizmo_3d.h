@@ -5,7 +5,6 @@
 
 #include "core/math/types.h"
 #include "core/common/ctor.h"
-#include "core/material/vertex_decl.h"
 
 
 class Camera;

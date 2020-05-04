@@ -13,7 +13,6 @@
 #include "core/common/ctor.h"
 #include "core/dg/graphics_types.h"
 #include "core/dg/pipeline_state.h"
-#include "core/material/vertex_decl.h"
 #include "core/material/material_vars.h"
 
 
@@ -91,7 +90,6 @@ private:
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
     std::shared_ptr<VDeclStorage> m_vDeclStorage;
-    VertexDeclCache* m_vertexDeclCache = nullptr;
     ShaderBuilder* m_shaderBuilder = nullptr;
     MicroshaderLoader* m_microShaderLoader = nullptr;
     StaticVarsStorage* m_staticVarsStorage = nullptr;

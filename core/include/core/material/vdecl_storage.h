@@ -15,7 +15,7 @@ namespace Diligent {
 }
 namespace dg = Diligent;
 
-class VDeclItem;
+struct VDeclItem;
 class VDeclStorage : Fixed {
 public:
     VDeclStorage();

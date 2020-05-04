@@ -119,7 +119,6 @@ MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& cont
     : m_device(device)
     , m_swapChain(swapChain)
     , m_vDeclStorage(vDeclStorage)
-    , m_vertexDeclCache(new VertexDeclCache())
     , m_shaderBuilder(new ShaderBuilder(device, engineFactory))
     , m_microShaderLoader(new MicroshaderLoader())
     , m_staticVarsStorage(new StaticVarsStorage(device, context)) {
@@ -138,10 +137,6 @@ MaterialBuilder::~MaterialBuilder() {
     if (m_shaderBuilder) {
         delete m_shaderBuilder;
         m_shaderBuilder = nullptr;
-    }
-    if (m_vertexDeclCache) {
-        delete m_vertexDeclCache;
-        m_vertexDeclCache = nullptr;
     }
 }
 

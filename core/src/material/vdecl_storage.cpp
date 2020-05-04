@@ -10,7 +10,8 @@
 
 #include "core/common/hash.h"
 #include "core/common/exception.h"
-#include "core/material/vertex_decl.h"
+#include "core/dg/graphics_types.h"
+#include "core/material/vdecl_item.h"
 #include "core/material/microshader_types.h"
 
 
@@ -20,6 +21,52 @@ namespace std {
             return value.Hash();
         }
     };
+}
+
+namespace {
+
+static msh::SemanticDecl GetSemanticDecl(const VDeclItem& item, uint32_t index) {
+    static const auto prefix = dg::LayoutElement{}.HLSLSemantic;
+    auto semantic = prefix + fmt::format_int(index).str();
+
+    switch (item.varType) {
+        case VDeclType::Float:
+            return msh::SemanticDecl(item.varName, "float", semantic);
+        case VDeclType::Float2:
+            return msh::SemanticDecl(item.varName, "float2", semantic);
+        case VDeclType::Float3:
+            return msh::SemanticDecl(item.varName, "float3", semantic);
+        case VDeclType::Float4:
+            return msh::SemanticDecl(item.varName, "float4", semantic);
+        case VDeclType::Color3:
+            return msh::SemanticDecl(item.varName, "float3", semantic);
+        case VDeclType::Color4:
+            return msh::SemanticDecl(item.varName, "float4", semantic);
+    }
+
+    throw EngineError("VDeclItem: wrong varType value = {}", item.varType);
+}
+
+static dg::LayoutElement GetLayoutElement(const VDeclItem& item, uint32_t inputIndex) {
+    auto frequency = item.perVertex ? dg::INPUT_ELEMENT_FREQUENCY_PER_VERTEX : dg::INPUT_ELEMENT_FREQUENCY_PER_INSTANCE;
+    switch (item.varType) {
+        case VDeclType::Float:
+            return dg::LayoutElement(inputIndex, item.bufferSlot, 1, dg::VT_FLOAT32, false, frequency);
+        case VDeclType::Float2:
+            return dg::LayoutElement(inputIndex, item.bufferSlot, 2, dg::VT_FLOAT32, false, frequency);
+        case VDeclType::Float3:
+            return dg::LayoutElement(inputIndex, item.bufferSlot, 3, dg::VT_FLOAT32, false, frequency);
+        case VDeclType::Float4:
+            return dg::LayoutElement(inputIndex, item.bufferSlot, 4, dg::VT_FLOAT32, false, frequency);
+        case VDeclType::Color3:
+            return dg::LayoutElement(inputIndex, item.bufferSlot, 3, dg::VT_UINT8, true, frequency);
+        case VDeclType::Color4:
+            return dg::LayoutElement(inputIndex, item.bufferSlot, 4, dg::VT_UINT8, true, frequency);
+    }
+
+    throw EngineError("VDeclItem: wrong varType value = {}", item.varType);
+}
+
 }
 
 using VDeclItems = std::vector<VDeclItem>;
@@ -54,11 +101,11 @@ uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
     std::vector<dg::LayoutElement> layoutElements;
     layoutElements.reserve(itemsSize);
 
-    static const auto prefix = dg::LayoutElement{}.HLSLSemantic;
+
     uint32_t index = 0;
     for (const auto& item: it->first) {
-        semanticDecls.push_back(item.GetSemanticDecl(prefix + fmt::format_int(index).str()));
-        layoutElements.push_back(item.GetLayoutElement(index));
+        semanticDecls.push_back(GetSemanticDecl(item, index));
+        layoutElements.push_back(GetLayoutElement(item, index));
         ++index;
     }
 
@@ -87,8 +134,8 @@ uint32_t VDeclStorage::Join(uint32_t vDeclVertex, uint32_t vDeclinstance) {
         throw EngineError("VDeclStorage: wrong vDeclinstance arg");
     }
 
-    const auto& semanticDeclsVertex = impl->m_semanticDeclsStorage[vDeclVertex].GetDataRef();
-    const auto& semanticDeclslinstance = impl->m_semanticDeclsStorage[vDeclinstance].GetDataRef();
+    const auto& semanticDeclsVertex = impl->m_semanticDeclsStorage[vDeclVertex].GetData();
+    const auto& semanticDeclslinstance = impl->m_semanticDeclsStorage[vDeclinstance].GetData();
     const auto& layoutElementsVertex = impl->m_layoutElementsStorage[vDeclVertex];
     const auto& layoutElementslinstance = impl->m_layoutElementsStorage[vDeclinstance];
 

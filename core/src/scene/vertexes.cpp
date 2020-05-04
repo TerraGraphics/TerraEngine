@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "core/engine.h"
-#include "core/material/vertex_decl.h"
+#include "core/material/vdecl_item.h"
 #include "core/material/vdecl_storage.h"
 
 
