@@ -1,6 +1,7 @@
 #include "core/material/microshader_types.h"
 
 #include <tuple>
+#include <utility>
 #include <iterator>
 #include <algorithm>
 #include <fmt/format.h>
@@ -166,6 +167,12 @@ std::string SemanticDecls::JoinNames(const std::string& sep) const {
     }
 
     return result;
+}
+
+SemanticDecls::SemanticDecls(std::vector<SemanticDecl>&& data)
+    : m_isPreProcessed(false)
+    , m_data(std::move(data)) {
+
 }
 
 void SemanticDecls::SetData(std::vector<SemanticDecl>&& data) {

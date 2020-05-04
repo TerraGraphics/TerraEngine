@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <cstddef>
 #include <unordered_map>
 #include <initializer_list>
 #include <DiligentCore/Primitives/interface/BasicTypes.h>
@@ -30,6 +31,9 @@ public:
     VDeclItem(const std::string& varName, VDeclType varType, uint32_t bufferSlot = 0, bool perVertex = true);
     ~VDeclItem() = default;
 
+    bool operator==(const VDeclItem& other) const;
+
+    size_t Hash() const;
     msh::SemanticDecl GetSemanticDecl(const std::string& semantic) const;
     dg::LayoutElement GetLayoutElement(uint32_t inputIndex) const;
 

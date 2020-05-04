@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
+#include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
 
@@ -17,6 +18,26 @@ VDeclItem::VDeclItem(const std::string& varName, VDeclType varType, uint32_t buf
     if ((varType < VDeclType::Float) || (varType > VDeclType::Color4)) {
         throw EngineError("VDeclItem: wrong varType value = {}", varType);
     }
+}
+
+bool VDeclItem::operator==(const VDeclItem& other) const {
+    return (
+        (m_bufferSlot == other.m_bufferSlot) &&
+        (m_varType == other.m_varType) &&
+        (m_perVertex == other.m_perVertex) &&
+        (m_varName == other.m_varName));
+}
+
+size_t VDeclItem::Hash() const {
+    auto hash = std::hash<std::string>()(m_varName);
+
+    auto val = (
+        (static_cast<uint64_t>(m_bufferSlot) << uint64_t(32)) |
+        (static_cast<uint64_t>(m_varType) << uint64_t(16)) |
+        static_cast<uint64_t>(m_perVertex));
+    HashCombine(hash, val);
+
+    return hash;
 }
 
 msh::SemanticDecl VDeclItem::GetSemanticDecl(const std::string& semantic) const {
@@ -78,8 +99,8 @@ VertexDecl::VertexDecl(const VertexDecl& first, const VertexDecl& second)
 
     uint32_t index = 0;
     std::string prefix = dg::LayoutElement{}.HLSLSemantic;
-    auto vertexInputDecl = first.m_vertexInputDecl.GetData();
-    const auto& secondArr = second.m_vertexInputDecl.GetData();
+    auto vertexInputDecl = first.m_vertexInputDecl.GetDataCopy();
+    const auto& secondArr = second.m_vertexInputDecl.GetDataRef();
     vertexInputDecl.insert(vertexInputDecl.cend(), secondArr.cbegin(), secondArr.cend());
     for (auto& vDecl : vertexInputDecl) {
         vDecl.semantic = prefix + fmt::format_int(index).str();

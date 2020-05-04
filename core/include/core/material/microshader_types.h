@@ -72,9 +72,11 @@ struct SemanticDecl {
 class SemanticDecls {
 public:
     SemanticDecls() = default;
+    SemanticDecls(std::vector<SemanticDecl>&& data);
     ~SemanticDecls() = default;
 
-    const std::vector<SemanticDecl> GetData() const { return m_data; }
+    const std::vector<SemanticDecl> GetDataCopy() const { return m_data; }
+    const std::vector<SemanticDecl>& GetDataRef() const { return m_data; }
     size_t GetSize() const { return m_data.size(); }
     std::string JoinNames(const std::string& sep) const;
 

@@ -244,7 +244,7 @@ void VertexShader::Append(const std::map<std::string, VertexMicroshader>& value)
 
 void VertexShader::Generate(const MaterialBuilderDesc& desc, const SemanticDecls& input, const SemanticDecls& output, std::string& out) {
     std::vector<const VertexMicroshader*> gendata;
-    for (const auto& item : output.GetData()) {
+    for (const auto& item : output.GetDataRef()) {
         const auto it = m_data.find(item.name);
         if (it == m_data.cend()) {
             throw EngineError("vertex and pixel or geometric shaders are not data-compatible");
@@ -266,7 +266,7 @@ void VertexShader::Generate(const MaterialBuilderDesc& desc, const SemanticDecls
 
     for (const auto& name : base.vsInput.GetData()) {
         bool isFound = false;
-        for (const auto& item : input.GetData()) {
+        for (const auto& item : input.GetDataRef()) {
             if (name == item.name) {
                 isFound = true;
                 break;
