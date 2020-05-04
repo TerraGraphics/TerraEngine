@@ -195,7 +195,7 @@ void GeneralScene::GenerateGrass() {
     }
 
     uint32_t vbOffsetBytes = 0;
-    auto geometry = std::make_shared<GeometryUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count());
+    auto geometry = std::make_shared<GeometryUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count(), vb.GetVDeclId());
 
     auto grassMatNode = std::make_shared<StdMaterial>(m_matGrass);
     grassMatNode->SetBaseTexture(m_TextureGrassBlade1);

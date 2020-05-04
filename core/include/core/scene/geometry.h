@@ -10,19 +10,25 @@
 
 class Geometry : public Counter<Geometry>, Fixed {
 protected:
-    Geometry();
+    Geometry() = delete;
+    Geometry(uint32_t vDeclId);
     virtual ~Geometry();
 
 public:
+    uint32_t GetVDeclId() const noexcept { return m_vDeclId; }
+
     virtual void Bind(ContextPtr& context) = 0;
     virtual uint32_t Draw(ContextPtr& context, uint32_t firstInstanceIndex = 0) = 0;
+
+protected:
+    uint32_t m_vDeclId;
 };
 
 class VertexBuffer;
 class GeometryUnindexed final : public Geometry {
 public:
     GeometryUnindexed() = delete;
-    GeometryUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount);
+    GeometryUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount, uint32_t vDeclId);
     ~GeometryUnindexed() final;
 
 public:
@@ -40,7 +46,8 @@ class GeometryIndexed final : public Geometry {
 public:
     GeometryIndexed() = delete;
     GeometryIndexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
-        const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32);
+        const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32,
+        uint32_t vDeclId);
     ~GeometryIndexed() final;
 
 public:

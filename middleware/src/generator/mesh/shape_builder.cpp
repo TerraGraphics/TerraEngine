@@ -40,5 +40,5 @@ std::shared_ptr<Geometry> ShapeBuilder::Join(const std::initializer_list<const I
     uint32_t vbOffsetBytes = 0;
     uint32_t ibOffsetBytes = 0;
     return std::make_shared<GeometryIndexed>(vbBuilder.Build(m_device, name), vbOffsetBytes,
-        ibBuilder.Build(m_device, name), ibOffsetBytes, indexCount, isUint32);
+        ibBuilder.Build(m_device, name), ibOffsetBytes, indexCount, isUint32, VertexPNC::GetVDeclId());
 }

@@ -88,6 +88,10 @@ public:
         throw std::out_of_range("VertexBufferRange operator[]");
     }
 
+    uint32_t GetVDeclId() {
+        return Vertex::GetVDeclId();
+    }
+
 private:
     Vertex* m_begin = nullptr;
     uint32_t m_offsetBytes = 0;
