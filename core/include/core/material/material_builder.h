@@ -47,9 +47,9 @@ public:
         Builder& DepthEnable(bool value) noexcept;
         Builder& CullMode(dg::CULL_MODE value) noexcept;
         Builder& Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
-        Builder& Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE) noexcept;
+        Builder& Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
 
         std::shared_ptr<Material> Build(const char* name = nullptr);
 

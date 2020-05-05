@@ -54,7 +54,7 @@ MaterialBuilder::Builder& MaterialBuilder::Builder::Topology(dg::PRIMITIVE_TOPOL
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
     ShaderResourceVariableDescKey key{shaderType, name};
     if (m_vars.find(key) != m_vars.cend()) {
         LOG_ERROR_AND_THROW("Shader varaible ", name, " is duplicated for shader type ", dg::GetShaderTypeLiteralName(shaderType));
@@ -64,14 +64,14 @@ MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderTy
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
     Var(shaderType, name, type);
     m_samplers.emplace_back(shaderType, name, desc);
 
     return *this;
 }
 
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type) noexcept {
+MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
     dg::SamplerDesc desc;
     desc.AddressU = addressMode;
     desc.AddressV = addressMode;

@@ -23,9 +23,11 @@ namespace Diligent {
     struct IShaderResourceVariable;
     struct IShaderSourceInputStreamFactory;
 
-    enum CULL_MODE : Int8;
-    enum SHADER_TYPE : Uint32;
-    enum TEXTURE_FORMAT : Uint16;
+    enum CULL_MODE : int8_t;
+    enum SHADER_TYPE : uint32_t;
+    enum TEXTURE_FORMAT : uint16_t;
+    enum PRIMITIVE_TOPOLOGY : uint8_t;
+    enum SHADER_RESOURCE_VARIABLE_TYPE : uint8_t;
 }
 
 namespace dg = Diligent;
