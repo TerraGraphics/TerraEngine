@@ -542,7 +542,8 @@ void Gui::CreateGraphics() {
     rl.StaticSamplers = samplers;
     rl.NumStaticSamplers = _countof(samplers);
 
-    m_device->CreatePipelineState(desc, &m_ps);
+    dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
+    m_device->CreatePipelineState(createInfo, &m_ps);
 
     m_ps->GetStaticVariableByName(dg::SHADER_TYPE_VERTEX, "Camera")->Set(m_cameraCB);
     m_ps->CreateShaderResourceBinding(&m_fontBinding, true);

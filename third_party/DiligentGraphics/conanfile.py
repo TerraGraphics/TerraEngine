@@ -4,7 +4,7 @@ from conans import ConanFile, CMake, tools
 
 class DiligentGraphics(ConanFile):
     name = "DiligentGraphics"
-    version = "2.4.e8300f4.faa30a9"
+    version = "2.4.37e6c04.c1d83d1"
     license = "Apache License 2.0"
     url = "https://github.com/DiligentGraphics/DiligentGraphics"
     description = " A modern cross-platform low-level graphics library and rendering framework"
@@ -22,15 +22,17 @@ class DiligentGraphics(ConanFile):
     exports_sources = "DiligentGraphics/*"
 
     def source(self):
-        core_version = "e8300f4"
+        core_version = "37e6c04"
         self.run("git clone --recursive https://github.com/DiligentGraphics/DiligentCore.git DiligentGraphics/DiligentCore")
         with tools.chdir("DiligentGraphics/DiligentCore"):
             self.run("git reset --hard %s" % core_version)
+            self.run('echo "#!/bin/bash" > ./BuildTools/FormatValidation/validate_format_linux.sh')
 
-        tools_version = "faa30a9"
+        tools_version = "c1d83d1"
         self.run("git clone --recursive https://github.com/DiligentGraphics/DiligentTools.git DiligentGraphics/DiligentTools")
         with tools.chdir("DiligentGraphics/DiligentTools"):
             self.run("git reset --hard %s" % tools_version)
+            self.run('echo "#!/bin/bash" > ./BuildTools/FormatValidation/validate_format_linux.sh')
 
     def _create_cmake(self):
         cmake = CMake(self)

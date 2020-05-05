@@ -180,7 +180,8 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclId
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc, uint32_t vDeclIdPerVertex) {
     PipelineStatePtr pipelineState;
-    m_device->CreatePipelineState(desc, &pipelineState);
+    dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
+    m_device->CreatePipelineState(createInfo, &pipelineState);
     m_staticVarsStorage->SetVars(pipelineState);
 
     return std::make_shared<Material>(pipelineState, vDeclIdPerVertex);
