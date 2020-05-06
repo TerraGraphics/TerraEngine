@@ -4,7 +4,7 @@ from conans import ConanFile, CMake, tools
 
 class ImGui(ConanFile):
     name = "imgui"
-    version = "1.75.docking.16a9488"
+    version = "1.76.docking.1e7672a"
     license = "MIT"
     url = "https://github.com/ocornut/imgui"
     description = "Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies"
@@ -24,7 +24,7 @@ class ImGui(ConanFile):
     def source(self):
         self.run("git clone %s" % ImGui.url)
 
-        commit_version = "16a9488"
+        commit_version = "1e7672a"
         with tools.chdir("imgui"):
             self.run("git reset --hard %s" % commit_version)
 
