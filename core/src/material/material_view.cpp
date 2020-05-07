@@ -1,41 +1,40 @@
 #include "core/material/material_view.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/context.h"
 #include "core/common/exception.h"
-#include "core/material/material_new.h"
 
 
 struct MaterialView::Impl {
-    Impl(const std::string& name, const std::shared_ptr<MaterialNew>& material);
+    Impl(const char* name, PipelineStatePtr pipelineState, ShaderResourceBindingPtr binding);
 
-    std::string m_name;
+    const char* m_name = nullptr;
     PipelineStatePtr m_pipelineState;
     ShaderResourceBindingPtr m_binding;
-    std::shared_ptr<MaterialNew> m_material;
 };
 
-MaterialView::Impl::Impl(const std::string& name, const std::shared_ptr<MaterialNew>& material)
+MaterialView::Impl::Impl(const char* name, PipelineStatePtr pipelineState, ShaderResourceBindingPtr binding)
     : m_name(name)
-    , m_material(material) {
+    , m_pipelineState(pipelineState)
+    , m_binding(binding) {
 
 }
 
-MaterialView::MaterialView(const std::string& name, const std::shared_ptr<MaterialNew>& material)
-    : impl(name, material) {
+MaterialView::MaterialView(const char* name, PipelineStatePtr pipelineState, ShaderResourceBindingPtr binding)
+    : impl(name, pipelineState, binding) {
+
+}
+
+MaterialView::MaterialView(const MaterialView& other)
+    : impl(other.impl) {
 
 }
 
 MaterialView::~MaterialView() {
 
-}
-
-void MaterialView::UpdatePipeline(PipelineStatePtr pipelineState, ShaderResourceBindingPtr binding) {
-    impl->m_pipelineState = pipelineState;
-    impl->m_binding = binding;
 }
 
 void MaterialView::SetVertexShaderVar(const char* name, DeviceRaw value) {
@@ -60,10 +59,6 @@ void MaterialView::SetGeometryShaderVar(const char* name, DeviceRaw value) {
     }
 
     throw EngineError("unable to find variable '{}' in material {} for geometry shader", name, impl->m_name);
-}
-
-void MaterialView::Update(DevicePtr& device, ContextPtr& context) {
-    impl->m_material->Update(device, context, this);
 }
 
 void MaterialView::Bind(ContextPtr& context) {
