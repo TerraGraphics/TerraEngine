@@ -83,7 +83,8 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    Builder Create(uint64_t mask, uint32_t vDeclPerIdVertex, uint32_t vDeclPerIdInstance);
+    Builder Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance);
+    PipelineStatePtr Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance, dg::PipelineStateDesc& desc);
 
 private:
     std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc, uint32_t vDeclIdPerVertex);

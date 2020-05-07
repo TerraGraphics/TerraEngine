@@ -150,8 +150,8 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclPerIdInstance) {
-    auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclPerIdInstance);
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance) {
+    auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
     auto shaders = m_shaderBuilder->Build(src);
@@ -176,6 +176,31 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclId
     gp.RasterizerDesc.FrontCounterClockwise = false;
 
     return Builder(this, std::move(desc), vDeclIdPerVertex);
+}
+
+PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance, dg::PipelineStateDesc& desc) {
+    auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
+    auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
+    const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
+    auto shaders = m_shaderBuilder->Build(src);
+
+    auto& gp = desc.GraphicsPipeline;
+    gp.NumRenderTargets = src.gsOutputNumber;
+    for (uint8_t i=0; i!=src.gsOutputNumber; ++i) {
+        gp.RTVFormats[i] = m_swapChain->GetDesc().ColorBufferFormat;
+    }
+    gp.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
+    gp.pVS = shaders.vs;
+    gp.pPS = shaders.ps;
+    gp.pGS = shaders.gs;
+    gp.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
+
+    PipelineStatePtr pipelineState;
+    dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
+    m_device->CreatePipelineState(createInfo, &pipelineState);
+    m_staticVarsStorage->SetVars(pipelineState);
+
+    return pipelineState;
 }
 
 std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc, uint32_t vDeclIdPerVertex) {

@@ -1,6 +1,7 @@
 #include "core/material/material_new.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/sampler.h"
 #include "core/common/exception.h"
@@ -20,13 +21,11 @@ struct MaterialVar {
 };
 
 struct TextureVar {
-    std::string name;
-    dg::SHADER_TYPE shaderType;
-    dg::SHADER_RESOURCE_VARIABLE_TYPE type;
+    uint8_t varId = 0;
     dg::SamplerDesc desc = dg::SamplerDesc{};
 };
 
-static constexpr const uint8_t MaxCountVars = 16;
+static constexpr const uint8_t MaxCountVars = 32;
 static constexpr const uint8_t MaxCountTextureVars = 16;
 
 }
@@ -37,25 +36,27 @@ struct MaterialNew::Impl {
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
     uint8_t AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
     uint8_t AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
+    void Build(const char* name);
 
     uint64_t m_mask = 0;
-    uint32_t m_vDeclPerIdVertex = 0;
-    uint32_t m_vDeclPerIdInstance = 0;
+    uint32_t m_vDeclIdPerVertex = 0;
+    uint32_t m_vDeclIdPerInstance = 0;
     uint8_t m_varsCount = 0;
     uint8_t m_textureVarsCount = 0;
     MaterialVar m_vars[MaxCountVars];
     TextureVar m_textureVars[MaxCountTextureVars];
     dg::PipelineStateDesc m_desc;
+    PipelineStatePtr m_pipelineState;
     std::shared_ptr<MaterialBuilder> m_builder;
 };
-
 
 MaterialNew::Impl::Impl(const std::shared_ptr<MaterialBuilder>& builder)
     : m_builder(builder) {
 
     m_desc.IsComputePipeline = false;
-    auto& gp = m_desc.GraphicsPipeline;
+    m_desc.ResourceLayout.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
+    auto& gp = m_desc.GraphicsPipeline;
     gp.DepthStencilDesc.DepthEnable = true;
     gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
     gp.RasterizerDesc.FrontCounterClockwise = false;
@@ -91,15 +92,32 @@ uint8_t MaterialNew::Impl::AddTextureVar(dg::SHADER_TYPE shaderType, const std::
         throw EngineError("Material: max count of texture shader varaibles is {}", MaxCountTextureVars);
     }
 
-    for(uint8_t i=0; i!=m_textureVarsCount; ++i) {
-        if ((m_textureVars[i].type == type) && (m_textureVars[i].name == name)) {
-            throw EngineError("Material: texture shader varaible {} is duplicated for shader type {}", dg::GetShaderTypeLiteralName(shaderType));
-        }
-    }
-
-    m_textureVars[m_textureVarsCount] = TextureVar{name, shaderType, type};
+    m_textureVars[m_textureVarsCount] = TextureVar{ AddVar(shaderType, name, type), dg::SamplerDesc{}};
 
     return m_textureVarsCount++;
+}
+
+void MaterialNew::Impl::Build(const char* name) {
+    if ((m_mask == 0) && (m_vDeclIdPerVertex == 0) && (m_vDeclIdPerInstance == 0)) {
+        throw EngineError("Material: shaders params not be set");
+    }
+
+    dg::ShaderResourceVariableDesc vars[MaxCountVars];
+    m_desc.ResourceLayout.Variables = vars;
+    m_desc.ResourceLayout.NumVariables = m_varsCount;
+    for(uint8_t i=0; i!=m_varsCount; ++i) {
+        vars[i] = {m_vars[i].shaderType, m_vars[i].name.c_str(), m_vars[i].type};
+    }
+
+    dg::StaticSamplerDesc samplers[MaxCountTextureVars];
+    m_desc.ResourceLayout.StaticSamplers = samplers;
+    m_desc.ResourceLayout.NumStaticSamplers = m_textureVarsCount;
+    for(uint8_t i=0; i!=m_textureVarsCount; ++i) {
+        samplers[i] = {m_vars[m_textureVars[i].varId].shaderType, m_vars[m_textureVars[i].varId].name.c_str(), m_textureVars[i].desc};
+    }
+
+    m_desc.Name = (name != nullptr) ? name : "no name is assigned";
+    m_pipelineState = m_builder->Create(m_mask, m_vDeclIdPerVertex, m_vDeclIdPerInstance, m_desc);
 }
 
 MaterialNew::MaterialNew(const std::shared_ptr<MaterialBuilder>& builder)
@@ -115,10 +133,10 @@ dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
     return impl->GetTextureDesc(id);
 }
 
-void MaterialNew::SetShaders(uint64_t mask, uint32_t vDeclPerIdVertex, uint32_t vDeclPerIdInstance) {
+void MaterialNew::SetShaders(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance) {
     impl->m_mask = mask;
-    impl->m_vDeclPerIdVertex = vDeclPerIdVertex;
-    impl->m_vDeclPerIdInstance = vDeclPerIdInstance;
+    impl->m_vDeclIdPerVertex = vDeclIdPerVertex;
+    impl->m_vDeclIdPerInstance = vDeclIdPerInstance;
     impl->m_textureVarsCount = 0;
     impl->m_varsCount = 0;
 }
@@ -143,8 +161,6 @@ uint8_t MaterialNew::AddTextureVar(dg::SHADER_TYPE shaderType, const std::string
     return impl->AddTextureVar(shaderType, name, type);
 }
 
-void MaterialNew::Build() {
-    if ((impl->m_mask == 0) && (impl->m_vDeclPerIdVertex == 0) && (impl->m_vDeclPerIdInstance == 0)) {
-        throw EngineError("Material: shaders params not be set");
-    }
+void MaterialNew::Build(const char* name) {
+    impl->Build(name);
 }
