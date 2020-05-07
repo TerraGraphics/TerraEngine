@@ -1,11 +1,13 @@
 #include "core/material/material_new.h"
 
+#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
 
 #include "core/dg/sampler.h"
+#include "core/dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/pipeline_state.h"
 #include "core/dg/graphics_types.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/dg/graphics_accessories.h"
@@ -31,12 +33,12 @@ static constexpr const uint8_t MaxCountTextureVars = 16;
 }
 
 struct MaterialNew::Impl {
-    Impl(const std::shared_ptr<MaterialBuilder>& builder);
+    Impl(const std::string& name, const std::shared_ptr<MaterialBuilder>& builder);
 
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
     uint8_t AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
     uint8_t AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
-    void Build(const char* name);
+    void Build();
 
     uint64_t m_mask = 0;
     uint32_t m_vDeclIdPerVertex = 0;
@@ -47,12 +49,16 @@ struct MaterialNew::Impl {
     TextureVar m_textureVars[MaxCountTextureVars];
     dg::PipelineStateDesc m_desc;
     PipelineStatePtr m_pipelineState;
+    ShaderResourceBindingPtr m_binding;
+    std::string m_name;
     std::shared_ptr<MaterialBuilder> m_builder;
 };
 
-MaterialNew::Impl::Impl(const std::shared_ptr<MaterialBuilder>& builder)
-    : m_builder(builder) {
+MaterialNew::Impl::Impl(const std::string& name, const std::shared_ptr<MaterialBuilder>& builder)
+    : m_name(name)
+    , m_builder(builder) {
 
+    m_desc.Name = m_name.c_str();
     m_desc.IsComputePipeline = false;
     m_desc.ResourceLayout.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
@@ -97,7 +103,7 @@ uint8_t MaterialNew::Impl::AddTextureVar(dg::SHADER_TYPE shaderType, const std::
     return m_textureVarsCount++;
 }
 
-void MaterialNew::Impl::Build(const char* name) {
+void MaterialNew::Impl::Build() {
     if ((m_mask == 0) && (m_vDeclIdPerVertex == 0) && (m_vDeclIdPerInstance == 0)) {
         throw EngineError("Material: shaders params not be set");
     }
@@ -116,12 +122,12 @@ void MaterialNew::Impl::Build(const char* name) {
         samplers[i] = {m_vars[m_textureVars[i].varId].shaderType, m_vars[m_textureVars[i].varId].name.c_str(), m_textureVars[i].desc};
     }
 
-    m_desc.Name = (name != nullptr) ? name : "no name is assigned";
     m_pipelineState = m_builder->Create(m_mask, m_vDeclIdPerVertex, m_vDeclIdPerInstance, m_desc);
+    m_pipelineState->CreateShaderResourceBinding(&m_binding, true);
 }
 
-MaterialNew::MaterialNew(const std::shared_ptr<MaterialBuilder>& builder)
-    : impl(builder) {
+MaterialNew::MaterialNew(const std::string& name, const std::shared_ptr<MaterialBuilder>& builder)
+    : impl(name, builder) {
 
 }
 
@@ -161,6 +167,35 @@ uint8_t MaterialNew::AddTextureVar(dg::SHADER_TYPE shaderType, const std::string
     return impl->AddTextureVar(shaderType, name, type);
 }
 
-void MaterialNew::Build(const char* name) {
-    impl->Build(name);
+void MaterialNew::SetVertexShaderVar(const char* name, DeviceRaw value) {
+    if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name); var != nullptr) {
+        var->Set(value);
+    }
+
+    throw EngineError("unable to find variable '{}' in material {} for vertex shader", name, impl->m_name);
+}
+
+void MaterialNew::SetPixelShaderVar(const char* name, DeviceRaw value) {
+    if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, name); var != nullptr) {
+        var->Set(value);
+    }
+
+    throw EngineError("unable to find variable '{}' in material {} for pixel shader", name, impl->m_name);
+}
+
+void MaterialNew::SetGeometryShaderVar(const char* name, DeviceRaw value) {
+    if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_GEOMETRY, name); var != nullptr) {
+        var->Set(value);
+    }
+
+    throw EngineError("unable to find variable '{}' in material {} for geometry shader", name, impl->m_name);
+}
+
+void MaterialNew::Build() {
+    impl->Build();
+}
+
+void MaterialNew::Bind(ContextPtr& context) {
+    context->SetPipelineState(impl->m_pipelineState);
+    context->CommitShaderResources(impl->m_binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
