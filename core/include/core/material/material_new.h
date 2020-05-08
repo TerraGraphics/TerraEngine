@@ -21,7 +21,7 @@ protected:
     virtual ~MaterialNew();
 
 public:
-    MaterialView GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
+    MaterialView GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
 protected:
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
@@ -36,6 +36,9 @@ protected:
     void SetVertexShaderVar(const char* name, DeviceRaw value);
     void SetPixelShaderVar(const char* name, DeviceRaw value);
     void SetGeometryShaderVar(const char* name, DeviceRaw value);
+
+    virtual void OnNewFrame() = 0;
+    virtual void OnNewView(MaterialView& view) = 0;
 
 private:
     struct Impl;

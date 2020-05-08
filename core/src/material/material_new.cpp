@@ -51,9 +51,10 @@ struct MaterialNew::Impl {
     void SetPixelShaderVar(const char* name, DeviceRaw value);
     void SetGeometryShaderVar(const char* name, DeviceRaw value);
 
-    MaterialView GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
+    MaterialView GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, bool& isFind);
 
     uint64_t m_mask = 0;
+    uint8_t m_lastFrameNum = 255;
     uint8_t m_varsCount = 0;
     uint8_t m_textureVarsCount = 0;
     MaterialVar m_vars[MaxCountVars];
@@ -98,6 +99,7 @@ uint8_t MaterialNew::Impl::AddVar(dg::SHADER_TYPE shaderType, const std::string&
         }
     }
 
+    m_materialViewCache.clear();
     m_vars[m_varsCount] = MaterialVar{name, shaderType, type};
 
     return m_varsCount++;
@@ -108,6 +110,7 @@ uint8_t MaterialNew::Impl::AddTextureVar(dg::SHADER_TYPE shaderType, const std::
         throw EngineError("Material: max count of texture shader varaibles is {}", MaxCountTextureVars);
     }
 
+    m_materialViewCache.clear();
     m_textureVars[m_textureVarsCount] = TextureVar{ AddVar(shaderType, name, type), dg::SamplerDesc{}};
 
     return m_textureVarsCount++;
@@ -131,14 +134,16 @@ void MaterialNew::Impl::SetGeometryShaderVar(const char* name, DeviceRaw value) 
     }
 }
 
-MaterialView MaterialNew::Impl::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+MaterialView MaterialNew::Impl::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, bool& isFind) {
     uint32_t vDeclSum = (static_cast<uint32_t>(vDeclIdPerVertex) << uint32_t(16)) | static_cast<uint32_t>(vDeclIdPerInstance);
 
+    isFind = true;
     for (auto& item : m_materialViewCache) {
         if (item.vDeclSum == vDeclSum) {
             return item.view;
         }
     }
+    isFind = false;
 
     dg::ShaderResourceVariableDesc vars[MaxCountVars];
     m_desc.ResourceLayout.Variables = vars;
@@ -173,8 +178,18 @@ MaterialNew::~MaterialNew() {
 
 }
 
-MaterialView MaterialNew::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
-    return impl->GetView(vDeclIdPerVertex, vDeclIdPerInstance);
+MaterialView MaterialNew::GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+    if (impl->m_lastFrameNum != frameNum) {
+        impl->m_lastFrameNum = frameNum;
+        OnNewFrame();
+    }
+    bool isFind;
+    auto view = impl->GetView(vDeclIdPerVertex, vDeclIdPerInstance, isFind);
+    if (!isFind) {
+        OnNewView(view);
+    }
+
+    return view;
 }
 
 dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
@@ -182,21 +197,31 @@ dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
 }
 
 void MaterialNew::SetShaders(uint64_t mask) {
+    impl->m_materialViewCache.clear();
     impl->m_mask = mask;
     impl->m_textureVarsCount = 0;
     impl->m_varsCount = 0;
 }
 
 void MaterialNew::DepthEnable(bool value) noexcept {
-    impl->m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable = value;
+    if (impl->m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable != value) {
+        impl->m_materialViewCache.clear();
+        impl->m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable = value;
+    }
 }
 
 void MaterialNew::CullMode(dg::CULL_MODE value) noexcept {
-    impl->m_desc.GraphicsPipeline.RasterizerDesc.CullMode = value;
+    if (impl->m_desc.GraphicsPipeline.RasterizerDesc.CullMode != value) {
+        impl->m_materialViewCache.clear();
+        impl->m_desc.GraphicsPipeline.RasterizerDesc.CullMode = value;
+    }
 }
 
 void MaterialNew::Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept {
-    impl->m_desc.GraphicsPipeline.PrimitiveTopology = value;
+    if (impl->m_desc.GraphicsPipeline.PrimitiveTopology != value) {
+        impl->m_materialViewCache.clear();
+        impl->m_desc.GraphicsPipeline.PrimitiveTopology = value;
+    }
 }
 
 uint8_t MaterialNew::AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
