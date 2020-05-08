@@ -41,8 +41,8 @@ struct MaterialNew::Impl {
     void Build();
 
     uint64_t m_mask = 0;
-    uint32_t m_vDeclIdPerVertex = 0;
-    uint32_t m_vDeclIdPerInstance = 0;
+    uint16_t m_vDeclIdPerVertex = 0;
+    uint16_t m_vDeclIdPerInstance = 0;
     uint8_t m_varsCount = 0;
     uint8_t m_textureVarsCount = 0;
     MaterialVar m_vars[MaxCountVars];
@@ -139,7 +139,7 @@ dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
     return impl->GetTextureDesc(id);
 }
 
-void MaterialNew::SetShaders(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance) {
+void MaterialNew::SetShaders(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
     impl->m_mask = mask;
     impl->m_vDeclIdPerVertex = vDeclIdPerVertex;
     impl->m_vDeclIdPerInstance = vDeclIdPerInstance;

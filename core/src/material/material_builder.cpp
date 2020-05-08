@@ -30,7 +30,7 @@ MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE s
 
 }
 
-MaterialBuilder::Builder::Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint32_t vDeclIdPerVertex)
+MaterialBuilder::Builder::Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint16_t vDeclIdPerVertex)
     : m_builder(builder)
     , m_desc(std::move(desc))
     , m_vDeclIdPerVertex(vDeclIdPerVertex) {
@@ -150,7 +150,7 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance) {
+MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
     auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
@@ -178,7 +178,7 @@ MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint32_t vDeclId
     return Builder(this, std::move(desc), vDeclIdPerVertex);
 }
 
-PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance, dg::PipelineStateDesc& desc) {
+PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, dg::PipelineStateDesc& desc) {
     auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
@@ -203,7 +203,7 @@ PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint32_t vDeclIdPerVerte
     return pipelineState;
 }
 
-std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc, uint32_t vDeclIdPerVertex) {
+std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc, uint16_t vDeclIdPerVertex) {
     PipelineStatePtr pipelineState;
     dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
     m_device->CreatePipelineState(createInfo, &pipelineState);

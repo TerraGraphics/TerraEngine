@@ -72,12 +72,12 @@ static dg::LayoutElement GetLayoutElement(const VDeclItem& item, uint32_t inputI
 using VDeclItems = std::vector<VDeclItem>;
 
 struct VDeclStorage::Impl {
-    uint32_t m_nextIndex = 0;
-    std::unordered_map<VDeclItems, uint32_t, ContainerHasher<VDeclItems>> m_vDecls;
+    uint16_t m_nextIndex = 0;
+    std::unordered_map<VDeclItems, uint16_t, ContainerHasher<VDeclItems>> m_vDecls;
     std::vector<msh::SemanticDecls> m_semanticDeclsStorage;
     std::vector<std::vector<dg::LayoutElement>> m_layoutElementsStorage;
     // vDeclVertex + vDeclinstance => VDeclID
-    std::unordered_map<uint64_t, uint32_t> m_joinCache;
+    std::unordered_map<uint32_t, uint16_t> m_joinCache;
 };
 
 VDeclStorage::VDeclStorage() {
@@ -88,7 +88,7 @@ VDeclStorage::~VDeclStorage() {
 
 }
 
-uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
+uint16_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
     auto itemsSize = items.size();
     auto [it, ok] = impl->m_vDecls.emplace(std::move(items), impl->m_nextIndex);
     if (!ok) {
@@ -121,8 +121,8 @@ uint32_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
     return impl->m_nextIndex++;
 }
 
-uint32_t VDeclStorage::Join(uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance) {
-    uint64_t key = ((static_cast<uint64_t>(vDeclIdPerVertex) << uint64_t(32)) | static_cast<uint64_t>(vDeclIdPerInstance));
+uint16_t VDeclStorage::Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+    uint32_t key = ((static_cast<uint32_t>(vDeclIdPerVertex) << uint32_t(16)) | static_cast<uint32_t>(vDeclIdPerInstance));
     if (const auto it=impl->m_joinCache.find(key); it != impl->m_joinCache.cend()) {
         return it->second;
     }
@@ -170,7 +170,7 @@ uint32_t VDeclStorage::Join(uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstan
     return impl->m_nextIndex++;
 }
 
-const msh::SemanticDecls& VDeclStorage::GetSemanticDecls(uint32_t id) const {
+const msh::SemanticDecls& VDeclStorage::GetSemanticDecls(uint16_t id) const {
      if (impl->m_semanticDeclsStorage.size() <= id) {
         throw EngineError("VDeclStorage: wrong index for m_semanticDeclsStorage");
     }
@@ -178,7 +178,7 @@ const msh::SemanticDecls& VDeclStorage::GetSemanticDecls(uint32_t id) const {
     return impl->m_semanticDeclsStorage[id];
 }
 
-const std::vector<dg::LayoutElement>& VDeclStorage::GetLayoutElements(uint32_t id) const {
+const std::vector<dg::LayoutElement>& VDeclStorage::GetLayoutElements(uint16_t id) const {
      if (impl->m_layoutElementsStorage.size() <= id) {
         throw EngineError("VDeclStorage: wrong index for m_layoutElementsStorage");
     }

@@ -27,7 +27,7 @@ Gizmo3D::~Gizmo3D() {
     m_eventHandler.reset();
 }
 
-std::shared_ptr<TransformNode> Gizmo3D::Create(uint32_t vDeclinstance) {
+std::shared_ptr<TransformNode> Gizmo3D::Create(uint16_t vDeclinstance) {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
     auto& materialBuilder = engine.GetMaterialBuilder();

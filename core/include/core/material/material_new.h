@@ -23,7 +23,7 @@ protected:
 protected:
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
 
-    void SetShaders(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance);
+    void SetShaders(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
     void DepthEnable(bool value) noexcept;
     void CullMode(dg::CULL_MODE value) noexcept;
     void Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
@@ -42,5 +42,5 @@ public:
 
 private:
     struct Impl;
-    Pimpl<Impl, 2672, 8> impl;
+    Pimpl<Impl, 2664, 8> impl;
 };

@@ -21,11 +21,11 @@ public:
     VDeclStorage();
     ~VDeclStorage();
 
-    uint32_t Add(std::vector<VDeclItem>&& items);
-    uint32_t Join(uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance);
+    uint16_t Add(std::vector<VDeclItem>&& items);
+    uint16_t Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
-    const msh::SemanticDecls& GetSemanticDecls(uint32_t id) const;
-    const std::vector<dg::LayoutElement>& GetLayoutElements(uint32_t id) const;
+    const msh::SemanticDecls& GetSemanticDecls(uint16_t id) const;
+    const std::vector<dg::LayoutElement>& GetLayoutElements(uint16_t id) const;
 
 private:
     struct Impl;

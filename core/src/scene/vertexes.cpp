@@ -7,13 +7,13 @@
 #include "core/material/vdecl_storage.h"
 
 
-uint32_t VertexP::GetVDeclId() {
+uint16_t VertexP::GetVDeclId() {
     static auto vDeclId = Engine::Get().GetVDeclStorage()->Add({VDeclItem("position", VDeclType::Float3)});
 
     return vDeclId;
 }
 
-uint32_t VertexPNC::GetVDeclId() {
+uint16_t VertexPNC::GetVDeclId() {
     static auto vDeclId = Engine::Get().GetVDeclStorage()->Add({
         VDeclItem("position", VDeclType::Float3),
         VDeclItem("normal", VDeclType::Float3),

@@ -41,7 +41,7 @@ public:
 
     public:
         Builder() = delete;
-        Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint32_t vDeclIdPerVertex);
+        Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint16_t vDeclIdPerVertex);
         ~Builder() = default;
 
         Builder& DepthEnable(bool value) noexcept;
@@ -58,7 +58,7 @@ public:
         std::map<ShaderResourceVariableDescKey, dg::SHADER_RESOURCE_VARIABLE_TYPE> m_vars;
         std::vector<StaticSamplerDesc> m_samplers;
         dg::PipelineStateDesc m_desc;
-        uint32_t m_vDeclIdPerVertex;
+        uint16_t m_vDeclIdPerVertex;
     };
 
 public:
@@ -83,11 +83,11 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    Builder Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance);
-    PipelineStatePtr Create(uint64_t mask, uint32_t vDeclIdPerVertex, uint32_t vDeclIdPerInstance, dg::PipelineStateDesc& desc);
+    Builder Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
+    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, dg::PipelineStateDesc& desc);
 
 private:
-    std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc, uint32_t vDeclIdPerVertex);
+    std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc, uint16_t vDeclIdPerVertex);
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
