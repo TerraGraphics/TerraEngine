@@ -1,9 +1,9 @@
 #include "core/material/material_new.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
+#include <vector>
+
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
 
 #include "core/dg/sampler.h"
 #include "core/dg/context.h"
@@ -13,8 +13,16 @@
 #include "core/dg/graphics_accessories.h"
 #include "core/material/material_builder.h"
 
-namespace
-{
+
+namespace {
+
+struct MaterialViewItem {
+    MaterialViewItem() = delete;
+    MaterialViewItem(uint32_t vDeclSum, MaterialView view) : vDeclSum(vDeclSum), view(view) {};
+
+    uint32_t vDeclSum;
+    MaterialView view;
+};
 
 struct MaterialVar {
     std::string name;
@@ -38,18 +46,20 @@ struct MaterialNew::Impl {
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
     uint8_t AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
     uint8_t AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
-    void Build();
+
+    void SetVertexShaderVar(const char* name, DeviceRaw value);
+    void SetPixelShaderVar(const char* name, DeviceRaw value);
+    void SetGeometryShaderVar(const char* name, DeviceRaw value);
+
+    MaterialView GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
     uint64_t m_mask = 0;
-    uint16_t m_vDeclIdPerVertex = 0;
-    uint16_t m_vDeclIdPerInstance = 0;
     uint8_t m_varsCount = 0;
     uint8_t m_textureVarsCount = 0;
     MaterialVar m_vars[MaxCountVars];
     TextureVar m_textureVars[MaxCountTextureVars];
     dg::PipelineStateDesc m_desc;
-    PipelineStatePtr m_pipelineState;
-    ShaderResourceBindingPtr m_binding;
+    std::vector<MaterialViewItem> m_materialViewCache;
     std::string m_name;
     std::shared_ptr<MaterialBuilder> m_builder;
 };
@@ -103,9 +113,31 @@ uint8_t MaterialNew::Impl::AddTextureVar(dg::SHADER_TYPE shaderType, const std::
     return m_textureVarsCount++;
 }
 
-void MaterialNew::Impl::Build() {
-    if ((m_mask == 0) && (m_vDeclIdPerVertex == 0) && (m_vDeclIdPerInstance == 0)) {
-        throw EngineError("Material: shaders params not be set");
+void MaterialNew::Impl::SetVertexShaderVar(const char* name, DeviceRaw value) {
+    for (auto& item : m_materialViewCache) {
+        item.view.SetVertexShaderVar(name, value);
+    }
+}
+
+void MaterialNew::Impl::SetPixelShaderVar(const char* name, DeviceRaw value) {
+    for (auto& item : m_materialViewCache) {
+        item.view.SetPixelShaderVar(name, value);
+    }
+}
+
+void MaterialNew::Impl::SetGeometryShaderVar(const char* name, DeviceRaw value) {
+    for (auto& item : m_materialViewCache) {
+        item.view.SetGeometryShaderVar(name, value);
+    }
+}
+
+MaterialView MaterialNew::Impl::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+    uint32_t vDeclSum = (static_cast<uint32_t>(vDeclIdPerVertex) << uint32_t(16)) | static_cast<uint32_t>(vDeclIdPerInstance);
+
+    for (auto& item : m_materialViewCache) {
+        if (item.vDeclSum == vDeclSum) {
+            return item.view;
+        }
     }
 
     dg::ShaderResourceVariableDesc vars[MaxCountVars];
@@ -122,8 +154,14 @@ void MaterialNew::Impl::Build() {
         samplers[i] = {m_vars[m_textureVars[i].varId].shaderType, m_vars[m_textureVars[i].varId].name.c_str(), m_textureVars[i].desc};
     }
 
-    m_pipelineState = m_builder->Create(m_mask, m_vDeclIdPerVertex, m_vDeclIdPerInstance, m_desc);
-    m_pipelineState->CreateShaderResourceBinding(&m_binding, true);
+    auto pipelineState = m_builder->Create(m_mask, vDeclIdPerVertex, vDeclIdPerInstance, m_desc);
+    ShaderResourceBindingPtr binding;
+    pipelineState->CreateShaderResourceBinding(&binding, true);
+
+    auto view = MaterialView(m_name.c_str(), pipelineState, binding);
+    m_materialViewCache.emplace_back(vDeclSum, view);
+
+    return view;
 }
 
 MaterialNew::MaterialNew(const std::string& name, const std::shared_ptr<MaterialBuilder>& builder)
@@ -135,14 +173,16 @@ MaterialNew::~MaterialNew() {
 
 }
 
+MaterialView MaterialNew::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+    return impl->GetView(vDeclIdPerVertex, vDeclIdPerInstance);
+}
+
 dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
     return impl->GetTextureDesc(id);
 }
 
-void MaterialNew::SetShaders(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+void MaterialNew::SetShaders(uint64_t mask) {
     impl->m_mask = mask;
-    impl->m_vDeclIdPerVertex = vDeclIdPerVertex;
-    impl->m_vDeclIdPerInstance = vDeclIdPerInstance;
     impl->m_textureVarsCount = 0;
     impl->m_varsCount = 0;
 }
@@ -168,34 +208,13 @@ uint8_t MaterialNew::AddTextureVar(dg::SHADER_TYPE shaderType, const std::string
 }
 
 void MaterialNew::SetVertexShaderVar(const char* name, DeviceRaw value) {
-    if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name); var != nullptr) {
-        var->Set(value);
-    }
-
-    throw EngineError("unable to find variable '{}' in material {} for vertex shader", name, impl->m_name);
+    impl->SetVertexShaderVar(name, value);
 }
 
 void MaterialNew::SetPixelShaderVar(const char* name, DeviceRaw value) {
-    if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, name); var != nullptr) {
-        var->Set(value);
-    }
-
-    throw EngineError("unable to find variable '{}' in material {} for pixel shader", name, impl->m_name);
+    impl->SetPixelShaderVar(name, value);
 }
 
 void MaterialNew::SetGeometryShaderVar(const char* name, DeviceRaw value) {
-    if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_GEOMETRY, name); var != nullptr) {
-        var->Set(value);
-    }
-
-    throw EngineError("unable to find variable '{}' in material {} for geometry shader", name, impl->m_name);
-}
-
-void MaterialNew::Build() {
-    impl->Build();
-}
-
-void MaterialNew::Bind(ContextPtr& context) {
-    context->SetPipelineState(impl->m_pipelineState);
-    context->CommitShaderResources(impl->m_binding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    impl->SetGeometryShaderVar(name, value);
 }
