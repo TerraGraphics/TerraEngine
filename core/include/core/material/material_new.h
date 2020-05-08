@@ -12,6 +12,7 @@
 namespace Diligent {
     struct SamplerDesc;
 }
+class MaterialView;
 class MaterialBuilder;
 class MaterialNew : Fixed, public std::enable_shared_from_this<MaterialNew> {
 protected:
@@ -36,7 +37,7 @@ protected:
     void Build();
 
 public:
-    virtual void Update(DevicePtr& device, ContextPtr& context) = 0;
+    virtual void Update(DevicePtr& device, ContextPtr& context, MaterialView* view) = 0;
     void Bind(ContextPtr& context);
 
 private:
