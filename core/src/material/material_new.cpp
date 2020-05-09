@@ -196,7 +196,11 @@ dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
     return impl->GetTextureDesc(id);
 }
 
-void MaterialNew::SetShaders(uint64_t mask) {
+uint64_t MaterialNew::GetShadersMask() const noexcept {
+    return impl->m_mask;
+}
+
+void MaterialNew::SetShadersMask(uint64_t mask) {
     impl->m_materialViewCache.clear();
     impl->m_mask = mask;
     impl->m_textureVarsCount = 0;

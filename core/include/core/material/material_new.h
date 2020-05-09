@@ -26,7 +26,8 @@ public:
 protected:
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
 
-    void SetShaders(uint64_t mask);
+    uint64_t GetShadersMask() const noexcept;
+    void SetShadersMask(uint64_t mask);
     void DepthEnable(bool value) noexcept;
     void CullMode(dg::CULL_MODE value) noexcept;
     void Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
