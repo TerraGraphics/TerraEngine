@@ -141,8 +141,11 @@ void StdMaterialNew::ColorPicker(bool enable) {
 }
 
 void StdMaterialNew::OnNewFrame() {
-    auto& context = Engine::Get().GetContext();
+    if (!m_dataEnable) {
+        return;
+    }
 
+    auto& context = Engine::Get().GetContext();
     void* data = nullptr;
     context->MapBuffer(m_buffer, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, data);
     *reinterpret_cast<dg::ShaderMaterial*>(data) = m_data;
@@ -152,16 +155,22 @@ void StdMaterialNew::OnNewFrame() {
 void StdMaterialNew::OnNewView(MaterialView& view) {
     uint64_t mask = GetShadersMask();
 
-    view.SetPixelShaderVar("Material", m_buffer);
+    if (m_dataEnable) {
+        view.SetPixelShaderVar("Material", m_buffer);
+    }
+
     if ((mask & BaseColorTextureMask()) != 0) {
-        SetPixelShaderVar("texBase", m_baseTexture);
+        view.SetPixelShaderVar("texBase", m_baseTexture);
     }
 }
 
 void StdMaterialNew::ApplyMask(uint64_t mask) {
     SetShadersMask(mask);
 
-    if (!m_buffer) {
+    auto materialEnableFlags = (AlphaTestMask() | BaseColorMaterialMask());
+    m_dataEnable = ((mask & materialEnableFlags) != 0);
+
+    if (m_dataEnable && (!m_buffer)) {
         dg::BufferDesc desc;
         desc.Name = "cb::ps::shader_material";
         desc.uiSizeInBytes = sizeof(dg::ShaderMaterial);
@@ -171,7 +180,10 @@ void StdMaterialNew::ApplyMask(uint64_t mask) {
         Engine::Get().GetDevice()->CreateBuffer(desc, nullptr, &m_buffer);
     }
 
-    AddVar(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+    if (m_dataEnable) {
+        AddVar(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+    }
+
     if ((mask & BaseColorTextureMask()) != 0) {
         m_baseTextureId = AddTextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
     } else {

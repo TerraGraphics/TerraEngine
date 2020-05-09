@@ -6,7 +6,7 @@
 #include "core/scene/vertex_buffer.h"
 
 
-Geometry::Geometry(uint32_t vDeclId)
+Geometry::Geometry(uint16_t vDeclId)
     : m_vDeclId(vDeclId) {
 
 }
@@ -15,7 +15,7 @@ Geometry::~Geometry() {
 
 }
 
-GeometryUnindexed::GeometryUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount, uint32_t vDeclId)
+GeometryUnindexed::GeometryUnindexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes, uint32_t vbCount, uint16_t vDeclId)
     : Geometry(vDeclId)
     , m_vertexBuffer(vb)
     , m_vertexBufferOffsetBytes(vbOffsetBytes)
@@ -44,7 +44,7 @@ uint32_t GeometryUnindexed::Draw(ContextPtr& context, uint32_t firstInstanceInde
 }
 
 GeometryIndexed::GeometryIndexed(const std::shared_ptr<VertexBuffer>& vb, uint32_t vbOffsetBytes,
-    const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32, uint32_t vDeclId)
+    const std::shared_ptr<IndexBuffer>& ib, uint32_t ibOffsetBytes, uint32_t ibCount, bool ibUint32, uint16_t vDeclId)
     : Geometry(vDeclId)
     , m_vertexBuffer(vb)
     , m_indexBuffer(ib)

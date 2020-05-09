@@ -46,6 +46,7 @@ protected:
     bool AddAndRemoveFlag(uint64_t addFlag, uint64_t removeFlag);
 
 private:
+    bool m_dataEnable = false;
     uint8_t m_baseTextureId = 255;
     TextureViewPtr m_baseTexture;
     dg::ShaderMaterial m_data;

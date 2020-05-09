@@ -81,8 +81,8 @@ MaterialNew::Impl::Impl(const std::string& name, const std::shared_ptr<MaterialB
 }
 
 dg::SamplerDesc& MaterialNew::Impl::GetTextureDesc(uint8_t id) {
-    if (m_varsCount >= id) {
-        throw EngineError("Material: count of texture shader varaibles is {}, can't get id {}", m_varsCount, id);
+    if (m_varsCount <= id) {
+        throw EngineError("Material:{}: count of texture shader varaibles is {}, can't get id {}", m_name, m_varsCount, id);
     }
 
     return m_textureVars[id].desc;
@@ -95,7 +95,7 @@ uint8_t MaterialNew::Impl::AddVar(dg::SHADER_TYPE shaderType, const std::string&
 
     for(uint8_t i=0; i!=m_varsCount; ++i) {
         if ((m_vars[i].type == type) && (m_vars[i].name == name)) {
-            throw EngineError("Material: shader varaible {} is duplicated for shader type {}", dg::GetShaderTypeLiteralName(shaderType));
+            throw EngineError("Material:{}: shader varaible {} is duplicated for shader type {}", m_name, dg::GetShaderTypeLiteralName(shaderType));
         }
     }
 
@@ -107,7 +107,7 @@ uint8_t MaterialNew::Impl::AddVar(dg::SHADER_TYPE shaderType, const std::string&
 
 uint8_t MaterialNew::Impl::AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
     if (m_textureVarsCount >= MaxCountTextureVars) {
-        throw EngineError("Material: max count of texture shader varaibles is {}", MaxCountTextureVars);
+        throw EngineError("Material:{}: max count of texture shader varaibles is {}", m_name, MaxCountTextureVars);
     }
 
     m_materialViewCache.clear();
@@ -194,6 +194,10 @@ MaterialView MaterialNew::GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, u
 
 dg::SamplerDesc& MaterialNew::GetTextureDesc(uint8_t id) {
     return impl->GetTextureDesc(id);
+}
+
+const std::string& MaterialNew::GetName() const noexcept {
+    return impl->m_name;
 }
 
 uint64_t MaterialNew::GetShadersMask() const noexcept {

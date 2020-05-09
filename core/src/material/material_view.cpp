@@ -40,6 +40,7 @@ MaterialView::~MaterialView() {
 void MaterialView::SetVertexShaderVar(const char* name, DeviceRaw value) {
     if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_VERTEX, name); var != nullptr) {
         var->Set(value);
+        return;
     }
 
     throw EngineError("unable to find variable '{}' in material {} for vertex shader", name, impl->m_name);
@@ -48,6 +49,7 @@ void MaterialView::SetVertexShaderVar(const char* name, DeviceRaw value) {
 void MaterialView::SetPixelShaderVar(const char* name, DeviceRaw value) {
     if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, name); var != nullptr) {
         var->Set(value);
+        return;
     }
 
     throw EngineError("unable to find variable '{}' in material {} for pixel shader", name, impl->m_name);
@@ -56,6 +58,7 @@ void MaterialView::SetPixelShaderVar(const char* name, DeviceRaw value) {
 void MaterialView::SetGeometryShaderVar(const char* name, DeviceRaw value) {
     if (auto var = impl->m_binding->GetVariableByName(dg::SHADER_TYPE_GEOMETRY, name); var != nullptr) {
         var->Set(value);
+        return;
     }
 
     throw EngineError("unable to find variable '{}' in material {} for geometry shader", name, impl->m_name);

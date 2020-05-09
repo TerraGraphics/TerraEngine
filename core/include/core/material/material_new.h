@@ -26,6 +26,7 @@ public:
 protected:
     dg::SamplerDesc& GetTextureDesc(uint8_t id);
 
+    const std::string& GetName() const noexcept;
     uint64_t GetShadersMask() const noexcept;
     void SetShadersMask(uint64_t mask);
     void DepthEnable(bool value) noexcept;
