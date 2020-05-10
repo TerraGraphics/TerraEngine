@@ -16,7 +16,7 @@ public:
 
     void Create(math::Axis axis);
 
-    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, std::shared_ptr<Material>& material, bool isMoveType);
+    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, bool isMoveType);
 
     bool StartMove(const math::Ray& ray);
     bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
@@ -45,7 +45,7 @@ public:
 
     void Create(math::Axis2 axises);
 
-    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, std::shared_ptr<Material>& material);
+    std::shared_ptr<TransformNode> GetNode(DevicePtr& device);
 
     bool StartMove(const math::Ray& ray);
     bool GetMoveOffset(const math::Ray& ray, dg::float3& offset) const;
@@ -74,7 +74,7 @@ public:
 
     void Create(math::Axis axis);
 
-    std::shared_ptr<TransformNode> GetNode(DevicePtr& device, std::shared_ptr<Material>& material);
+    std::shared_ptr<TransformNode> GetNode(DevicePtr& device);
 
     bool StartMove(const math::Ray& ray);
     bool GetMoveOffset(const math::Ray& ray, double& offset) const;

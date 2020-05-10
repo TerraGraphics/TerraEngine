@@ -11,16 +11,14 @@
 #include "middleware/std_material/std_material.h" // IWYU pragma: keep
 
 
-std::shared_ptr<TransformNode> GizmoRotate::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-    std::shared_ptr<Material>& material) {
-
+std::shared_ptr<TransformNode> GizmoRotate::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler) {
     m_root = std::make_shared<TransformNode>();
     m_root->SetVisible(false);
     m_eventHandler = eventHandler;
     for (const auto axis: {math::Axis::X, math::Axis::Y, math::Axis::Z}) {
         auto axisNum = static_cast<uint>(axis);
         m_toruses[axisNum].Create(axis);
-        m_torusNodes[axisNum] = m_toruses[axisNum].GetNode(device, material);
+        m_torusNodes[axisNum] = m_toruses[axisNum].GetNode(device);
         m_root->AddChild(m_torusNodes[axisNum]);
     }
 

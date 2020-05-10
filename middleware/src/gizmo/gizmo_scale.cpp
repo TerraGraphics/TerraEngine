@@ -9,20 +9,18 @@
 #include "middleware/std_material/std_material.h" // IWYU pragma: keep
 
 
-std::shared_ptr<TransformNode> GizmoScale::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler,
-    std::shared_ptr<Material>& material) {
-
+std::shared_ptr<TransformNode> GizmoScale::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler) {
     m_root = std::make_shared<TransformNode>();
     m_root->SetVisible(false);
     m_eventHandler = eventHandler;
     for (const auto axis: {math::Axis::X, math::Axis::Y, math::Axis::Z}) {
         auto axisNum = static_cast<uint>(axis);
         m_arrows[axisNum].Create(axis);
-        m_arrowNodes[axisNum] = m_arrows[axisNum].GetNode(device, material, false);
+        m_arrowNodes[axisNum] = m_arrows[axisNum].GetNode(device, false);
         m_root->AddChild(m_arrowNodes[axisNum]);
 
         m_planes[axisNum].Create({axis, math::Next(axis)});
-        m_planeNodes[axisNum] = m_planes[axisNum].GetNode(device, material);
+        m_planeNodes[axisNum] = m_planes[axisNum].GetNode(device);
         m_root->AddChild(m_planeNodes[axisNum]);
     }
 

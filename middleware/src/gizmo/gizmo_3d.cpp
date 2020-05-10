@@ -27,31 +27,23 @@ Gizmo3D::~Gizmo3D() {
     m_eventHandler.reset();
 }
 
-std::shared_ptr<TransformNode> Gizmo3D::Create(uint16_t vDeclinstance) {
+std::shared_ptr<TransformNode> Gizmo3D::Create() {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
-    auto& materialBuilder = engine.GetMaterialBuilder();
     m_eventHandler = engine.GetEventHandler();
-
-    auto material = materialBuilder->Create(materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL"), VertexPNC::GetVDeclId(), vDeclinstance).
-        DepthEnable(false).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::gizmo::arrow");
-
 
     m_rootNode = std::make_shared<TransformNode>();
 
     auto move = std::make_unique<GizmoMove>();
-    m_rootNode->AddChild(move->Create(device, m_eventHandler, material));
+    m_rootNode->AddChild(move->Create(device, m_eventHandler));
     m_gizmos[static_cast<uint32_t>(Type::MOVE)] = std::move(move);
 
     auto rotate = std::make_unique<GizmoRotate>();
-    m_rootNode->AddChild(rotate->Create(device, m_eventHandler, material));
+    m_rootNode->AddChild(rotate->Create(device, m_eventHandler));
     m_gizmos[static_cast<uint32_t>(Type::ROTATE)] = std::move(rotate);
 
     auto scale = std::make_unique<GizmoScale>();
-    m_rootNode->AddChild(scale->Create(device, m_eventHandler, material));
+    m_rootNode->AddChild(scale->Create(device, m_eventHandler));
     m_gizmos[static_cast<uint32_t>(Type::SCALE)] = std::move(scale);
 
     SetType(m_type);

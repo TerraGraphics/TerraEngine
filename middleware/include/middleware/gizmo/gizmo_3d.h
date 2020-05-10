@@ -31,7 +31,7 @@ public:
     ~Gizmo3D();
 
 public:
-    std::shared_ptr<TransformNode> Create(uint16_t vDeclinstance);
+    std::shared_ptr<TransformNode> Create();
     void Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc);
     void SelectNode(const std::shared_ptr<TransformNode>& node);
 

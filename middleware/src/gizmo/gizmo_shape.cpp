@@ -4,9 +4,11 @@
 #include <sys/types.h>
 
 #include "core/math/intersection.h"
+#include "core/dg/rasterizer_state.h"
 #include "core/scene/transform_graph.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
+#include "middleware/std_material/std_material_new.h"
 
 
 class Geometry;
@@ -16,7 +18,7 @@ void GizmoArrow::Create(math::Axis axis) {
     m_activeCylinder = math::Cylinder(m_activeRadius, m_height, m_axis);
 }
 
-std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, std::shared_ptr<Material>& material, bool isMoveType) {
+std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, bool isMoveType) {
     auto axisNum = static_cast<uint>(m_axis);
     float arrowSpacing = m_height * .05f;
     auto center = dg::float3(0, 0, 0);
@@ -45,10 +47,12 @@ std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, std::share
     }
 
     color[axisNum] = 1.0f;
-    auto materialInstance = std::make_shared<StdMaterial>(material);
-    materialInstance->SetBaseColor(color);
+    auto material = std::make_shared<StdMaterialNew>("mat::gizmo::arrow");
+    material->Depth(false);
+    material->SetCullMode(dg::CULL_MODE_NONE);
+    material->SetBaseColor(color);
 
-    return std::make_shared<TransformNode>(geometry, materialInstance);
+    return std::make_shared<TransformNode>(geometry, material);
 }
 
 bool GizmoArrow::StartMove(const math::Ray& ray) {
@@ -113,7 +117,7 @@ void GizmoPlane::Create(math::Axis2 axises) {
     m_planeParams = math::Plane(dg::double3(0, 0, 0), v0, v1);
 }
 
-std::shared_ptr<TransformNode> GizmoPlane::GetNode(DevicePtr& device, std::shared_ptr<Material>& material) {
+std::shared_ptr<TransformNode> GizmoPlane::GetNode(DevicePtr& device) {
     auto axisNum0 = static_cast<uint>(m_axises[0]);
     auto axisNum1 = static_cast<uint>(m_axises[1]);
 
@@ -124,13 +128,16 @@ std::shared_ptr<TransformNode> GizmoPlane::GetNode(DevicePtr& device, std::share
     planeShape.SetCenter(center);
     auto geometry = ShapeBuilder(device).Join({&planeShape}, "gizmo plane");
 
-    auto materialInstance = std::make_shared<StdMaterial>(material);
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
     color[axisNum0] = 1.0f;
     color[axisNum1] = 1.0f;
-    materialInstance->SetBaseColor(color);
 
-    return std::make_shared<TransformNode>(geometry, materialInstance);
+    auto material = std::make_shared<StdMaterialNew>("mat::gizmo::plane");
+    material->Depth(false);
+    material->SetCullMode(dg::CULL_MODE_NONE);
+    material->SetBaseColor(color);
+
+    return std::make_shared<TransformNode>(geometry, material);
 }
 
 dg::float4x4 GizmoPlane::GetSelectTransform() const {
@@ -189,16 +196,19 @@ void GizmoTorus::Create(math::Axis axis) {
     m_activeTorus = math::Torus(m_activeRadis, m_majorRadis, axis);
 }
 
-std::shared_ptr<TransformNode> GizmoTorus::GetNode(DevicePtr& device, std::shared_ptr<Material>& material) {
+std::shared_ptr<TransformNode> GizmoTorus::GetNode(DevicePtr& device) {
     TorusShape torusShape(m_minorRadis, m_majorRadis, 10, 30, m_axis);
     auto geometry = ShapeBuilder(device).Join({&torusShape}, "gizmo torus");
 
-    auto materialInstance = std::make_shared<StdMaterial>(material);
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
     color[static_cast<uint>(m_axis)] = 1.0f;
-    materialInstance->SetBaseColor(color);
 
-    return std::make_shared<TransformNode>(geometry, materialInstance);
+    auto material = std::make_shared<StdMaterialNew>("mat::gizmo::torus");
+    material->Depth(false);
+    material->SetCullMode(dg::CULL_MODE_NONE);
+    material->SetBaseColor(color);
+
+    return std::make_shared<TransformNode>(geometry, material);
 }
 
 bool GizmoTorus::StartMove(const math::Ray& ray) {
