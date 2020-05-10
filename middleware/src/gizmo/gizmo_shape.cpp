@@ -8,7 +8,6 @@
 #include "core/scene/transform_graph.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
-#include "middleware/std_material/std_material_new.h"
 
 
 class Geometry;
@@ -47,7 +46,7 @@ std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, bool isMov
     }
 
     color[axisNum] = 1.0f;
-    auto material = std::make_shared<StdMaterialNew>("mat::gizmo::arrow");
+    auto material = std::make_shared<StdMaterial>("mat::gizmo::arrow");
     material->Depth(false);
     material->SetCullMode(dg::CULL_MODE_NONE);
     material->SetBaseColor(color);
@@ -132,7 +131,7 @@ std::shared_ptr<TransformNode> GizmoPlane::GetNode(DevicePtr& device) {
     color[axisNum0] = 1.0f;
     color[axisNum1] = 1.0f;
 
-    auto material = std::make_shared<StdMaterialNew>("mat::gizmo::plane");
+    auto material = std::make_shared<StdMaterial>("mat::gizmo::plane");
     material->Depth(false);
     material->SetCullMode(dg::CULL_MODE_NONE);
     material->SetBaseColor(color);
@@ -203,7 +202,7 @@ std::shared_ptr<TransformNode> GizmoTorus::GetNode(DevicePtr& device) {
     auto color = dg::float4(0.f, 0.f, 0.f, 1.f);
     color[static_cast<uint>(m_axis)] = 1.0f;
 
-    auto material = std::make_shared<StdMaterialNew>("mat::gizmo::torus");
+    auto material = std::make_shared<StdMaterial>("mat::gizmo::torus");
     material->Depth(false);
     material->SetCullMode(dg::CULL_MODE_NONE);
     material->SetBaseColor(color);

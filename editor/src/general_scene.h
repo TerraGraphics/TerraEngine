@@ -7,7 +7,7 @@
 
 
 class Scene;
-class StdMaterialNew;
+class StdMaterial;
 class StdMaterialGrass;
 class GeneralScene : Fixed {
 public:
@@ -36,13 +36,13 @@ private:
     TextureViewPtr m_TextureGrassBlade1;
 
     // materials
-    std::shared_ptr<StdMaterialNew> m_matGroud;
-    std::shared_ptr<StdMaterialNew> m_matTrunk;
-    std::shared_ptr<StdMaterialNew> m_matCrown;
+    std::shared_ptr<StdMaterial> m_matGroud;
+    std::shared_ptr<StdMaterial> m_matTrunk;
+    std::shared_ptr<StdMaterial> m_matCrown;
     std::shared_ptr<StdMaterialGrass> m_matGrass;
-    std::shared_ptr<StdMaterialNew> m_matGrassBillboard0;
-    std::shared_ptr<StdMaterialNew> m_matGrassBillboard1;
-    std::shared_ptr<StdMaterialNew> m_matGrassBillboard2;
+    std::shared_ptr<StdMaterial> m_matGrassBillboard0;
+    std::shared_ptr<StdMaterial> m_matGrassBillboard1;
+    std::shared_ptr<StdMaterial> m_matGrassBillboard2;
 
     std::shared_ptr<Scene> m_scene;
 

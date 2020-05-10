@@ -24,7 +24,6 @@
 #include "core/material/material_builder.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
-#include "middleware/std_material/std_material_new.h"
 
 
 void GeneralScene::Create() {
@@ -93,7 +92,7 @@ void GeneralScene::CreateTextures() {
 }
 
 void GeneralScene::GenerateGround() {
-    m_matGroud = std::make_shared<StdMaterialNew>("mat::ground");
+    m_matGroud = std::make_shared<StdMaterial>("mat::ground");
     m_matGroud->SetCullMode(dg::CULL_MODE_NONE);
     m_matGroud->SetBaseTexture(m_TextureGround);
     auto& desc = m_matGroud->GetBaseTextureDesc();
@@ -114,7 +113,7 @@ void GeneralScene::GenerateTrees() {
     auto tree = std::make_shared<TransformNode>();
 
     // Trunk
-    m_matTrunk = std::make_shared<StdMaterialNew>("mat::trunk");
+    m_matTrunk = std::make_shared<StdMaterial>("mat::trunk");
     m_matTrunk->SetCullMode(dg::CULL_MODE_NONE);
     m_matTrunk->AmbientDiffuse(true);
     m_matTrunk->SetBaseColor(139, 69, 19);
@@ -126,7 +125,7 @@ void GeneralScene::GenerateTrees() {
     tree->NewChild(trunkGeometry, m_matTrunk, matModelTrunk);
 
     // Crown
-    m_matCrown = std::make_shared<StdMaterialNew>("mat::crown");
+    m_matCrown = std::make_shared<StdMaterial>("mat::crown");
     m_matCrown->SetCullMode(dg::CULL_MODE_NONE);
     m_matCrown->AmbientDiffuse(true);
     m_matCrown->SetBaseColor(0, 128, 0);
@@ -187,17 +186,17 @@ void GeneralScene::GenerateGrassBillboard() {
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 
-    m_matGrassBillboard0 = std::make_shared<StdMaterialNew>("mat::grass0");
+    m_matGrassBillboard0 = std::make_shared<StdMaterial>("mat::grass0");
     m_matGrassBillboard0->SetCullMode(dg::CULL_MODE_NONE);
     m_matGrassBillboard0->SetBaseTexture(m_TextureGrass0);
     m_matGrassBillboard0->SetAlphaThreshold(0.2f);
 
-    m_matGrassBillboard1 = std::make_shared<StdMaterialNew>("mat::grass1");
+    m_matGrassBillboard1 = std::make_shared<StdMaterial>("mat::grass1");
     m_matGrassBillboard1->SetCullMode(dg::CULL_MODE_NONE);
     m_matGrassBillboard1->SetBaseTexture(m_TextureGrass1);
     m_matGrassBillboard1->SetAlphaThreshold(0.2f);
 
-    m_matGrassBillboard2 = std::make_shared<StdMaterialNew>("mat::flower");
+    m_matGrassBillboard2 = std::make_shared<StdMaterial>("mat::flower");
     m_matGrassBillboard2->SetCullMode(dg::CULL_MODE_NONE);
     m_matGrassBillboard2->SetBaseTexture(m_TextureFlower0);
     m_matGrassBillboard2->SetAlphaThreshold(0.2f);

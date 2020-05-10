@@ -11,109 +11,12 @@
 
 #include "core/dg/errors.h"
 #include "core/dg/device.h"
-#include "core/material/material.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/shader_builder.h"
 #include "core/dg/graphics_accessories.h"
 #include "core/material/microshader_loader.h"
 
-
-bool MaterialBuilder::Builder::ShaderResourceVariableDescKey::operator<(const MaterialBuilder::Builder::ShaderResourceVariableDescKey& other) const noexcept {
-    return (std::tie(shaderType, name) < std::tie(other.shaderType, other.name));
-}
-
-MaterialBuilder::Builder::StaticSamplerDesc::StaticSamplerDesc(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc)
-    : shaderType(shaderType)
-    , name(name)
-    , desc(desc) {
-
-}
-
-MaterialBuilder::Builder::Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint16_t vDeclIdPerVertex)
-    : m_builder(builder)
-    , m_desc(std::move(desc))
-    , m_vDeclIdPerVertex(vDeclIdPerVertex) {
-}
-
-MaterialBuilder::Builder& MaterialBuilder::Builder::DepthEnable(bool value) noexcept {
-    m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable = value;
-
-    return *this;
-}
-
-MaterialBuilder::Builder& MaterialBuilder::Builder::CullMode(dg::CULL_MODE value) noexcept {
-    m_desc.GraphicsPipeline.RasterizerDesc.CullMode = value;
-
-    return *this;
-}
-
-MaterialBuilder::Builder& MaterialBuilder::Builder::Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept {
-    m_desc.GraphicsPipeline.PrimitiveTopology = value;
-
-    return *this;
-}
-
-MaterialBuilder::Builder& MaterialBuilder::Builder::Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    ShaderResourceVariableDescKey key{shaderType, name};
-    if (m_vars.find(key) != m_vars.cend()) {
-        LOG_ERROR_AND_THROW("Shader varaible ", name, " is duplicated for shader type ", dg::GetShaderTypeLiteralName(shaderType));
-    }
-    m_vars[key] = type;
-
-    return *this;
-}
-
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    Var(shaderType, name, type);
-    m_samplers.emplace_back(shaderType, name, desc);
-
-    return *this;
-}
-
-MaterialBuilder::Builder& MaterialBuilder::Builder::TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    dg::SamplerDesc desc;
-    desc.AddressU = addressMode;
-    desc.AddressV = addressMode;
-    desc.AddressW = addressMode;
-
-    Var(shaderType, name, type);
-    m_samplers.emplace_back(shaderType, name, desc);
-
-    return *this;
-}
-
-std::shared_ptr<Material> MaterialBuilder::Builder::Build(const char* name) {
-    m_desc.Name = (name != nullptr) ? name : "no name is assigned";
-    m_desc.ResourceLayout.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-
-
-    std::unique_ptr<dg::ShaderResourceVariableDesc[]> vars(new dg::ShaderResourceVariableDesc[m_vars.size()]);
-    auto* varsIt = vars.get();
-    for (const auto& [key, varType]: m_vars) {
-        *varsIt = {key.shaderType, key.name.c_str(), varType};
-        ++varsIt;
-    }
-
-    m_desc.ResourceLayout.Variables = vars.get();
-    m_desc.ResourceLayout.NumVariables = static_cast<uint32_t>(m_vars.size());
-
-
-    std::unique_ptr<dg::StaticSamplerDesc[]> samplers;
-    if (!m_samplers.empty()) {
-        samplers = std::unique_ptr<dg::StaticSamplerDesc[]> (new dg::StaticSamplerDesc[m_samplers.size()]);
-        auto* samplersIt = samplers.get();
-        for (const auto& sampler: m_samplers) {
-            *samplersIt = {sampler.shaderType, sampler.name.c_str(), sampler.desc};
-            ++samplersIt;
-        }
-
-        m_desc.ResourceLayout.StaticSamplers = samplers.get();
-    }
-    m_desc.ResourceLayout.NumStaticSamplers = static_cast<uint32_t>(m_samplers.size());
-
-    return m_builder->Build(m_desc, m_vDeclIdPerVertex);
-}
 
 MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context,
     const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory, const std::shared_ptr<VDeclStorage>& vDeclStorage)
@@ -150,34 +53,6 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     m_shaderBuilder->Create(desc);
 }
 
-MaterialBuilder::Builder MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
-    auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
-    auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
-    const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
-    auto shaders = m_shaderBuilder->Build(src);
-
-    dg::PipelineStateDesc desc;
-    desc.IsComputePipeline = false;
-
-    auto& gp = desc.GraphicsPipeline;
-    gp.NumRenderTargets = src.gsOutputNumber;
-    for (uint8_t i=0; i!=src.gsOutputNumber; ++i) {
-        gp.RTVFormats[i] = m_swapChain->GetDesc().ColorBufferFormat;
-    }
-    gp.DepthStencilDesc.DepthEnable = true;
-    gp.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
-    gp.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    // gp.RasterizerDesc.FillMode = dg::FILL_MODE_WIREFRAME;
-    gp.pVS = shaders.vs;
-    gp.pPS = shaders.ps;
-    gp.pGS = shaders.gs;
-    gp.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
-    gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
-    gp.RasterizerDesc.FrontCounterClockwise = false;
-
-    return Builder(this, std::move(desc), vDeclIdPerVertex);
-}
-
 PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, dg::PipelineStateDesc& desc) {
     auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
@@ -201,13 +76,4 @@ PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVerte
     m_staticVarsStorage->SetVars(pipelineState);
 
     return pipelineState;
-}
-
-std::shared_ptr<Material> MaterialBuilder::Build(dg::PipelineStateDesc& desc, uint16_t vDeclIdPerVertex) {
-    PipelineStatePtr pipelineState;
-    dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
-    m_device->CreatePipelineState(createInfo, &pipelineState);
-    m_staticVarsStorage->SetVars(pipelineState);
-
-    return std::make_shared<Material>(pipelineState, vDeclIdPerVertex);
 }

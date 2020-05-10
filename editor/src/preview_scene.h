@@ -8,8 +8,8 @@
 
 
 class Scene;
+class StdMaterial;
 class TransformNode;
-class StdMaterialNew;
 class PreviewScene : Fixed {
 public:
     PreviewScene();
@@ -32,8 +32,8 @@ private:
     TextureViewPtr m_TextureNoise;
 
     // materials
-    std::shared_ptr<StdMaterialNew> m_material0;
-    std::shared_ptr<StdMaterialNew> m_material1;
+    std::shared_ptr<StdMaterial> m_material0;
+    std::shared_ptr<StdMaterial> m_material1;
 
     std::shared_ptr<Scene> m_scene;
 

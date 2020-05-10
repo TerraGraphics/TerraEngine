@@ -6,7 +6,6 @@
 #include "core/math/constants.h"
 #include "core/scene/transform_graph.h"
 #include "platforms/default_window_handler.h"
-#include "middleware/std_material/std_material.h" // IWYU pragma: keep
 
 
 std::shared_ptr<TransformNode> GizmoMove::Create(DevicePtr& device, const std::shared_ptr<DefaultWindowEventsHandler>& eventHandler) {

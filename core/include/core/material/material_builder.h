@@ -23,45 +23,6 @@ class MicroshaderLoader;
 struct MaterialBuilderDesc;
 class MaterialBuilder : Fixed {
 public:
-    struct Builder : Fixed {
-        struct ShaderResourceVariableDescKey {
-            bool operator<(const ShaderResourceVariableDescKey& other) const noexcept;
-
-            dg::SHADER_TYPE shaderType;
-            std::string name;
-        };
-
-        struct StaticSamplerDesc {
-            StaticSamplerDesc(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc);
-
-            dg::SHADER_TYPE shaderType;
-            std::string name;
-            dg::SamplerDesc desc;
-        };
-
-    public:
-        Builder() = delete;
-        Builder(MaterialBuilder* builder, dg::PipelineStateDesc&& desc, uint16_t vDeclIdPerVertex);
-        ~Builder() = default;
-
-        Builder& DepthEnable(bool value) noexcept;
-        Builder& CullMode(dg::CULL_MODE value) noexcept;
-        Builder& Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
-        Builder& Var(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, const dg::SamplerDesc& desc, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
-        Builder& TextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::TEXTURE_ADDRESS_MODE addressMode, dg::SHADER_RESOURCE_VARIABLE_TYPE type = dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
-
-        std::shared_ptr<Material> Build(const char* name = nullptr);
-
-    private:
-        MaterialBuilder* m_builder;
-        std::map<ShaderResourceVariableDescKey, dg::SHADER_RESOURCE_VARIABLE_TYPE> m_vars;
-        std::vector<StaticSamplerDesc> m_samplers;
-        dg::PipelineStateDesc m_desc;
-        uint16_t m_vDeclIdPerVertex;
-    };
-
-public:
     MaterialBuilder() = delete;
     MaterialBuilder(const DevicePtr& device, const ContextPtr& context,
         const SwapChainPtr& swapChain, const EngineFactoryPtr& engineFactory,
@@ -83,12 +44,9 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    Builder Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
     PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, dg::PipelineStateDesc& desc);
 
 private:
-    std::shared_ptr<Material> Build(dg::PipelineStateDesc& desc, uint16_t vDeclIdPerVertex);
-
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
     std::shared_ptr<VDeclStorage> m_vDeclStorage;

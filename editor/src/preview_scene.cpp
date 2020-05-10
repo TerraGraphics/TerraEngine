@@ -17,7 +17,6 @@
 #include "core/material/material_builder.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
-#include "middleware/std_material/std_material_new.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"
@@ -82,7 +81,7 @@ void PreviewScene::CreateTextures() {
 }
 
 void PreviewScene::CreateMaterials() {
-    m_material0 = std::make_shared<StdMaterialNew>("mat::phong::node0");
+    m_material0 = std::make_shared<StdMaterial>("mat::phong::node0");
     m_material0->SetCullMode(dg::CULL_MODE_NONE);
     m_material0->AmbientDiffuse(true);
     m_material0->ColorPicker(true);
@@ -91,7 +90,7 @@ void PreviewScene::CreateMaterials() {
     desc0.AddressU = dg::TEXTURE_ADDRESS_WRAP;
     desc0.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 
-    m_material1 = std::make_shared<StdMaterialNew>("mat::phong::node1");
+    m_material1 = std::make_shared<StdMaterial>("mat::phong::node1");
     m_material1->SetCullMode(dg::CULL_MODE_NONE);
     m_material1->AmbientDiffuse(true);
     m_material1->ColorPicker(true);

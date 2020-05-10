@@ -11,7 +11,7 @@
 
 
 class Geometry;
-class MaterialNew;
+class Material;
 struct DrawNode {
     DrawNode(const std::shared_ptr<Geometry>& geometry, MaterialView materialView, const dg::float4x4& worldMatrix, const dg::float3x3& normalMatrix, uint32_t id);
 
@@ -36,7 +36,7 @@ class TransformNode : Noncopyable, public std::enable_shared_from_this<Transform
 public:
     TransformNode() = default;
     TransformNode(const dg::float4x4& transform);
-    TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform = dg::One4x4);
+    TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform = dg::One4x4);
     TransformNode(const dg::float4x4& transform, const std::weak_ptr<TransformNode>& parent);
     ~TransformNode() = default;
 
@@ -44,7 +44,7 @@ public:
     std::shared_ptr<TransformNode> Clone(const std::weak_ptr<TransformNode>& parent) const;
 
     std::shared_ptr<TransformNode> NewChild(const dg::float4x4& transform = dg::One4x4);
-    std::shared_ptr<TransformNode> NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform = dg::One4x4);
+    std::shared_ptr<TransformNode> NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform = dg::One4x4);
 
     void AddChild(const std::shared_ptr<TransformNode>& node);
 
@@ -58,7 +58,7 @@ public:
 
     uint32_t GetId() const noexcept { return m_id; }
     std::shared_ptr<Geometry>& GetGeometry() noexcept { return m_geometry; }
-    std::shared_ptr<MaterialNew>& GetMaterial() noexcept { return m_material; }
+    std::shared_ptr<Material>& GetMaterial() noexcept { return m_material; }
 
     void Update(TransformUpdateDesc& nodeList, bool isDirty);
 
@@ -66,7 +66,7 @@ private:
     std::weak_ptr<TransformNode> m_parent;
     std::vector<std::shared_ptr<TransformNode>> m_children;
     std::shared_ptr<Geometry> m_geometry = nullptr;
-    std::shared_ptr<MaterialNew> m_material = nullptr;
+    std::shared_ptr<Material> m_material = nullptr;
     uint32_t m_id = 0;
     bool m_isDirty = true;
     bool m_isVisible = true;
@@ -81,7 +81,7 @@ public:
     ~TransformGraph() = default;
 
     std::shared_ptr<TransformNode> NewChild(const dg::float4x4& transform = dg::One4x4);
-    std::shared_ptr<TransformNode> NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform = dg::One4x4);
+    std::shared_ptr<TransformNode> NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform = dg::One4x4);
     void AddChild(const std::shared_ptr<TransformNode>& node);
 
     void UpdateGraph(TransformUpdateDesc& nodeList);

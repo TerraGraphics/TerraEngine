@@ -2,9 +2,8 @@
 
 #include "core/scene/geometry.h"
 #include "core/common/exception.h"
+#include "core/material/material.h"
 #include "core/math/normal_matrix.h"
-#include "core/material/material_new.h"
-#include "core/scene/material_instance.h"
 
 
 DrawNode::DrawNode(const std::shared_ptr<Geometry>& geometry, MaterialView materialView, const dg::float4x4& worldMatrix, const dg::float3x3& normalMatrix, uint32_t id)
@@ -27,7 +26,7 @@ TransformNode::TransformNode(const dg::float4x4& transform, const std::weak_ptr<
 
 }
 
-TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform)
+TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform)
     : m_geometry(geometry)
     , m_material(material)
     , m_baseTransform(transform) {
@@ -77,7 +76,7 @@ std::shared_ptr<TransformNode> TransformNode::NewChild(const dg::float4x4& trans
     return node;
 }
 
-std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform) {
     auto node = std::make_shared<TransformNode>(transform, shared_from_this());
     if (!geometry) {
         throw EngineError("TransformNode: geometry param is empty");
@@ -146,7 +145,7 @@ std::shared_ptr<TransformNode> TransformGraph::NewChild(const dg::float4x4& tran
     return m_root->NewChild(transform);
 }
 
-std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform) {
     return m_root->NewChild(geometry, material, transform);
 }
 
