@@ -10,6 +10,7 @@
 #include "core/dg/buffer.h"
 #include "core/dg/device.h"
 #include "core/dg/context.h"
+#include "core/dg/sampler.h"
 #include "core/dg/graphics_types.h"
 #include "core/material/material_view.h"
 #include "core/material/material_builder.h"
@@ -42,6 +43,11 @@ static uint64_t SpecularPhongMask() {
     return value;
 }
 
+static uint64_t ColorPickerMask() {
+    static auto value = Engine::Get().GetMaterialBuilder()->GetShaderMask("COLOR_PICKER");
+    return value;
+}
+
 }
 
 StdMaterialNew::StdMaterialNew(const std::string& name)
@@ -65,6 +71,18 @@ StdMaterialNew::~StdMaterialNew() {
 
 }
 
+void StdMaterialNew::Depth(bool enable) noexcept {
+    DepthEnable(enable);
+}
+
+void StdMaterialNew::SetCullMode(dg::CULL_MODE value) noexcept {
+    CullMode(value);
+}
+
+void StdMaterialNew::SetTopology(dg::PRIMITIVE_TOPOLOGY value) noexcept {
+    Topology(value);
+}
+
 void StdMaterialNew::SetBaseColor(const math::Color4f& value) {
     m_data.crlBase = value.ToFloat4();
 }
@@ -75,6 +93,10 @@ void StdMaterialNew::SetBaseColor(const dg::float4& value) {
 
 void StdMaterialNew::SetBaseColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     m_data.crlBase = math::Color4f(r, g, b, a).ToFloat4();
+}
+
+dg::SamplerDesc& StdMaterialNew::GetBaseTextureDesc() {
+    return GetTextureDesc(m_baseTextureId);
 }
 
 void StdMaterialNew::SetBaseTexture(TextureViewPtr& texture) {
@@ -115,6 +137,14 @@ void StdMaterialNew::Specular(bool enable) {
     }
 }
 
+void StdMaterialNew::ColorPicker(bool enable) {
+    if (enable) {
+        AddFlag(ColorPickerMask());
+    } else {
+        RemoveFlag(ColorPickerMask());
+    }
+}
+
 void StdMaterialNew::OnNewFrame() {
     auto& context = Engine::Get().GetContext();
 
@@ -138,7 +168,9 @@ void StdMaterialNew::FillMeta() {
 
     AddVar(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
     if ((mask & BaseColorTextureMask()) != 0) {
-        AddTextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+        m_baseTextureId = AddTextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+    } else {
+        m_baseTextureId = 255;
     }
 }
 
