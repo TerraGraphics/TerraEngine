@@ -40,8 +40,7 @@ protected:
     void OnNewFrame() override;
     void OnNewView(MaterialView& view) override;
 
-private:
-    void FillMeta();
+    void ApplyMask(uint64_t mask);
     void AddFlag(uint64_t flag);
     void RemoveFlag(uint64_t flag);
     bool AddAndRemoveFlag(uint64_t addFlag, uint64_t removeFlag);
@@ -51,4 +50,11 @@ private:
     TextureViewPtr m_baseTexture;
     dg::ShaderMaterial m_data;
     BufferPtr m_buffer;
+};
+
+class StdMaterialGrass : public StdMaterialNew {
+public:
+    StdMaterialGrass() = delete;
+    StdMaterialGrass(const std::string& name);
+    ~StdMaterialGrass() override;
 };

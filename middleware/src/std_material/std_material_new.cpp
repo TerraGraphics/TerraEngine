@@ -48,23 +48,18 @@ static uint64_t ColorPickerMask() {
     return value;
 }
 
+static uint64_t GrassMask() {
+    static auto value = Engine::Get().GetMaterialBuilder()->GetShaderMask("GRASS");
+    return value;
+}
+
 }
 
 StdMaterialNew::StdMaterialNew(const std::string& name)
     : MaterialNew(name, Engine::Get().GetMaterialBuilder()) {
 
     m_data.alphaThreshold = -1.f;
-
-    dg::BufferDesc desc;
-    desc.Name = "cb::ps::shader_material";
-    desc.uiSizeInBytes = sizeof(dg::ShaderMaterial);
-    desc.Usage = dg::USAGE_DYNAMIC;
-    desc.BindFlags = dg::BIND_UNIFORM_BUFFER;
-    desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
-    Engine::Get().GetDevice()->CreateBuffer(desc, nullptr, &m_buffer);
-
-    SetShadersMask(BaseColorMaterialMask());
-    FillMeta();
+    ApplyMask(BaseColorMaterialMask());
 }
 
 StdMaterialNew::~StdMaterialNew() {
@@ -163,8 +158,18 @@ void StdMaterialNew::OnNewView(MaterialView& view) {
     }
 }
 
-void StdMaterialNew::FillMeta() {
-    uint64_t mask = GetShadersMask();
+void StdMaterialNew::ApplyMask(uint64_t mask) {
+    SetShadersMask(mask);
+
+    if (!m_buffer) {
+        dg::BufferDesc desc;
+        desc.Name = "cb::ps::shader_material";
+        desc.uiSizeInBytes = sizeof(dg::ShaderMaterial);
+        desc.Usage = dg::USAGE_DYNAMIC;
+        desc.BindFlags = dg::BIND_UNIFORM_BUFFER;
+        desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
+        Engine::Get().GetDevice()->CreateBuffer(desc, nullptr, &m_buffer);
+    }
 
     AddVar(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
     if ((mask & BaseColorTextureMask()) != 0) {
@@ -178,8 +183,7 @@ void StdMaterialNew::AddFlag(uint64_t flag) {
     uint64_t mask = GetShadersMask();
     if ((mask & flag) == 0) {
         mask |= flag;
-        SetShadersMask(mask);
-        FillMeta();
+        ApplyMask(mask);
     }
 }
 
@@ -187,8 +191,7 @@ void StdMaterialNew::RemoveFlag(uint64_t flag) {
     uint64_t mask = GetShadersMask();
     if ((mask & flag) != 0) {
         mask &= ~flag;
-        SetShadersMask(mask);
-        FillMeta();
+        ApplyMask(mask);
     }
 }
 
@@ -196,10 +199,18 @@ bool StdMaterialNew::AddAndRemoveFlag(uint64_t addFlag, uint64_t removeFlag) {
     uint64_t mask = GetShadersMask();
     uint64_t newMask = ((mask | addFlag) & ~removeFlag);
     if (mask != newMask) {
-        SetShadersMask(newMask);
-        FillMeta();
+        ApplyMask(newMask);
         return true;
     }
 
     return false;
+}
+
+StdMaterialGrass::StdMaterialGrass(const std::string& name)
+    : StdMaterialNew(name) {
+    AddFlag(GrassMask());
+}
+
+StdMaterialGrass::~StdMaterialGrass() {
+
 }
