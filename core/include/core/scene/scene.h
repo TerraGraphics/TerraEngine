@@ -13,7 +13,7 @@ class WriteableVertexBuffer;
 class Scene : public TransformGraph, Fixed {
 public:
     Scene() = delete;
-    Scene(DevicePtr device, ContextPtr context, bool addId);
+    Scene(DevicePtr device, ContextPtr context, uint16_t vDeclIdPerInstance, bool addId);
     ~Scene() = default;
 
     std::shared_ptr<TransformNode> Update(uint32_t findId = 0);
@@ -22,6 +22,7 @@ public:
 private:
     DevicePtr m_device;
     ContextPtr m_context;
+    uint16_t m_vDeclIdPerInstance;
     bool m_addId = false;
     std::shared_ptr<WriteableVertexBuffer> m_transformBuffer;
     uint32_t m_transformBufferBufferElementNumber = 0;

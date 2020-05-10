@@ -24,15 +24,24 @@
 #include "core/material/material_builder.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
+#include "middleware/std_material/std_material_new.h"
 
 
 void GeneralScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
-    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), false);
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+    });
+    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), vDeclIdPerInstance, false);
 
     CreateTextures();
-    CreateMaterials();
     GenerateGround();
     GenerateTrees();
     GenerateGrass();
@@ -83,98 +92,50 @@ void GeneralScene::CreateTextures() {
     }
 }
 
-void GeneralScene::CreateMaterials() {
-    auto& engine = Engine::Get();
-    auto& materialBuilder = engine.GetMaterialBuilder();
-    const auto BASE_COLOR_MATERIAL = materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL");
-    const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
-    const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
-    const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
-    const auto GRASS = materialBuilder->GetShaderMask("GRASS");
-    const auto vDeclIdPNC = VertexPNC::GetVDeclId();
-    const auto vDeclIdGrass = VertexP::GetVDeclId();
-    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
-        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
-        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
-    });
-
-    m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::tex::noLight");
-
-    m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::tex::discard::noLight");
-
-    m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::tex::phong");
-
-    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::clr::noLight");
-
-    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::clr::phong");
-
-    m_matGrass = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG, vDeclIdGrass, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::grass");
-
-    m_matGrassAlpha = materialBuilder->Create(GRASS | BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | ALPHA_TEST, vDeclIdGrass, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Topology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::grass::alpha");
-}
-
 void GeneralScene::GenerateGround() {
+    m_matGroud = std::make_shared<StdMaterialNew>("mat::ground");
+    m_matGroud->SetCullMode(dg::CULL_MODE_NONE);
+    m_matGroud->SetBaseTexture(m_TextureGround);
+    auto& desc = m_matGroud->GetBaseTextureDesc();
+    desc.AddressU = dg::TEXTURE_ADDRESS_WRAP;
+    desc.AddressV = dg::TEXTURE_ADDRESS_WRAP;
+
     PlaneShape shape({math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
     shape.SetUVScale({128, 128});
     auto plane = ShapeBuilder(m_device).Join({&shape}, "Ground");
 
-    auto groundNode = std::make_shared<StdMaterial>(m_matTexNoLight);
-    groundNode->SetBaseTexture(m_TextureGround);
-
     auto matModel = dg::float4x4::Scale(256, 1, 256);
-    m_scene->NewChild(plane, groundNode, matModel);
+    m_scene->NewChild(plane, m_matGroud, matModel);
 }
 
 void GeneralScene::GenerateTrees() {
     RandSeed(17);
+
     auto tree = std::make_shared<TransformNode>();
+
+    // Trunk
+    m_matTrunk = std::make_shared<StdMaterialNew>("mat::trunk");
+    m_matTrunk->SetCullMode(dg::CULL_MODE_NONE);
+    m_matTrunk->AmbientDiffuse(true);
+    m_matTrunk->SetBaseColor(139, 69, 19);
 
     CylinderShape trunkShape({5, 1}, math::Axis::Y);
     auto trunkGeometry = ShapeBuilder(m_device).Join({&trunkShape}, "trunk");
 
-    auto trunkMatNode = std::make_shared<StdMaterial>(m_matClrPhong);
-    trunkMatNode->SetBaseColor(139, 69, 19);
-
     auto matModelTrunk = dg::float4x4::Scale(0.5, 4, 0.5) * dg::float4x4::Translation(0, 2, 0);
-    tree->NewChild(trunkGeometry, trunkMatNode, matModelTrunk);
+    tree->NewChild(trunkGeometry, m_matTrunk, matModelTrunk);
+
+    // Crown
+    m_matCrown = std::make_shared<StdMaterialNew>("mat::crown");
+    m_matCrown->SetCullMode(dg::CULL_MODE_NONE);
+    m_matCrown->AmbientDiffuse(true);
+    m_matCrown->SetBaseColor(0, 128, 0);
 
     SphereShape crownShape({10, 5}, math::Axis::Y);
     auto crownGeometry = ShapeBuilder(m_device).Join({&crownShape}, "crown");
-    auto crownMatNode = std::make_shared<StdMaterial>(m_matClrPhong);
-    crownMatNode->SetBaseColor(0, 128, 0);
 
     auto matModelCrown = dg::float4x4::Scale(4, 8, 4) * dg::float4x4::Translation(0, 7, 0);
-    tree->NewChild(crownGeometry, crownMatNode, matModelCrown);
+    tree->NewChild(crownGeometry, m_matCrown, matModelCrown);
 
     RandSeed(5);
     for (auto i=0; i!=100; ++i) {
@@ -185,6 +146,17 @@ void GeneralScene::GenerateTrees() {
 
 void GeneralScene::GenerateGrass() {
     RandSeed(177);
+
+    m_matGrass = std::make_shared<StdMaterialGrass>("mat::grass");
+    m_matGrass->SetCullMode(dg::CULL_MODE_NONE);
+    m_matGrass->SetTopology(dg::PRIMITIVE_TOPOLOGY_POINT_LIST);
+    m_matGrass->AmbientDiffuse(true);
+    m_matGrass->SetBaseTexture(m_TextureGrassBlade1);
+    // m_matGrass->SetBaseTexture(m_TextureGrassBlade0);
+    // m_matGrass->SetAlphaThreshold(0.2f);
+    auto& desc = m_matGrass->GetBaseTextureDesc();
+    desc.AddressU = dg::TEXTURE_ADDRESS_WRAP;
+    desc.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 
     VertexBufferBuilder vbBuilder;
     auto vb = vbBuilder.AddRange<VertexP>(1 * 10 * 1000);
@@ -197,14 +169,7 @@ void GeneralScene::GenerateGrass() {
     uint32_t vbOffsetBytes = 0;
     auto geometry = std::make_shared<GeometryUnindexed>(vbBuilder.Build(m_device, "grass points"), vbOffsetBytes, vb.Count(), vb.GetVDeclId());
 
-    auto grassMatNode = std::make_shared<StdMaterial>(m_matGrass);
-    grassMatNode->SetBaseTexture(m_TextureGrassBlade1);
-
-    // auto grassMatNode = std::make_shared<StdMaterial>(m_matGrassAlpha, geometry);
-    // grassMatNode->SetAlphaThreshold(0.2f);
-    // grassMatNode->SetBaseTexture(m_TextureGrassBlade0);
-
-    m_scene->NewChild(geometry, grassMatNode);
+    m_scene->NewChild(geometry, m_matGrass);
 }
 
 void GeneralScene::GenerateGrassBillboard() {
@@ -222,20 +187,23 @@ void GeneralScene::GenerateGrassBillboard() {
 
     auto bush = ShapeBuilder(m_device).Join({&plane1, &plane2, &plane3}, "Bush");
 
-    auto grass0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight);
-    grass0MatNode->SetAlphaThreshold(0.2f);
-    grass0MatNode->SetBaseTexture(m_TextureGrass0);
+    m_matGrassBillboard0 = std::make_shared<StdMaterialNew>("mat::grass0");
+    m_matGrassBillboard0->SetCullMode(dg::CULL_MODE_NONE);
+    m_matGrassBillboard0->SetBaseTexture(m_TextureGrass0);
+    m_matGrassBillboard0->SetAlphaThreshold(0.2f);
 
-    auto grass1MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight);
-    grass1MatNode->SetAlphaThreshold(0.2f);
-    grass1MatNode->SetBaseTexture(m_TextureGrass1);
+    m_matGrassBillboard1 = std::make_shared<StdMaterialNew>("mat::grass1");
+    m_matGrassBillboard1->SetCullMode(dg::CULL_MODE_NONE);
+    m_matGrassBillboard1->SetBaseTexture(m_TextureGrass1);
+    m_matGrassBillboard1->SetAlphaThreshold(0.2f);
 
-    auto flower0MatNode = std::make_shared<StdMaterial>(m_matTexDiscardNoLight);
-    flower0MatNode->SetAlphaThreshold(0.2f);
-    flower0MatNode->SetBaseTexture(m_TextureFlower0);
+    m_matGrassBillboard2 = std::make_shared<StdMaterialNew>("mat::flower");
+    m_matGrassBillboard2->SetCullMode(dg::CULL_MODE_NONE);
+    m_matGrassBillboard2->SetBaseTexture(m_TextureFlower0);
+    m_matGrassBillboard2->SetAlphaThreshold(0.2f);
 
     RandSeed(15);
-    auto material = grass0MatNode;
+    auto material = m_matGrassBillboard0;
     auto multiplier = 10;
     for (int i=0; i!=multiplier * 1000; ++i) {
         auto matScale = dg::float4x4::Scale(LinearRand(0.3f, 1.f));
@@ -244,9 +212,9 @@ void GeneralScene::GenerateGrassBillboard() {
         auto matModelPosition = dg::float4x4::Translation(vecPos);
 
         if (i == multiplier * 450) {
-            material = grass1MatNode;
+            material = m_matGrassBillboard1;
         } else  if (i == multiplier * 900) {
-            material = flower0MatNode;
+            material = m_matGrassBillboard2;
         }
         m_scene->NewChild(bush, material, matScale * matModelPosition);
     }

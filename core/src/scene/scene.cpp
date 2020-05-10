@@ -12,15 +12,17 @@
 #include "core/scene/material_instance.h"
 
 
-Scene::Scene(DevicePtr device, ContextPtr context, bool addId)
+Scene::Scene(DevicePtr device, ContextPtr context, uint16_t vDeclIdPerInstance, bool addId)
     : m_device(device)
     , m_context(context)
+    , m_vDeclIdPerInstance(vDeclIdPerInstance)
     , m_addId(addId) {
 
 }
 
 std::shared_ptr<TransformNode> Scene::Update(uint32_t findId) {
     m_updateDesc.nodeList.clear();
+    m_updateDesc.vDeclIdPerInstance = m_vDeclIdPerInstance;
     m_updateDesc.findId = findId;
     m_updateDesc.findResult.reset();
     UpdateGraph(m_updateDesc);
@@ -38,19 +40,16 @@ std::shared_ptr<TransformNode> Scene::Update(uint32_t findId) {
 
     uint8_t* data = m_transformBuffer->Map<uint8_t>(m_context);
     for (const auto& node: nodeList) {
-        *reinterpret_cast<dg::float4x4*>(data) = node->GetWorldMatrix();
+        *reinterpret_cast<dg::float4x4*>(data) = node.worldMatrix;
         data += sizeof(dg::float4x4);
-        *reinterpret_cast<dg::float3x3*>(data) = node->GetNormalMatrix();
+        *reinterpret_cast<dg::float3x3*>(data) = node.normalMatrix;
         data += sizeof(dg::float3x3);
         if (m_addId) {
-            *reinterpret_cast<uint32_t*>(data) = node->GetId();
+            *reinterpret_cast<uint32_t*>(data) = node.id;
             data += sizeof(uint32_t);
         }
     }
     m_transformBuffer->Unmap(m_context);
-    for (const auto& node: nodeList) {
-        node->GetMaterial()->Update(m_device, m_context);
-    }
 
     std::shared_ptr<TransformNode> result;
     result.swap(m_updateDesc.findResult);
@@ -63,10 +62,10 @@ uint32_t Scene::Draw() {
 
     uint32_t ind = 0;
     m_transformBuffer->BindExclusively(m_context, 1);
-    for (const auto& node: m_updateDesc.nodeList) {
-        node->GetGeometry()->Bind(m_context);
-        node->GetMaterial()->Bind(m_context);
-        primitiveCount += node->GetGeometry()->Draw(m_context, ind);
+    for (auto& node: m_updateDesc.nodeList) {
+        node.geometry->Bind(m_context);
+        node.materialView.Bind(m_context);
+        primitiveCount += node.geometry->Draw(m_context, ind);
         ++ind;
     }
 

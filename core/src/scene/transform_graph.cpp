@@ -3,8 +3,18 @@
 #include "core/scene/geometry.h"
 #include "core/common/exception.h"
 #include "core/math/normal_matrix.h"
+#include "core/material/material_new.h"
 #include "core/scene/material_instance.h"
 
+
+DrawNode::DrawNode(const std::shared_ptr<Geometry>& geometry, MaterialView materialView, const dg::float4x4& worldMatrix, const dg::float3x3& normalMatrix, uint32_t id)
+    : geometry(geometry)
+    , materialView(materialView)
+    , worldMatrix(worldMatrix)
+    , normalMatrix(normalMatrix)
+    , id(id) {
+
+}
 
 TransformNode::TransformNode(const dg::float4x4& transform)
     : m_baseTransform(transform) {
@@ -17,7 +27,7 @@ TransformNode::TransformNode(const dg::float4x4& transform, const std::weak_ptr<
 
 }
 
-TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialInstance>& material, const dg::float4x4& transform)
+TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform)
     : m_geometry(geometry)
     , m_material(material)
     , m_baseTransform(transform) {
@@ -27,9 +37,6 @@ TransformNode::TransformNode(const std::shared_ptr<Geometry>& geometry, const st
     }
     if (!geometry) {
         throw EngineError("TransformNode: material param is empty");
-    }
-    if (geometry->GetVDeclId() != material->GetVDeclId()) {
-        throw EngineError("TransformNode: geometry and material vDecl is not compatible");
     }
 }
 
@@ -70,16 +77,13 @@ std::shared_ptr<TransformNode> TransformNode::NewChild(const dg::float4x4& trans
     return node;
 }
 
-std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialInstance>& material, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformNode::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform) {
     auto node = std::make_shared<TransformNode>(transform, shared_from_this());
     if (!geometry) {
         throw EngineError("TransformNode: geometry param is empty");
     }
     if (!geometry) {
         throw EngineError("TransformNode: material param is empty");
-    }
-    if (geometry->GetVDeclId() != material->GetVDeclId()) {
-        throw EngineError("TransformNode: geometry and material vDecl is not compatible");
     }
 
     node->m_geometry = geometry;
@@ -103,7 +107,7 @@ void TransformNode::SetTransform(const dg::float4x4& transform) {
     m_baseTransform = transform;
 }
 
-void TransformNode::Update(TransformUpdateDesc& value, bool isDirty) {
+void TransformNode::Update(TransformUpdateDesc& nodeList, bool isDirty) {
     if (!m_isVisible) {
         return;
     }
@@ -119,16 +123,17 @@ void TransformNode::Update(TransformUpdateDesc& value, bool isDirty) {
 
     if (m_geometry) {
         if (m_id == 0) {
-            m_id = ++value.lastId;
+            m_id = ++nodeList.lastId;
         }
-        if (m_id == value.findId) {
-            value.findResult = shared_from_this();
+        if (m_id == nodeList.findId) {
+            nodeList.findResult = shared_from_this();
         }
-        value.nodeList.push_back(shared_from_this());
+        nodeList.nodeList.emplace_back(
+            m_geometry, m_material->GetView(nodeList.frameNum, m_geometry->GetVDeclId(), nodeList.vDeclIdPerInstance), m_world, m_normal, m_id);
     }
 
     for (auto& node : m_children) {
-        node->Update(value, isDirty);
+        node->Update(nodeList, isDirty);
     }
 }
 
@@ -141,7 +146,7 @@ std::shared_ptr<TransformNode> TransformGraph::NewChild(const dg::float4x4& tran
     return m_root->NewChild(transform);
 }
 
-std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialInstance>& material, const dg::float4x4& transform) {
+std::shared_ptr<TransformNode> TransformGraph::NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<MaterialNew>& material, const dg::float4x4& transform) {
     return m_root->NewChild(geometry, material, transform);
 }
 
@@ -149,8 +154,9 @@ void TransformGraph::AddChild(const std::shared_ptr<TransformNode>& node) {
     m_root->AddChild(node);
 }
 
-void TransformGraph::UpdateGraph(TransformUpdateDesc& value) {
-    value.lastId = m_lastId;
-    m_root->Update(value, false);
-    m_lastId = value.lastId;
+void TransformGraph::UpdateGraph(TransformUpdateDesc& nodeList) {
+    nodeList.frameNum = m_frameNum++;
+    nodeList.lastId = m_lastId;
+    m_root->Update(nodeList, false);
+    m_lastId = nodeList.lastId;
 }

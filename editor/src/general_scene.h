@@ -7,7 +7,8 @@
 
 
 class Scene;
-class Material;
+class StdMaterialNew;
+class StdMaterialGrass;
 class GeneralScene : Fixed {
 public:
     GeneralScene() = default;
@@ -20,7 +21,6 @@ public:
 
 private:
     void CreateTextures();
-    void CreateMaterials();
     void GenerateGround();
     void GenerateTrees();
     void GenerateGrass();
@@ -36,13 +36,13 @@ private:
     TextureViewPtr m_TextureGrassBlade1;
 
     // materials
-    std::shared_ptr<Material> m_matTexNoLight;
-    std::shared_ptr<Material> m_matTexDiscardNoLight;
-    std::shared_ptr<Material> m_matTexPhong;
-    std::shared_ptr<Material> m_matClrNoLight;
-    std::shared_ptr<Material> m_matClrPhong;
-    std::shared_ptr<Material> m_matGrass;
-    std::shared_ptr<Material> m_matGrassAlpha;
+    std::shared_ptr<StdMaterialNew> m_matGroud;
+    std::shared_ptr<StdMaterialNew> m_matTrunk;
+    std::shared_ptr<StdMaterialNew> m_matCrown;
+    std::shared_ptr<StdMaterialGrass> m_matGrass;
+    std::shared_ptr<StdMaterialNew> m_matGrassBillboard0;
+    std::shared_ptr<StdMaterialNew> m_matGrassBillboard1;
+    std::shared_ptr<StdMaterialNew> m_matGrassBillboard2;
 
     std::shared_ptr<Scene> m_scene;
 

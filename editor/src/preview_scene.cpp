@@ -17,6 +17,7 @@
 #include "core/material/material_builder.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
+#include "middleware/std_material/std_material_new.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"
@@ -34,7 +35,17 @@ PreviewScene::~PreviewScene() {
 void PreviewScene::Create() {
     auto& engine = Engine::Get();
     m_device = engine.GetDevice();
-    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), true);
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+        VDeclItem("IdColor", VDeclType::Color4, 1, false),
+    });
+    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), vDeclIdPerInstance, true);
 
     CreateTextures();
     CreateMaterials();
@@ -71,50 +82,23 @@ void PreviewScene::CreateTextures() {
 }
 
 void PreviewScene::CreateMaterials() {
-    auto& engine = Engine::Get();
-    auto& materialBuilder = engine.GetMaterialBuilder();
-    const auto BASE_COLOR_MATERIAL = materialBuilder->GetShaderMask("BASE_COLOR_MATERIAL");
-    const auto BASE_COLOR_TEXTURE = materialBuilder->GetShaderMask("BASE_COLOR_TEXTURE");
-    const auto ALPHA_TEST = materialBuilder->GetShaderMask("ALPHA_TEST");
-    const auto AMBIENT_DIFFUSE_PHONG = materialBuilder->GetShaderMask("AMBIENT_DIFFUSE_PHONG");
-    const auto COLOR_PICKER = materialBuilder->GetShaderMask("COLOR_PICKER");
-    const auto vDeclIdPNC = VertexPNC::GetVDeclId();
-    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
-        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
-        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
-        VDeclItem("IdColor", VDeclType::Color4, 1, false),
-    });
+    m_material0 = std::make_shared<StdMaterialNew>("mat::phong::node0");
+    m_material0->SetCullMode(dg::CULL_MODE_NONE);
+    m_material0->AmbientDiffuse(true);
+    m_material0->ColorPicker(true);
+    m_material0->SetBaseTexture(m_TextureNoise);
+    auto& desc0 = m_material0->GetBaseTextureDesc();
+    desc0.AddressU = dg::TEXTURE_ADDRESS_WRAP;
+    desc0.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 
-    m_matTexNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::tex::noLight");
-
-    m_matTexDiscardNoLight = materialBuilder->Create(BASE_COLOR_TEXTURE | ALPHA_TEST | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_CLAMP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::tex::discard::noLight");
-
-    m_matTexPhong = materialBuilder->Create(BASE_COLOR_TEXTURE | AMBIENT_DIFFUSE_PHONG | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        TextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::TEXTURE_ADDRESS_WRAP, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::tex::phong");
-
-    m_matClrNoLight = materialBuilder->Create(BASE_COLOR_MATERIAL | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::clr::noLight");
-
-    m_matClrPhong = materialBuilder->Create(BASE_COLOR_MATERIAL | AMBIENT_DIFFUSE_PHONG | COLOR_PICKER, vDeclIdPNC, vDeclIdPerInstance).
-        CullMode(dg::CULL_MODE_NONE).
-        Var(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE).
-        Build("mat::clr::phong");
+    m_material1 = std::make_shared<StdMaterialNew>("mat::phong::node1");
+    m_material1->SetCullMode(dg::CULL_MODE_NONE);
+    m_material1->AmbientDiffuse(true);
+    m_material1->ColorPicker(true);
+    m_material1->SetBaseTexture(m_TextureCube);
+    auto& desc1 = m_material1->GetBaseTextureDesc();
+    desc1.AddressU = dg::TEXTURE_ADDRESS_WRAP;
+    desc1.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 }
 
 void PreviewScene::GenerateMeshes() {
@@ -127,14 +111,8 @@ void PreviewScene::GenerateMeshes() {
     auto model1 = ShapeBuilder(m_device).Join({&shape1}, "Model1");
     auto model2 = ShapeBuilder(m_device).Join({&shape2}, "Model2");
 
-    auto modelNode1 = std::make_shared<StdMaterial>(m_matTexPhong);
-    modelNode1->SetBaseTexture(m_TextureNoise);
-    // modelNode1->SetBaseTexture(m_TextureCube);
-    auto modelNode2 = std::make_shared<StdMaterial>(m_matTexPhong);
-    modelNode2->SetBaseTexture(m_TextureCube);
-
     auto matModel = dg::float4x4::Scale(1, 1, 1);
-    m_scene->NewChild(model1, modelNode1, matModel);
+    m_scene->NewChild(model1, m_material0, matModel);
     matModel = dg::float4x4::Translation(1, 1, 1);
-    m_scene->NewChild(model2, modelNode2, matModel);
+    m_scene->NewChild(model2, m_material1, matModel);
 }
