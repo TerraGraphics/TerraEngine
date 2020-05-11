@@ -23,6 +23,8 @@
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private, '"DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h"', private] },
     { include: ['"DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h"', private, '"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private] },
 
+    { include: ['"DiligentCore/Primitives/interface/BasicTypes.h"', public, '"core/dg/sampler.h"', public] },
+
     { symbol: ["Diligent::CULL_MODE", "private", '"core/dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_TYPE", "private", '"core/dg/dg.h"', "public"] },
     { symbol: ["Diligent::TEXTURE_FORMAT", "private", '"core/dg/dg.h"', "public"] },

@@ -6,10 +6,12 @@
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
+#include "core/common/pimpl.h"
 #include "core/material/material_vars.h"
 
 
 namespace Diligent {
+    struct SamplerDesc;
     struct PipelineStateDesc;
 }
 class VDeclStorage;
@@ -27,6 +29,11 @@ public:
     uint64_t GetShaderMask(const std::string& name) const;
 
     void Load(const MaterialBuilderDesc& desc);
+
+    uint16_t CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
+    uint16_t CacheTextureVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
+    uint16_t CacheTextureVar(uint16_t textureVarId, const dg::SamplerDesc& desc);
+    const dg::SamplerDesc& GetCachedSamplerDesc(uint16_t textureVarId) const;
 
     template<typename T> uint32_t AddGlobalVar(dg::SHADER_TYPE shaderType, const std::string& name) {
         T data;
@@ -48,4 +55,8 @@ private:
     ShaderBuilder* m_shaderBuilder = nullptr;
     MicroshaderLoader* m_microShaderLoader = nullptr;
     StaticVarsStorage* m_staticVarsStorage = nullptr;
+
+private:
+    struct Impl;
+    Pimpl<Impl, 168, 8> impl;
 };
