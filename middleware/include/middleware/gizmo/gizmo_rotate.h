@@ -10,7 +10,6 @@
 #include "middleware/gizmo/gizmo_shape.h"
 
 
-class Material;
 class TransformNode;
 class DefaultWindowEventsHandler;
 class GizmoRotate : public IGizmo, Fixed {

@@ -9,6 +9,7 @@
 #include "core/dg/graphics_types.h"
 #include "core/scene/vertex_buffer.h"
 #include "core/dg/graphics_utilities.h" // IWYU pragma: keep
+#include "core/material/material_view.h"
 
 
 Scene::Scene(DevicePtr device, ContextPtr context, uint16_t vDeclIdPerInstance, bool addId)

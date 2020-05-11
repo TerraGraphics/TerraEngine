@@ -1,20 +1,16 @@
 #include "preview_scene.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
-
 #include "core/engine.h"
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/math/types.h"
 #include "core/dg/texture.h"
+#include "core/dg/sampler.h"
 #include "core/scene/scene.h"
-#include "core/scene/vertexes.h"
 #include "core/dg/graphics_types.h"
 #include "core/material/vdecl_item.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/dg/texture_utilities.h"
 #include "core/material/vdecl_storage.h"
-#include "core/material/material_builder.h"
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/std_material/std_material.h"
 #include "middleware/generator/texture/coherent_noise.h"

@@ -1,22 +1,17 @@
 #pragma once
 
-#include <map>
 #include <memory>
 #include <string>
-#include <vector>
 #include <cstdint>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
-
 #include "core/dg/dg.h"
-#include "core/dg/sampler.h"
 #include "core/common/ctor.h"
-#include "core/dg/graphics_types.h"
-#include "core/dg/pipeline_state.h"
 #include "core/material/material_vars.h"
 
 
-class Material;
+namespace Diligent {
+    struct PipelineStateDesc;
+}
 class VDeclStorage;
 class ShaderBuilder;
 class MicroshaderLoader;

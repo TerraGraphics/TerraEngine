@@ -1,20 +1,14 @@
 #include "core/material/material_builder.h"
 
-#include <tuple>
-#include <utility>
-#include <type_traits>
+#include <vector>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
-#include "core/dg/errors.h"
 #include "core/dg/device.h"
-#include "core/dg/rasterizer_state.h"
+#include "core/dg/graphics_types.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/shader_builder.h"
-#include "core/dg/graphics_accessories.h"
 #include "core/material/microshader_loader.h"
 
 

@@ -7,7 +7,6 @@
 #include "core/common/ctor.h"
 
 
-class Material;
 class TransformNode;
 class GizmoArrow : Fixed {
 public:
