@@ -6,7 +6,6 @@
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/dg/texture.h"
 #include "core/math/types.h"
-#include "core/dg/sampler.h"
 #include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"
@@ -92,9 +91,6 @@ void GeneralScene::GenerateGround() {
     m_matGroud = std::make_shared<StdMaterial>("mat::ground");
     m_matGroud->SetCullMode(dg::CULL_MODE_NONE);
     m_matGroud->SetBaseTexture(m_TextureGround);
-    auto& desc = m_matGroud->GetBaseTextureDesc();
-    desc.AddressU = dg::TEXTURE_ADDRESS_WRAP;
-    desc.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 
     PlaneShape shape({math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
     shape.SetUVScale({128, 128});
@@ -150,9 +146,6 @@ void GeneralScene::GenerateGrass() {
     m_matGrass->SetBaseTexture(m_TextureGrassBlade1);
     // m_matGrass->SetBaseTexture(m_TextureGrassBlade0);
     // m_matGrass->SetAlphaThreshold(0.2f);
-    auto& desc = m_matGrass->GetBaseTextureDesc();
-    desc.AddressU = dg::TEXTURE_ADDRESS_WRAP;
-    desc.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 
     VertexBufferBuilder vbBuilder;
     auto vb = vbBuilder.AddRange<VertexP>(1 * 10 * 1000);
@@ -186,16 +179,19 @@ void GeneralScene::GenerateGrassBillboard() {
     m_matGrassBillboard0 = std::make_shared<StdMaterial>("mat::grass0");
     m_matGrassBillboard0->SetCullMode(dg::CULL_MODE_NONE);
     m_matGrassBillboard0->SetBaseTexture(m_TextureGrass0);
+    m_matGrassBillboard0->SetBaseTextureAddressMode(dg::TEXTURE_ADDRESS_CLAMP);
     m_matGrassBillboard0->SetAlphaThreshold(0.2f);
 
     m_matGrassBillboard1 = std::make_shared<StdMaterial>("mat::grass1");
     m_matGrassBillboard1->SetCullMode(dg::CULL_MODE_NONE);
     m_matGrassBillboard1->SetBaseTexture(m_TextureGrass1);
+    m_matGrassBillboard1->SetBaseTextureAddressMode(dg::TEXTURE_ADDRESS_CLAMP);
     m_matGrassBillboard1->SetAlphaThreshold(0.2f);
 
     m_matGrassBillboard2 = std::make_shared<StdMaterial>("mat::flower");
     m_matGrassBillboard2->SetCullMode(dg::CULL_MODE_NONE);
     m_matGrassBillboard2->SetBaseTexture(m_TextureFlower0);
+    m_matGrassBillboard2->SetBaseTextureAddressMode(dg::TEXTURE_ADDRESS_CLAMP);
     m_matGrassBillboard2->SetAlphaThreshold(0.2f);
 
     RandSeed(15);

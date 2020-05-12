@@ -10,9 +10,6 @@
 #include "core/material/material_view.h"
 
 
-namespace Diligent {
-    struct SamplerDesc;
-}
 class MaterialBuilder;
 class Material : Fixed {
 protected:

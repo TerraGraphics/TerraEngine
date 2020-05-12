@@ -27,6 +27,7 @@ namespace Diligent {
     enum SHADER_TYPE : uint32_t;
     enum TEXTURE_FORMAT : uint16_t;
     enum PRIMITIVE_TOPOLOGY : uint8_t;
+    enum TEXTURE_ADDRESS_MODE : uint8_t;
     enum SHADER_RESOURCE_VARIABLE_TYPE : uint8_t;
 }
 

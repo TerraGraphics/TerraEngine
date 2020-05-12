@@ -100,6 +100,14 @@ void StdMaterial::SetBaseTextureDesc(const dg::SamplerDesc& desc) {
     m_baseTextureVarId = GetBuilder()->CacheTextureVar(m_baseTextureVarId, desc);
 }
 
+void StdMaterial::SetBaseTextureAddressMode(dg::TEXTURE_ADDRESS_MODE mode) {
+    dg::SamplerDesc desc = GetBaseTextureDesc();
+    desc.AddressU = mode;
+    desc.AddressV = mode;
+    desc.AddressW = mode;
+    SetBaseTextureDesc(desc);
+}
+
 void StdMaterial::SetBaseTexture(TextureViewPtr& texture) {
     if (m_baseTexture == texture) {
         return;

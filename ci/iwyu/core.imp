@@ -29,6 +29,7 @@
     { symbol: ["Diligent::SHADER_TYPE", "private", '"core/dg/dg.h"', "public"] },
     { symbol: ["Diligent::TEXTURE_FORMAT", "private", '"core/dg/dg.h"', "public"] },
     { symbol: ["Diligent::PRIMITIVE_TOPOLOGY", "private", '"core/dg/dg.h"', "public"] },
+    { symbol: ["Diligent::TEXTURE_ADDRESS_MODE", "private", '"core/dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"core/dg/dg.h"', "public"] },
 
     { include: ['"ucl.h"', private, '"core/dg/ucl.h"', public] },

@@ -4,7 +4,6 @@
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/math/types.h"
 #include "core/dg/texture.h"
-#include "core/dg/sampler.h"
 #include "core/scene/scene.h"
 #include "core/dg/graphics_types.h"
 #include "core/material/vdecl_item.h"
@@ -82,18 +81,12 @@ void PreviewScene::CreateMaterials() {
     m_material0->AmbientDiffuse(true);
     m_material0->ColorPicker(true);
     m_material0->SetBaseTexture(m_TextureNoise);
-    auto& desc0 = m_material0->GetBaseTextureDesc();
-    desc0.AddressU = dg::TEXTURE_ADDRESS_WRAP;
-    desc0.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 
     m_material1 = std::make_shared<StdMaterial>("mat::phong::node1");
     m_material1->SetCullMode(dg::CULL_MODE_NONE);
     m_material1->AmbientDiffuse(true);
     m_material1->ColorPicker(true);
     m_material1->SetBaseTexture(m_TextureCube);
-    auto& desc1 = m_material1->GetBaseTextureDesc();
-    desc1.AddressU = dg::TEXTURE_ADDRESS_WRAP;
-    desc1.AddressV = dg::TEXTURE_ADDRESS_WRAP;
 }
 
 void PreviewScene::GenerateMeshes() {

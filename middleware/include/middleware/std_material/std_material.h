@@ -29,6 +29,7 @@ public:
 
     const dg::SamplerDesc& GetBaseTextureDesc();
     void SetBaseTextureDesc(const dg::SamplerDesc& desc);
+    void SetBaseTextureAddressMode(dg::TEXTURE_ADDRESS_MODE mode);
     void SetBaseTexture(TextureViewPtr& texture);
 
     void SetAlphaThreshold(float value);
