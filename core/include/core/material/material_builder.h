@@ -10,6 +10,13 @@
 #include "core/material/material_vars.h"
 
 
+struct ShaderVars {
+    static constexpr const uint8_t max = 32;
+
+    uint16_t vars[max];
+    uint8_t number = 0;
+};
+
 namespace Diligent {
     struct SamplerDesc;
     struct PipelineStateDesc;
@@ -46,7 +53,7 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, dg::PipelineStateDesc& desc);
+    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::PipelineStateDesc& desc);
 
 private:
     DevicePtr m_device;
@@ -58,5 +65,5 @@ private:
 
 private:
     struct Impl;
-    Pimpl<Impl, 168, 8> impl;
+    Pimpl<Impl, 3240, 8> impl;
 };

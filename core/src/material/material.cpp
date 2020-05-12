@@ -24,29 +24,12 @@ struct MaterialViewItem {
     MaterialView view;
 };
 
-struct MaterialVar {
-    std::string name;
-    dg::SHADER_TYPE shaderType;
-    dg::SHADER_RESOURCE_VARIABLE_TYPE type;
-};
-
-struct TextureVar {
-    uint8_t varId = 0;
-    dg::SamplerDesc desc = dg::SamplerDesc{};
-};
-
-static constexpr const uint8_t MaxCountVars = 32;
-static constexpr const uint8_t MaxCountTextureVars = 16;
-
 }
 
 struct Material::Impl {
     Impl(const std::string& name, const std::shared_ptr<MaterialBuilder>& builder);
 
-    dg::SamplerDesc& GetTextureDesc(uint8_t id);
-    uint8_t AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
-    uint8_t AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
-
+    void AddShaderVar(uint16_t varId);
     void SetVertexShaderVar(const char* name, DeviceRaw value);
     void SetPixelShaderVar(const char* name, DeviceRaw value);
     void SetGeometryShaderVar(const char* name, DeviceRaw value);
@@ -55,10 +38,7 @@ struct Material::Impl {
 
     uint64_t m_mask = 0;
     uint8_t m_lastFrameNum = 255;
-    uint8_t m_varsCount = 0;
-    uint8_t m_textureVarsCount = 0;
-    MaterialVar m_vars[MaxCountVars];
-    TextureVar m_textureVars[MaxCountTextureVars];
+    ShaderVars m_vars;
     dg::PipelineStateDesc m_desc;
     std::vector<MaterialViewItem> m_materialViewCache;
     std::string m_name;
@@ -69,9 +49,9 @@ Material::Impl::Impl(const std::string& name, const std::shared_ptr<MaterialBuil
     : m_name(name)
     , m_builder(builder) {
 
+    m_vars.number = 0;
     m_desc.Name = m_name.c_str();
     m_desc.IsComputePipeline = false;
-    m_desc.ResourceLayout.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
 
     auto& gp = m_desc.GraphicsPipeline;
     gp.DepthStencilDesc.DepthEnable = true;
@@ -80,40 +60,12 @@ Material::Impl::Impl(const std::string& name, const std::shared_ptr<MaterialBuil
     gp.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 }
 
-dg::SamplerDesc& Material::Impl::GetTextureDesc(uint8_t id) {
-    if (m_varsCount <= id) {
-        throw EngineError("Material:{}: count of texture shader varaibles is {}, can't get id {}", m_name, m_varsCount, id);
+void Material::Impl::AddShaderVar(uint16_t varId) {
+    if (m_vars.number >= ShaderVars::max) {
+        throw EngineError("Material:{}: max count of shader varaibles is {}", m_name, ShaderVars::max);
     }
-
-    return m_textureVars[id].desc;
-}
-
-uint8_t Material::Impl::AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    if (m_varsCount >= MaxCountVars) {
-        throw EngineError("Material:{}: max count of shader varaibles is {}", m_name, MaxCountVars);
-    }
-
-    for(uint8_t i=0; i!=m_varsCount; ++i) {
-        if ((m_vars[i].type == type) && (m_vars[i].name == name)) {
-            throw EngineError("Material:{}: shader varaible {} is duplicated for shader type {}", m_name, dg::GetShaderTypeLiteralName(shaderType));
-        }
-    }
-
     m_materialViewCache.clear();
-    m_vars[m_varsCount] = MaterialVar{name, shaderType, type};
-
-    return m_varsCount++;
-}
-
-uint8_t Material::Impl::AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    if (m_textureVarsCount >= MaxCountTextureVars) {
-        throw EngineError("Material:{}: max count of texture shader varaibles is {}", m_name, MaxCountTextureVars);
-    }
-
-    m_materialViewCache.clear();
-    m_textureVars[m_textureVarsCount] = TextureVar{ AddVar(shaderType, name, type), dg::SamplerDesc{}};
-
-    return m_textureVarsCount++;
+    m_vars.vars[m_vars.number++] = varId;
 }
 
 void Material::Impl::SetVertexShaderVar(const char* name, DeviceRaw value) {
@@ -145,21 +97,7 @@ MaterialView Material::Impl::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclId
     }
     isFind = false;
 
-    dg::ShaderResourceVariableDesc vars[MaxCountVars];
-    m_desc.ResourceLayout.Variables = vars;
-    m_desc.ResourceLayout.NumVariables = m_varsCount;
-    for(uint8_t i=0; i!=m_varsCount; ++i) {
-        vars[i] = {m_vars[i].shaderType, m_vars[i].name.c_str(), m_vars[i].type};
-    }
-
-    dg::StaticSamplerDesc samplers[MaxCountTextureVars];
-    m_desc.ResourceLayout.StaticSamplers = samplers;
-    m_desc.ResourceLayout.NumStaticSamplers = m_textureVarsCount;
-    for(uint8_t i=0; i!=m_textureVarsCount; ++i) {
-        samplers[i] = {m_vars[m_textureVars[i].varId].shaderType, m_vars[m_textureVars[i].varId].name.c_str(), m_textureVars[i].desc};
-    }
-
-    auto pipelineState = m_builder->Create(m_mask, vDeclIdPerVertex, vDeclIdPerInstance, m_desc);
+    auto pipelineState = m_builder->Create(m_mask, vDeclIdPerVertex, vDeclIdPerInstance, m_vars, m_desc);
     ShaderResourceBindingPtr binding;
     pipelineState->CreateShaderResourceBinding(&binding, true);
 
@@ -192,12 +130,12 @@ MaterialView Material::GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, uint
     return view;
 }
 
-dg::SamplerDesc& Material::GetTextureDesc(uint8_t id) {
-    return impl->GetTextureDesc(id);
-}
-
 const std::string& Material::GetName() const noexcept {
     return impl->m_name;
+}
+
+std::shared_ptr<MaterialBuilder>& Material::GetBuilder() noexcept {
+    return impl->m_builder;
 }
 
 uint64_t Material::GetShadersMask() const noexcept {
@@ -207,8 +145,7 @@ uint64_t Material::GetShadersMask() const noexcept {
 void Material::SetShadersMask(uint64_t mask) {
     impl->m_materialViewCache.clear();
     impl->m_mask = mask;
-    impl->m_textureVarsCount = 0;
-    impl->m_varsCount = 0;
+    impl->m_vars.number = 0;
 }
 
 void Material::DepthEnable(bool value) noexcept {
@@ -232,12 +169,8 @@ void Material::Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept {
     }
 }
 
-uint8_t Material::AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    return impl->AddVar(shaderType, name, type);
-}
-
-uint8_t Material::AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
-    return impl->AddTextureVar(shaderType, name, type);
+void Material::AddShaderVar(uint16_t varId) {
+    impl->AddShaderVar(varId);
 }
 
 void Material::SetVertexShaderVar(const char* name, DeviceRaw value) {

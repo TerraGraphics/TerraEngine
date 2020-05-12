@@ -59,6 +59,8 @@ StdMaterial::StdMaterial(const std::string& name)
     : Material(name, Engine::Get().GetMaterialBuilder()) {
 
     m_data.alphaThreshold = -1.f;
+    m_materialVarId = GetBuilder()->CacheShaderVar("Material", dg::SHADER_TYPE_PIXEL, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+    m_baseTextureVarId = GetBuilder()->CacheTextureVar("texBase", dg::SHADER_TYPE_PIXEL, dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
     ApplyMask(BaseColorMaterialMask());
 }
 
@@ -90,8 +92,12 @@ void StdMaterial::SetBaseColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
     m_data.crlBase = math::Color4f(r, g, b, a).ToFloat4();
 }
 
-dg::SamplerDesc& StdMaterial::GetBaseTextureDesc() {
-    return GetTextureDesc(m_baseTextureId);
+const dg::SamplerDesc& StdMaterial::GetBaseTextureDesc() {
+    return GetBuilder()->GetCachedSamplerDesc(m_baseTextureVarId);
+}
+
+void StdMaterial::SetBaseTextureDesc(const dg::SamplerDesc& desc) {
+    m_baseTextureVarId = GetBuilder()->CacheTextureVar(m_baseTextureVarId, desc);
 }
 
 void StdMaterial::SetBaseTexture(TextureViewPtr& texture) {
@@ -181,13 +187,11 @@ void StdMaterial::ApplyMask(uint64_t mask) {
     }
 
     if (m_dataEnable) {
-        AddVar(dg::SHADER_TYPE_PIXEL, "Material", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
+        AddShaderVar(m_materialVarId);
     }
 
     if ((mask & BaseColorTextureMask()) != 0) {
-        m_baseTextureId = AddTextureVar(dg::SHADER_TYPE_PIXEL, "texBase", dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE);
-    } else {
-        m_baseTextureId = 255;
+        AddShaderVar(m_baseTextureVarId);
     }
 }
 

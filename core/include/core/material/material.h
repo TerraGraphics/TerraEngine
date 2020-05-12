@@ -24,16 +24,15 @@ public:
     MaterialView GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
 protected:
-    dg::SamplerDesc& GetTextureDesc(uint8_t id);
-
     const std::string& GetName() const noexcept;
+    std::shared_ptr<MaterialBuilder>& GetBuilder() noexcept;
+
     uint64_t GetShadersMask() const noexcept;
     void SetShadersMask(uint64_t mask);
     void DepthEnable(bool value) noexcept;
     void CullMode(dg::CULL_MODE value) noexcept;
     void Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept;
-    uint8_t AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
-    uint8_t AddTextureVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
+    void AddShaderVar(uint16_t varId);
 
     void SetVertexShaderVar(const char* name, DeviceRaw value);
     void SetPixelShaderVar(const char* name, DeviceRaw value);
@@ -44,5 +43,5 @@ protected:
 
 private:
     struct Impl;
-    Pimpl<Impl, 2672, 8> impl;
+    Pimpl<Impl, 432, 8> impl;
 };

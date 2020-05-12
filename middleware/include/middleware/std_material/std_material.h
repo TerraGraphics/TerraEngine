@@ -27,7 +27,8 @@ public:
     void SetBaseColor(const dg::float4& value);
     void SetBaseColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 
-    dg::SamplerDesc& GetBaseTextureDesc();
+    const dg::SamplerDesc& GetBaseTextureDesc();
+    void SetBaseTextureDesc(const dg::SamplerDesc& desc);
     void SetBaseTexture(TextureViewPtr& texture);
 
     void SetAlphaThreshold(float value);
@@ -47,7 +48,8 @@ protected:
 
 private:
     bool m_dataEnable = false;
-    uint8_t m_baseTextureId = 255;
+    uint16_t m_materialVarId = 0;
+    uint16_t m_baseTextureVarId = 0;
     TextureViewPtr m_baseTexture;
     dg::ShaderMaterial m_data;
     BufferPtr m_buffer;

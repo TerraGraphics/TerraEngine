@@ -6,6 +6,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/device.h"
 #include "core/dg/sampler.h"
@@ -78,12 +79,16 @@ struct MaterialBuilder::Impl {
     const dg::SamplerDesc& GetSamplerDesc(uint16_t id) const;
     uint16_t CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type, uint16_t samplerId);
     uint16_t CacheShaderVar(uint16_t textureVarId, const dg::SamplerDesc& desc);
+    void FillVars(const ShaderVars& vars, dg::PipelineResourceLayoutDesc& desc);
 
     uint16_t m_defaultSamplerId;
     std::vector<dg::SamplerDesc> m_idToSampler;
     std::unordered_map<dg::SamplerDesc, uint16_t> m_samplerToId;
     std::vector<ShaderVar> m_idToShaderVar;
     std::unordered_map<ShaderVar, uint16_t> m_shaderVarToId;
+
+    dg::ShaderResourceVariableDesc m_varsDescs[ShaderVars::max];
+    dg::StaticSamplerDesc m_samplers[ShaderVars::max];
 };
 
 MaterialBuilder::Impl::Impl() {
@@ -106,19 +111,18 @@ const ShaderVar& MaterialBuilder::Impl::GetShaderVar(uint16_t textureVarId) cons
         throw EngineError("MaterialBuilder: wrong textureVarId {} for GetShaderVar, max textureVarId is {}", textureVarId, m_idToShaderVar.size());
     }
 
-    return m_idToShaderVar[textureVarId];
+    return m_idToShaderVar[textureVarId - 1];
 }
 
-const dg::SamplerDesc& MaterialBuilder::Impl::GetSamplerDesc(uint16_t textureVarId) const {
-    auto samplerId = GetShaderVar(textureVarId).samplerId;
+const dg::SamplerDesc& MaterialBuilder::Impl::GetSamplerDesc(uint16_t samplerId) const {
     if (samplerId == 0) {
-        throw EngineError("MaterialBuilder: wrong samplerId {} for GetSamplerDescFromCacheTextureVar, min samplerId is 1", samplerId);
+        throw EngineError("MaterialBuilder: wrong samplerId {} for GetSamplerDesc, min samplerId is 1", samplerId);
     }
     if (samplerId > m_idToSampler.size()) {
-        throw EngineError("MaterialBuilder: wrong samplerId {} for GetSamplerDescFromCacheTextureVar, max samplerId is {}", samplerId, m_idToSampler.size());
+        throw EngineError("MaterialBuilder: wrong samplerId {} for GetSamplerDesc, max samplerId is {}", samplerId, m_idToSampler.size());
     }
 
-    return m_idToSampler[samplerId];
+    return m_idToSampler[samplerId - 1];
 }
 
 uint16_t MaterialBuilder::Impl::CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type, uint16_t samplerId) {
@@ -146,6 +150,22 @@ uint16_t MaterialBuilder::Impl::CacheShaderVar(uint16_t textureVarId, const dg::
 
     auto& var = GetShaderVar(textureVarId);
     return CacheShaderVar(var.name, var.shaderType, var.type, samplerId);
+}
+
+void MaterialBuilder::Impl::FillVars(const ShaderVars& vars, dg::PipelineResourceLayoutDesc& desc) {
+    desc.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+    desc.Variables = m_varsDescs;
+    desc.NumVariables = static_cast<uint32_t>(vars.number);
+    desc.StaticSamplers = m_samplers;
+    desc.NumStaticSamplers = 0;
+    for(uint8_t i=0; i!=vars.number; ++i) {
+        const auto& shaderVar = GetShaderVar(vars.vars[i]);
+        m_varsDescs[i] = {shaderVar.shaderType, shaderVar.name.c_str(), shaderVar.type};
+        if (shaderVar.samplerId != 0) {
+            const auto& samplerDesc = GetSamplerDesc(shaderVar.samplerId);
+            m_samplers[desc.NumStaticSamplers++] = {shaderVar.shaderType, shaderVar.name.c_str(), samplerDesc};
+        }
+    }
 }
 
 MaterialBuilder::MaterialBuilder(const DevicePtr& device, const ContextPtr& context,
@@ -196,10 +216,10 @@ uint16_t MaterialBuilder::CacheTextureVar(uint16_t textureVarId, const dg::Sampl
 }
 
 const dg::SamplerDesc& MaterialBuilder::GetCachedSamplerDesc(uint16_t textureVarId) const {
-    return impl->GetSamplerDesc(textureVarId);
+    return impl->GetSamplerDesc(impl->GetShaderVar(textureVarId).samplerId);
 }
 
-PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, dg::PipelineStateDesc& desc) {
+PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::PipelineStateDesc& desc) {
     auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
@@ -215,6 +235,7 @@ PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVerte
     gp.pPS = shaders.ps;
     gp.pGS = shaders.gs;
     gp.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
+    impl->FillVars(vars, desc.ResourceLayout);
 
     PipelineStatePtr pipelineState;
     dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
