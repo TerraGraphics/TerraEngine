@@ -1,8 +1,8 @@
 #pragma once
 
-#include <map>
 #include <vector>
 #include <cstdint>
+#include <unordered_map>
 #include <initializer_list>
 
 #include "core/dg/dg.h"
@@ -60,5 +60,5 @@ private:
     GraphPin m_outputPin;
     std::vector<GraphPin> m_inputPins;
     std::vector<Ref> m_inputs;
-    std::map<GraphNode*, Weak> m_outputs;
+    std::unordered_map<GraphNode*, Weak> m_outputs;
 };

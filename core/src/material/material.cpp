@@ -90,7 +90,7 @@ dg::SamplerDesc& Material::Impl::GetTextureDesc(uint8_t id) {
 
 uint8_t Material::Impl::AddVar(dg::SHADER_TYPE shaderType, const std::string& name, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
     if (m_varsCount >= MaxCountVars) {
-        throw EngineError("Material: max count of shader varaibles is {}", MaxCountVars);
+        throw EngineError("Material:{}: max count of shader varaibles is {}", m_name, MaxCountVars);
     }
 
     for(uint8_t i=0; i!=m_varsCount; ++i) {
