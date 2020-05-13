@@ -19,7 +19,7 @@ struct ShaderVars {
 
 namespace Diligent {
     struct SamplerDesc;
-    struct PipelineStateDesc;
+    struct GraphicsPipelineDesc;
 }
 class VDeclStorage;
 class ShaderBuilder;
@@ -53,7 +53,7 @@ public:
         m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::PipelineStateDesc& desc);
+    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc);
 
 private:
     DevicePtr m_device;

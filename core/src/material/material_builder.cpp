@@ -219,22 +219,25 @@ const dg::SamplerDesc& MaterialBuilder::GetCachedSamplerDesc(uint16_t textureVar
     return impl->GetSamplerDesc(impl->GetShaderVar(textureVarId).samplerId);
 }
 
-PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::PipelineStateDesc& desc) {
+PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc) {
     auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     auto src = m_microShaderLoader->GetSources(mask, m_vDeclStorage->GetSemanticDecls(vDeclId));
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
     auto shaders = m_shaderBuilder->Build(src);
 
-    auto& gp = desc.GraphicsPipeline;
-    gp.NumRenderTargets = src.gsOutputNumber;
+    dg::PipelineStateDesc desc;
+    desc.IsComputePipeline = false;
+
+    gpDesc.NumRenderTargets = src.gsOutputNumber;
     for (uint8_t i=0; i!=src.gsOutputNumber; ++i) {
-        gp.RTVFormats[i] = m_swapChain->GetDesc().ColorBufferFormat;
+        gpDesc.RTVFormats[i] = m_swapChain->GetDesc().ColorBufferFormat;
     }
-    gp.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
-    gp.pVS = shaders.vs;
-    gp.pPS = shaders.ps;
-    gp.pGS = shaders.gs;
-    gp.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
+    gpDesc.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
+    gpDesc.pVS = shaders.vs;
+    gpDesc.pPS = shaders.ps;
+    gpDesc.pGS = shaders.gs;
+    gpDesc.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
+    desc.GraphicsPipeline = gpDesc;
     impl->FillVars(vars, desc.ResourceLayout);
 
     PipelineStatePtr pipelineState;

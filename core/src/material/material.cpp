@@ -36,7 +36,7 @@ struct Material::Impl {
     uint64_t m_mask = 0;
     uint8_t m_lastFrameNum = 255;
     ShaderVars m_vars;
-    dg::PipelineStateDesc m_desc;
+    dg::GraphicsPipelineDesc m_desc;
     std::vector<MaterialViewItem> m_materialViewCache;
     std::string m_name;
     std::shared_ptr<MaterialBuilder> m_builder;
@@ -47,14 +47,11 @@ Material::Impl::Impl(const std::string& name, const std::shared_ptr<MaterialBuil
     , m_builder(builder) {
 
     m_vars.number = 0;
-    m_desc.Name = m_name.c_str();
-    m_desc.IsComputePipeline = false;
 
-    auto& gp = m_desc.GraphicsPipeline;
-    gp.DepthStencilDesc.DepthEnable = true;
-    gp.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
-    gp.RasterizerDesc.FrontCounterClockwise = false;
-    gp.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    m_desc.DepthStencilDesc.DepthEnable = true;
+    m_desc.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
+    m_desc.RasterizerDesc.FrontCounterClockwise = false;
+    m_desc.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 }
 
 void Material::Impl::AddShaderVar(uint16_t varId) {
@@ -146,23 +143,23 @@ void Material::SetShadersMask(uint64_t mask) {
 }
 
 void Material::DepthEnable(bool value) noexcept {
-    if (impl->m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable != value) {
+    if (impl->m_desc.DepthStencilDesc.DepthEnable != value) {
         impl->m_materialViewCache.clear();
-        impl->m_desc.GraphicsPipeline.DepthStencilDesc.DepthEnable = value;
+        impl->m_desc.DepthStencilDesc.DepthEnable = value;
     }
 }
 
 void Material::CullMode(dg::CULL_MODE value) noexcept {
-    if (impl->m_desc.GraphicsPipeline.RasterizerDesc.CullMode != value) {
+    if (impl->m_desc.RasterizerDesc.CullMode != value) {
         impl->m_materialViewCache.clear();
-        impl->m_desc.GraphicsPipeline.RasterizerDesc.CullMode = value;
+        impl->m_desc.RasterizerDesc.CullMode = value;
     }
 }
 
 void Material::Topology(dg::PRIMITIVE_TOPOLOGY value) noexcept {
-    if (impl->m_desc.GraphicsPipeline.PrimitiveTopology != value) {
+    if (impl->m_desc.PrimitiveTopology != value) {
         impl->m_materialViewCache.clear();
-        impl->m_desc.GraphicsPipeline.PrimitiveTopology = value;
+        impl->m_desc.PrimitiveTopology = value;
     }
 }
 
