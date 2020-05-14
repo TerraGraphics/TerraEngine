@@ -1,6 +1,23 @@
 cmake_minimum_required(VERSION 3.10)
 project(terra_engine VERSION 0.3)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
+
+option(TERRA_IWYU_ENABLE "include-what-you-use enable" OFF)
+set(IWYU_ENABLE FALSE CACHE INTERNAL "include-what-you-use enable")
+if(${TERRA_IWYU_ENABLE})
+    set(IWYU_ENABLE TRUE CACHE INTERNAL "include-what-you-use enable")
+endif()
+
+if(${IWYU_ENABLE})
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+  if(NOT IWYU_PATH)
+    message(FATAL_ERROR "Could not find the program include-what-you-use")
+  endif()
+endif()
+
 include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
 conan_cmake_run(CONANFILE conanfile.txt
@@ -13,19 +30,9 @@ conan_cmake_run(CONANFILE conanfile.txt
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-option(TERRA_IWYU_ENABLE "include-what-you-use enable" OFF)
-set(IWYU_ENABLE FALSE CACHE INTERNAL "include-what-you-use enable")
-if(${TERRA_IWYU_ENABLE})
-    set(IWYU_ENABLE TRUE CACHE INTERNAL "include-what-you-use enable")
-endif()
 message("IWYU_ENABLE: " ${IWYU_ENABLE})
+message("CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
 
-if(${IWYU_ENABLE})
-  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
-  if(NOT IWYU_PATH)
-    message(FATAL_ERROR "Could not find the program include-what-you-use")
-  endif()
-endif()
 # set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks="cppcoreguidelines-*")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
