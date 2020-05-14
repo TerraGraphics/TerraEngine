@@ -35,9 +35,6 @@ go get -u github.com/boyter/scc/
 ### Compile
 
 ```console
-mkdir -p build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DTERRA_IWYU_ENABLE=OFF ../
-cmake --build .
-cd ..
+cmake -B build
+cmake --build build -j
 ```
