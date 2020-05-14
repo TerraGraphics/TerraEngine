@@ -12,7 +12,7 @@
 
 class TransformNode;
 class DefaultWindowEventsHandler;
-class GizmoScale : public IGizmo, Fixed {
+class GizmoScale final : public IGizmo, Fixed {
 public:
     GizmoScale() = default;
     ~GizmoScale() final = default;

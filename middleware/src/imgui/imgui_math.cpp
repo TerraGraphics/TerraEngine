@@ -10,11 +10,11 @@ ImVec2 ToImGui(math::Size value) {
 }
 
 ImVec2 ToImGui(math::Point value) {
-    return ImVec2(value.x, value.y);
+    return ImVec2(static_cast<float>(value.x), static_cast<float>(value.y));
 }
 
 ImVec2 ToImGui(math::PointI value) {
-    return ImVec2(value.x, value.y);
+    return ImVec2(static_cast<float>(value.x), static_cast<float>(value.y));
 }
 
 ImVec2 ToImGui(math::PointF value) {

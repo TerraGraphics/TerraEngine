@@ -214,7 +214,7 @@ bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames
     return changed;
 }
 
-void DrawNodeIcon(ImDrawList* drawList, math::RectI rect, IconType type, bool filled, ImU32 color, ImU32 innerColor) {
+void DrawNodeIcon(ImDrawList* drawList, math::RectF rect, IconType type, bool filled, ImU32 color, ImU32 innerColor) {
     const auto outline_scale  = rect.w / 24.0f;
     const auto extra_segments = static_cast<int>(2 * outline_scale); // for full circle
 
@@ -272,7 +272,7 @@ void DrawNodeIcon(ImDrawList* drawList, math::RectI rect, IconType type, bool fi
     } else {
         auto triangleStart = rect.CenterX() + 0.32f * rect.w;
 
-        rect.x -= static_cast<int>(rect.w * 0.25f * 0.25f);
+        rect.x -= (rect.w * 0.25f * 0.25f);
 
         if (type == IconType::Circle) {
             const auto c = ToImGui(rect.Center());
@@ -435,7 +435,7 @@ void NodeIcon(const math::Size& size, IconType type, bool filled, math::Color co
         auto cursorPos = ImGui::GetCursorScreenPos();
         auto drawList  = ImGui::GetWindowDrawList();
 
-        math::RectI rect(static_cast<int32_t>(cursorPos.x), static_cast<int32_t>(cursorPos.y), static_cast<int32_t>(size.w), static_cast<int32_t>(size.h));
+        math::RectF rect(cursorPos.x, cursorPos.y, static_cast<float>(size.w), static_cast<float>(size.h));
         detail::DrawNodeIcon(drawList, rect, type, filled, color.value, innerColor.value);
     }
 

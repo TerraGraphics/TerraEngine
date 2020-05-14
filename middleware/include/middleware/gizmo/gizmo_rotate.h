@@ -12,7 +12,7 @@
 
 class TransformNode;
 class DefaultWindowEventsHandler;
-class GizmoRotate : public IGizmo, Fixed {
+class GizmoRotate final : public IGizmo, Fixed {
 public:
     GizmoRotate() = default;
     ~GizmoRotate() final = default;

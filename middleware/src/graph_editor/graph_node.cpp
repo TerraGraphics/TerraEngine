@@ -131,7 +131,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
     auto headerMin = ImGui::GetItemRectMin();
     auto headerMax = ImGui::GetItemRectMax();
     auto headerSize = ImGui::GetItemRectSize();
-    float dummySize = headerSize.x - (iconSize.w + 8);
+    float dummySize = headerSize.x - static_cast<float>(iconSize.w + 8);
     ImGui::Dummy(ImVec2(1.0f, nodePaddingTop));
     ImGui::EndGroup();
 
@@ -143,7 +143,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
             gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
             ne::EndPin();
         }
-        dummySize -= (iconSize.w + 8);
+        dummySize -= static_cast<float>(iconSize.w + 8);
         ImGui::EndGroup();
         ImGui::SameLine();
     }

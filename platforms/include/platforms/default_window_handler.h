@@ -21,7 +21,7 @@ public:
     void GetCursorPosition(float& posX, float& posY) const noexcept;
     void GetCursorOffet(float& offsetX, float& offsetY) const noexcept;
 
-    float GetScrollOffset() const noexcept { return m_scrollOffset; }
+    float GetScrollOffset() const noexcept { return static_cast<float>(m_scrollOffset); }
 
     bool IsKeyPressedFirstTime(Key code) const noexcept;
     bool IsKeyReleasedFirstTime(Key code) const noexcept;

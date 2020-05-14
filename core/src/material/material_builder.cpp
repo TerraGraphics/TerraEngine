@@ -235,6 +235,8 @@ PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVerte
     gpDesc.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
     gpDesc.pVS = shaders.vs;
     gpDesc.pPS = shaders.ps;
+    gpDesc.pDS = nullptr;
+    gpDesc.pHS = nullptr;
     gpDesc.pGS = shaders.gs;
     gpDesc.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
     desc.GraphicsPipeline = gpDesc;
