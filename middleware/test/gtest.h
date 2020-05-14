@@ -2,6 +2,9 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
+#endif
 #include <gtest/gtest.h>
 #pragma GCC diagnostic pop
 

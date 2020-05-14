@@ -2,10 +2,10 @@
 
 #include <map>
 #include <utility>
-#include <imgui.h>
 #include <type_traits>
-#include <imgui_node_editor.h>
 
+#include "middleware/imgui/imgui.h"
+#include "middleware/imgui/imgui_node_editor.h"
 #include "middleware/graph_editor/graph_storage.h"
 #include "middleware/graph_editor/graph_node_factory.h"
 #include "middleware/graph_editor/graph_selected_node.h"

@@ -5,9 +5,9 @@
 #include <filesystem>
 #include <functional>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
+#include "core/dg/shader.h"
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/str/format.h"

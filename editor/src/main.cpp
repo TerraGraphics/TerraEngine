@@ -5,8 +5,14 @@
 #include <cstdint>
 #include <stdexcept>
 #include <algorithm>
+
+#pragma GCC diagnostic push
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
+#endif
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#pragma GCC diagnostic pop
 
 #include <DiligentCore/Primitives/interface/DebugOutput.h>
 

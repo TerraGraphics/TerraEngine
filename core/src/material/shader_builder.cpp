@@ -4,11 +4,11 @@
 #include <filesystem>
 
 #include <DiligentCore/Primitives/interface/DataBlob.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
 
 #include "core/dg/errors.h"
 #include "core/dg/device.h"
+#include "core/dg/shader.h"
 #include "core/str/format.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"

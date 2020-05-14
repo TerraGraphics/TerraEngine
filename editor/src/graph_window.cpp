@@ -1,13 +1,13 @@
 #include "graph_window.h"
 
 #include <utility>
-#include <imgui.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "core/dg/device.h"
 #include "property_window.h"
+#include "middleware/imgui/imgui.h"
 #include "core/dg/texture_utilities.h"
 #include "middleware/graph_editor/graph_editor.h"
 #include "middleware/graph_editor/graph_selected_node.h"

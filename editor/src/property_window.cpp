@@ -1,7 +1,8 @@
 #include "property_window.h"
 
 #include <utility>
-#include <imgui.h>
+
+#include "middleware/imgui/imgui.h"
 
 
 Property::Property(Property::Callback&& drawCallback)

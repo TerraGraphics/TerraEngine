@@ -3,17 +3,17 @@
 #include <cmath>
 #include <utility>
 #include <istream>
-#include <imgui.h>
 #include <cstring>
 #include <charconv>
 #include <system_error>
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui_internal.h>
 
 #include "core/str/format.h"
 #include "middleware/imgui/font.h"
 #include "core/common/exception.h"
+#include "middleware/imgui/imgui.h"
 #include "middleware/imgui/imgui_math.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "middleware/imgui/imgui_internal.h"
 
 namespace {
 

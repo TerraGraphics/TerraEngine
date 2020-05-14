@@ -1,6 +1,5 @@
 #include "preview_window.h"
 
-#include <imgui.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
@@ -12,6 +11,7 @@
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
 #include "core/dg/graphics_types.h"
+#include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gizmo/gizmo_3d.h"
 #include "core/render/render_target.h"

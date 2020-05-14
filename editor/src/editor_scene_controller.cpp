@@ -1,8 +1,6 @@
 #include "editor_scene_controller.h"
 
 #include <cstddef>
-#include <imgui.h>
-#include <imgui_internal.h>
 
 #include "core/engine.h"
 #include "graph_window.h"
@@ -11,7 +9,9 @@
 #include "property_window.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
+#include "middleware/imgui/imgui.h"
 #include "core/render/render_target.h"
+#include "middleware/imgui/imgui_internal.h"
 
 
 EditorSceneController::EditorSceneController()

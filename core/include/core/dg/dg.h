@@ -4,6 +4,8 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wconversion"
 #endif
 #include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #pragma GCC diagnostic pop
