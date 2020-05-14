@@ -14,7 +14,6 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/math.h"
 #include "core/dg/device.h"
@@ -27,6 +26,7 @@
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
 #include "core/dg/rasterizer_state.h"
+#include "core/dg/shader_resource_variable.h"
 
 
 static const char* vertexShaderSource = R"(

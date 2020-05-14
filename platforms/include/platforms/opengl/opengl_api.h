@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
 #include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include "platforms/graphic_api.h"
 

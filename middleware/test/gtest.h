@@ -1,9 +1,9 @@
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <gtest/gtest.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 
 // see TYPED_TEST_CASE

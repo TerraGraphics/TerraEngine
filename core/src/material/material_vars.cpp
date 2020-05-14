@@ -1,7 +1,6 @@
 #include "core/material/material_vars.h"
 
 #include <cstring>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/dg.h"
 #include "core/dg/device.h"
@@ -10,6 +9,7 @@
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
 #include "core/dg/graphics_accessories.h"
+#include "core/dg/shader_resource_variable.h"
 
 
 StaticVarsStorage::StaticVarsStorage(const DevicePtr& device, const ContextPtr& context)

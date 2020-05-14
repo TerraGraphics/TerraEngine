@@ -3,11 +3,11 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <fmt/format.h>
 #include <unordered_map>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
+#include "core/str/format.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"

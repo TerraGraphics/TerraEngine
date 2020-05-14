@@ -2,7 +2,6 @@
 
 #include <utility>
 #include <filesystem>
-#include <fmt/format.h>
 
 #include <DiligentCore/Primitives/interface/DataBlob.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
@@ -10,6 +9,7 @@
 
 #include "core/dg/errors.h"
 #include "core/dg/device.h"
+#include "core/str/format.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_accessories.h"

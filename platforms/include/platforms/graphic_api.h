@@ -1,11 +1,13 @@
 #pragma once
 
 #include <vector>
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 #include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 
 namespace Diligent {

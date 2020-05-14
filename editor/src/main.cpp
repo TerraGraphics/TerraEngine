@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <stdexcept>
 #include <algorithm>
-#include <fmt/format.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
@@ -13,6 +12,7 @@
 
 #include "editor.h"
 #include "core/engine.h"
+#include "core/str/format.h"
 #include "core/dg/graphics_types.h"
 #include "platforms/platforms_supported.h"
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-qual"
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
-#pragma clang diagnostic ignored "-Wpessimizing-move"
-#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wpessimizing-move"
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #include <ucl++.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop

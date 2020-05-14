@@ -4,8 +4,8 @@
 #include <utility>
 #include <iterator>
 #include <algorithm>
-#include <fmt/format.h>
 
+#include "core/str/format.h"
 #include "core/common/exception.h"
 
 

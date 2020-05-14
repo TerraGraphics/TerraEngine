@@ -5,12 +5,12 @@
 #include <filesystem>
 #include <functional>
 
-#include <fmt/format.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "core/dg/context.h" // IWYU pragma: keep
+#include "core/str/format.h"
 #include "core/common/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"

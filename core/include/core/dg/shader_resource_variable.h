@@ -4,6 +4,5 @@
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 #pragma GCC diagnostic pop

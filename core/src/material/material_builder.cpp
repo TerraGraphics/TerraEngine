@@ -6,7 +6,6 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/device.h"
 #include "core/dg/sampler.h"
@@ -16,6 +15,7 @@
 #include "core/material/vdecl_storage.h"
 #include "core/material/shader_builder.h"
 #include "core/material/microshader_loader.h"
+#include "core/dg/shader_resource_variable.h"
 
 
 namespace {

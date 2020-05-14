@@ -24,11 +24,13 @@
 #    undef False
 #endif
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 #include <DiligentCore/Primitives/interface/Errors.hpp>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 #include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
 
 #include "linux/x11_input_handler.h"

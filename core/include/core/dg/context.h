@@ -1,6 +1,9 @@
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop

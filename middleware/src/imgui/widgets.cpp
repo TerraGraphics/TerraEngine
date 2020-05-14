@@ -7,10 +7,10 @@
 #include <cstring>
 #include <charconv>
 #include <system_error>
-#include <fmt/format.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 
+#include "core/str/format.h"
 #include "middleware/imgui/font.h"
 #include "core/common/exception.h"
 #include "middleware/imgui/imgui_math.h"

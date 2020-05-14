@@ -1,7 +1,8 @@
 #include "core/common/to_string.h"
 
 #include <string>
-#include <fmt/format.h>
+
+#include "core/str/format.h"
 
 
 std::string ToString(const dg::float4x4& x) {

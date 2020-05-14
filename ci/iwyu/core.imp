@@ -17,6 +17,7 @@
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h"', private, '"core/dg/graphics_types.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/RasterizerState.h"', private, '"core/dg/rasterizer_state.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h"', private, '"core/dg/graphics_utilities.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h"', private, '"core/dg/shader_resource_variable.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.hpp"', private, '"core/dg/graphics_accessories.h"', public] },
     { include: ['"DiligentTools/TextureLoader/interface/TextureLoader.h"', private, '"DiligentTools/TextureLoader/interface/TextureUtilities.h"', private] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/PipelineState.h"', private, '"DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h"', private] },
@@ -34,6 +35,7 @@
 
     { include: ['"ucl.h"', private, '"core/dg/ucl.h"', public] },
     { include: ['"ucl++.h"', private, '"core/dg/ucl.h"', public] },
+    { include: ["<fmt/format.h>", private, '"core/str/format.h"', public] },
 
     { include: ["<gtest/gtest.h>", public, '"gtest.h"', public] },
 

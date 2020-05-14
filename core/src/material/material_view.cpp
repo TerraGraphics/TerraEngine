@@ -2,10 +2,10 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Shader.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h>
 
 #include "core/dg/context.h"
 #include "core/common/exception.h"
+#include "core/dg/shader_resource_variable.h"
 
 
 struct MaterialView::Impl {

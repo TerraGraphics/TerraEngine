@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdexcept>
-#include <fmt/format.h>
+
+#include "core/str/format.h"
 
 
 class EngineError : public std::runtime_error {

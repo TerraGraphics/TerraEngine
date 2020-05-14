@@ -86,9 +86,13 @@ struct Color4f {
         return dg::float4(red, green, blue, alpha);
     }
 
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     union {
         float value[4] = {0, 0, 0, 1.0f};
         struct {
@@ -98,7 +102,7 @@ struct Color4f {
             float alpha;
         };
     };
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 };
 
@@ -119,9 +123,13 @@ struct Color4 {
             static_cast<float>(alpha) / 255.0f);
     }
 
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     union {
         uint32_t value = 0xFF000000;
         struct {
@@ -131,7 +139,7 @@ struct Color4 {
             uint8_t alpha;
         };
     };
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 };
 
@@ -155,9 +163,13 @@ struct Color3f {
         return dg::float4(red, green, blue, 1.f);
     }
 
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     union {
         float value[3] = {0, 0, 0};
         struct {
@@ -166,7 +178,7 @@ struct Color3f {
             float blue;
         };
     };
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 };
 
@@ -194,9 +206,13 @@ struct Color3 {
             1.f);
     }
 
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     union {
         uint32_t value = 0;
         struct {
@@ -206,7 +222,7 @@ struct Color3 {
             uint8_t _;
         };
     };
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 };
 
@@ -240,9 +256,13 @@ struct SizeT {
     bool operator==(SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
     bool operator!=(SizeT other) const noexcept { return (!operator==(other)); }
 
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     union {
         T values[2] = {0, 0};
         struct {
@@ -250,7 +270,7 @@ struct SizeT {
             T h;
         };
     };
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 };
 
 using Size = SizeT<uint32_t>;
@@ -296,9 +316,13 @@ struct RectT {
     }
 
 
-#pragma clang diagnostic push
+#pragma GCC diagnostic push
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
     union {
         T valuesStart[2] = {0, 0};
         struct {
@@ -313,7 +337,7 @@ struct RectT {
             T h;
         };
     };
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 };
 
 using Rect = RectT<uint32_t>;

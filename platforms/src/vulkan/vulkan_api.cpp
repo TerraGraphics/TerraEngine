@@ -4,18 +4,23 @@
 #include <vector>
 #include <stdexcept>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#if defined(__clang__)
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 #include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma GCC diagnostic push
+#if defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include <DiligentCore/Platforms/Linux/interface/LinuxNativeWindow.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
