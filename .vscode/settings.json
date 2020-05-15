@@ -72,15 +72,11 @@
     "C_Cpp.default.cppStandard": "c++20",
     // "C_Cpp.intelliSenseCacheSize": 0,
     "cmake.configureOnOpen": true,
-    "cmake.environment": {
-        "CC": "/usr/bin/clang",
-        "CXX": "/usr/bin/clang++"
-    },
     "cmake.configureArgs": [
         "-DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF",
         "-DDILIGENT_NO_VULKAN:BOOL=OFF",
         "-DTERRA_IWYU_ENABLE:BOOL=OFF"
     ],
     "C_Cpp.enhancedColorization": "Disabled",
-    "catch2TestExplorer.executables": [ "*_test" ]
+    "testMate.cpp.test.executables": "*_test"
 }

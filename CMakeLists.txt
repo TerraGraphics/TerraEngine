@@ -5,6 +5,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+if(NOT CMAKE_CXX_COMPILER_VERSION)
+    message(FATAL_ERROR "Could not find CMAKE_CXX_COMPILER_VERSION")
+endif()
+
 option(TERRA_IWYU_ENABLE "include-what-you-use enable" OFF)
 set(IWYU_ENABLE FALSE CACHE INTERNAL "include-what-you-use enable")
 if(${TERRA_IWYU_ENABLE})
@@ -17,6 +21,8 @@ if(${IWYU_ENABLE})
     message(FATAL_ERROR "Could not find the program include-what-you-use")
   endif()
 endif()
+
+# set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks="cppcoreguidelines-*")
 
 include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
@@ -32,8 +38,8 @@ conan_basic_setup()
 
 message("IWYU_ENABLE: " ${IWYU_ENABLE})
 message("CMAKE_BUILD_TYPE: " ${CMAKE_BUILD_TYPE})
-
-# set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks="cppcoreguidelines-*")
+message("CMAKE_CXX_COMPILER_ID: " ${CMAKE_CXX_COMPILER_ID})
+message("CMAKE_CXX_COMPILER_VERSION: " ${CMAKE_CXX_COMPILER_VERSION})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
