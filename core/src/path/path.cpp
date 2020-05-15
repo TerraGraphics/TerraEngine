@@ -1,4 +1,4 @@
-#include "core/common/path.h"
+#include "core/path/path.h"
 
 #include <cstring>
 #include <numeric>

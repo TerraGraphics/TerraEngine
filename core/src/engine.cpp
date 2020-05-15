@@ -4,9 +4,9 @@
 #include <utility>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
+#include "core/path/path.h"
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "core/dg/context.h" // IWYU pragma: keep
-#include "core/common/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"

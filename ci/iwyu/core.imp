@@ -35,8 +35,8 @@
     { symbol: ["Diligent::TEXTURE_ADDRESS_MODE", "private", '"core/dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"core/dg/dg.h"', "public"] },
 
-    { include: ['"ucl.h"', private, '"core/dg/ucl.h"', public] },
-    { include: ['"ucl++.h"', private, '"core/dg/ucl.h"', public] },
+    { include: ['"ucl.h"', private, '"core/path/ucl.h"', public] },
+    { include: ['"ucl++.h"', private, '"core/path/ucl.h"', public] },
     { include: ["<fmt/format.h>", private, '"core/str/format.h"', public] },
 
     { include: ["<gtest/gtest.h>", public, '"gtest.h"', public] },
