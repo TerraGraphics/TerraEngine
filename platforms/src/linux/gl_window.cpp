@@ -548,8 +548,8 @@ void WindowGLLinux::HandleFocusOut() {
 }
 
 void WindowGLLinux::HandleSizeEvent(uint32_t width, uint32_t height) {
-    m_windowCenterX = width / 2;
-    m_windowCenterY = height / 2;
+    m_windowCenterX = static_cast<int>(width) / 2;
+    m_windowCenterY = static_cast<int>(height) / 2;
     m_eventHandler->OnWindowSizeEvent(width, height);
 }
 

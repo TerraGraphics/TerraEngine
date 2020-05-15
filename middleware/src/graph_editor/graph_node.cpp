@@ -58,7 +58,7 @@ GraphNode::GraphNode(dg::IReferenceCounters* refCounters, const char* name, uint
 
 GraphNode::~GraphNode() {
     for (auto& node : m_inputs) {
-        if (node) {
+        if (node.RawPtr() != nullptr) {
             node->DetachOutput(this);
         }
     }
@@ -101,7 +101,7 @@ bool GraphNode::DetachInput(uint8_t number) {
     }
 
     m_inputPins[number].isConnected = false;
-    if (auto node = m_inputs[number]) {
+    if (auto node = m_inputs[number]; node.RawPtr() != nullptr) {
         node->DetachOutput(this);
     }
     m_inputs[number] = nullptr;
@@ -118,7 +118,8 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
     const auto iconSize = math::Size(24, 24);
     const auto innerPinColor = math::Color(32, 32, 32, alpha);
     const auto headerColor = math::Color(0, 125, 0, alpha).value;
-    const auto headerLineColor = math::Color(255, 255, 255, 96 * alpha / (3 * 255)).value;
+    const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(alpha) / (3 * 255));
+    const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
 
 
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, nodePaddingTop, nodePaddingRight, nodePaddingBottom));

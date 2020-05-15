@@ -25,7 +25,7 @@ SelectedNode::~SelectedNode() {
 
 GraphNode* SelectedNode::GetNode() {
     if (m_node.IsValid()) {
-        if (auto nodePtr = m_node.Lock()) {
+        if (auto nodePtr = m_node.Lock(); nodePtr.RawPtr() != nullptr) {
             return nodePtr.RawPtr();
         }
     }
@@ -42,13 +42,13 @@ void SelectedNode::ResetNode() {
     if (m_node.IsValid()) {
         m_node.Release();
     }
-    if (m_previewNode) {
+    if (m_previewNode.RawPtr() != nullptr) {
         m_previewNode.Release();
     }
 }
 
 void SelectedNode::Draw() {
-    if (auto nodePtr = m_node.Lock()) {
+    if (auto nodePtr = m_node.Lock(); nodePtr.RawPtr() != nullptr) {
         gui::Text(nodePtr->GetName() + std::string(":"));
         nodePtr->DrawGui();
     } else {

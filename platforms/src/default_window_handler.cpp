@@ -5,6 +5,8 @@ static constexpr const uint8_t IsDownMask = 1 << 4;
 static constexpr const uint8_t IsStickyDownMask = 1 << 5;
 static constexpr const uint8_t FirstPressMask = 1 << 6;
 static constexpr const uint8_t FirstReleaseMask = 1 << 7;
+static constexpr const uint8_t ResetFirstPressReleaseMask = 0b00111111;
+static constexpr const uint8_t ResetIsDownAndKeyModifierMask = 0b11100000;
 static constexpr const uint8_t KeyModifierMask = KeyModifier::Shift | KeyModifier::Control | KeyModifier::Alt | KeyModifier::Super;
 
 bool DefaultWindowEventsHandler::GetWindowSize(uint32_t& width, uint32_t& height) const noexcept {
@@ -93,8 +95,7 @@ void DefaultWindowEventsHandler::OnNewFrame() {
     m_userInput.clear();
     for(size_t i=0; i!=(static_cast<size_t>(Key::Last) + 1); ++i) {
         if ((m_isKeyDown[i] & IsDownMask) != 0) {
-            // clear FirstPress and FirstRelease bits
-            m_isKeyDown[i] &= ~(FirstPressMask | FirstReleaseMask);
+            m_isKeyDown[i] &= ResetFirstPressReleaseMask;
         } else {
             m_isKeyDown[i] = 0;
         }
@@ -120,8 +121,7 @@ void DefaultWindowEventsHandler::OnKeyEvent(KeyAction action, Key code, uint8_t 
 
     if (action == KeyAction::Release) {
         state |= FirstReleaseMask;
-        // clear KeyModifier bits and IsDownMask bit
-        state &= ~(KeyModifierMask | IsDownMask);
+        state &= ResetIsDownAndKeyModifierMask;
     } else{
         if ((state & IsDownMask) == 0) {
             state |= FirstPressMask;

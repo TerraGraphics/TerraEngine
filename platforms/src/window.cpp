@@ -28,18 +28,18 @@ void RenderWindow::SetMonitorSize(uint16_t monitorWidth, uint16_t monitorHeight)
         m_desc.width = std::max(width, m_desc.minWidth);
         m_desc.height = std::max(height, m_desc.minHeight);
     } else {
-        throw std::runtime_error("unknown value of sizeType = " + std::to_string(static_cast<uint8_t>(m_desc.sizeType)));
+        throw std::runtime_error("unknown value of sizeType = " + std::to_string(static_cast<unsigned>(m_desc.sizeType)));
     }
 
     if (m_desc.positionType == WindowDesc::Position::Absolute) {
         // pass
     } else if (m_desc.positionType == WindowDesc::Position::CenterOfScreen) {
-        m_desc.positionX = (monitorWidth - m_desc.width) / 2;
-        m_desc.positionY = (monitorHeight - m_desc.height) / 2;
+        m_desc.positionX = static_cast<int16_t>((static_cast<int>(monitorWidth) - static_cast<int>(m_desc.width)) / 2);
+        m_desc.positionY = static_cast<int16_t>((static_cast<int>(monitorHeight) - static_cast<int>(m_desc.height)) / 2);
     } else if (m_desc.positionType == WindowDesc::Position::Default) {
-        m_desc.positionX = (monitorWidth - m_desc.width) / 2;
-        m_desc.positionY = (monitorHeight - m_desc.height) / 2;
+        m_desc.positionX = static_cast<int16_t>((static_cast<int>(monitorWidth) - static_cast<int>(m_desc.width)) / 2);
+        m_desc.positionY = static_cast<int16_t>((static_cast<int>(monitorHeight) - static_cast<int>(m_desc.height)) / 2);
     } else {
-        throw std::runtime_error("unknown value of positionType = " + std::to_string(static_cast<uint8_t>(m_desc.positionType)));
+        throw std::runtime_error("unknown value of positionType = " + std::to_string(static_cast<unsigned>(m_desc.positionType)));
     }
 }

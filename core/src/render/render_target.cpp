@@ -135,7 +135,7 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
 
     uint8_t i = 0;
     for (auto& ct : m_colorTargets) {
-        if (ct) {
+        if (ct.RawPtr() != nullptr) {
             if (needRecreate) {
                 auto& desc = ct->GetDesc();
                 CreateColorTarget(i, desc.Format, desc.Name);
@@ -146,7 +146,7 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
         ++i;
     }
 
-    if (m_depthTarget) {
+    if (m_depthTarget.RawPtr() != nullptr) {
         if (needRecreate) {
             auto& desc = m_depthTarget->GetDesc();
             CreateDepthTarget(desc.Format, desc.Name);

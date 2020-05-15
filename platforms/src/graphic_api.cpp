@@ -18,7 +18,7 @@ GraphicAPI::~GraphicAPI() {
 }
 
 void GraphicAPI::Destroy() {
-    if (m_context) {
+    if (m_context.RawPtr() != nullptr) {
         m_context->Flush();
     }
     m_deferredContexts.clear();
