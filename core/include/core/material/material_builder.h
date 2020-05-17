@@ -11,6 +11,8 @@
 
 
 struct ShaderVars {
+    bool operator==(const ShaderVars& other) const;
+
     static constexpr const uint8_t max = 32;
 
     uint16_t vars[max];
@@ -22,8 +24,6 @@ namespace Diligent {
     struct GraphicsPipelineDesc;
 }
 class VDeclStorage;
-class ShaderBuilder;
-class MicroshaderLoader;
 struct MaterialBuilderDesc;
 class MaterialBuilder : Fixed {
 public:
@@ -42,28 +42,20 @@ public:
     uint16_t CacheTextureVar(uint16_t textureVarId, const dg::SamplerDesc& desc);
     const dg::SamplerDesc& GetCachedSamplerDesc(uint16_t textureVarId) const;
 
+    uint32_t AddGlobalVar(dg::SHADER_TYPE shaderType, const std::string& name, const void* data, size_t dataSize);
     template<typename T> uint32_t AddGlobalVar(dg::SHADER_TYPE shaderType, const std::string& name) {
         T data;
-        uint32_t id = m_staticVarsStorage->Add(shaderType, name, sizeof(T));
-        m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
-        return id;
+        return AddGlobalVar(shaderType, name, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
+    void UpdateGlobalVar(uint32_t id, const void* data, size_t dataSize);
     template<typename T> void UpdateGlobalVar(uint32_t id, const T& data) {
-        m_staticVarsStorage->Update(id, reinterpret_cast<const void*>(&data), sizeof(T));
+        UpdateGlobalVar(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
     PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc);
 
 private:
-    DevicePtr m_device;
-    SwapChainPtr m_swapChain;
-    std::shared_ptr<VDeclStorage> m_vDeclStorage;
-    ShaderBuilder* m_shaderBuilder = nullptr;
-    MicroshaderLoader* m_microShaderLoader = nullptr;
-    StaticVarsStorage* m_staticVarsStorage = nullptr;
-
-private:
     struct Impl;
-    Pimpl<Impl, 3240, 8> impl;
+    Pimpl<Impl, 3352, 8> impl;
 };

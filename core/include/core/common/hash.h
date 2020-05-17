@@ -12,8 +12,14 @@ namespace std {
     };
 }
 
-template <typename T> inline void HashCombine(std::size_t& seed, const T& v) {
-    seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+template <typename T> inline void HashCombine(std::size_t& hash, const T& v) {
+    hash ^= std::hash<T>()(v) + 0x9e3779b9 + (hash<<6) + (hash>>2);
+}
+
+template <typename T> inline void HashCombine(std::size_t& hash, const T* container, size_t number) {
+    for (size_t i=0; i!=number; ++i) {
+        HashCombine(hash, container[i]);
+    }
 }
 
 template <typename T> struct ContainerHasher {
