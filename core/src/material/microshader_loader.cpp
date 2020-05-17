@@ -153,7 +153,7 @@ uint64_t MicroshaderLoader::GetMask(const std::string& name) const {
         throw EngineError("not found microshader with name '{}'", name);
     }
 
-    return 1 << it->second;
+    return uint64_t(1) << static_cast<uint64_t>(it->second);
 }
 
 MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh::SemanticDecls& vertexInput) const {

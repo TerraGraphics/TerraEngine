@@ -111,7 +111,7 @@ const ShaderVar& MaterialBuilder::Impl::GetShaderVar(uint16_t textureVarId) cons
         throw EngineError("MaterialBuilder: wrong textureVarId {} for GetShaderVar, max textureVarId is {}", textureVarId, m_idToShaderVar.size());
     }
 
-    return m_idToShaderVar[textureVarId - 1];
+    return m_idToShaderVar[textureVarId - uint16_t(1)];
 }
 
 const dg::SamplerDesc& MaterialBuilder::Impl::GetSamplerDesc(uint16_t samplerId) const {
@@ -122,7 +122,7 @@ const dg::SamplerDesc& MaterialBuilder::Impl::GetSamplerDesc(uint16_t samplerId)
         throw EngineError("MaterialBuilder: wrong samplerId {} for GetSamplerDesc, max samplerId is {}", samplerId, m_idToSampler.size());
     }
 
-    return m_idToSampler[samplerId - 1];
+    return m_idToSampler[samplerId - uint16_t(1)];
 }
 
 uint16_t MaterialBuilder::Impl::CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type, uint16_t samplerId) {
