@@ -84,6 +84,7 @@ public:
     std::shared_ptr<TransformNode> NewChild(const std::shared_ptr<Geometry>& geometry, const std::shared_ptr<Material>& material, const dg::float4x4& transform = dg::One4x4);
     void AddChild(const std::shared_ptr<TransformNode>& node);
 
+protected:
     void UpdateGraph(TransformUpdateDesc& nodeList);
 
 private:

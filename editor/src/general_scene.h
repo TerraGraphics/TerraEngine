@@ -6,7 +6,7 @@
 #include "core/common/ctor.h"
 
 
-class Scene;
+class StdScene;
 class StdMaterial;
 class StdMaterialGrass;
 class GeneralScene : Fixed {
@@ -44,7 +44,7 @@ private:
     std::shared_ptr<StdMaterial> m_matGrassBillboard1;
     std::shared_ptr<StdMaterial> m_matGrassBillboard2;
 
-    std::shared_ptr<Scene> m_scene;
+    std::shared_ptr<StdScene> m_scene;
 
     DevicePtr m_device;
 };

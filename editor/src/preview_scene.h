@@ -7,7 +7,7 @@
 #include "core/common/ctor.h"
 
 
-class Scene;
+class StdScene;
 class StdMaterial;
 class TransformNode;
 class PreviewScene : Fixed {
@@ -35,7 +35,7 @@ private:
     std::shared_ptr<StdMaterial> m_material0;
     std::shared_ptr<StdMaterial> m_material1;
 
-    std::shared_ptr<Scene> m_scene;
+    std::shared_ptr<StdScene> m_scene;
 
     DevicePtr m_device;
 };

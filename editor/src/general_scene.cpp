@@ -6,7 +6,6 @@
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/dg/texture.h"
 #include "core/math/types.h"
-#include "core/scene/scene.h"
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"
 #include "core/math/constants.h"
@@ -18,6 +17,7 @@
 #include "core/dg/texture_utilities.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/vdecl_storage.h"
+#include "middleware/std_render/std_scene.h"
 #include "middleware/std_render/std_material.h"
 #include "middleware/generator/mesh_generator.h"
 
@@ -34,7 +34,7 @@ void GeneralScene::Create() {
         VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
         VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
     });
-    m_scene = std::make_shared<Scene>(m_device, engine.GetContext(), vDeclIdPerInstance, false);
+    m_scene = std::make_shared<StdScene>(vDeclIdPerInstance, false);
 
     CreateTextures();
     GenerateGround();
