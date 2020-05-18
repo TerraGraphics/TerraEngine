@@ -19,7 +19,7 @@
 #include "editor_scene_controller.h"
 #include "general_scene_controller.h"
 #include "core/material/material_builder.h"
-#include "middleware/std_material/structures.h"
+#include "middleware/std_render/structures.h"
 #include "core/material/material_builder_desc.h"
 
 

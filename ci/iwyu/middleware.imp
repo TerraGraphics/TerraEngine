@@ -9,6 +9,9 @@
     { include: ['"middleware/generator/mesh/shape_builder.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/cylinder_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
 
+    { include: ['"core/dg/math.h"', public, '"middleware/std_render/structures.h"', public] },
+    { include: ['"structures.fxh"', private, '"middleware/std_render/structures.h"', public] },
+
     { include: ['"FastNoise.h"', private, "<FastNoise.h>", public] },
     { include: ["<imgui.h>", private, '"middleware/imgui/imgui.h"', public] },
     { include: ["<imgui_internal.h>", private, '"middleware/imgui/imgui_internal.h"', public] },

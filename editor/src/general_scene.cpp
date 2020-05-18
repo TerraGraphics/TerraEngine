@@ -18,8 +18,8 @@
 #include "core/dg/texture_utilities.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/vdecl_storage.h"
+#include "middleware/std_render/std_material.h"
 #include "middleware/generator/mesh_generator.h"
-#include "middleware/std_material/std_material.h"
 
 
 void GeneralScene::Create() {

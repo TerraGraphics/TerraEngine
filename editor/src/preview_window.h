@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "core/common/ctor.h"
-#include "middleware/std_material/structures.h"
+#include "middleware/std_render/structures.h"
 
 class Camera;
 class Gizmo3D;

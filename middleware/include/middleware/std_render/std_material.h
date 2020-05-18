@@ -6,7 +6,7 @@
 #include "core/dg/dg.h"
 #include "core/math/types.h"
 #include "core/material/material.h"
-#include "middleware/std_material/structures.h"
+#include "middleware/std_render/structures.h"
 
 
 namespace Diligent {
