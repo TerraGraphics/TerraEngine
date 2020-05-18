@@ -5,8 +5,6 @@
 #include <filesystem>
 #include <functional>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-
 #include "core/path/path.h"
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "core/dg/context.h" // IWYU pragma: keep
@@ -14,7 +12,6 @@
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/gui.h"
-#include "core/dg/graphics_types.h"
 #include "editor_scene_controller.h"
 #include "general_scene_controller.h"
 #include "core/material/material_builder.h"

@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
-
 #include "core/dg/context.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"

@@ -3,14 +3,9 @@
 #include <cstddef>
 #include <strings.h>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/Fence.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-
 #include "core/dg/device.h"
-#include "core/dg/texture.h"
 #include "core/dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_types.h"
 
 
 RenderTarget::RenderTarget() {

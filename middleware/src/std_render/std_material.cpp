@@ -2,15 +2,9 @@
 
 #include <memory>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
-
 #include "core/engine.h"
-#include "core/dg/buffer.h"
-#include "core/dg/shader.h"
 #include "core/dg/device.h"
 #include "core/dg/context.h"
-#include "core/dg/sampler.h"
-#include "core/dg/graphics_types.h"
 #include "core/material/material_view.h"
 #include "core/material/material_builder.h"
 #include "core/dg/shader_resource_variable.h"

@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <utility>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
 #include "core/path/path.h"
 #include "core/dg/device.h" // IWYU pragma: keep
@@ -10,7 +9,6 @@
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_types.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/material_builder.h"
 

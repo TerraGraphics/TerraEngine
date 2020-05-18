@@ -3,16 +3,12 @@
 #include <vector>
 #include <cstddef>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
-
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "core/dg/device.h"
-#include "core/dg/shader.h"
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
-#include "core/dg/graphics_types.h"
 #include "core/scene/vertex_buffer.h"
 #include "core/scene/transform_graph.h"
 #include "core/material/material_builder.h"

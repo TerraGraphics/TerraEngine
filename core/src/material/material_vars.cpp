@@ -5,10 +5,8 @@
 
 #include "core/dg/dg.h"
 #include "core/dg/device.h"
-#include "core/dg/buffer.h"
 #include "core/dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_types.h"
 #include "core/dg/shader_resource_variable.h"
 
 

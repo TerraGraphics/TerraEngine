@@ -1,7 +1,6 @@
 #include "graph_window.h"
 
 #include <utility>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
 #include "core/dg/dg.h"
 #include "core/engine.h"

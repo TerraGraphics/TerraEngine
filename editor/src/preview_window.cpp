@@ -1,7 +1,6 @@
 #include "preview_window.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
@@ -9,7 +8,6 @@
 #include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
-#include "core/dg/graphics_types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "core/material/vdecl_item.h"

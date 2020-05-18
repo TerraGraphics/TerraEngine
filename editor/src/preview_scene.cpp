@@ -3,7 +3,6 @@
 #include "core/engine.h"
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/math/types.h"
-#include "core/dg/texture.h"
 #include "core/dg/graphics_types.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/dg/texture_utilities.h"

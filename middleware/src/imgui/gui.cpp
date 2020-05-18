@@ -7,24 +7,13 @@
 #include <algorithm>
 #include <filesystem>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/BlendState.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
-
 #include "core/dg/math.h"
 #include "core/dg/device.h"
-#include "core/dg/buffer.h"
-#include "core/dg/shader.h"
-#include "core/dg/texture.h"
-#include "core/dg/sampler.h"
 #include "core/dg/context.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/font.h"
 #include "core/common/exception.h"
 #include "middleware/imgui/imgui.h"
-#include "core/dg/graphics_types.h"
-#include "core/dg/rasterizer_state.h"
 #include "core/dg/shader_resource_binding.h"
 #include "core/dg/shader_resource_variable.h"
 

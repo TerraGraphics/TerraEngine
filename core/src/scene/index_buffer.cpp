@@ -1,9 +1,7 @@
 #include "core/scene/index_buffer.h"
 
-#include "core/dg/buffer.h"
 #include "core/dg/device.h"
 #include "core/dg/context.h"
-#include "core/dg/graphics_types.h"
 
 
 IndexBuffer::IndexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name) {

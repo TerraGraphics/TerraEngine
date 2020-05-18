@@ -4,7 +4,6 @@
 
 #include "core/engine.h"
 #include "core/dg/context.h" // IWYU pragma: keep
-#include "core/dg/texture.h"
 #include "core/math/types.h"
 #include "core/math/random.h"
 #include "core/scene/vertexes.h"
