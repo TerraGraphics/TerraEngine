@@ -19,7 +19,6 @@
 #include "editor_scene_controller.h"
 #include "general_scene_controller.h"
 #include "core/material/material_builder.h"
-#include "middleware/std_render/structures.h"
 #include "core/material/material_builder_desc.h"
 
 
@@ -53,9 +52,6 @@ void Editor::Create() {
 
     auto& materialBuilder = engine.GetMaterialBuilder();
     materialBuilder->Load(materialDesc);
-    auto vsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_VERTEX, "Camera");
-    auto psCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_PIXEL, "Camera");
-    auto gsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_GEOMETRY, "Camera");
 
     // engine.GetWindow()->SetCursor(CursorType::Disabled);
     engine.GetWindow()->SetCursor(CursorType::Arrow);
@@ -64,9 +60,9 @@ void Editor::Create() {
     m_gui->Create();
 
     m_editorSceneController = std::make_shared<EditorSceneController>();
-    m_editorSceneController->Create(vsCameraVarId, psCameraVarId, gsCameraVarId, m_gui);
+    m_editorSceneController->Create(m_gui);
     m_generalSceneController = std::make_shared<GeneralSceneController>();
-    m_generalSceneController->Create(vsCameraVarId, psCameraVarId, gsCameraVarId);
+    m_generalSceneController->Create();
 }
 
 void Editor::Update(double deltaTime) {

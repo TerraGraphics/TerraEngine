@@ -27,9 +27,9 @@ StaticVarsStorage::~StaticVarsStorage() {
 }
 
 uint32_t StaticVarsStorage::Add(dg::SHADER_TYPE shaderType, const std::string& name, size_t size) {
-    for (const auto& it: m_infoList) {
-        if ((it.shaderType == shaderType) && (it.name == name)) {
-            throw EngineError("shader varaible with name {} is duplicated for shader type {} in StaticVarsStorage", name, dg::GetShaderTypeLiteralName(shaderType));
+    for (uint32_t i=0; i!=m_infoList.size(); ++i) {
+        if ((m_infoList[i].shaderType == shaderType) && (m_infoList[i].name == name)) {
+            return i;
         }
     }
 

@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "core/common/ctor.h"
-#include "middleware/std_render/structures.h"
+
 
 class Camera;
 class Gizmo3D;
@@ -18,11 +18,12 @@ public:
     ~PreviewWindow();
 
 public:
-    void Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId);
+    void Create();
     void Update(double deltaTime);
     void Draw();
 
 private:
+    std::shared_ptr<Camera> m_camera;
     std::unique_ptr<PreviewScene> m_scene;
     std::unique_ptr<RenderTarget> m_renderTarget;
     bool m_waitTextureCopy = false;
@@ -30,13 +31,8 @@ private:
     std::unique_ptr<Gizmo3D> m_gizmo;
     uint32_t m_selectedId = std::numeric_limits<uint32_t>::max();
 
-    uint32_t m_vsCameraVarId = 0;
-    uint32_t m_psCameraVarId = 0;
-    uint32_t m_gsCameraVarId = 0;
-    bool m_isOpenGL = false;
     bool m_draw = false;
+    bool m_isOpenGL = false;
 
-    dg::ShaderCamera m_shaderCamera;
-    std::shared_ptr<Camera> m_camera;
     std::unique_ptr<EditorCameraController> m_controller;
 };

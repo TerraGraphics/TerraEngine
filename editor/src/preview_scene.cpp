@@ -26,21 +26,8 @@ PreviewScene::~PreviewScene() {
 
 }
 
-void PreviewScene::Create() {
-    auto& engine = Engine::Get();
-    m_device = engine.GetDevice();
-    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
-        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
-        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
-        VDeclItem("IdColor", VDeclType::Color4, 1, false),
-    });
-    m_scene = std::make_shared<StdScene>(vDeclIdPerInstance, true);
-
+void PreviewScene::Create(const std::shared_ptr<StdScene>& scene) {
+    m_scene = scene;
     CreateTextures();
     CreateMaterials();
     GenerateMeshes();
@@ -59,16 +46,18 @@ void PreviewScene::Draw() {
 }
 
 void PreviewScene::CreateTextures() {
+    auto& device = Engine::Get().GetDevice();
+
     dg::TextureLoadInfo loadInfo;
     loadInfo.IsSRGB = true;
 
     {
         TexturePtr Tex;
-        CreateTextureFromFile("assets/ground.jpg", loadInfo, m_device, &Tex);
+        CreateTextureFromFile("assets/ground.jpg", loadInfo, device, &Tex);
         m_TextureCube = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
 
-    auto factory = std::make_unique<TextureNodeFactory>(m_device, Engine::Get().GetContext());
+    auto factory = std::make_unique<TextureNodeFactory>(device, Engine::Get().GetContext());
     auto* cNoise = factory->CreateCoherentNoise();
     auto* planePr = factory->CreatePlaneProjection()->SetInputs(cNoise);
     auto* texGen = factory->CreateNoiseToTexture()->SetInputs(planePr);
@@ -90,14 +79,16 @@ void PreviewScene::CreateMaterials() {
 }
 
 void PreviewScene::GenerateMeshes() {
+    auto& device = Engine::Get().GetDevice();
+
     // TorusShape shape1(0.25f, 1.f, 10, 30, math::Axis::Y);
     // CubeShape shape1({1.f, 2.f, 3.f}, {2, 3, 4});
     // ConeShape shape1({30, 30}, math::Axis::Y);
     // PlaneShape shape1({math::Axis::X, math::Axis::Z}, math::Direction::POS_Y);
     PlaneShape shape1({math::Axis::Y, math::Axis::Z}, math::Direction::POS_X);
     SphereShape shape2({30, 30}, math::Axis::Y);
-    auto model1 = ShapeBuilder(m_device).Join({&shape1}, "Model1");
-    auto model2 = ShapeBuilder(m_device).Join({&shape2}, "Model2");
+    auto model1 = ShapeBuilder(device).Join({&shape1}, "Model1");
+    auto model2 = ShapeBuilder(device).Join({&shape2}, "Model2");
 
     auto matModel = dg::float4x4::Scale(1, 1, 1);
     m_scene->NewChild(model1, m_material0, matModel);

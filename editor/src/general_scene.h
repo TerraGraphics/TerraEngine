@@ -15,7 +15,7 @@ public:
     ~GeneralScene() = default;
 
 public:
-    void Create();
+    void Create(const std::shared_ptr<StdScene>& scene);
     void Update(double deltaTime);
     void Draw();
 
@@ -45,6 +45,4 @@ private:
     std::shared_ptr<StdMaterial> m_matGrassBillboard2;
 
     std::shared_ptr<StdScene> m_scene;
-
-    DevicePtr m_device;
 };

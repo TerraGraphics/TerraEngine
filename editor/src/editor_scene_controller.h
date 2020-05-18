@@ -19,7 +19,7 @@ public:
     ~EditorSceneController();
 
 public:
-    void Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<gui::Gui>& gui);
+    void Create(const std::shared_ptr<gui::Gui>& gui);
     void Update(double deltaTime);
     void Draw();
 

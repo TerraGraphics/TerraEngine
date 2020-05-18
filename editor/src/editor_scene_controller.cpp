@@ -29,14 +29,14 @@ EditorSceneController::~EditorSceneController() {
     m_propertyWindow.reset();
 }
 
-void EditorSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId, const std::shared_ptr<gui::Gui>& gui) {
+void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
     auto& engine = Engine::Get();
 
     m_gui = gui;
     m_propertyWindow->Create();
     m_graphWindow->Create(m_propertyWindow);
     m_renderTarget->Create(engine.GetDevice(), math::Color4f(1.f));
-    m_previewWindow->Create(vsCameraVarId, psCameraVarId, gsCameraVarId);
+    m_previewWindow->Create();
 }
 
 void EditorSceneController::Update(double deltaTime) {

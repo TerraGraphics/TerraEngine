@@ -13,10 +13,13 @@
 #include "core/dg/graphics_types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
+#include "core/material/vdecl_item.h"
 #include "middleware/gizmo/gizmo_3d.h"
 #include "core/render/render_target.h"
+#include "core/material/vdecl_storage.h"
 #include "middleware/imgui/imgui_math.h"
 #include "core/material/material_builder.h"
+#include "middleware/std_render/std_scene.h"
 #include "middleware/camera/editor_controller.h"
 
 
@@ -35,21 +38,12 @@ PreviewWindow::~PreviewWindow() {
     m_gizmo.reset();
     m_renderTarget.reset();
     m_scene.reset();
-    m_camera.reset();
 }
 
-void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId) {
+void PreviewWindow::Create() {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
-
-    m_vsCameraVarId = vsCameraVarId;
-    m_psCameraVarId = psCameraVarId;
-    m_gsCameraVarId = gsCameraVarId;
     m_isOpenGL = device->GetDeviceCaps().IsGLDevice();
-
-    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, m_isOpenGL, true);
-    m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
-    m_controller->SetCamera(m_camera);
 
     ColorTargetDesc colorTargets[] = {
         ColorTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::preview"),
@@ -61,7 +55,22 @@ void PreviewWindow::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint3
         CPUTargetDesc(1, 1, 1, "rt::color::cpu")
     ));
 
-    m_scene->Create();
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+        VDeclItem("IdColor", VDeclType::Color4, 1, false),
+    });
+    auto scene = std::make_shared<StdScene>(vDeclIdPerInstance, true);
+    m_camera = scene->GetCamera();
+    m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
+    m_controller->SetCamera(m_camera);
+
+    m_scene->Create(scene);
     m_scene->AddChild(m_gizmo->Create());
 }
 
@@ -79,9 +88,6 @@ void PreviewWindow::Update(double deltaTime) {
         math::Rect rc = gui::Image(m_renderTarget->GetColorTexture(0), gui::ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
 
         m_controller->Update(handler, rc.Width(), rc.Height(), static_cast<float>(deltaTime));
-        m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
-        m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
-        m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
         m_renderTarget->Update(engine.GetSwapChain(), rc.Width(), rc.Height());
 
         bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
@@ -126,15 +132,8 @@ void PreviewWindow::Update(double deltaTime) {
 }
 
 void PreviewWindow::Draw() {
-    auto& engine = Engine::Get();
-    auto& builder = engine.GetMaterialBuilder();
-
     if (m_draw) {
-        m_renderTarget->Bind(engine.GetContext());
-        builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
-        builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
-        builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
-
+        m_renderTarget->Bind(Engine::Get().GetContext());
         m_scene->Draw();
     }
 }

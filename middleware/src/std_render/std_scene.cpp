@@ -1,20 +1,34 @@
 #include "middleware/std_render/std_scene.h"
 
 #include "core/engine.h"
+#include "core/dg/device.h"
 #include "core/dg/context.h" // IWYU pragma: keep
+#include "core/camera/camera.h"
 #include "core/scene/vertex_buffer.h"
+#include "core/material/material_builder.h"
 
 
 StdScene::StdScene(uint16_t vDeclIdPerInstance, bool addId)
     : Scene(vDeclIdPerInstance)
     , m_addId(addId) {
 
+    auto& engine = Engine::Get();
+    auto& materialBuilder = engine.GetMaterialBuilder();
+
+    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, engine.GetDevice()->GetDeviceCaps().IsGLDevice(), true);
+    m_vsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_VERTEX, "Camera");
+    m_psCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_PIXEL, "Camera");
+    m_gsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_GEOMETRY, "Camera");
 }
 
 std::shared_ptr<TransformNode> StdScene::Update(uint32_t findId) {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
     auto& context = engine.GetContext();
+
+    m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
+    m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
+    m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
     TransformUpdateDesc& updateDesc = Scene::Update(findId);
 
@@ -49,7 +63,13 @@ std::shared_ptr<TransformNode> StdScene::Update(uint32_t findId) {
 }
 
 uint32_t StdScene::Draw() {
-    auto& context = Engine::Get().GetContext();
+    auto& engine = Engine::Get();
+    auto& context = engine.GetContext();
+    auto& builder = engine.GetMaterialBuilder();
+
+    builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
+    builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
+    builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
     m_transformBuffer->BindExclusively(context, 1);
     return Scene::Draw(context);
 }

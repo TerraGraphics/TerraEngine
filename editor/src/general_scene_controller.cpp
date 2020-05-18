@@ -11,8 +11,11 @@
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
 #include "core/dg/graphics_types.h"
+#include "core/material/vdecl_item.h"
 #include "core/render/render_target.h"
+#include "core/material/vdecl_storage.h"
 #include "core/material/material_builder.h"
+#include "middleware/std_render/std_scene.h"
 #include "middleware/camera/fly_controller.h"
 
 
@@ -35,19 +38,25 @@ GeneralSceneController::~GeneralSceneController() {
     m_sceneRenderTarget.reset();
 }
 
-void GeneralSceneController::Create(uint32_t vsCameraVarId, uint32_t psCameraVarId, uint32_t gsCameraVarId) {
+void GeneralSceneController::Create() {
     auto& engine = Engine::Get();
     auto device = engine.GetDevice();
 
-    m_vsCameraVarId = vsCameraVarId;
-    m_psCameraVarId = psCameraVarId;
-    m_gsCameraVarId = gsCameraVarId;
+    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+    });
+    auto scene = std::make_shared<StdScene>(vDeclIdPerInstance, false);
+    auto& camera = scene->GetCamera();
+    camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
+    m_controller->AttachCamera(camera);
 
-    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, device->GetDeviceCaps().IsGLDevice(), true);
-    m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
-    m_controller->AttachCamera(m_camera);
-
-    m_generalScene->Create();
+    m_generalScene->Create(scene);
     m_sceneRenderTarget->Create(device, math::Color4f(0, 0, 1.f));
 }
 
@@ -58,22 +67,11 @@ void GeneralSceneController::Update(double deltaTime) {
     const auto& desc = swapChain->GetDesc();
 
     m_controller->Update(handler, desc.Width, desc.Height, static_cast<float>(deltaTime));
-    m_shaderCamera.matViewProj = m_camera->GetViewMatrix() * m_camera->GetProjMatrix();
-    m_shaderCamera.vecPosition = dg::float4(m_camera->GetPosition(), 0);
-    m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
-
     m_generalScene->Update(deltaTime);
     m_sceneRenderTarget->Update(swapChain);
 }
 
 void GeneralSceneController::Draw() {
-    auto& engine = Engine::Get();
-    auto& builder = engine.GetMaterialBuilder();
-
-    m_sceneRenderTarget->Bind(engine.GetContext());
-    builder->UpdateGlobalVar(m_vsCameraVarId, m_shaderCamera);
-    builder->UpdateGlobalVar(m_psCameraVarId, m_shaderCamera);
-    builder->UpdateGlobalVar(m_gsCameraVarId, m_shaderCamera);
-
+    m_sceneRenderTarget->Bind(Engine::Get().GetContext());
     m_generalScene->Draw();
 }
