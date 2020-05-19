@@ -34,13 +34,17 @@ public:
 
     void SetAlphaThreshold(float value);
 
+    // By default: disable
     void AmbientDiffuse(bool enable);
+    // By default: disable
     void Specular(bool enable);
+    // By default: enable
     void ColorPicker(bool enable);
 
 protected:
     void OnNewFrame() override;
-    void OnNewView(MaterialView& view) override;
+    uint64_t OnBeforeCreateView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) override;
+    void OnAfterCreateView(MaterialView& view) override;
 
     void ApplyMask(uint64_t mask);
     void AddFlag(uint64_t flag);
@@ -49,6 +53,7 @@ protected:
 
 private:
     bool m_dataEnable = false;
+    bool m_colorPickerEnable = true;
     uint16_t m_materialVarId = 0;
     uint16_t m_baseTextureVarId = 0;
     TextureViewPtr m_baseTexture;

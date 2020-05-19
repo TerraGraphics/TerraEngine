@@ -57,13 +57,11 @@ void PreviewScene::CreateMaterials() {
     m_material0 = std::make_shared<StdMaterial>("mat::phong::node0");
     m_material0->SetCullMode(dg::CULL_MODE_NONE);
     m_material0->AmbientDiffuse(true);
-    m_material0->ColorPicker(true);
     m_material0->SetBaseTexture(m_TextureNoise);
 
     m_material1 = std::make_shared<StdMaterial>("mat::phong::node1");
     m_material1->SetCullMode(dg::CULL_MODE_NONE);
     m_material1->AmbientDiffuse(true);
-    m_material1->ColorPicker(true);
     m_material1->SetBaseTexture(m_TextureCube);
 }
 

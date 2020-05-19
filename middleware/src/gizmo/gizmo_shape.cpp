@@ -48,7 +48,7 @@ std::shared_ptr<TransformNode> GizmoArrow::GetNode(DevicePtr& device, bool isMov
     color[axisNum] = 1.0f;
     auto material = std::make_shared<StdMaterial>("mat::gizmo::arrow");
     material->Depth(false);
-    material->SetCullMode(dg::CULL_MODE_NONE);
+    material->ColorPicker(false);
     material->SetBaseColor(color);
 
     return std::make_shared<TransformNode>(geometry, material);
@@ -133,6 +133,7 @@ std::shared_ptr<TransformNode> GizmoPlane::GetNode(DevicePtr& device) {
 
     auto material = std::make_shared<StdMaterial>("mat::gizmo::plane");
     material->Depth(false);
+    material->ColorPicker(false);
     material->SetCullMode(dg::CULL_MODE_NONE);
     material->SetBaseColor(color);
 
@@ -204,7 +205,7 @@ std::shared_ptr<TransformNode> GizmoTorus::GetNode(DevicePtr& device) {
 
     auto material = std::make_shared<StdMaterial>("mat::gizmo::torus");
     material->Depth(false);
-    material->SetCullMode(dg::CULL_MODE_NONE);
+    material->ColorPicker(false);
     material->SetBaseColor(color);
 
     return std::make_shared<TransformNode>(geometry, material);

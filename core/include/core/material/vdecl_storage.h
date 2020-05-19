@@ -6,6 +6,7 @@
 
 #include "core/common/ctor.h"
 #include "core/common/pimpl.h"
+#include "core/common/named_type.h"
 
 
 namespace msh {
@@ -19,17 +20,21 @@ namespace dg = Diligent;
 struct VDeclItem;
 class VDeclStorage : Fixed {
 public:
+    using VarNameId = NamedType<uint16_t, struct VarNameIdTag>;
+
     VDeclStorage();
     ~VDeclStorage();
 
     uint16_t Add(std::vector<VDeclItem>&& items);
     uint16_t Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
-    bool IsNameExists(uint16_t vDeclId, const std::string& name) const;
+    VarNameId GetVarNameId(const std::string& name);
+    bool IsNameExists(VarNameId varNameId, uint16_t vDeclId) const;
+
     const msh::SemanticDecls& GetSemanticDecls(uint16_t id) const;
     const std::vector<dg::LayoutElement>& GetLayoutElements(uint16_t id) const;
 
 private:
     struct Impl;
-    Pimpl<Impl, 224, 8> impl;
+    Pimpl<Impl, 304, 8> impl;
 };

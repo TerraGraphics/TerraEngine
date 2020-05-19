@@ -5,6 +5,7 @@
 #include "core/engine.h"
 #include "core/dg/device.h"
 #include "core/dg/context.h"
+#include "core/material/vdecl_storage.h"
 #include "core/material/material_view.h"
 #include "core/material/material_builder.h"
 #include "core/dg/shader_resource_variable.h"
@@ -141,11 +142,8 @@ void StdMaterial::Specular(bool enable) {
 }
 
 void StdMaterial::ColorPicker(bool enable) {
-    if (enable) {
-        AddFlag(ColorPickerMask());
-    } else {
-        RemoveFlag(ColorPickerMask());
-    }
+    ResetCache();
+    m_colorPickerEnable = enable;
 }
 
 void StdMaterial::OnNewFrame() {
@@ -160,7 +158,17 @@ void StdMaterial::OnNewFrame() {
     context->UnmapBuffer(m_buffer, dg::MAP_WRITE);
 }
 
-void StdMaterial::OnNewView(MaterialView& view) {
+uint64_t StdMaterial::OnBeforeCreateView(uint16_t /* vDeclIdPerVertex */, uint16_t vDeclIdPerInstance) {
+    static const auto pickerColorIdVar = Engine::Get().GetVDeclStorage()->GetVarNameId("IdColor");
+    uint64_t mask = GetShadersMask();
+    if (m_colorPickerEnable && Engine::Get().GetVDeclStorage()->IsNameExists(pickerColorIdVar, vDeclIdPerInstance)) {
+        mask |= ColorPickerMask();
+    }
+
+    return mask;
+}
+
+void StdMaterial::OnAfterCreateView(MaterialView& view) {
     uint64_t mask = GetShadersMask();
 
     if (m_dataEnable) {

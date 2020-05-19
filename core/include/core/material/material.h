@@ -24,6 +24,7 @@ protected:
     const std::string& GetName() const noexcept;
     std::shared_ptr<MaterialBuilder>& GetBuilder() noexcept;
 
+    void ResetCache();
     uint64_t GetShadersMask() const noexcept;
     void SetShadersMask(uint64_t mask);
     void DepthEnable(bool value) noexcept;
@@ -36,9 +37,10 @@ protected:
     void SetGeometryShaderVar(const char* name, DeviceRaw value);
 
     virtual void OnNewFrame() = 0;
-    virtual void OnNewView(MaterialView& view) = 0;
+    virtual uint64_t OnBeforeCreateView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) = 0;
+    virtual void OnAfterCreateView(MaterialView& view) = 0;
 
 private:
     struct Impl;
-    Pimpl<Impl, 368, 8> impl;
+    Pimpl<Impl, 376, 8> impl;
 };
