@@ -1,8 +1,8 @@
 #include "core/material/vdecl_storage.h"
 
 #include <memory>
-#include <string>
 #include <utility>
+#include <unordered_set>
 #include <unordered_map>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
@@ -21,6 +21,15 @@ namespace std {
             return value.Hash();
         }
     };
+
+    template<> struct hash<pair<string, uint16_t>> {
+        size_t operator()(const pair<string, uint16_t>& value) const {
+            size_t hash = value.second;
+            HashCombine(hash, value.first);
+            return hash;
+        }
+    };
+
 }
 
 namespace {
@@ -73,6 +82,7 @@ using VDeclItems = std::vector<VDeclItem>;
 
 struct VDeclStorage::Impl {
     uint16_t m_nextIndex = 0;
+    std::unordered_set<std::pair<std::string, uint16_t>> m_varNames;
     std::unordered_map<VDeclItems, uint16_t, ContainerHasher<VDeclItems>> m_vDecls;
     std::vector<msh::SemanticDecls> m_semanticDeclsStorage;
     std::vector<std::vector<dg::LayoutElement>> m_layoutElementsStorage;
@@ -95,26 +105,27 @@ uint16_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
         return it->second;
     }
 
-    std::vector<msh::SemanticDecl> semanticDecls;
-    semanticDecls.reserve(itemsSize);
-
-    std::vector<dg::LayoutElement> layoutElements;
-    layoutElements.reserve(itemsSize);
-
-
-    uint32_t index = 0;
-    for (const auto& item: it->first) {
-        semanticDecls.push_back(GetSemanticDecl(item, index));
-        layoutElements.push_back(GetLayoutElement(item, index));
-        ++index;
-    }
-
     if (impl->m_semanticDeclsStorage.size() != impl->m_nextIndex) {
         throw EngineError("VDeclStorage: wrong size for m_semanticDeclsStorage");
     }
     if (impl->m_layoutElementsStorage.size() != impl->m_nextIndex) {
         throw EngineError("VDeclStorage: wrong size for m_layoutElementsStorage");
     }
+
+    std::vector<msh::SemanticDecl> semanticDecls;
+    semanticDecls.reserve(itemsSize);
+
+    std::vector<dg::LayoutElement> layoutElements;
+    layoutElements.reserve(itemsSize);
+
+    uint32_t index = 0;
+    for (const auto& item: it->first) {
+        semanticDecls.push_back(GetSemanticDecl(item, index));
+        layoutElements.push_back(GetLayoutElement(item, index));
+        impl->m_varNames.emplace(item.varName, impl->m_nextIndex);
+        ++index;
+    }
+
     impl->m_semanticDeclsStorage.emplace_back(std::move(semanticDecls));
     impl->m_layoutElementsStorage.emplace_back(std::move(layoutElements));
 
@@ -132,6 +143,12 @@ uint16_t VDeclStorage::Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstan
     }
     if (impl->m_semanticDeclsStorage.size() <= vDeclIdPerInstance) {
         throw EngineError("VDeclStorage: wrong vDeclIdPerInstance arg");
+    }
+    if (impl->m_semanticDeclsStorage.size() != impl->m_nextIndex) {
+        throw EngineError("VDeclStorage: wrong size for m_semanticDeclsStorage");
+    }
+    if (impl->m_layoutElementsStorage.size() != impl->m_nextIndex) {
+        throw EngineError("VDeclStorage: wrong size for m_layoutElementsStorage");
     }
 
     const auto& semanticDeclsVertex = impl->m_semanticDeclsStorage[vDeclIdPerVertex].GetData();
@@ -155,19 +172,18 @@ uint16_t VDeclStorage::Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstan
     for (uint32_t index = 0; index!=resultSize; ++index) {
         semanticDecls[index].semantic = prefix + fmt::format_int(index).str();
         layoutElements[index].InputIndex = index;
+        impl->m_varNames.emplace(semanticDecls[index].name, impl->m_nextIndex);
     }
 
-    if (impl->m_semanticDeclsStorage.size() != impl->m_nextIndex) {
-        throw EngineError("VDeclStorage: wrong size for m_semanticDeclsStorage");
-    }
-    if (impl->m_layoutElementsStorage.size() != impl->m_nextIndex) {
-        throw EngineError("VDeclStorage: wrong size for m_layoutElementsStorage");
-    }
     impl->m_semanticDeclsStorage.emplace_back(std::move(semanticDecls));
     impl->m_layoutElementsStorage.emplace_back(std::move(layoutElements));
     impl->m_joinCache[key] = impl->m_nextIndex;
 
     return impl->m_nextIndex++;
+}
+
+bool VDeclStorage::IsNameExists(uint16_t vDeclId, const std::string& name) const {
+    return (impl->m_varNames.find(std::pair(name, vDeclId)) != impl->m_varNames.cend());
 }
 
 const msh::SemanticDecls& VDeclStorage::GetSemanticDecls(uint16_t id) const {

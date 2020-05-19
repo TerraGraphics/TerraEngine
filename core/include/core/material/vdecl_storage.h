@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <cstdint>
 
 #include "core/common/ctor.h"
@@ -24,10 +25,11 @@ public:
     uint16_t Add(std::vector<VDeclItem>&& items);
     uint16_t Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
+    bool IsNameExists(uint16_t vDeclId, const std::string& name) const;
     const msh::SemanticDecls& GetSemanticDecls(uint16_t id) const;
     const std::vector<dg::LayoutElement>& GetLayoutElements(uint16_t id) const;
 
 private:
     struct Impl;
-    Pimpl<Impl, 168, 8> impl;
+    Pimpl<Impl, 224, 8> impl;
 };
