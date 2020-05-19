@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
-#include <utility>
 
 #include "core/dg/dg.h"
 #include "core/math/types.h"

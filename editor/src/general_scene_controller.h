@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <cstdint>
 
 #include "core/common/ctor.h"
 #include "middleware/std_render/structures.h"

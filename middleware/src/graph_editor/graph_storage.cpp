@@ -9,7 +9,6 @@
 #include "core/dg/graphics_types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/imgui_node_editor.h"
-#include "middleware/graph_editor/graph_node.h"
 
 
 namespace ne = ax::NodeEditor;

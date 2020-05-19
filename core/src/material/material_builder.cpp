@@ -6,12 +6,15 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DepthStencilState.h>
 
 #include "core/dg/device.h"
 #include "core/dg/sampler.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
+#include "core/dg/rasterizer_state.h"
+#include "core/material/material_vars.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/shader_builder.h"
 #include "core/material/microshader_loader.h"

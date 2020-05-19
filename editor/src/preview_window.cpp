@@ -9,7 +9,6 @@
 #include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
-#include "core/math/constants.h"
 #include "core/dg/graphics_types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
@@ -18,7 +17,6 @@
 #include "core/render/render_target.h"
 #include "core/material/vdecl_storage.h"
 #include "middleware/imgui/imgui_math.h"
-#include "core/material/material_builder.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/camera/editor_controller.h"
 

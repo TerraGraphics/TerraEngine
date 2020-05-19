@@ -1,5 +1,6 @@
 #include "core/material/material_vars.h"
 
+#include <memory>
 #include <cstring>
 
 #include "core/dg/dg.h"
@@ -8,7 +9,6 @@
 #include "core/dg/context.h"
 #include "core/common/exception.h"
 #include "core/dg/graphics_types.h"
-#include "core/dg/graphics_accessories.h"
 #include "core/dg/shader_resource_variable.h"
 
 

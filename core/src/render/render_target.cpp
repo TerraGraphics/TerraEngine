@@ -1,8 +1,7 @@
 #include "core/render/render_target.h"
 
-#include <memory>
 #include <cstddef>
-#include <ext/alloc_traits.h>
+#include <strings.h>
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/Fence.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>

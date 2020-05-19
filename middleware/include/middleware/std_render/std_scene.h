@@ -1,10 +1,14 @@
 #pragma once
 
+#include <memory>
+#include <cstdint>
+
 #include "core/scene/scene.h"
 #include "middleware/std_render/structures.h"
 
 
 class Camera;
+class TransformNode;
 class WriteableVertexBuffer;
 class StdScene : public Scene {
 public:

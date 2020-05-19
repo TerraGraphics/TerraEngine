@@ -5,15 +5,14 @@
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
+#include "middleware/graph_editor/graph_node.h"
 
 
-struct GraphPin;
 struct LinkInfo {
     GraphPin* srcPin;
     GraphPin* dstPin;
 };
 
-class GraphNode;
 class GraphStorage : Fixed {
 public:
     GraphStorage() = delete;

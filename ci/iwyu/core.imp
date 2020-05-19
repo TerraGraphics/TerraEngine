@@ -37,7 +37,8 @@
 
     { include: ['"ucl.h"', private, '"core/path/ucl.h"', public] },
     { include: ['"ucl++.h"', private, '"core/path/ucl.h"', public] },
-    { include: ["<fmt/format.h>", private, '"core/str/format.h"', public] },
+    { include: ['"fmt/core.h"', private, '"core/str/format.h"', public] },
+    { include: ['"fmt/format.h"', private, '"core/str/format.h"', public] },
 
     { include: ["<gtest/gtest.h>", public, '"gtest.h"', public] },
 

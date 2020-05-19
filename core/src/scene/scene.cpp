@@ -1,12 +1,10 @@
 #include "core/scene/scene.h"
 
 #include <vector>
-#include <cstddef>
+#include <memory>
 
-#include "core/dg/math.h"
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/scene/geometry.h"
-#include "core/dg/graphics_types.h"
 #include "core/dg/graphics_utilities.h" // IWYU pragma: keep
 #include "core/material/material_view.h"
 

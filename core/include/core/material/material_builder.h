@@ -3,11 +3,11 @@
 #include <memory>
 #include <string>
 #include <cstdint>
+#include <cstddef>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
 #include "core/common/pimpl.h"
-#include "core/material/material_vars.h"
 
 
 struct ShaderVars {

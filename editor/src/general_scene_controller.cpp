@@ -1,20 +1,16 @@
 #include "general_scene_controller.h"
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceCaps.h>
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "general_scene.h"
-#include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
-#include "core/math/constants.h"
 #include "core/dg/graphics_types.h"
 #include "core/material/vdecl_item.h"
 #include "core/render/render_target.h"
 #include "core/material/vdecl_storage.h"
-#include "core/material/material_builder.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/camera/fly_controller.h"
 
