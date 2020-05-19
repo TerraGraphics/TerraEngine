@@ -45,15 +45,10 @@ void PreviewWindow::Create() {
     auto& device = engine.GetDevice();
     m_isOpenGL = device->GetDeviceCaps().IsGLDevice();
 
-    ColorTargetDesc colorTargets[] = {
-        ColorTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::preview"),
-        ColorTargetDesc(dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::picker") };
-
-    m_renderTarget->Create(device, RenderTargetDesc(
-        _countof(colorTargets), colorTargets,
-        DepthTargetDesc(engine.GetSwapChain()->GetDesc().DepthBufferFormat, "rt::depth::preview"),
-        CPUTargetDesc(1, 1, 1, "rt::color::cpu")
-    ));
+    m_renderTarget->Create(device, engine.GetContext());
+    m_renderTarget->SetColorTarget(0, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::preview");
+    m_renderTarget->SetColorTarget(1, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::picker");
+    m_renderTarget->SetDepthTarget(engine.GetSwapChain()->GetDesc().DepthBufferFormat, "rt::depth::preview");
 
     const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
         VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
@@ -77,7 +72,6 @@ void PreviewWindow::Create() {
 void PreviewWindow::Update(double deltaTime) {
     auto& engine = Engine::Get();
     auto& handler = engine.GetEventHandler();
-    auto& context = engine.GetContext();
 
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
@@ -88,7 +82,7 @@ void PreviewWindow::Update(double deltaTime) {
         math::Rect rc = gui::Image(m_renderTarget->GetColorTexture(0), gui::ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
 
         m_controller->Update(handler, rc.Width(), rc.Height(), static_cast<float>(deltaTime));
-        m_renderTarget->Update(engine.GetSwapChain(), rc.Width(), rc.Height());
+        m_renderTarget->Update(engine.GetSwapChain(), 2, rc.Width(), rc.Height());
 
         bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
                                  ImGui::IsMouseHoveringRect(gui::ToImGui(rc.Min()), gui::ToImGui(rc.Max())));
@@ -96,7 +90,7 @@ void PreviewWindow::Update(double deltaTime) {
         bool findSelectedId = false;
         if (m_waitTextureCopy) {
             uint32_t selectedId = 0;
-            if (m_renderTarget->ReadCPUTarget(context, selectedId)) {
+            if (m_renderTarget->ReadCPUTarget(selectedId)) {
                 m_waitTextureCopy = false;
                 if (selectedId != m_selectedId) {
                     m_selectedId = selectedId;
@@ -119,7 +113,7 @@ void PreviewWindow::Update(double deltaTime) {
             if (m_isOpenGL) {
                 foundDesc.mouseY = foundDesc.windowHeight - foundDesc.mouseY;
             }
-            m_renderTarget->CopyColorTarget(context, foundDesc.mouseX, foundDesc.mouseY);
+            m_renderTarget->CopyColorTarget(1, math::Rect(foundDesc.mouseX, foundDesc.mouseY, 1, 1));
             m_waitTextureCopy = true;
         }
 
@@ -133,7 +127,7 @@ void PreviewWindow::Update(double deltaTime) {
 
 void PreviewWindow::Draw() {
     if (m_draw) {
-        m_renderTarget->Bind(Engine::Get().GetContext());
+        m_renderTarget->Bind();
         m_scene->Draw();
     }
 }

@@ -14,53 +14,76 @@
 #include "core/dg/graphics_types.h"
 
 
-void RenderTarget::Create(const DevicePtr& device, math::Color4f clearColor) {
-    ColorTargetDesc colorTargets[] = { ColorTargetDesc(clearColor) };
-    Create(device, RenderTargetDesc(_countof(colorTargets), colorTargets, DepthTargetDesc()));
+RenderTarget::RenderTarget() {
+
 }
 
-void RenderTarget::Create(const DevicePtr& device, RenderTargetDesc&& desc) {
-    if (!m_colorTargets.empty()) {
-        throw EngineError("double create for RenderTarget");
-    }
+RenderTarget::~RenderTarget() {
 
-    m_width = desc.width;
-    m_height = desc.height;
+}
+
+void RenderTarget::Create(const DevicePtr& device, const ContextPtr& context, math::Color4f clearColor, uint32_t width, uint32_t height) {
+    m_width = width;
+    m_height = height;
     m_device = device;
+    m_context = context;
 
-    TexturePtr defColorTarget;
-    m_colorTargets.resize(desc.numColorTargets, defColorTarget);
-    m_colorViews.resize(desc.numColorTargets, nullptr);
-    m_clearColors.resize(desc.numColorTargets, math::Color4f());
-    for (uint8_t i=0; i!=desc.numColorTargets; ++i) {
-        m_clearColors[i] = desc.colorTargets[i].clearColor;
-        if (desc.colorTargets[i].type == ColorTargetDesc::Type::Custom) {
-            CreateColorTarget(i, desc.colorTargets[i].format, desc.colorTargets[i].name);
-        } else {
-            m_existsDefaultTarget = true;
-        }
+    for (size_t i=0; i!=MAX_COLOR_TARGETS; ++i) {
+        m_clearColors[i] = clearColor;
     }
 
-    if (desc.depthTarget.type == DepthTargetDesc::Type::Custom) {
-        CreateDepthTarget(desc.depthTarget.format, desc.depthTarget.name);
-    } else {
-        m_existsDefaultTarget = true;
-    }
-
-    if (!desc.cpuTarget.IsEmpty()) {
-        m_numCTForCT = desc.cpuTarget.numColorTargets;
-        if (m_numCTForCT >= m_colorTargets.size()) {
-            throw EngineError("wrong numColorTargets ({}) in CPUTargetDesc", m_numCTForCT);
-        }
-        CreateCPUTarget(desc.colorTargets[m_numCTForCT].format, desc.cpuTarget.width, desc.cpuTarget.height, desc.cpuTarget.name);
-
-        dg::FenceDesc fenceDesc;
-        fenceDesc.Name = "rt::fence::cpu";
-        m_device->CreateFence(fenceDesc, &m_cpuTargetFence);
-    }
+    dg::FenceDesc fenceDesc;
+    fenceDesc.Name = "rt::fence::cpu";
+    m_device->CreateFence(fenceDesc, &m_cpuTargetFence);
 }
 
-void RenderTarget::CreateColorTarget(uint8_t num, dg::TEXTURE_FORMAT format, const char* name) {
+TextureViewPtr RenderTarget::GetColorTexture(uint8_t index) {
+    if (index >= MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for RenderTarget::GetColorTexture, max index is {}", index, MAX_COLOR_TARGETS-1);
+    }
+
+    if (!m_colorTargets[index]) {
+        throw EngineError("wrong index {} for RenderTarget::GetColorTexture: attempted get default texture", index);
+    }
+
+    return TextureViewPtr(m_colorTargets[index]->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
+}
+
+void RenderTarget::SetDefaultColorTarget(uint8_t index, math::Color4f clearColor) {
+    if (index >= MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for RenderTarget::SetDefaultColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
+    }
+
+    m_colorTargets[index].Release();
+    m_clearColors[index] = clearColor;
+}
+
+void RenderTarget::SetColorTarget(uint8_t index, dg::TEXTURE_FORMAT format, math::Color4f clearColor, const char* name) {
+    if (index >= MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for RenderTarget::SetColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
+    }
+
+    CreateColorTarget(index, format, name);
+    m_clearColors[index] = clearColor;
+}
+
+TextureViewRaw RenderTarget::GetDepthTargetView() {
+    if (m_depthTarget.RawPtr() == nullptr) {
+        throw EngineError("RenderTarget::GetDepthTargetView: attempted get default texture");
+    }
+
+    return TextureViewPtr(m_depthTarget->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
+}
+
+void RenderTarget::SetDefaultDepthTarget() {
+    m_depthTarget.Release();
+}
+
+void RenderTarget::SetDepthTarget(dg::TEXTURE_FORMAT format, const char* name) {
+    CreateDepthTarget(format, name);
+}
+
+void RenderTarget::CreateColorTarget(uint8_t index, dg::TEXTURE_FORMAT format, const char* name) {
     dg::TextureDesc desc;
     desc.Name = (name != nullptr) ? name : "rt::color";
     desc.Type = dg::RESOURCE_DIM_TEX_2D;
@@ -75,9 +98,9 @@ void RenderTarget::CreateColorTarget(uint8_t num, dg::TEXTURE_FORMAT format, con
     desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
 
     desc.CommandQueueMask = 1;
-    m_device->CreateTexture(desc, nullptr, &m_colorTargets[num]);
+    m_device->CreateTexture(desc, nullptr, &m_colorTargets[index]);
 
-    m_colorViews[num] = m_colorTargets[num]->GetDefaultView(dg::TEXTURE_VIEW_RENDER_TARGET);
+    m_colorTargetsView[index] = m_colorTargets[index]->GetDefaultView(dg::TEXTURE_VIEW_RENDER_TARGET);
 }
 
 void RenderTarget::CreateDepthTarget(dg::TEXTURE_FORMAT format, const char* name) {
@@ -99,12 +122,12 @@ void RenderTarget::CreateDepthTarget(dg::TEXTURE_FORMAT format, const char* name
     desc.CommandQueueMask = 1;
     m_device->CreateTexture(desc, nullptr, &m_depthTarget);
 
-    m_depthView = m_depthTarget->GetDefaultView(dg::TEXTURE_VIEW_DEPTH_STENCIL);
+    m_depthTagretView = m_depthTarget->GetDefaultView(dg::TEXTURE_VIEW_DEPTH_STENCIL);
 }
 
-void RenderTarget::CreateCPUTarget(dg::TEXTURE_FORMAT format, uint32_t width, uint32_t height, const char* name) {
+void RenderTarget::CreateCPUTarget(dg::TEXTURE_FORMAT format, uint32_t width, uint32_t height) {
     dg::TextureDesc desc;
-    desc.Name = (name != nullptr) ? name : "rt::color::cpu";
+    desc.Name = "rt::color::cpu";
     desc.Type = dg::RESOURCE_DIM_TEX_2D;
     desc.Width = width;
     desc.Height = height;
@@ -119,8 +142,28 @@ void RenderTarget::CreateCPUTarget(dg::TEXTURE_FORMAT format, uint32_t width, ui
     m_device->CreateTexture(desc, nullptr, &m_cpuTarget);
 }
 
-void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t height) {
-    if (m_existsDefaultTarget || (width == 0) || (height == 0)) {
+void RenderTarget::Update(SwapChainPtr& swapChain, uint8_t countColorTargets, uint32_t width, uint32_t height) {
+    if (countColorTargets > MAX_COLOR_TARGETS) {
+        throw EngineError("wrong countColorTargets {} for RenderTarget::Update, max count is {}", index, MAX_COLOR_TARGETS);
+    }
+    if (countColorTargets == 0) {
+        throw EngineError("wrong countColorTargets {} for RenderTarget::Update, min count is 0", index);
+    }
+    m_countColorTargets = countColorTargets;
+
+    bool existsDefaultTarget = false;
+    for (uint8_t i=0; i!=countColorTargets; ++i) {
+        if (m_colorTargets[i].RawPtr() == nullptr) {
+            existsDefaultTarget = true;
+            break;
+        }
+    }
+
+    if ((!existsDefaultTarget) && (m_depthTarget.RawPtr() == nullptr)) {
+        existsDefaultTarget = true;
+    }
+
+    if (existsDefaultTarget || (width == 0) || (height == 0)) {
         width = swapChain->GetDesc().Width;
         height = swapChain->GetDesc().Height;
     }
@@ -133,51 +176,65 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint32_t width, uint32_t heig
     m_width = width;
     m_height = height;
 
-    uint8_t i = 0;
-    for (auto& ct : m_colorTargets) {
-        if (ct.RawPtr() != nullptr) {
-            if (needRecreate) {
-                auto& desc = ct->GetDesc();
-                CreateColorTarget(i, desc.Format, desc.Name);
-            }
-        } else {
-            m_colorViews[i] = swapChain->GetCurrentBackBufferRTV();
+    for (uint8_t i=0; i!=countColorTargets; ++i) {
+        if (m_colorTargets[i].RawPtr() == nullptr) {
+            m_colorTargetsView[i] = swapChain->GetCurrentBackBufferRTV();
+            continue;
         }
-        ++i;
+
+        const auto& desc = m_colorTargets[i]->GetDesc();
+        if ((desc.Width != m_width) || (desc.Height != m_height)) {
+            CreateColorTarget(i, desc.Format, desc.Name);
+        }
     }
 
-    if (m_depthTarget.RawPtr() != nullptr) {
-        if (needRecreate) {
-            auto& desc = m_depthTarget->GetDesc();
-            CreateDepthTarget(desc.Format, desc.Name);
-        }
-    } else {
-        m_depthView = swapChain->GetDepthBufferDSV();
+    if (m_depthTarget.RawPtr() == nullptr) {
+        m_depthTagretView = swapChain->GetDepthBufferDSV();
+    } else if (needRecreate) {
+        const auto& desc = m_depthTarget->GetDesc();
+        CreateDepthTarget(desc.Format, desc.Name);
     }
 }
 
-void RenderTarget::Bind(ContextPtr& context) {
-    context->SetRenderTargets(static_cast<uint32_t>(m_colorViews.size()), m_colorViews.data(), m_depthView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    for (size_t i=0; i!=m_colorViews.size(); ++i) {
-        context->ClearRenderTarget(m_colorViews[i], m_clearColors[i].value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+void RenderTarget::Bind() {
+    m_context->SetRenderTargets(static_cast<uint32_t>(m_countColorTargets), m_colorTargetsView, m_depthTagretView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    for (size_t i=0; i!=m_countColorTargets; ++i) {
+        m_context->ClearRenderTarget(m_colorTargetsView[i], m_clearColors[i].value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
-    context->ClearDepthStencil(m_depthView, dg::CLEAR_DEPTH_FLAG, 1.0f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    m_context->ClearDepthStencil(m_depthTagretView, dg::CLEAR_DEPTH_FLAG, 1.0f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
-void RenderTarget::CopyColorTarget(ContextPtr& context, uint32_t offsetX, uint32_t offsetY) {
-    if (!m_cpuTarget) {
-        throw EngineError("wrong call RenderTarget::CopyColorTarget: cpu texture is uninitialized");
+void RenderTarget::CopyColorTarget(uint8_t index, math::Rect rect) {
+    if (index >= MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for RenderTarget::CopyColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
+    }
+
+    if (!m_colorTargets[index]) {
+        throw EngineError("wrong index {} for RenderTarget::CopyColorTarget: attempted copy default texture", index);
+    }
+
+    bool needCreate = true;
+    if (m_cpuTarget.RawPtr() != nullptr) {
+        const auto& cDesc = m_colorTargets[index]->GetDesc();
+        const auto& rtDesc = m_cpuTarget->GetDesc();
+        if ((rtDesc.Width == rect.Width()) && (rtDesc.Height == rect.Height()) && (rtDesc.Format == cDesc.Format)) {
+            needCreate = false;
+        }
+    }
+
+    if (needCreate) {
+        CreateCPUTarget(m_colorTargets[index]->GetDesc().Format, rect.Width(), rect.Height());
     }
 
     dg::CopyTextureAttribs cpyAttr;
-    cpyAttr.pSrcTexture = m_colorTargets[m_numCTForCT];
+    cpyAttr.pSrcTexture = m_colorTargets[index];
     cpyAttr.SrcMipLevel = 0;
     cpyAttr.SrcSlice = 0;
     dg::Box box;
-    box.MinX = offsetX;
-    box.MaxX = offsetX + m_cpuTarget->GetDesc().Width;
-    box.MinY = offsetY;
-    box.MaxY = offsetY + m_cpuTarget->GetDesc().Height;
+    box.MinX = rect.Left();
+    box.MaxX = rect.Right();
+    box.MinY = rect.Top();
+    box.MaxY = rect.Bottom();
     cpyAttr.pSrcBox = &box;
     cpyAttr.SrcTextureTransitionMode = dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
     cpyAttr.pDstTexture = m_cpuTarget;
@@ -188,23 +245,19 @@ void RenderTarget::CopyColorTarget(ContextPtr& context, uint32_t offsetX, uint32
     cpyAttr.DstZ = 0;
     cpyAttr.DstTextureTransitionMode = dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
-    context->CopyTexture(cpyAttr);
-    context->SignalFence(m_cpuTargetFence, ++m_cpuTargetFenceLast);
+    m_context->CopyTexture(cpyAttr);
+    m_context->SignalFence(m_cpuTargetFence, ++m_cpuTargetFenceLast);
 }
 
-bool RenderTarget::ReadCPUTarget(ContextPtr& context, uint32_t& result) {
-    if (!m_cpuTarget) {
-        throw EngineError("wrong call RenderTarget::ReadCPUTarget: cpu texture is uninitialized");
-    }
-
-    if (m_cpuTargetFenceLast > m_cpuTargetFence->GetCompletedValue()) {
+bool RenderTarget::ReadCPUTarget(uint32_t& result) {
+    if ((m_cpuTargetFenceLast == 0) || (m_cpuTargetFenceLast > m_cpuTargetFence->GetCompletedValue())) {
         return false;
     }
 
     dg::MappedTextureSubresource texData;
-    context->MapTextureSubresource(m_cpuTarget, 0, 0, dg::MAP_READ, dg::MAP_FLAG_DO_NOT_WAIT, nullptr, texData);
+    m_context->MapTextureSubresource(m_cpuTarget, 0, 0, dg::MAP_READ, dg::MAP_FLAG_DO_NOT_WAIT, nullptr, texData);
     result = *reinterpret_cast<const uint32_t*>(texData.pData);
-    context->UnmapTextureSubresource(m_cpuTarget, 0, 0);
+    m_context->UnmapTextureSubresource(m_cpuTarget, 0, 0);
 
     auto format = m_cpuTarget->GetDesc().Format;
     if ((format == dg::TEX_FORMAT_BGRA8_TYPELESS) || (format == dg::TEX_FORMAT_BGRA8_UNORM) || (format == dg::TEX_FORMAT_BGRA8_UNORM_SRGB)) {
@@ -212,16 +265,4 @@ bool RenderTarget::ReadCPUTarget(ContextPtr& context, uint32_t& result) {
     }
 
     return true;
-}
-
-TextureViewPtr RenderTarget::GetColorTexture(uint8_t num) {
-    if (num >= m_colorTargets.size()) {
-        throw EngineError("wrong number {} for RenderTarget::GetColorTexture", num);
-    }
-
-    if (!m_colorTargets[num]) {
-        throw EngineError("wrong number {} for RenderTarget::GetColorTexture: attempted get default texture", num);
-    }
-
-    return TextureViewPtr(m_colorTargets[num]->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
 }

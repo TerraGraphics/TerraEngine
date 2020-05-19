@@ -35,7 +35,7 @@ void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
     m_gui = gui;
     m_propertyWindow->Create();
     m_graphWindow->Create(m_propertyWindow);
-    m_renderTarget->Create(engine.GetDevice(), math::Color4f(1.f));
+    m_renderTarget->Create(engine.GetDevice(), engine.GetContext(), math::Color4f(1.f));
     m_previewWindow->Create();
 }
 
@@ -50,15 +50,12 @@ void EditorSceneController::Update(double deltaTime) {
     FooterWindow();
     // ImGui::ShowDemoWindow(nullptr);
 
-    m_renderTarget->Update(engine.GetSwapChain());
+    m_renderTarget->Update(engine.GetSwapChain(), 1);
 }
 
 void EditorSceneController::Draw() {
-    auto& engine = Engine::Get();
-
     m_previewWindow->Draw();
-
-    m_renderTarget->Bind(engine.GetContext());
+    m_renderTarget->Bind();
     m_gui->RenderFrame();
 }
 

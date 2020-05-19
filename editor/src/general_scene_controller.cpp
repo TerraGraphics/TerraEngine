@@ -40,7 +40,6 @@ GeneralSceneController::~GeneralSceneController() {
 
 void GeneralSceneController::Create() {
     auto& engine = Engine::Get();
-    auto device = engine.GetDevice();
 
     const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
         VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
@@ -57,7 +56,7 @@ void GeneralSceneController::Create() {
     m_controller->AttachCamera(camera);
 
     m_generalScene->Create(scene);
-    m_sceneRenderTarget->Create(device, math::Color4f(0, 0, 1.f));
+    m_sceneRenderTarget->Create(engine.GetDevice(), engine.GetContext(), math::Color4f(0, 0, 1.f));
 }
 
 void GeneralSceneController::Update(double deltaTime) {
@@ -68,10 +67,10 @@ void GeneralSceneController::Update(double deltaTime) {
 
     m_controller->Update(handler, desc.Width, desc.Height, static_cast<float>(deltaTime));
     m_generalScene->Update(deltaTime);
-    m_sceneRenderTarget->Update(swapChain);
+    m_sceneRenderTarget->Update(swapChain, 1);
 }
 
 void GeneralSceneController::Draw() {
-    m_sceneRenderTarget->Bind(Engine::Get().GetContext());
+    m_sceneRenderTarget->Bind();
     m_generalScene->Draw();
 }
