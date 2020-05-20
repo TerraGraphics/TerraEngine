@@ -18,8 +18,6 @@ public:
 public:
     void Create(const std::shared_ptr<StdScene>& scene);
     void AddChild(const std::shared_ptr<TransformNode>& node);
-    std::shared_ptr<TransformNode> Update(double deltaTime, uint32_t findId = 0);
-    void Draw();
 
 private:
     void CreateTextures();

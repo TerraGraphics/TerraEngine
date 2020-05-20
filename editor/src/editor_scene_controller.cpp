@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-#include "core/engine.h"
+#include "core/dg/dg.h"
 #include "graph_window.h"
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "preview_window.h"
@@ -10,38 +10,34 @@
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
 #include "middleware/imgui/imgui.h"
-#include "core/render/render_target.h"
 #include "middleware/imgui/imgui_internal.h"
+#include "middleware/std_render/std_scene.h"
 
 
 EditorSceneController::EditorSceneController()
-    : m_graphWindow(new GraphWindow())
-    , m_renderTarget(new RenderTarget())
+    : m_scene(new StdScene(0, false))
+    , m_graphWindow(new GraphWindow())
     , m_previewWindow(new PreviewWindow())
     , m_propertyWindow(new PropertyWindow()) {
 
 }
 
 EditorSceneController::~EditorSceneController() {
+    m_scene.reset();
     m_graphWindow.reset();
-    m_renderTarget.reset();
     m_previewWindow.reset();
     m_propertyWindow.reset();
 }
 
 void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
-    auto& engine = Engine::Get();
-
     m_gui = gui;
     m_propertyWindow->Create();
     m_graphWindow->Create(m_propertyWindow);
-    m_renderTarget->Create(engine.GetDevice(), engine.GetContext(), math::Color4f(1.f));
+    m_scene->Create(false, dg::TEXTURE_FORMAT(0), math::Color4f(1.f));
     m_previewWindow->Create();
 }
 
 void EditorSceneController::Update(double deltaTime) {
-    auto& engine = Engine::Get();
-
     m_gui->StartFrame();
     DockSpace();
     m_previewWindow->Update(deltaTime);
@@ -50,12 +46,12 @@ void EditorSceneController::Update(double deltaTime) {
     FooterWindow();
     // ImGui::ShowDemoWindow(nullptr);
 
-    m_renderTarget->Update(engine.GetSwapChain(), 1);
+    m_scene->Update();
 }
 
 void EditorSceneController::Draw() {
     m_previewWindow->Draw();
-    m_renderTarget->Bind();
+    m_scene->Draw();
     m_gui->RenderFrame();
 }
 

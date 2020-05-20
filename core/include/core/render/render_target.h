@@ -12,7 +12,7 @@ public:
     RenderTarget();
     ~RenderTarget();
 
-    void Create(const DevicePtr& device, const ContextPtr& context, math::Color4f clearColor = math::Color4f(1.f), uint32_t width = 1, uint32_t height = 1);
+    void Create(const DevicePtr& device, const ContextPtr& context, math::Color4f clearColor, uint32_t width, uint32_t height);
 
     TextureViewPtr GetColorTexture(uint8_t index);
     void SetDefaultColorTarget(uint8_t index, math::Color4f clearColor = math::Color4f(1.f));

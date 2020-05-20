@@ -34,14 +34,6 @@ void PreviewScene::AddChild(const std::shared_ptr<TransformNode>& node) {
     m_scene->AddChild(node);
 }
 
-std::shared_ptr<TransformNode> PreviewScene::Update(double /* deltaTime */, uint32_t findId) {
-    return m_scene->Update(findId);
-}
-
-void PreviewScene::Draw() {
-    m_scene->Draw();
-}
-
 void PreviewScene::CreateTextures() {
     auto& device = Engine::Get().GetDevice();
 

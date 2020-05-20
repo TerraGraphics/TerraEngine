@@ -239,6 +239,7 @@ void RenderTarget::CopyColorTarget(uint8_t index, math::Rect rect) {
     cpyAttr.DstZ = 0;
     cpyAttr.DstTextureTransitionMode = dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
+    m_context->SetRenderTargets(0, nullptr, nullptr, dg::RESOURCE_STATE_TRANSITION_MODE_NONE);
     m_context->CopyTexture(cpyAttr);
     m_context->SignalFence(m_cpuTargetFence, ++m_cpuTargetFenceLast);
 }

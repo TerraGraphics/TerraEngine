@@ -1,7 +1,5 @@
 #include "preview_window.h"
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "preview_scene.h"
@@ -12,7 +10,6 @@
 #include "middleware/imgui/widgets.h"
 #include "core/material/vdecl_item.h"
 #include "middleware/gizmo/gizmo_3d.h"
-#include "core/render/render_target.h"
 #include "core/material/vdecl_storage.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/std_render/std_scene.h"
@@ -22,8 +19,7 @@
 class TransformNode;
 
 PreviewWindow::PreviewWindow()
-    : m_scene(new PreviewScene())
-    , m_renderTarget(new RenderTarget())
+    : m_preview(new PreviewScene())
     , m_gizmo(new Gizmo3D())
     , m_controller(new EditorCameraController()) {
 
@@ -32,19 +28,13 @@ PreviewWindow::PreviewWindow()
 PreviewWindow::~PreviewWindow() {
     m_controller.reset();
     m_gizmo.reset();
-    m_renderTarget.reset();
-    m_scene.reset();
+    m_preview.reset();
 }
 
 void PreviewWindow::Create() {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
     m_isOpenGL = device->GetDeviceCaps().IsGLDevice();
-
-    m_renderTarget->Create(device, engine.GetContext());
-    m_renderTarget->SetColorTarget(0, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::preview");
-    m_renderTarget->SetColorTarget(1, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::picker");
-    m_renderTarget->SetDepthTarget(engine.GetSwapChain()->GetDesc().DepthBufferFormat, "rt::depth::preview");
 
     const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
         VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
@@ -56,13 +46,14 @@ void PreviewWindow::Create() {
         VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
         VDeclItem("IdColor", VDeclType::Color4, 1, false),
     });
-    auto scene = std::make_shared<StdScene>(vDeclIdPerInstance, true);
-    m_camera = scene->GetCamera();
+    m_scene = std::make_shared<StdScene>(vDeclIdPerInstance, true);
+    m_scene->Create(true, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f));
+    m_camera = m_scene->GetCamera();
     m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));
     m_controller->SetCamera(m_camera);
 
-    m_scene->Create(scene);
-    m_scene->AddChild(m_gizmo->Create());
+    m_preview->Create(m_scene);
+    m_preview->AddChild(m_gizmo->Create());
 }
 
 void PreviewWindow::Update(double deltaTime) {
@@ -75,33 +66,11 @@ void PreviewWindow::Update(double deltaTime) {
     m_draw = ImGui::Begin("preview", pOpen, windowFlags);
     ImGui::PopStyleVar(1);
     if (m_draw) {
-        math::Rect rc = gui::Image(m_renderTarget->GetColorTexture(0), gui::ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
-
-        m_controller->Update(handler, rc.Width(), rc.Height(), static_cast<float>(deltaTime));
-        m_renderTarget->Update(engine.GetSwapChain(), 2, rc.Width(), rc.Height());
+        math::Rect rc = gui::Image(m_scene->GetColorTexture(), gui::ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
 
         bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
                                  ImGui::IsMouseHoveringRect(gui::ToImGui(rc.Min()), gui::ToImGui(rc.Max())));
-
-        bool findSelectedId = false;
-        if (m_waitTextureCopy) {
-            uint32_t selectedId = 0;
-            if (m_renderTarget->ReadCPUTarget(selectedId)) {
-                m_waitTextureCopy = false;
-                if (selectedId != m_selectedId) {
-                    m_selectedId = selectedId;
-                    if (selectedId == std::numeric_limits<uint32_t>::max()) {
-                        m_gizmo->SelectNode(std::shared_ptr<TransformNode>());
-                    } else {
-                        findSelectedId = true;
-                    }
-                }
-            }
-        }
-
-        if (findSelectedId) {
-            m_gizmo->SelectNode(m_scene->Update(deltaTime, m_selectedId));
-        }
+        m_controller->Update(handler, rc.Width(), rc.Height(), static_cast<float>(deltaTime));
 
         GizmoFoundDesc foundDesc;
         m_gizmo->Update(m_camera, rc, mouseUnderWindow, foundDesc);
@@ -109,12 +78,18 @@ void PreviewWindow::Update(double deltaTime) {
             if (m_isOpenGL) {
                 foundDesc.mouseY = foundDesc.windowHeight - foundDesc.mouseY;
             }
-            m_renderTarget->CopyColorTarget(1, math::Rect(foundDesc.mouseX, foundDesc.mouseY, 1, 1));
+            m_scene->StartSearchingNodeInPoint(foundDesc.mouseX, foundDesc.mouseY);
             m_waitTextureCopy = true;
         }
 
-        if (!findSelectedId) {
-            m_scene->Update(deltaTime);
+        m_scene->Update(rc.Width(), rc.Height());
+
+        if (m_waitTextureCopy) {
+            std::shared_ptr<TransformNode> selectNode;
+            if (m_scene->GetNodeInPoint(selectNode)) {
+                m_waitTextureCopy = false;
+                m_gizmo->SelectNode(selectNode);
+            }
         }
 
         ImGui::End();
@@ -123,7 +98,6 @@ void PreviewWindow::Update(double deltaTime) {
 
 void PreviewWindow::Draw() {
     if (m_draw) {
-        m_renderTarget->Bind();
         m_scene->Draw();
     }
 }

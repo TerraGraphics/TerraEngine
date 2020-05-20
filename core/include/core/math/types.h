@@ -6,6 +6,7 @@
 
 #include "core/dg/math.h"
 
+
 namespace Diligent {
 
 template<typename U, typename T> inline dg::Vector2<U> ToVector2(const dg::Vector2<T>& value) {
