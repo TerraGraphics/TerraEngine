@@ -9,14 +9,9 @@
 #include "core/material/material_view.h"
 
 
-Scene::Scene(uint16_t vDeclIdPerInstance)
-    : m_vDeclIdPerInstance(vDeclIdPerInstance) {
-
-}
-
-TransformUpdateDesc& Scene::Update(uint32_t findId) {
+TransformUpdateDesc& Scene::Update(uint16_t vDeclIdPerInstance, uint32_t findId) {
     m_updateDesc.nodeList.clear();
-    m_updateDesc.vDeclIdPerInstance = m_vDeclIdPerInstance;
+    m_updateDesc.vDeclIdPerInstance = vDeclIdPerInstance;
     m_updateDesc.findId = findId;
     m_updateDesc.findResult.reset();
     UpdateGraph(m_updateDesc);

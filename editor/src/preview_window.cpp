@@ -8,9 +8,7 @@
 #include "core/camera/camera.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
-#include "core/material/vdecl_item.h"
 #include "middleware/gizmo/gizmo_3d.h"
-#include "core/material/vdecl_storage.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/camera/editor_controller.h"
@@ -19,7 +17,8 @@
 class TransformNode;
 
 PreviewWindow::PreviewWindow()
-    : m_preview(new PreviewScene())
+    : m_scene(std::make_shared<StdScene>())
+    , m_preview(new PreviewScene())
     , m_gizmo(new Gizmo3D())
     , m_controller(new EditorCameraController()) {
 
@@ -32,21 +31,8 @@ PreviewWindow::~PreviewWindow() {
 }
 
 void PreviewWindow::Create() {
-    auto& engine = Engine::Get();
-    auto& device = engine.GetDevice();
-    m_isOpenGL = device->GetDeviceCaps().IsGLDevice();
+    m_isOpenGL = Engine::Get().GetDevice()->GetDeviceCaps().IsGLDevice();
 
-    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
-        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
-        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
-        VDeclItem("IdColor", VDeclType::Color4, 1, false),
-    });
-    m_scene = std::make_shared<StdScene>(vDeclIdPerInstance, true);
     m_scene->Create(true, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f));
     m_camera = m_scene->GetCamera();
     m_camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));

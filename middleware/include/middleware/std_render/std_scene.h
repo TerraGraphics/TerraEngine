@@ -21,8 +21,7 @@ class StdScene : public Scene {
         Finish,
     };
 public:
-    StdScene() = delete;
-    StdScene(uint16_t vDeclIdPerInstance, bool addId);
+    StdScene();
     ~StdScene();
 
 public:
@@ -39,16 +38,17 @@ public:
     uint32_t Draw();
 
 private:
-    bool m_addId = false;
     math::Rect m_pickerRect;
     PickerState m_pickerState = PickerState::Finish;
     std::shared_ptr<TransformNode> m_pickerResult;
     uint32_t m_vsCameraVarId = 0;
     uint32_t m_psCameraVarId = 0;
     uint32_t m_gsCameraVarId = 0;
+    uint16_t m_vDeclIdPerInstance = 0;
+    uint16_t m_vDeclIdPerInstancePicker = 0;
     dg::ShaderCamera m_shaderCamera;
     std::shared_ptr<Camera> m_camera;
     std::unique_ptr<RenderTarget> m_renderTarget;
-    uint32_t m_transformBufferBufferElementNumber = 0;
+    uint32_t m_transformBufferBufferSize = 0;
     std::shared_ptr<WriteableVertexBuffer> m_transformBuffer;
 };

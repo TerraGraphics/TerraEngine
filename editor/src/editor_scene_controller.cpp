@@ -15,7 +15,7 @@
 
 
 EditorSceneController::EditorSceneController()
-    : m_scene(new StdScene(0, false))
+    : m_scene(new StdScene())
     , m_graphWindow(new GraphWindow())
     , m_previewWindow(new PreviewWindow())
     , m_propertyWindow(new PropertyWindow()) {

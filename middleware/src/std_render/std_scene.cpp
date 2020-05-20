@@ -9,15 +9,16 @@
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
+#include "core/material/vdecl_item.h"
 #include "core/scene/vertex_buffer.h"
 #include "core/render/render_target.h"
 #include "core/scene/transform_graph.h"
+#include "core/material/vdecl_storage.h"
 #include "core/material/material_builder.h"
 
 
-StdScene::StdScene(uint16_t vDeclIdPerInstance, bool addId)
-    : Scene(vDeclIdPerInstance)
-    , m_addId(addId)
+StdScene::StdScene()
+    : Scene()
     , m_renderTarget(std::make_unique<RenderTarget>()) {
 
 }
@@ -48,6 +49,7 @@ bool StdScene::GetNodeInPoint(std::shared_ptr<TransformNode>& node) {
 void StdScene::Create(bool renderToTexture, dg::TEXTURE_FORMAT format, math::Color4f clearColor, uint32_t width, uint32_t height) {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
+    auto& vDeclStorage = engine.GetVDeclStorage();
     auto& materialBuilder = engine.GetMaterialBuilder();
 
     m_renderTarget->Create(device, engine.GetContext(), clearColor, width, height);
@@ -64,6 +66,27 @@ void StdScene::Create(bool renderToTexture, dg::TEXTURE_FORMAT format, math::Col
     m_vsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_VERTEX, "Camera");
     m_psCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_PIXEL, "Camera");
     m_gsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_GEOMETRY, "Camera");
+
+    m_vDeclIdPerInstance = vDeclStorage->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+    });
+
+    m_vDeclIdPerInstancePicker = vDeclStorage->Add({
+        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
+        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
+        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
+        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
+        VDeclItem("IdColor", VDeclType::Color4, 1, false),
+    });
 }
 
 void StdScene::Update(uint32_t width, uint32_t height) {
@@ -76,28 +99,33 @@ void StdScene::Update(uint32_t width, uint32_t height) {
     m_shaderCamera.vecViewDirection = dg::float4(m_camera->GetDirection(), 0);
 
     uint32_t findNodeId = 0;
+    uint8_t countColorTargets = 1;
+    uint16_t vDeclIdPerInstance = m_vDeclIdPerInstance;
+    size_t itemSize = sizeof(dg::float4x4) + sizeof(dg::float3x3);
     if (m_pickerState == PickerState::WaitResult) {
         if (!m_renderTarget->ReadCPUTarget(findNodeId)) {
             findNodeId = 0;
         } else {
             m_pickerState = PickerState::Finish;
         }
+    } else if (m_pickerState == PickerState::NeedDraw) {
+        countColorTargets = 2;
+        vDeclIdPerInstance = m_vDeclIdPerInstancePicker;
+        itemSize += sizeof(uint32_t);
+        m_pickerState = PickerState::NeedCopy;
     }
-    TransformUpdateDesc& updateDesc = Scene::Update(findNodeId);
+
+    TransformUpdateDesc& updateDesc = Scene::Update(vDeclIdPerInstance, findNodeId);
     if (findNodeId != 0) {
         m_pickerResult = updateDesc.findResult;
         updateDesc.findResult.reset();
     }
-
     auto& nodeList = updateDesc.nodeList;
-    if (!m_transformBuffer || (m_transformBufferBufferElementNumber < nodeList.size())) {
-        m_transformBufferBufferElementNumber = static_cast<uint32_t>(((nodeList.size() >> 8) + size_t(1)) << size_t(8));
-        size_t itemSize = sizeof(dg::float4x4) + sizeof(dg::float3x3);
-        if (m_addId) {
-            itemSize += sizeof(uint32_t);
-        }
-        auto fullSize = m_transformBufferBufferElementNumber * itemSize;
-        m_transformBuffer = std::make_shared<WriteableVertexBuffer>(device, fullSize, dg::USAGE_STAGING, "transform vb");
+
+    auto needBufferSize = static_cast<uint32_t>(nodeList.size()) * itemSize;
+    if (!m_transformBuffer || (m_transformBufferBufferSize < needBufferSize)) {
+        m_transformBufferBufferSize = (static_cast<uint32_t>(needBufferSize >> uint32_t(16)) + uint32_t(1)) << uint32_t(16);
+        m_transformBuffer = std::make_shared<WriteableVertexBuffer>(device, m_transformBufferBufferSize, dg::USAGE_STAGING, "transform vb");
     }
 
     uint8_t* data = m_transformBuffer->Map<uint8_t>(context);
@@ -106,21 +134,14 @@ void StdScene::Update(uint32_t width, uint32_t height) {
         data += sizeof(dg::float4x4);
         *reinterpret_cast<dg::float3x3*>(data) = node.normalMatrix;
         data += sizeof(dg::float3x3);
-        if (m_addId) {
+        if (countColorTargets == 2) {
             *reinterpret_cast<uint32_t*>(data) = node.id;
             data += sizeof(uint32_t);
         }
     }
-
     m_transformBuffer->Unmap(context);
-    if (m_pickerState == PickerState::NeedDraw) {
-        m_renderTarget->Update(engine.GetSwapChain(), 2, width, height);
-        m_pickerState = PickerState::NeedCopy;
-    } else if (m_pickerState == PickerState::WaitResult) {
-        m_renderTarget->Update(engine.GetSwapChain(), 2, width, height);
-    } else {
-        m_renderTarget->Update(engine.GetSwapChain(), 1, width, height);
-    }
+
+    m_renderTarget->Update(engine.GetSwapChain(), countColorTargets, width, height);
 }
 
 uint32_t StdScene::Draw() {

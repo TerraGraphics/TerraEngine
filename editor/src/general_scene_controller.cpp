@@ -9,8 +9,6 @@
 #include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "core/dg/graphics_types.h"
-#include "core/material/vdecl_item.h"
-#include "core/material/vdecl_storage.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/camera/fly_controller.h"
 
@@ -32,18 +30,7 @@ GeneralSceneController::~GeneralSceneController() {
 }
 
 void GeneralSceneController::Create() {
-    auto& engine = Engine::Get();
-
-    const auto vDeclIdPerInstance = engine.GetVDeclStorage()->Add({
-        VDeclItem("WorldRow0", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow1", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow2", VDeclType::Float4, 1, false),
-        VDeclItem("WorldRow3", VDeclType::Float4, 1, false),
-        VDeclItem("NormalRow0", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow1", VDeclType::Float3, 1, false),
-        VDeclItem("NormalRow2", VDeclType::Float3, 1, false),
-    });
-    auto scene = std::make_shared<StdScene>(vDeclIdPerInstance, false);
+    auto scene = std::make_shared<StdScene>();
     scene->Create(false, dg::TEXTURE_FORMAT(0), math::Color4f(0, 0, 1.f));
     auto& camera = scene->GetCamera();
     camera->SetViewParams(dg::float3(-10, 2, 0), dg::float3(1, 0, 0));

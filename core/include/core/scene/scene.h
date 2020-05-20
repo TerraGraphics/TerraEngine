@@ -10,14 +10,12 @@
 
 class Scene : public TransformGraph, Fixed {
 public:
-    Scene() = delete;
-    Scene(uint16_t vDeclIdPerInstance);
+    Scene() = default;
     ~Scene() = default;
 
-    TransformUpdateDesc& Update(uint32_t findId);
+    TransformUpdateDesc& Update(uint16_t vDeclIdPerInstance, uint32_t findId);
     uint32_t Draw(ContextPtr& context);
 
 private:
-    uint16_t m_vDeclIdPerInstance;
     TransformUpdateDesc m_updateDesc;
 };
