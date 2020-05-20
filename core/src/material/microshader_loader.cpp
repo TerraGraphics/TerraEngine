@@ -165,12 +165,13 @@ MicroshaderLoader::Source MicroshaderLoader::GetSources(uint64_t mask, const msh
     msh::PixelShader ps;
     msh::VertexShader vs;
     msh::GeometryShader gs;
-    bool groups[sizeof(decltype(mask)) << 3] = {false};
 
     try {
         ps.Append(&m_root.ps);
         vs.Append(m_root.vs);
         gs.Append(m_root.gs);
+        bool groups[sizeof(decltype(mask)) << 3] = {false};
+
         for (uint64_t id=0; id!=64; ++id) {
             if ((mask & (uint64_t(1) << id)) == 0) {
                 continue;

@@ -40,7 +40,7 @@ struct ApplyOperation {
 };
 
 struct FormatVariant {
-    FormatVariant(const char* format) : format(format) {}
+    explicit FormatVariant(const char* format) : format(format) {}
 
     template<typename T> void operator()(T& value) {
         if (format == nullptr) {

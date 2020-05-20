@@ -90,8 +90,9 @@ void RenderTarget::CreateColorTarget(uint8_t index, dg::TEXTURE_FORMAT format, c
     desc.BindFlags = dg::BIND_SHADER_RESOURCE | dg::BIND_RENDER_TARGET;
     desc.CPUAccessFlags = dg::CPU_ACCESS_NONE;
     desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
-
     desc.CommandQueueMask = 1;
+
+    m_colorTargets[index].Release();
     m_device->CreateTexture(desc, nullptr, &m_colorTargets[index]);
 
     m_colorTargetsView[index] = m_colorTargets[index]->GetDefaultView(dg::TEXTURE_VIEW_RENDER_TARGET);
@@ -114,6 +115,8 @@ void RenderTarget::CreateDepthTarget(dg::TEXTURE_FORMAT format, const char* name
     desc.ClearValue.DepthStencil.Depth = 1.f;
     desc.ClearValue.DepthStencil.Stencil = 0;
     desc.CommandQueueMask = 1;
+
+    m_depthTarget.Release();
     m_device->CreateTexture(desc, nullptr, &m_depthTarget);
 
     m_depthTagretView = m_depthTarget->GetDefaultView(dg::TEXTURE_VIEW_DEPTH_STENCIL);
@@ -133,6 +136,8 @@ void RenderTarget::CreateCPUTarget(dg::TEXTURE_FORMAT format, uint32_t width, ui
     desc.CPUAccessFlags = dg::CPU_ACCESS_READ;
     desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
     desc.CommandQueueMask = 1;
+
+    m_cpuTarget.Release();
     m_device->CreateTexture(desc, nullptr, &m_cpuTarget);
 }
 

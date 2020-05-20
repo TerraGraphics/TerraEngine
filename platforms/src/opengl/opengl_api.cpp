@@ -55,6 +55,7 @@ void OpenGLAPI::Create(int /* validationLevel */) {
     contexts.resize(1 + m_createInfo.NumDeferredContexts);
 
     Diligent::SwapChainDesc scDesc;
+    scDesc.ColorBufferFormat = Diligent::TEX_FORMAT_BGRA8_UNORM_SRGB;
     engineFactoryGL->CreateDeviceAndSwapChainGL(m_createInfo, &m_device, contexts.data(), scDesc, &m_swapChain);
     if (!m_device) {
         throw std::runtime_error("failed to initialize OpenGL");

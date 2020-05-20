@@ -9,7 +9,7 @@ COPY conanfile.txt /conanfile.txt
 RUN apt update && \
     apt install -y python3-pip git cmake libtool pkg-config libx11-dev libxcursor-dev libx11-xcb-dev libxcb-icccm4-dev libxcb-cursor-dev libxcb-keysyms1-dev libgl-dev && \
     \
-    pip3 install conan && \
+    pip3 install conan==1.25.2 && \
     conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan && \
     conan remote add terragraphics https://api.bintray.com/conan/terragraphics/conan-packages && \
     \

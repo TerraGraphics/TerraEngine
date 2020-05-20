@@ -61,12 +61,12 @@ void VulkanAPI::Create(int validationLevel) {
     }
 
     if (!m_swapChain) {
-        Diligent::SwapChainDesc scDesc;
-
         Diligent::LinuxNativeWindow nativeWindowHandle;
         nativeWindowHandle.WindowId = m_window;
         nativeWindowHandle.pXCBConnection = m_connection;
 
+        Diligent::SwapChainDesc scDesc;
+        scDesc.ColorBufferFormat = Diligent::TEX_FORMAT_BGRA8_UNORM_SRGB;
         engineFactoryVk->CreateSwapChainVk(m_device, contexts[0], scDesc, nativeWindowHandle, &m_swapChain);
     }
 
