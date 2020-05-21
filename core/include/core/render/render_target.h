@@ -5,14 +5,16 @@
 #include "core/dg/dg.h"
 #include "core/math/types.h"
 #include "core/common/ctor.h"
+#include "core/material/material_builder.h"
 
 
 class RenderTarget : Fixed {
 public:
-    RenderTarget();
+    RenderTarget() = delete;
+    RenderTarget(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const std::shared_ptr<MaterialBuilder>& materialBuilder);
     ~RenderTarget();
 
-    void Create(const DevicePtr& device, const ContextPtr& context, math::Color4f clearColor, uint32_t width, uint32_t height);
+    void Create(math::Color4f clearColor, uint32_t width, uint32_t height);
 
     TextureViewPtr GetColorTexture(uint8_t index);
     void SetDefaultColorTarget(uint8_t index, math::Color4f clearColor = math::Color4f(1.f));
@@ -22,7 +24,7 @@ public:
     void SetDefaultDepthTarget();
     void SetDepthTarget(dg::TEXTURE_FORMAT format, const char* name = nullptr);
 
-    void Update(SwapChainPtr& swapChain, uint8_t countColorTargets = 1, uint32_t width = 0, uint32_t height = 0);
+    uint16_t Update(uint8_t countColorTargets = 1, uint32_t width = 0, uint32_t height = 0);
     void Bind();
 
     void CopyColorTarget(uint8_t index, math::Rect rect);
@@ -36,16 +38,19 @@ private:
 private:
     uint32_t m_width = 0;
     uint32_t m_height = 0;
-    uint8_t m_countColorTargets = 0;
+    bool m_targetsIdDirty = true;
+    uint16_t m_targetsId = 0;
+    TargetsFormat m_targets;
 
     DevicePtr m_device;
     ContextPtr m_context;
+    SwapChainPtr m_swapChain;
+    std::shared_ptr<MaterialBuilder> m_materialBuilder;
 
     // Color target
-    static constexpr const uint8_t MAX_COLOR_TARGETS = 2;
-    TexturePtr m_colorTargets[MAX_COLOR_TARGETS];
-    TextureViewRaw m_colorTargetsView[MAX_COLOR_TARGETS];
-    math::Color4f m_clearColors[MAX_COLOR_TARGETS];
+    TexturePtr m_colorTargets[TargetsFormat::MAX_COLOR_TARGETS];
+    TextureViewRaw m_colorTargetsView[TargetsFormat::MAX_COLOR_TARGETS];
+    math::Color4f m_clearColors[TargetsFormat::MAX_COLOR_TARGETS];
 
     // Depth target
     TexturePtr m_depthTarget;

@@ -13,9 +13,9 @@ namespace {
 
 struct MaterialViewItem {
     MaterialViewItem() = delete;
-    MaterialViewItem(uint32_t vDeclSum, MaterialView view) : vDeclSum(vDeclSum), view(view) {};
+    MaterialViewItem(uint32_t cacheId, MaterialView view) : cacheId(cacheId), view(view) {};
 
-    uint32_t vDeclSum;
+    uint64_t cacheId;
     MaterialView view;
 };
 
@@ -29,7 +29,7 @@ struct Material::Impl {
     void SetPixelShaderVar(const char* name, DeviceRaw value);
     void SetGeometryShaderVar(const char* name, DeviceRaw value);
 
-    MaterialView GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
+    MaterialView GetView(uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
     Material* const m_this = nullptr;
     uint64_t m_mask = 0;
@@ -80,22 +80,22 @@ void Material::Impl::SetGeometryShaderVar(const char* name, DeviceRaw value) {
     }
 }
 
-MaterialView Material::Impl::GetView(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
-    uint32_t vDeclSum = (static_cast<uint32_t>(vDeclIdPerVertex) << uint32_t(16)) | static_cast<uint32_t>(vDeclIdPerInstance);
+MaterialView Material::Impl::GetView(uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+    uint64_t cacheId = (static_cast<uint64_t>(targetsId) << uint64_t(32)) | (static_cast<uint64_t>(vDeclIdPerVertex) << uint64_t(16)) | static_cast<uint64_t>(vDeclIdPerInstance);
 
     for (auto& item : m_materialViewCache) {
-        if (item.vDeclSum == vDeclSum) {
+        if (item.cacheId == cacheId) {
             return item.view;
         }
     }
 
     auto mask = m_this->OnBeforeCreateView(vDeclIdPerVertex, vDeclIdPerInstance);
-    auto pipelineState = m_builder->Create(mask, vDeclIdPerVertex, vDeclIdPerInstance, m_vars, m_desc);
+    auto pipelineState = m_builder->Create(mask, targetsId, vDeclIdPerVertex, vDeclIdPerInstance, m_vars, m_desc);
     ShaderResourceBindingPtr binding;
     pipelineState->CreateShaderResourceBinding(&binding, true);
 
     auto view = MaterialView(m_name.c_str(), pipelineState, binding);
-    m_materialViewCache.emplace_back(vDeclSum, view);
+    m_materialViewCache.emplace_back(cacheId, view);
     m_this->OnAfterCreateView(view);
 
     return view;
@@ -110,12 +110,12 @@ Material::~Material() {
 
 }
 
-MaterialView Material::GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
+MaterialView Material::GetView(uint8_t frameNum, uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance) {
     if (impl->m_lastFrameNum != frameNum) {
         impl->m_lastFrameNum = frameNum;
         OnNewFrame();
     }
-    return impl->GetView(vDeclIdPerVertex, vDeclIdPerInstance);
+    return impl->GetView(targetsId, vDeclIdPerVertex, vDeclIdPerInstance);
 }
 
 const std::string& Material::GetName() const noexcept {

@@ -19,6 +19,21 @@ struct ShaderVars {
     uint8_t number = 0;
 };
 
+struct TargetsFormat {
+    bool operator==(const TargetsFormat& other) const;
+
+    dg::TEXTURE_FORMAT GetDepthTarget() const noexcept;
+
+    void SetColorTarget(uint8_t index, dg::TEXTURE_FORMAT format);
+    void SetDepthTarget(dg::TEXTURE_FORMAT format);
+    void SetCountColorTargets(uint8_t value);
+
+    static constexpr const uint8_t MAX_COLOR_TARGETS = 2;
+
+    dg::TEXTURE_FORMAT formats[MAX_COLOR_TARGETS + 1];
+    uint8_t countColorTargets = 0;
+};
+
 namespace Diligent {
     struct SamplerDesc;
     struct GraphicsPipelineDesc;
@@ -37,6 +52,9 @@ public:
 
     void Load(const MaterialBuilderDesc& desc);
 
+    // valid id more than 0
+    uint16_t CacheTargetsFormat(const TargetsFormat& value);
+
     uint16_t CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
     uint16_t CacheTextureVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type);
     uint16_t CacheTextureVar(uint16_t textureVarId, const dg::SamplerDesc& desc);
@@ -53,9 +71,10 @@ public:
         UpdateGlobalVar(id, reinterpret_cast<const void*>(&data), sizeof(T));
     }
 
-    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc);
+    PipelineStatePtr Create(uint64_t mask, uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance,
+        const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc);
 
 private:
     struct Impl;
-    Pimpl<Impl, 3352, 8> impl;
+    Pimpl<Impl, 3432, 8> impl;
 };

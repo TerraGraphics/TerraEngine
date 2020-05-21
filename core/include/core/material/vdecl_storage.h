@@ -25,7 +25,9 @@ public:
     VDeclStorage();
     ~VDeclStorage();
 
+    // valid id more than 0
     uint16_t Add(std::vector<VDeclItem>&& items);
+    // valid id more than 0
     uint16_t Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
     VarNameId GetVarNameId(const std::string& name);

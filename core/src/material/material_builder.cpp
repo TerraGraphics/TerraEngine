@@ -95,6 +95,15 @@ namespace std {
         }
     };
 
+    template<> struct hash<TargetsFormat> {
+        size_t operator()(const TargetsFormat& value) const {
+            size_t hash = 0;
+            HashCombine(hash, value.formats, value.countColorTargets + 1);
+
+            return hash;
+        }
+    };
+
     template<> struct hash<PipelineStateKey> {
         size_t operator()(const PipelineStateKey& value) const {
             auto hash = std::hash<uint64_t>()(value.mask);
@@ -124,6 +133,45 @@ bool ShaderVars::operator==(const ShaderVars& other) const {
     return false;
 }
 
+bool TargetsFormat::operator==(const TargetsFormat& other) const {
+    if (countColorTargets == other.countColorTargets) {
+        for (uint8_t i=0; i!=(other.countColorTargets + 1); ++i) {
+            if (formats[i] != other.formats[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+dg::TEXTURE_FORMAT TargetsFormat::GetDepthTarget() const noexcept {
+    return formats[0];
+}
+
+void TargetsFormat::SetColorTarget(uint8_t index, dg::TEXTURE_FORMAT format) {
+    if (index >= MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for TargetsFormat::SetColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
+    }
+    formats[index + 1] = format;
+}
+
+void TargetsFormat::SetDepthTarget(dg::TEXTURE_FORMAT format) {
+    formats[0] = format;
+}
+
+void TargetsFormat::SetCountColorTargets(uint8_t value) {
+    if (value > MAX_COLOR_TARGETS) {
+        throw EngineError("wrong countColorTargets {} for TargetsFormat::SetCountColorTargets, max count is {}", index, MAX_COLOR_TARGETS);
+    }
+    if (value == 0) {
+        throw EngineError("wrong countColorTargets {} for RenderTarget::Update, min count is 0", index);
+    }
+    countColorTargets = value;
+}
+
 struct MaterialBuilder::Impl : Fixed {
     Impl() = delete;
     Impl(const DevicePtr& device, const ContextPtr& context,
@@ -131,13 +179,20 @@ struct MaterialBuilder::Impl : Fixed {
     ~Impl();
 
     // valid id more than 0
+    uint16_t CacheTargetsFormat(const TargetsFormat& value);
+    void FillTargetsFormat(uint16_t targetsId, dg::GraphicsPipelineDesc& gpDesc);
+    // valid id more than 0
     const ShaderVar& GetShaderVar(uint16_t textureVarId) const;
     const dg::SamplerDesc& GetSamplerDesc(uint16_t id) const;
     uint16_t CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type, uint16_t samplerId);
     uint16_t CacheShaderVar(uint16_t textureVarId, const dg::SamplerDesc& desc);
     void FillVars(const ShaderVars& vars, dg::PipelineResourceLayoutDesc& desc);
 
-    PipelineStatePtr Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc);
+    PipelineStatePtr Create(uint64_t mask, uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance,
+        const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc);
+
+    std::vector<TargetsFormat> m_idToTargetsFormat;
+    std::unordered_map<TargetsFormat, uint16_t> m_targetsFormatToId;
 
     uint16_t m_defaultSamplerId;
     std::vector<dg::SamplerDesc> m_idToSampler;
@@ -188,6 +243,32 @@ MaterialBuilder::Impl::~Impl() {
     if (m_shaderBuilder) {
         delete m_shaderBuilder;
         m_shaderBuilder = nullptr;
+    }
+}
+
+uint16_t MaterialBuilder::Impl::CacheTargetsFormat(const TargetsFormat& value) {
+    if (const auto it = m_targetsFormatToId.find(value); it != m_targetsFormatToId.cend()) {
+        return it->second;
+    }
+
+    auto id = static_cast<uint16_t>(m_idToTargetsFormat.size() + 1);
+    m_targetsFormatToId[value] = id;
+    m_idToTargetsFormat.push_back(value);
+
+    return id;
+}
+void MaterialBuilder::Impl::FillTargetsFormat(uint16_t targetsId, dg::GraphicsPipelineDesc& gpDesc) {
+    if (targetsId == 0) {
+        throw EngineError("MaterialBuilder: wrong targetsId {} for FillTargetsFormat, min targetsId is 1", targetsId);
+    }
+    if (targetsId > m_idToTargetsFormat.size()) {
+        throw EngineError("MaterialBuilder: wrong targetsId {} for FillTargetsFormat, max targetsId is {}", targetsId, m_idToTargetsFormat.size());
+    }
+    auto& targetsFormat = m_idToTargetsFormat[targetsId - uint16_t(1)];
+    gpDesc.DSVFormat = targetsFormat.GetDepthTarget();
+    gpDesc.NumRenderTargets = targetsFormat.countColorTargets;
+    for (uint8_t i=0; i!=targetsFormat.countColorTargets; ++i) {
+        gpDesc.RTVFormats[i] = targetsFormat.formats[i + 1];
     }
 }
 
@@ -257,8 +338,10 @@ void MaterialBuilder::Impl::FillVars(const ShaderVars& vars, dg::PipelineResourc
     }
 }
 
-PipelineStatePtr MaterialBuilder::Impl::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc) {
-    auto vDeclId =  m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
+PipelineStatePtr MaterialBuilder::Impl::Create(uint64_t mask, uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance,
+    const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc) {
+
+    auto vDeclId = m_vDeclStorage->Join(vDeclIdPerVertex, vDeclIdPerInstance);
     PipelineStateKey key(mask, vDeclId, vars, gpDesc);
     if (const auto it = m_pipelineStateCache.find(key); it != m_pipelineStateCache.cend()) {
         return it->second;
@@ -271,17 +354,13 @@ PipelineStatePtr MaterialBuilder::Impl::Create(uint64_t mask, uint16_t vDeclIdPe
     dg::PipelineStateDesc desc;
     desc.IsComputePipeline = false;
 
-    gpDesc.NumRenderTargets = src.gsOutputNumber;
-    for (uint8_t i=0; i!=src.gsOutputNumber; ++i) {
-        gpDesc.RTVFormats[i] = m_swapChain->GetDesc().ColorBufferFormat;
-    }
-    gpDesc.DSVFormat = m_swapChain->GetDesc().DepthBufferFormat;
     gpDesc.pVS = shaders.vs;
     gpDesc.pPS = shaders.ps;
     gpDesc.pDS = nullptr;
     gpDesc.pHS = nullptr;
     gpDesc.pGS = shaders.gs;
     gpDesc.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
+    FillTargetsFormat(targetsId, gpDesc);
     desc.GraphicsPipeline = gpDesc;
     FillVars(vars, desc.ResourceLayout);
 
@@ -313,6 +392,10 @@ void MaterialBuilder::Load(const MaterialBuilderDesc& desc) {
     impl->m_shaderBuilder->Create(desc);
 }
 
+uint16_t MaterialBuilder::CacheTargetsFormat(const TargetsFormat& value) {
+    return impl->CacheTargetsFormat(value);
+}
+
 uint16_t MaterialBuilder::CacheShaderVar(const std::string& name, dg::SHADER_TYPE shaderType, dg::SHADER_RESOURCE_VARIABLE_TYPE type) {
     return impl->CacheShaderVar(name, shaderType, type, 0);
 }
@@ -339,6 +422,8 @@ void MaterialBuilder::UpdateGlobalVar(uint32_t id, const void* data, size_t data
     impl->m_staticVarsStorage->Update(id, data, dataSize);
 }
 
-PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance, const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc) {
-    return impl->Create(mask, vDeclIdPerVertex, vDeclIdPerInstance, vars, gpDesc);
+PipelineStatePtr MaterialBuilder::Create(uint64_t mask, uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance,
+    const ShaderVars& vars, dg::GraphicsPipelineDesc& gpDesc) {
+
+    return impl->Create(mask, targetsId, vDeclIdPerVertex, vDeclIdPerInstance, vars, gpDesc);
 }

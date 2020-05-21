@@ -128,7 +128,8 @@ void TransformNode::Update(TransformUpdateDesc& nodeList, bool isDirty) {
             nodeList.findResult = shared_from_this();
         }
         nodeList.nodeList.emplace_back(
-            m_geometry, m_material->GetView(nodeList.frameNum, m_geometry->GetVDeclId(), nodeList.vDeclIdPerInstance), m_world, m_normal, m_id);
+            m_geometry, m_material->GetView(nodeList.frameNum, nodeList.targetsId, m_geometry->GetVDeclId(), nodeList.vDeclIdPerInstance),
+            m_world, m_normal, m_id);
     }
 
     for (auto& node : m_children) {

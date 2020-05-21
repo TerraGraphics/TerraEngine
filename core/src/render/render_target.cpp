@@ -8,7 +8,11 @@
 #include "core/common/exception.h"
 
 
-RenderTarget::RenderTarget() {
+RenderTarget::RenderTarget(const DevicePtr& device, const ContextPtr& context, const SwapChainPtr& swapChain, const std::shared_ptr<MaterialBuilder>& materialBuilder)
+    : m_device(device)
+    , m_context(context)
+    , m_swapChain(swapChain)
+    , m_materialBuilder(materialBuilder) {
 
 }
 
@@ -16,13 +20,12 @@ RenderTarget::~RenderTarget() {
 
 }
 
-void RenderTarget::Create(const DevicePtr& device, const ContextPtr& context, math::Color4f clearColor, uint32_t width, uint32_t height) {
+void RenderTarget::Create(math::Color4f clearColor, uint32_t width, uint32_t height) {
     m_width = width;
     m_height = height;
-    m_device = device;
-    m_context = context;
+    m_targetsIdDirty = true;
 
-    for (size_t i=0; i!=MAX_COLOR_TARGETS; ++i) {
+    for (size_t i=0; i!=TargetsFormat::MAX_COLOR_TARGETS; ++i) {
         m_clearColors[i] = clearColor;
     }
 
@@ -32,31 +35,28 @@ void RenderTarget::Create(const DevicePtr& device, const ContextPtr& context, ma
 }
 
 TextureViewPtr RenderTarget::GetColorTexture(uint8_t index) {
-    if (index >= MAX_COLOR_TARGETS) {
-        throw EngineError("wrong index {} for RenderTarget::GetColorTexture, max index is {}", index, MAX_COLOR_TARGETS-1);
+    if (index >= TargetsFormat::MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for RenderTarget::GetColorTexture, max index is {}", index, TargetsFormat::MAX_COLOR_TARGETS-1);
     }
 
     if (!m_colorTargets[index]) {
         throw EngineError("wrong index {} for RenderTarget::GetColorTexture: attempted get default texture", index);
     }
 
+    m_targetsIdDirty = true;
     return TextureViewPtr(m_colorTargets[index]->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE));
 }
 
 void RenderTarget::SetDefaultColorTarget(uint8_t index, math::Color4f clearColor) {
-    if (index >= MAX_COLOR_TARGETS) {
-        throw EngineError("wrong index {} for RenderTarget::SetDefaultColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
-    }
-
+    m_targetsIdDirty = true;
+    m_targets.SetColorTarget(index, m_swapChain->GetDesc().ColorBufferFormat);
     m_colorTargets[index].Release();
     m_clearColors[index] = clearColor;
 }
 
 void RenderTarget::SetColorTarget(uint8_t index, dg::TEXTURE_FORMAT format, math::Color4f clearColor, const char* name) {
-    if (index >= MAX_COLOR_TARGETS) {
-        throw EngineError("wrong index {} for RenderTarget::SetColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
-    }
-
+    m_targetsIdDirty = true;
+    m_targets.SetColorTarget(index, format);
     CreateColorTarget(index, format, name);
     m_clearColors[index] = clearColor;
 }
@@ -70,10 +70,14 @@ TextureViewRaw RenderTarget::GetDepthTargetView() {
 }
 
 void RenderTarget::SetDefaultDepthTarget() {
+    m_targetsIdDirty = true;
+    m_targets.SetDepthTarget(m_swapChain->GetDesc().DepthBufferFormat);
     m_depthTarget.Release();
 }
 
 void RenderTarget::SetDepthTarget(dg::TEXTURE_FORMAT format, const char* name) {
+    m_targetsIdDirty = true;
+    m_targets.SetDepthTarget(format);
     CreateDepthTarget(format, name);
 }
 
@@ -141,14 +145,15 @@ void RenderTarget::CreateCPUTarget(dg::TEXTURE_FORMAT format, uint32_t width, ui
     m_device->CreateTexture(desc, nullptr, &m_cpuTarget);
 }
 
-void RenderTarget::Update(SwapChainPtr& swapChain, uint8_t countColorTargets, uint32_t width, uint32_t height) {
-    if (countColorTargets > MAX_COLOR_TARGETS) {
-        throw EngineError("wrong countColorTargets {} for RenderTarget::Update, max count is {}", index, MAX_COLOR_TARGETS);
+uint16_t RenderTarget::Update(uint8_t countColorTargets, uint32_t width, uint32_t height) {
+    if (m_targets.countColorTargets != countColorTargets) {
+        m_targetsIdDirty = true;
+        m_targets.SetCountColorTargets(countColorTargets);
     }
-    if (countColorTargets == 0) {
-        throw EngineError("wrong countColorTargets {} for RenderTarget::Update, min count is 0", index);
+
+    if (m_targetsIdDirty) {
+        m_targetsId = m_materialBuilder->CacheTargetsFormat(m_targets);
     }
-    m_countColorTargets = countColorTargets;
 
     bool existsDefaultTarget = false;
     for (uint8_t i=0; i!=countColorTargets; ++i) {
@@ -163,12 +168,12 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint8_t countColorTargets, ui
     }
 
     if (existsDefaultTarget || (width == 0) || (height == 0)) {
-        width = swapChain->GetDesc().Width;
-        height = swapChain->GetDesc().Height;
+        width = m_swapChain->GetDesc().Width;
+        height = m_swapChain->GetDesc().Height;
     }
 
     if ((width == 0) || (height == 0)) {
-        return;
+        return m_targetsId;
     }
 
     bool needRecreate = ((m_width != width) || (m_height != height));
@@ -177,7 +182,7 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint8_t countColorTargets, ui
 
     for (uint8_t i=0; i!=countColorTargets; ++i) {
         if (m_colorTargets[i].RawPtr() == nullptr) {
-            m_colorTargetsView[i] = swapChain->GetCurrentBackBufferRTV();
+            m_colorTargetsView[i] = m_swapChain->GetCurrentBackBufferRTV();
             continue;
         }
 
@@ -188,24 +193,26 @@ void RenderTarget::Update(SwapChainPtr& swapChain, uint8_t countColorTargets, ui
     }
 
     if (m_depthTarget.RawPtr() == nullptr) {
-        m_depthTagretView = swapChain->GetDepthBufferDSV();
+        m_depthTagretView = m_swapChain->GetDepthBufferDSV();
     } else if (needRecreate) {
         const auto& desc = m_depthTarget->GetDesc();
         CreateDepthTarget(desc.Format, desc.Name);
     }
+
+    return m_targetsId;
 }
 
 void RenderTarget::Bind() {
-    m_context->SetRenderTargets(static_cast<uint32_t>(m_countColorTargets), m_colorTargetsView, m_depthTagretView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    for (size_t i=0; i!=m_countColorTargets; ++i) {
+    m_context->SetRenderTargets(static_cast<uint32_t>(m_targets.countColorTargets), m_colorTargetsView, m_depthTagretView, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    for (size_t i=0; i!=m_targets.countColorTargets; ++i) {
         m_context->ClearRenderTarget(m_colorTargetsView[i], m_clearColors[i].value, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
     m_context->ClearDepthStencil(m_depthTagretView, dg::CLEAR_DEPTH_FLAG, 1.0f, 0, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void RenderTarget::CopyColorTarget(uint8_t index, math::Rect rect) {
-    if (index >= MAX_COLOR_TARGETS) {
-        throw EngineError("wrong index {} for RenderTarget::CopyColorTarget, max index is {}", index, MAX_COLOR_TARGETS-1);
+    if (index >= TargetsFormat::MAX_COLOR_TARGETS) {
+        throw EngineError("wrong index {} for RenderTarget::CopyColorTarget, max index is {}", index, TargetsFormat::MAX_COLOR_TARGETS-1);
     }
 
     if (!m_colorTargets[index]) {

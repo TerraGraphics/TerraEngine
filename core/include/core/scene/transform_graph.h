@@ -25,6 +25,7 @@ struct DrawNode {
 class TransformNode;
 struct TransformUpdateDesc {
     uint8_t frameNum;
+    uint16_t targetsId;
     uint16_t vDeclIdPerInstance;
     uint32_t lastId;
     uint32_t findId;

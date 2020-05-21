@@ -9,5 +9,5 @@ do
 		name="TOTAL"
 	fi
 
-	printf '%10s: %d\n' $name $number
+	printf '%10s: %d\n' $name "$number"
 done

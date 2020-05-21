@@ -19,7 +19,7 @@
 
 StdScene::StdScene()
     : Scene()
-    , m_renderTarget(std::make_unique<RenderTarget>()) {
+    , m_renderTarget(new RenderTarget(Engine::Get().GetDevice(), Engine::Get().GetContext(), Engine::Get().GetSwapChain(), Engine::Get().GetMaterialBuilder())) {
 
 }
 
@@ -48,11 +48,10 @@ bool StdScene::GetNodeInPoint(std::shared_ptr<TransformNode>& node) {
 
 void StdScene::Create(bool renderToTexture, dg::TEXTURE_FORMAT format, math::Color4f clearColor, uint32_t width, uint32_t height) {
     auto& engine = Engine::Get();
-    auto& device = engine.GetDevice();
     auto& vDeclStorage = engine.GetVDeclStorage();
     auto& materialBuilder = engine.GetMaterialBuilder();
 
-    m_renderTarget->Create(device, engine.GetContext(), clearColor, width, height);
+    m_renderTarget->Create(clearColor, width, height);
     if (renderToTexture) {
         m_renderTarget->SetColorTarget(0, format, clearColor, "rt::color::main");
         m_renderTarget->SetColorTarget(1, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f), "rt::color::picker");
@@ -62,7 +61,7 @@ void StdScene::Create(bool renderToTexture, dg::TEXTURE_FORMAT format, math::Col
         m_renderTarget->SetDefaultDepthTarget();
     }
 
-    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, device->GetDeviceCaps().IsGLDevice(), true);
+    m_camera = std::make_shared<Camera>(QuarterPI<float>(), 0.1f, 100.0f, engine.GetDevice()->GetDeviceCaps().IsGLDevice(), true);
     m_vsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_VERTEX, "Camera");
     m_psCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_PIXEL, "Camera");
     m_gsCameraVarId = materialBuilder->AddGlobalVar<dg::ShaderCamera>(dg::SHADER_TYPE::SHADER_TYPE_GEOMETRY, "Camera");
@@ -115,7 +114,8 @@ void StdScene::Update(uint32_t width, uint32_t height) {
         m_pickerState = PickerState::NeedCopy;
     }
 
-    TransformUpdateDesc& updateDesc = Scene::Update(vDeclIdPerInstance, findNodeId);
+    auto targetsId = m_renderTarget->Update(countColorTargets, width, height);
+    TransformUpdateDesc& updateDesc = Scene::Update(targetsId, vDeclIdPerInstance, findNodeId);
     if (findNodeId != 0) {
         m_pickerResult = updateDesc.findResult;
         updateDesc.findResult.reset();
@@ -140,8 +140,6 @@ void StdScene::Update(uint32_t width, uint32_t height) {
         }
     }
     m_transformBuffer->Unmap(context);
-
-    m_renderTarget->Update(engine.GetSwapChain(), countColorTargets, width, height);
 }
 
 uint32_t StdScene::Draw() {

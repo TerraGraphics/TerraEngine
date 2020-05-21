@@ -18,7 +18,7 @@ protected:
     virtual ~Material();
 
 public:
-    MaterialView GetView(uint8_t frameNum, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
+    MaterialView GetView(uint8_t frameNum, uint16_t targetsId, uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstance);
 
 protected:
     const std::string& GetName() const noexcept;

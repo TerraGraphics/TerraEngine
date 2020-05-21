@@ -9,8 +9,9 @@
 #include "core/material/material_view.h"
 
 
-TransformUpdateDesc& Scene::Update(uint16_t vDeclIdPerInstance, uint32_t findId) {
+TransformUpdateDesc& Scene::Update(uint16_t targetsId, uint16_t vDeclIdPerInstance, uint32_t findId) {
     m_updateDesc.nodeList.clear();
+    m_updateDesc.targetsId = targetsId;
     m_updateDesc.vDeclIdPerInstance = vDeclIdPerInstance;
     m_updateDesc.findId = findId;
     m_updateDesc.findResult.reset();
