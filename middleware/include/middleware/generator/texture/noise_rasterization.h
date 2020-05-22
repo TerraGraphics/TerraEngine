@@ -28,10 +28,11 @@ protected:
     Noise2D* m_noiseNode = nullptr;
 };
 
+class DynamicTexture;
 class NoiseToTexture : public NoiseRasterization2D {
 public:
     NoiseToTexture() = delete;
-    NoiseToTexture(dg::IReferenceCounters* refCounters, DevicePtr& device, ContextPtr& context);
+    NoiseToTexture(dg::IReferenceCounters* refCounters);
     ~NoiseToTexture();
     static const char* GetName() { return "Noise to texture"; }
 
@@ -51,13 +52,11 @@ protected:
     void StateChanged() override;
 
 private:
-    bool GetTextureForDraw(math::Size size, TexturePtr& output);
+    void FillTexture(dg::RefCntAutoPtr<DynamicTexture>& texture, bool isDirty);
 
 private:
-    DevicePtr m_device;
-    ContextPtr m_context;
-    TexturePtr m_textureCacheMain;
-    TexturePtr m_textureCacheCustom;
+    dg::RefCntAutoPtr<DynamicTexture> m_textureCacheMain;
+    dg::RefCntAutoPtr<DynamicTexture> m_textureCacheCustom;
     math::Size m_textureSize = math::Size(256, 256);
     math::RectD m_noiseBound = math::RectD(math::PointD(0, 0), math::PointD(100, 100));
     bool m_isCustomDirty = true;

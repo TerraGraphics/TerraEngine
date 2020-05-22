@@ -34,7 +34,7 @@ void GraphWindow::Create(const std::shared_ptr<PropertyWindow>& propertyWindow) 
     loadInfo.IsSRGB = true;
     CreateTextureFromFile("assets/graph_node_background.png", loadInfo, device, &texBackground);
 
-    auto factory = std::make_unique<TextureNodeFactory>(device, engine.GetContext());
+    auto factory = std::make_unique<TextureNodeFactory>();
     NoiseToTexture* node = factory->CreateNoiseToTexture();
     m_graphEditor = std::make_shared<GraphEditor>("NodeEditor", device->GetDeviceCaps().IsGLDevice(), texBackground, std::move(factory));
     m_graphEditor->AddNode(static_cast<GraphNode*>(node));

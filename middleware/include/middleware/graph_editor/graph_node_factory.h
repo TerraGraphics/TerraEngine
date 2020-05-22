@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include <functional>
 #include "core/common/ctor.h"
 

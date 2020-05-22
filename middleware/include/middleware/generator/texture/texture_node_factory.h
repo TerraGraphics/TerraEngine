@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/dg/dg.h"
 #include "middleware/graph_editor/graph_node_factory.h"
 
 
@@ -11,8 +10,7 @@ class NoiseToTexture;
 class PlaneProjection;
 class TextureNodeFactory : public GraphNodeFactory {
 public:
-    TextureNodeFactory() = delete;
-    TextureNodeFactory(DevicePtr& device, ContextPtr& context);
+    TextureNodeFactory();
     ~TextureNodeFactory() override;
 
     CoherentNoise* CreateCoherentNoise();
@@ -24,8 +22,4 @@ public:
     INodePreview* CompleteToPreview(NoiseToTexture* node);
 
     INodePreview* GetPreview(GraphNode* node) override;
-
-private:
-    DevicePtr m_device;
-    ContextPtr m_context;
 };

@@ -46,7 +46,7 @@ void PreviewScene::CreateTextures() {
         m_TextureCube = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
 
-    auto factory = std::make_unique<TextureNodeFactory>(device, Engine::Get().GetContext());
+    auto factory = std::make_unique<TextureNodeFactory>();
     auto* cNoise = factory->CreateCoherentNoise();
     auto* planePr = factory->CreatePlaneProjection()->SetInputs(cNoise);
     auto* texGen = factory->CreateNoiseToTexture()->SetInputs(planePr);

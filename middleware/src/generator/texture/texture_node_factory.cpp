@@ -3,8 +3,7 @@
 #include <string>
 #include <functional>
 
-#include "core/dg/device.h" // IWYU pragma: keep
-#include "core/dg/context.h" // IWYU pragma: keep
+#include "core/dg/dg.h"
 #include "core/common/exception.h"
 #include "middleware/graph_editor/graph_node.h"
 #include "core/dg/default_raw_memory_allocator.h"
@@ -13,20 +12,16 @@
 #include "middleware/generator/texture/noise_rasterization.h"
 
 
-TextureNodeFactory::TextureNodeFactory(DevicePtr& device, ContextPtr& context)
+TextureNodeFactory::TextureNodeFactory()
     : GraphNodeFactory ({
         { CoherentNoise::GetName(), [this]() { return CreateCoherentNoise(); }},
         { PlaneProjection::GetName(), [this]() { return CreatePlaneProjection(); }},
         { NoiseToTexture::GetName(), [this]() { return CreateNoiseToTexture(); }},
-    })
-    , m_device(device)
-    , m_context(context) {
+    }) {
 
 }
 
 TextureNodeFactory::~TextureNodeFactory() {
-    m_device.Release();
-    m_context.Release();
 }
 
 CoherentNoise* TextureNodeFactory::CreateCoherentNoise() {
@@ -38,7 +33,7 @@ PlaneProjection* TextureNodeFactory::CreatePlaneProjection() {
 }
 
 NoiseToTexture* TextureNodeFactory::CreateNoiseToTexture() {
-    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), NoiseToTexture::GetName(), NoiseToTexture)(m_device, m_context);
+    return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), NoiseToTexture::GetName(), NoiseToTexture)();
 }
 
 INodePreview* TextureNodeFactory::CompleteToPreview(CoherentNoise* node) {
