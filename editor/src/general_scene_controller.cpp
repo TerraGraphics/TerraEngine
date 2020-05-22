@@ -1,13 +1,13 @@
 #include "general_scene_controller.h"
 
 #include <memory>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "general_scene.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
+#include "core/dg/swap_chain.h"
 #include "core/dg/graphics_types.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/camera/fly_controller.h"

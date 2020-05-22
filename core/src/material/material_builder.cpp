@@ -2,12 +2,12 @@
 
 #include <vector>
 #include <utility>
+#include <strings.h>
 #include <unordered_map>
-
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
 #include "core/dg/device.h"
 #include "core/common/hash.h"
+#include "core/dg/swap_chain.h" // IWYU pragma: keep
 #include "core/common/exception.h"
 #include "core/material/material_vars.h"
 #include "core/material/vdecl_storage.h"

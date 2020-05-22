@@ -2,14 +2,12 @@
 
 #include <string>
 #include <functional>
-#include <type_traits>
-
-#include <DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp>
 
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "core/dg/context.h" // IWYU pragma: keep
 #include "core/common/exception.h"
 #include "middleware/graph_editor/graph_node.h"
+#include "core/dg/default_raw_memory_allocator.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"

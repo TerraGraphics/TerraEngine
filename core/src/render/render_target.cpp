@@ -1,7 +1,6 @@
 #include "core/render/render_target.h"
 
 #include <cstddef>
-#include <strings.h>
 
 #include "core/dg/device.h"
 #include "core/dg/context.h"

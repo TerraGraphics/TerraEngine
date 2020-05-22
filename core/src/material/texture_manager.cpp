@@ -1,10 +1,10 @@
 #include "core/material/texture_manager.h"
 
 #include <type_traits>
-#include <DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp>
 
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "core/material/texture.h"
+#include "core/dg/default_raw_memory_allocator.h"
 
 
 TextureManager::TextureManager(DevicePtr& device)

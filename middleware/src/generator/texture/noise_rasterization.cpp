@@ -12,7 +12,7 @@
 
 
 namespace {
-    bool IsCorrentTextureSize(math::Size size) {
+    bool IsCorrectTextureSize(math::Size size) {
         if ((size.w == 0) || (size.h == 0)) {
             return false;
         }
@@ -70,7 +70,7 @@ math::Size NoiseToTexture::GetSize() const {
 }
 
 void NoiseToTexture::SetSize(math::Size value) {
-    if (!IsCorrentTextureSize(value)) {
+    if (!IsCorrectTextureSize(value)) {
         throw EngineError("NoiseToTexture: size must be non-zero and multiple of 4 or equal to 1");
     }
     m_textureSize = value;
@@ -162,7 +162,7 @@ TexturePtr NoiseToTexture::GetTexture(math::Size size) {
 void NoiseToTexture::DrawGui() {
     auto tmpSize = m_textureSize;
     if (gui::InputScalarN("Size w/h", tmpSize.values, uint32_t(4), gui::Range<uint32_t>(4, 8192))) {
-        if (IsCorrentTextureSize(tmpSize)) {
+        if (IsCorrectTextureSize(tmpSize)) {
             m_textureSize = tmpSize;
             StateChanged();
         }
@@ -181,7 +181,7 @@ void NoiseToTexture::StateChanged() {
 }
 
 bool NoiseToTexture::GetTextureForDraw(math::Size size, TexturePtr& output) {
-    if (!IsCorrentTextureSize(size)) {
+    if (!IsCorrectTextureSize(size)) {
         throw EngineError("NoiseToTexture: size must be non-zero and multiple of 4 or equal to 1");
     }
 
