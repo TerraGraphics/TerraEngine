@@ -31,6 +31,7 @@ struct EngineDesc {
 
 class FileManager;
 class VDeclStorage;
+class TextureManager;
 class MaterialBuilder;
 class Engine final : Fixed {
 private:
@@ -53,6 +54,7 @@ public:
 
     std::shared_ptr<FileManager>& GetFileManager() noexcept { return m_fileManager; }
     std::shared_ptr<VDeclStorage>& GetVDeclStorage() noexcept { return m_vDeclStorage; }
+    std::shared_ptr<TextureManager>& GetTextureManager() noexcept { return m_textureManager; }
     std::shared_ptr<MaterialBuilder>& GetMaterialBuilder() noexcept { return m_materialBuilder; }
 
     float GetFps() const noexcept {
@@ -71,6 +73,7 @@ private:
 
     std::shared_ptr<FileManager> m_fileManager;
     std::shared_ptr<VDeclStorage> m_vDeclStorage;
+    std::shared_ptr<TextureManager> m_textureManager;
     std::shared_ptr<MaterialBuilder> m_materialBuilder;
 
     DevicePtr m_device;

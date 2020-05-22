@@ -24,9 +24,9 @@ DynamicTexture* TextureManager::CreateDynamicTexture(dg::TEXTURE_FORMAT format, 
     desc.Width = width;
     desc.Height = height;
     desc.Format = format;
-    desc.MipLevels = 1;
+    desc.MipLevels = 0;
     desc.SampleCount = 1;
-    desc.Usage = dg::USAGE_DEFAULT;
+    desc.Usage = dg::USAGE_DYNAMIC;
     desc.BindFlags = dg::BIND_SHADER_RESOURCE;
     desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
     desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;

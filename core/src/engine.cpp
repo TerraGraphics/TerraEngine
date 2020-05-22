@@ -10,6 +10,7 @@
 #include "platforms/platforms.h"
 #include "core/common/exception.h"
 #include "core/material/vdecl_storage.h"
+#include "core/material/texture_manager.h"
 #include "core/material/material_builder.h"
 
 
@@ -47,6 +48,7 @@ void Engine::Create(EngineDesc&& desc) {
     m_swapChain = m_gAPI->GetSwapChain();
     m_context = m_gAPI->GetContext();
     m_engineFactory = m_gAPI->GetEngineFactory();
+    m_textureManager = std::make_shared<TextureManager>(m_device);
     m_materialBuilder = std::make_shared<MaterialBuilder>(m_device, m_context, m_swapChain, m_engineFactory, m_vDeclStorage);
 
     m_application->Create();
