@@ -2,6 +2,7 @@
 fmt/6.0.0@bincrafters/stable
 gtest/1.8.1@bincrafters/stable
 spdlog/1.4.2@bincrafters/stable
+rttr/0.9.6@terragraphics/stable
 libucl/0.8.1@terragraphics/stable
 libnoise/1.0.032caf6@terragraphics/stable
 fastnoise/0.4.faba444@terragraphics/stable

@@ -18,6 +18,8 @@ function(set_common_project_properties TARGET)
             -Wsign-conversion
             -Wctor-dtor-privacy
             -Woverloaded-virtual
+
+            # -ftime-report
     )
 
     set_target_properties(${TARGET} PROPERTIES
