@@ -29,7 +29,7 @@ DynamicTexture* TextureManager::CreateDynamicTexture(dg::TEXTURE_FORMAT format, 
     desc.Usage = dg::USAGE_DYNAMIC;
     desc.BindFlags = dg::BIND_SHADER_RESOURCE;
     desc.CPUAccessFlags = dg::CPU_ACCESS_WRITE;
-    desc.MiscFlags = dg::MISC_TEXTURE_FLAG_NONE;
+    desc.MiscFlags = dg::MISC_TEXTURE_FLAG_GENERATE_MIPS;
     desc.CommandQueueMask = 1;
 
     return NEW_OBJ(dg::DefaultRawMemoryAllocator::GetAllocator(), "DynamicTexture", DynamicTexture)(m_device, desc);

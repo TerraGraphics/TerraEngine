@@ -29,7 +29,7 @@ DynamicTexture::LockHelper::LockHelper(DevicePtr& device, ContextPtr& context, T
         const uint32_t mipLevel = 0;
         const uint32_t arraySlice = 0;
         dg::MappedTextureSubresource texData;
-        m_context->MapTextureSubresource(m_texture, mipLevel, arraySlice, dg::MAP_WRITE, dg::MAP_FLAG_DISCARD, nullptr, texData);
+        m_context->MapTextureSubresource(m_texture, mipLevel, arraySlice, dg::MAP_WRITE, dg::MAP_FLAG_DO_NOT_WAIT, nullptr, texData);
         if (texData.pData == nullptr) {
             throw EngineError("DynamicTexture: failed to lock texture for write");
         }
