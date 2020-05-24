@@ -62,8 +62,6 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
     foundDesc.needFound = false;
     foundDesc.mouseX = mousePos.x;
     foundDesc.mouseY = mousePos.y;
-    foundDesc.windowWidth = windowRect.Width();
-    foundDesc.windowHeight = windowRect.Height();
 
     if (!m_selectedObject) {
         if (mouseFirstRelease) {

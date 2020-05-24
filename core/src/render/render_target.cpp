@@ -218,6 +218,10 @@ void RenderTarget::CopyColorTarget(uint8_t index, math::Rect rect) {
         throw EngineError("wrong index {} for RenderTarget::CopyColorTarget: attempted copy default texture", index);
     }
 
+    if (m_device->GetDeviceCaps().IsGLDevice()) {
+        rect.y = m_height - rect.y;
+    }
+
     bool needCreate = true;
     if (m_cpuTarget.RawPtr() != nullptr) {
         const auto& cDesc = m_colorTargets[index]->GetDesc();

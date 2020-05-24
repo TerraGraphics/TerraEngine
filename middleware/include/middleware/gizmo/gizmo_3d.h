@@ -15,8 +15,6 @@ struct GizmoFoundDesc {
     bool needFound = false;
     uint32_t mouseX = 0;
     uint32_t mouseY = 0;
-    uint32_t windowWidth = 0;
-    uint32_t windowHeight = 0;
 };
 
 class Gizmo3D : Fixed {

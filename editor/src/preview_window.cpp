@@ -61,9 +61,6 @@ void PreviewWindow::Update(double deltaTime) {
         GizmoFoundDesc foundDesc;
         m_gizmo->Update(m_camera, rc, mouseUnderWindow, foundDesc);
         if (foundDesc.needFound) {
-            if (m_isOpenGL) {
-                foundDesc.mouseY = foundDesc.windowHeight - foundDesc.mouseY;
-            }
             m_scene->StartSearchingNodeInPoint(foundDesc.mouseX, foundDesc.mouseY);
             m_waitTextureCopy = true;
         }
