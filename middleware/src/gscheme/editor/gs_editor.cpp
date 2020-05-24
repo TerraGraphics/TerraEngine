@@ -1,14 +1,14 @@
 #include "middleware/gscheme/editor/gs_editor.h"
 
+#include "middleware/gscheme/rttr/type.h"
 #include "middleware/imgui/imgui_node_editor.h"
+#include "middleware/gscheme/editor/gs_node_type.h"
+#include "middleware/gscheme/reflection/gs_metadata.h"
 
 
 GSEditor::GSEditor(const std::string& name, TexturePtr& /* texBackground */)
     : m_name(name)
     , m_config(new ne::Config()) {
-
-    m_config->SettingsFile = "";
-    m_context = ne::CreateEditor(m_config);
 }
 
 GSEditor::~GSEditor() {
@@ -20,6 +20,17 @@ GSEditor::~GSEditor() {
     if (m_config) {
         delete m_config;
         m_config = nullptr;
+    }
+}
+
+void GSEditor::Create() {
+    m_config->SettingsFile = "";
+    m_context = ne::CreateEditor(m_config);
+
+    for(const auto& t : rttr::type::get_types()) {
+        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+            m_nodeTypes.push_back(std::make_shared<GSNodeType>(t));
+        }
     }
 }
 

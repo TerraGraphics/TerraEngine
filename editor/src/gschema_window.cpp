@@ -27,6 +27,7 @@ void GSchemaWindow::Create(const std::shared_ptr<PropertyWindow>& propertyWindow
     CreateTextureFromFile("assets/graph_node_background.png", loadInfo, device, &texBackground);
 
     m_editor = std::make_shared<GSEditor>("GSEditor", texBackground);
+    m_editor->Create();
 }
 
 void GSchemaWindow::Draw() {

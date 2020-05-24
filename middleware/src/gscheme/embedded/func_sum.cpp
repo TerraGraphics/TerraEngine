@@ -1,6 +1,7 @@
 #include "middleware/gscheme/embedded/func_sum.h"
 
 #include "middleware/gscheme/rttr/registration.h"
+#include "middleware/gscheme/reflection/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
@@ -27,7 +28,7 @@ void FuncSum::SetB(float v) noexcept {
 REFLECTION_IMPL(FuncSum) {
     using namespace rttr;
 
-    registration::class_<FuncSum>("Sum")
+    registration::class_<FuncSum>("Sum")(metadata(GSMetaTypes::GS_CLASS, true))
         .constructor<>()
         .method("Result", &FuncSum::Result)
         .property("A", &FuncSum::GetA, &FuncSum::SetA)

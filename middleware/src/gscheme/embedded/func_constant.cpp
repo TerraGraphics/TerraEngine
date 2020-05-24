@@ -1,6 +1,7 @@
 #include "middleware/gscheme/embedded/func_constant.h"
 
 #include "middleware/gscheme/rttr/registration.h"
+#include "middleware/gscheme/reflection/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
@@ -15,7 +16,7 @@ void FuncConstant::SetValue(float v) noexcept {
 REFLECTION_IMPL(FuncConstant) {
     using namespace rttr;
 
-    registration::class_<FuncConstant>("Constant")
+    registration::class_<FuncConstant>("Constant")(metadata(GSMetaTypes::GS_CLASS, true))
         .constructor<>()
         .property("Value", &FuncConstant::GetValue, &FuncConstant::SetValue)
         ;
