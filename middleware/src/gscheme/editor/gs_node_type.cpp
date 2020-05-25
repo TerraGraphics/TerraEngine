@@ -7,20 +7,20 @@
 
 
 struct GSNodeType::Impl {
-    Impl(const rttr::type& gsType);
+    Impl(std::string_view name, const rttr::type& gsType);
 
     std::string m_name;
     rttr::type m_gsType;
 };
 
-GSNodeType::Impl::Impl(const rttr::type& gsType)
-    : m_name(gsType.get_name())
+GSNodeType::Impl::Impl(std::string_view name, const rttr::type& gsType)
+    : m_name(name)
     , m_gsType(gsType) {
 
 }
 
-GSNodeType::GSNodeType(const rttr::type& gsType)
-    : impl(gsType) {
+GSNodeType::GSNodeType(std::string_view name, const rttr::type& gsType)
+    : impl(name, gsType) {
 
 }
 
@@ -28,6 +28,6 @@ GSNodeType::~GSNodeType() {
 
 }
 
-std::shared_ptr<GSNode> GSNodeType::NewInstance() {
-    return std::make_shared<GSNode>(impl->m_name, impl->m_gsType.create());
+std::shared_ptr<GSNode> GSNodeType::NewInstance(uintptr_t id) {
+    return std::make_shared<GSNode>(id, impl->m_name, impl->m_gsType.create());
 }

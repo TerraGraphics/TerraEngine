@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <cstdint>
+#include <string_view>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
@@ -15,12 +15,12 @@ namespace rttr {
 class GSNode : Fixed {
 public:
     GSNode() = delete;
-    GSNode(const std::string& name, rttr::variant&& instance);
+    GSNode(uintptr_t id, std::string_view name, rttr::variant&& instance);
     ~GSNode();
 
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
 
 private:
     struct Impl;
-    Pimpl<Impl, 48, 8> impl;
+    Pimpl<Impl, 40, 8> impl;
 };

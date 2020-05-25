@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
@@ -15,7 +14,7 @@ namespace ax {
     }
 }
 
-class GSNodeType;
+class GSStorage;
 class GSEditor : Fixed {
 public:
     GSEditor() = delete;
@@ -29,5 +28,5 @@ private:
     std::string m_name;
     ax::NodeEditor::Config* m_config = nullptr;
     ax::NodeEditor::EditorContext* m_context = nullptr;
-    std::vector<std::shared_ptr<GSNodeType>> m_nodeTypes;
+    std::unique_ptr<GSStorage> m_storage;
 };

@@ -9,20 +9,22 @@
 
 
 struct GSNode::Impl {
-    Impl(const std::string& name, rttr::variant&& instance);
+    Impl(uintptr_t id, std::string_view name, rttr::variant&& instance);
 
-    std::string m_name;
+    uintptr_t m_id;
+    std::string_view m_name;
     rttr::variant m_instance;
 };
 
-GSNode::Impl::Impl(const std::string& name, rttr::variant&& instance)
-    : m_name(name)
+GSNode::Impl::Impl(uintptr_t id, std::string_view name, rttr::variant&& instance)
+    : m_id(id)
+    , m_name(name)
     , m_instance(std::move(instance)) {
 
 }
 
-GSNode::GSNode(const std::string& name, rttr::variant&& instance)
-    : impl(name, std::move(instance)) {
+GSNode::GSNode(uintptr_t id, std::string_view name, rttr::variant&& instance)
+    : impl(id, name, std::move(instance)) {
 
 }
 
@@ -41,12 +43,12 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
 
 
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, nodePaddingTop, nodePaddingRight, nodePaddingBottom));
-    ne::NodeId id(this);
+    ne::NodeId id(impl->m_id);
     ne::BeginNode(id);
 
     // Header
     ImGui::BeginGroup();
-    ImGui::TextUnformatted(impl->m_name.c_str());
+    ImGui::TextUnformatted(impl->m_name.data());
     auto headerMin = ImGui::GetItemRectMin();
     auto headerMax = ImGui::GetItemRectMax();
     auto headerSize = ImGui::GetItemRectSize();

@@ -1,15 +1,14 @@
 #include "middleware/gscheme/editor/gs_editor.h"
 
-#include "middleware/gscheme/rttr/type.h"
-#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/imgui/imgui_node_editor.h"
-#include "middleware/gscheme/editor/gs_node_type.h"
-#include "middleware/gscheme/reflection/gs_metadata.h"
+#include "middleware/gscheme/editor/gs_storage.h"
 
 
-GSEditor::GSEditor(const std::string& name, TexturePtr& /* texBackground */)
+GSEditor::GSEditor(const std::string& name, TexturePtr& texBackground)
     : m_name(name)
-    , m_config(new ne::Config()) {
+    , m_config(new ne::Config())
+    , m_storage(new GSStorage(texBackground)) {
+
 }
 
 GSEditor::~GSEditor() {
@@ -22,17 +21,14 @@ GSEditor::~GSEditor() {
         delete m_config;
         m_config = nullptr;
     }
+
+    m_storage.reset();
 }
 
 void GSEditor::Create() {
     m_config->SettingsFile = "";
     m_context = ne::CreateEditor(m_config);
-
-    for(const auto& t : rttr::type::get_types()) {
-        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
-            m_nodeTypes.push_back(std::make_shared<GSNodeType>(t));
-        }
-    }
+    m_storage->Create();
 }
 
 void GSEditor::Draw() {
@@ -41,6 +37,8 @@ void GSEditor::Draw() {
     ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
     ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
     ne::Begin(m_name.c_str());
+
+    m_storage->Draw();
 
     ne::End();
     ne::PopStyleVar(3);

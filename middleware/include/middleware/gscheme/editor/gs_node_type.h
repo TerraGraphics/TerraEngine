@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <cstdint>
+#include <string_view>
 
 #include "core/common/ctor.h"
 #include "core/common/pimpl.h"
@@ -14,10 +16,10 @@ class GSNode;
 class GSNodeType : Fixed {
 public:
     GSNodeType() = delete;
-    GSNodeType(const rttr::type& gsType);
+    GSNodeType(std::string_view name, const rttr::type& gsType);
     ~GSNodeType();
 
-    std::shared_ptr<GSNode> NewInstance();
+    std::shared_ptr<GSNode> NewInstance(uintptr_t id);
 
 private:
     struct Impl;
