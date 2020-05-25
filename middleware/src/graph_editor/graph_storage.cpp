@@ -11,8 +11,6 @@
 #include "middleware/imgui/imgui_node_editor.h"
 
 
-namespace ne = ax::NodeEditor;
-
 GraphStorage::GraphStorage(TexturePtr& texBackground)
     : m_texBackground(texBackground->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE)) {
     m_texBackgroundWidht = static_cast<float>(texBackground->GetDesc().Width);

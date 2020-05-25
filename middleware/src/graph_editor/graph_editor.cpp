@@ -12,7 +12,6 @@
 
 
 struct GraphPin;
-namespace ne = ax::NodeEditor;
 
 GraphEditor::GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
     : m_name(name)

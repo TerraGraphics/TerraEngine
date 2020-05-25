@@ -11,8 +11,6 @@
 #include "middleware/imgui/imgui_node_editor.h"
 
 
-namespace ne = ax::NodeEditor;
-
 namespace {
 
 static math::Color GetColorByPinType(uint32_t pinType, uint8_t alpha) {

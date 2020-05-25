@@ -1,7 +1,7 @@
 #include "middleware/gscheme/embedded/func_constant.h"
 
 #include "middleware/gscheme/rttr/registration.h"
-#include "middleware/gscheme/embedded/embedded_decl.h"
+#include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
 float FuncConstant::GetValue() const noexcept {

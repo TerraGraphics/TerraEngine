@@ -4,6 +4,7 @@
 
 #include "core/dg/dg.h"
 #include "graph_window.h"
+#include "gschema_window.h"
 #include "core/dg/device.h" // IWYU pragma: keep
 #include "preview_window.h"
 #include "property_window.h"
@@ -17,6 +18,7 @@
 EditorSceneController::EditorSceneController()
     : m_scene(new StdScene())
     , m_graphWindow(new GraphWindow())
+    , m_gsShemaWindow(new GSchemaWindow())
     , m_previewWindow(new PreviewWindow())
     , m_propertyWindow(new PropertyWindow()) {
 
@@ -25,6 +27,7 @@ EditorSceneController::EditorSceneController()
 EditorSceneController::~EditorSceneController() {
     m_scene.reset();
     m_graphWindow.reset();
+    m_gsShemaWindow.reset();
     m_previewWindow.reset();
     m_propertyWindow.reset();
 }
@@ -33,6 +36,7 @@ void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
     m_gui = gui;
     m_propertyWindow->Create();
     m_graphWindow->Create(m_propertyWindow);
+    m_gsShemaWindow->Create(m_propertyWindow);
     m_scene->Create(false, dg::TEXTURE_FORMAT(0), math::Color4f(1.f));
     m_previewWindow->Create();
 }
@@ -42,6 +46,7 @@ void EditorSceneController::Update(double deltaTime) {
     DockSpace();
     m_previewWindow->Update(deltaTime);
     m_graphWindow->Draw();
+    m_gsShemaWindow->Draw();
     m_propertyWindow->Draw();
     FooterWindow();
     // ImGui::ShowDemoWindow(nullptr);
@@ -84,6 +89,7 @@ void EditorSceneController::DockSpace() {
         ImGuiID dockBottom = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Down, 0.20f, NULL, &dockCentral);
 
         ImGui::DockBuilderDockWindow("graph", dockCentral);
+        ImGui::DockBuilderDockWindow("gseditor", dockCentral);
         ImGui::DockBuilderDockWindow("preview", dockCentral);
         ImGui::DockBuilderDockWindow("Property", dockRight);
         ImGui::DockBuilderDockWindow("Footer", dockBottom);
