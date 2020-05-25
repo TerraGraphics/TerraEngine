@@ -1,6 +1,8 @@
 [
     { ref: "./core.imp" },
 
+    { include: ['"rttr/registration.h"', private, '"middleware/gscheme/rttr/registration.h"', public] },
+
     { include: ['"middleware/generator/mesh/cone_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/cube_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/plane_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
