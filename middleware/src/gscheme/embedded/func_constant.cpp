@@ -5,6 +5,10 @@
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
+float FuncConstant::Result() const noexcept {
+    return m_value;
+}
+
 float FuncConstant::GetValue() const noexcept {
     return m_value;
 }
@@ -18,6 +22,7 @@ REFLECTION_IMPL(FuncConstant) {
 
     registration::class_<FuncConstant>("Constant")(metadata(GSMetaTypes::GS_CLASS, true))
         .constructor<>()
+        .method("Result", &FuncConstant::Result)
         .property("Value", &FuncConstant::GetValue, &FuncConstant::SetValue)
         ;
 }

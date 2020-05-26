@@ -8,6 +8,8 @@ public:
     FuncConstant() = default;
     ~FuncConstant() = default;
 
+    float Result() const noexcept;
+
     float GetValue() const noexcept;
     void SetValue(float v) noexcept;
 

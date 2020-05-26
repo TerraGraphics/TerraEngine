@@ -68,7 +68,6 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
     ImGui::BeginGroup();
     ImGui::TextUnformatted(impl->m_name.data());
     auto headerMin = ImGui::GetItemRectMin();
-    auto headerMax = ImGui::GetItemRectMax();
     auto headerSize = ImGui::GetItemRectSize();
     ImGui::Dummy(ImVec2(1.0f, nodePaddingTop));
     ImGui::EndGroup();
@@ -92,6 +91,7 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
         ImGui::EndGroup();
     }
 
+    headerSize.x = ImGui::GetItemRectMax().x - headerMin.x;
     ne::EndNode();
 
     // Header
@@ -108,8 +108,8 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
             headerMin.x - nodePaddingLeft + halfBorderWidth,
             headerMin.y - nodePaddingTop + halfBorderWidth);
         const auto imageBottomRight = ImVec2(
-            headerMax.x + nodePaddingRight - halfBorderWidth,
-            headerMax.y + nodePaddingTop);
+            headerMin.x + headerSize.x + nodePaddingRight - halfBorderWidth,
+            headerMin.y + headerSize.y + nodePaddingTop);
         const auto imageBottomLeft = ImVec2(imageTopLeft.x, imageBottomRight.y);
 
         drawList->AddImageRounded(texBackgroundID, imageTopLeft, imageBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
