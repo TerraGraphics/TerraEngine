@@ -9,18 +9,18 @@
 
 
 namespace rttr {
-    class variant;
+    class type;
 }
 
 class GSNode : Fixed {
 public:
     GSNode() = delete;
-    GSNode(uintptr_t id, std::string_view name, rttr::variant&& instance);
+    GSNode(uintptr_t id, std::string_view name, const rttr::type& nodeType);
     ~GSNode();
 
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
 
 private:
     struct Impl;
-    Pimpl<Impl, 40, 8> impl;
+    Pimpl<Impl, 72, 8> impl;
 };

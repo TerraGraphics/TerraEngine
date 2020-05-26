@@ -29,5 +29,5 @@ GSNodeType::~GSNodeType() {
 }
 
 std::shared_ptr<GSNode> GSNodeType::NewInstance(uintptr_t id) {
-    return std::make_shared<GSNode>(id, impl->m_name, impl->m_gsType.create());
+    return std::make_shared<GSNode>(id, impl->m_name, impl->m_gsType);
 }

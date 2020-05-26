@@ -1,30 +1,41 @@
 #include "middleware/gscheme/editor/gs_node.h"
 
-#include <utility>
+#include <vector>
+#include <memory>
 
 #include "core/math/types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/gscheme/rttr/variant.h"
+#include "middleware/gscheme/editor/gs_id.h"
+#include "middleware/gscheme/editor/gs_pin.h"
 #include "middleware/imgui/imgui_node_editor.h"
 
 
 struct GSNode::Impl {
-    Impl(uintptr_t id, std::string_view name, rttr::variant&& instance);
+    Impl(uintptr_t id, std::string_view name, const rttr::type& nodeType);
 
     uintptr_t m_id;
     std::string_view m_name;
+    rttr::type m_type;
     rttr::variant m_instance;
+    std::vector<std::unique_ptr<GSInputPin>> m_inputPins;
 };
 
-GSNode::Impl::Impl(uintptr_t id, std::string_view name, rttr::variant&& instance)
+GSNode::Impl::Impl(uintptr_t id, std::string_view name, const rttr::type& nodeType)
     : m_id(id)
     , m_name(name)
-    , m_instance(std::move(instance)) {
+    , m_type(nodeType)
+    , m_instance(nodeType.create()) {
 
+    auto props = m_type.get_properties();
+    m_inputPins.reserve(props.size());
+    for(const auto& prop : props) {
+        m_inputPins.push_back(std::make_unique<GSInputPin>(GSGetNextID(), prop.get_name().to_string()));
+    }
 }
 
-GSNode::GSNode(uintptr_t id, std::string_view name, rttr::variant&& instance)
-    : impl(id, name, std::move(instance)) {
+GSNode::GSNode(uintptr_t id, std::string_view name, const rttr::type& nodeType)
+    : impl(id, name, nodeType) {
 
 }
 
@@ -54,6 +65,15 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
     auto headerSize = ImGui::GetItemRectSize();
     ImGui::Dummy(ImVec2(1.0f, nodePaddingTop));
     ImGui::EndGroup();
+
+    // Input pins
+    if (!impl->m_inputPins.empty()) {
+        ImGui::BeginGroup();
+        for(const auto& pin: impl->m_inputPins) {
+            pin->Draw(alpha);
+        }
+        ImGui::EndGroup();
+    }
 
     ne::EndNode();
 

@@ -5,8 +5,12 @@
     { include: ['"rttr/detail/impl/argument_impl.h"', private, '"rttr/argument.h"', public] },
     { include: ['"rttr/detail/impl/string_view_impl.h"', private, '"rttr/string_view.h"', public] },
 
+    { include: ['"rttr/detail/impl/array_range_impl.h"', private, '"rttr/array_range.h"', public] },
+    { include: ['"rttr/property.h"', public, '"rttr/array_range.h"', public] },
+
     { include: ['"rttr/variant.h"', private, '"middleware/gscheme/rttr/variant.h"', public] },
     { include: ['"rttr/detail/variant/variant_impl.h"', private, '"middleware/gscheme/rttr/variant.h"', public] },
+    { include: ['"middleware/gscheme/rttr/type.h"', public, '"middleware/gscheme/rttr/variant.h"', public] },
 
     { include: ['"rttr/type.h"', private, '"middleware/gscheme/rttr/type.h"', public] },
     { include: ['"rttr/string_view.h"', public, '"middleware/gscheme/rttr/type.h"', public] },

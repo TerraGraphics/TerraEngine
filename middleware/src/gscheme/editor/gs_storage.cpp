@@ -11,6 +11,7 @@
 #include "middleware/imgui/imgui.h"
 #include "middleware/gscheme/rttr/type.h"
 #include "middleware/gscheme/rttr/variant.h"
+#include "middleware/gscheme/editor/gs_id.h"
 #include "middleware/gscheme/editor/gs_node.h"
 #include "middleware/gscheme/editor/gs_node_type.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
@@ -23,7 +24,6 @@ struct GSStorage::Impl {
     float m_texBackgroundheight = 1.f;
     TextureViewPtr m_texBackground;
 
-    uintptr_t m_nextId = 1;
     std::unordered_map<uintptr_t, std::shared_ptr<GSNode>> m_nodes;
     std::unordered_map<std::string, std::shared_ptr<GSNodeType>> m_nodeTypes;
 };
@@ -55,8 +55,8 @@ void GSStorage::Create() {
 
 bool GSStorage::AddNode(const std::string& name) {
     if (const auto it = impl->m_nodeTypes.find(name); it != impl->m_nodeTypes.cend()) {
-        impl->m_nodes[impl->m_nextId] = it->second->NewInstance(impl->m_nextId);
-        ++impl->m_nextId;
+        auto id = GSGetNextID();
+        impl->m_nodes[id] = it->second->NewInstance(id);
         return true;
     }
 
