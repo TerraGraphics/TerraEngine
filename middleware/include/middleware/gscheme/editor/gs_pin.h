@@ -13,6 +13,7 @@ public:
     ~GSInputPin();
 
     void Draw(uint8_t alpha) const;
+    void DrawEditGui();
 
 private:
     uintptr_t m_id;

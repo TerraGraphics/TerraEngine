@@ -33,6 +33,10 @@ void GSInputPin::Draw(uint8_t alpha) const {
     }
 }
 
+void GSInputPin::DrawEditGui() {
+    gui::Text(m_name);
+}
+
 GSOutputPin::GSOutputPin(uintptr_t id, const std::string& name)
     : m_id(id)
     , m_name(name) {

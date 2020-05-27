@@ -15,10 +15,10 @@ public:
 
     void Create();
     bool AddNode(const std::string& name);
-
     void Draw();
+    void DrawProperty();
 
 private:
     struct Impl;
-    Pimpl<Impl, 128, 8> impl;
+    Pimpl<Impl, 144, 8> impl;
 };

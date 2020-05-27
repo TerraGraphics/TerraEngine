@@ -1,6 +1,7 @@
 #include "middleware/imgui/widgets.h"
 
 #include <cmath>
+#include <memory>
 #include <utility>
 #include <istream>
 #include <cstring>
@@ -419,8 +420,8 @@ void Dummy(math::SizeF size) {
     ImGui::ItemAdd(bb, 0);
 }
 
-void Text(const std::string& text) {
-    ImGui::TextEx(text.c_str(), nullptr, ImGuiTextFlags_NoWidthForLargeClippedText);
+void Text(std::string_view text) {
+    ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
 }
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol, math::Color borderCol) {

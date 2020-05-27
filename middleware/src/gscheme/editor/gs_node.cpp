@@ -2,9 +2,11 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 #include "core/math/types.h"
 #include "middleware/imgui/imgui.h"
+#include "middleware/imgui/widgets.h"
 #include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/editor/gs_id.h"
 #include "middleware/gscheme/editor/gs_pin.h"
@@ -116,4 +118,11 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
         drawList->AddLine(imageBottomLeft, imageBottomRight, headerLineColor, 1.0f);
     }
     ne::PopStyleVar(1);
+}
+
+void GSNode::DrawEditGui() {
+    gui::Text(std::string(impl->m_name) + ":");
+    for(auto& pin: impl->m_inputPins) {
+        pin->DrawEditGui();
+    }
 }

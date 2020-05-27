@@ -2,10 +2,10 @@
 
 #include <array>
 #include <limits>
-#include <string>
 #include <variant>
 #include <cstddef>
 #include <cstdint>
+#include <string_view>
 
 #include "core/dg/dg.h"
 #include "core/math/types.h"
@@ -92,7 +92,7 @@ void BeginGroup();
 void EndGroup();
 void SameLine(float offsetFromStartX = 0.0f, float spacing = -1.0f);
 void Dummy(math::SizeF size);
-void Text(const std::string& text);
+void Text(std::string_view text);
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
     math::PointF uv0 = math::PointF(0, 0), math::PointF uv1 = math::PointF(1, 1),

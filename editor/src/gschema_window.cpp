@@ -2,6 +2,7 @@
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
+#include "property_window.h"
 #include "middleware/imgui/imgui.h"
 #include "core/dg/texture_utilities.h"
 #include "middleware/gscheme/editor/gs_editor.h"
@@ -36,5 +37,7 @@ void GSchemaWindow::Draw() {
     if (ImGui::Begin("gseditor", pOpen, windowFlags)) {
         m_editor->Draw();
         ImGui::End();
+
+        m_propertyWindow->SetProperties({m_editor->DrawProperty()});
     }
 }

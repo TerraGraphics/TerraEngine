@@ -7,7 +7,7 @@
 GSEditor::GSEditor(const std::string& name, TexturePtr& texBackground)
     : m_name(name)
     , m_config(new ne::Config())
-    , m_storage(new GSStorage(texBackground)) {
+    , m_storage(std::make_shared<GSStorage>(texBackground)) {
 
 }
 
@@ -42,4 +42,10 @@ void GSEditor::Draw() {
 
     ne::End();
     ne::PopStyleVar(3);
+}
+
+std::function<void ()> GSEditor::DrawProperty() {
+    return [storage = m_storage]() {
+        storage->DrawProperty();
+    };
 }

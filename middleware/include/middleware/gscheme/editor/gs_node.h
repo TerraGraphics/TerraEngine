@@ -19,6 +19,7 @@ public:
     ~GSNode();
 
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
+    void DrawEditGui();
 
 private:
     struct Impl;

@@ -13,6 +13,7 @@
 #include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/editor/gs_id.h"
 #include "middleware/gscheme/editor/gs_node.h"
+#include "middleware/imgui/imgui_node_editor.h"
 #include "middleware/gscheme/editor/gs_node_type.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
@@ -20,10 +21,13 @@
 struct GSStorage::Impl {
     Impl(TexturePtr& texBackground);
 
+    void Draw();
+
     float m_texBackgroundWidht = 1.f;
     float m_texBackgroundheight = 1.f;
     TextureViewPtr m_texBackground;
 
+    std::shared_ptr<GSNode> m_selectedNode;
     std::unordered_map<uintptr_t, std::shared_ptr<GSNode>> m_nodes;
     std::unordered_map<std::string, std::shared_ptr<GSNodeType>> m_nodeTypes;
 };
@@ -33,6 +37,23 @@ GSStorage::Impl::Impl(TexturePtr& texBackground)
 
     m_texBackgroundWidht = static_cast<float>(texBackground->GetDesc().Width);
     m_texBackgroundheight = static_cast<float>(texBackground->GetDesc().Height);
+}
+
+void GSStorage::Impl::Draw() {
+    auto alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
+    auto texBackgroundRaw = m_texBackground.RawPtr();
+
+    auto doubleClickedNodeId = ne::GetDoubleClickedNode().Get();
+    for (auto& [nodeId, node]: m_nodes) {
+        node->Draw(alpha, texBackgroundRaw, m_texBackgroundWidht, m_texBackgroundheight);
+        if (doubleClickedNodeId == nodeId) {
+           m_selectedNode = node;
+        }
+    }
+
+    if (ne::IsBackgroundClicked()) {
+        m_selectedNode.reset();
+    }
 }
 
 GSStorage::GSStorage(TexturePtr& texBackground)
@@ -64,10 +85,11 @@ bool GSStorage::AddNode(const std::string& name) {
 }
 
 void GSStorage::Draw() {
-    auto alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
-    auto texBackgroundRaw = impl->m_texBackground.RawPtr();
+    impl->Draw();
+}
 
-    for (auto& [_, node]: impl->m_nodes) {
-        node->Draw(alpha, texBackgroundRaw, impl->m_texBackgroundWidht, impl->m_texBackgroundheight);
+void GSStorage::DrawProperty() {
+    if (impl->m_selectedNode) {
+        impl->m_selectedNode->DrawEditGui();
     }
 }
