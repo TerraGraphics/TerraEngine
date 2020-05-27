@@ -13,9 +13,11 @@
     { include: ['"middleware/gscheme/rttr/type.h"', public, '"middleware/gscheme/rttr/variant.h"', public] },
 
     { include: ['"rttr/type.h"', private, '"middleware/gscheme/rttr/type.h"', public] },
+    { include: ['"rttr/method.h"', private, '"middleware/gscheme/rttr/type.h"', public] },
     { include: ['"rttr/string_view.h"', public, '"middleware/gscheme/rttr/type.h"', public] },
     { include: ['"rttr/array_range.h"', public, '"middleware/gscheme/rttr/type.h"', public] },
     { include: ['"rttr/filter_item.h"', public, '"middleware/gscheme/rttr/type.h"', public] },
+    { include: ['"rttr/detail/type/type_data.h"', private, '"middleware/gscheme/rttr/type.h"', public] },
     { include: ['"rttr/detail/type/type_impl.h"', private, '"middleware/gscheme/rttr/type.h"', public] },
     { include: ['"rttr/detail/base/core_prerequisites.h"', public, '"middleware/gscheme/rttr/type.h"', public] },
 

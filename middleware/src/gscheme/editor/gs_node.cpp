@@ -19,6 +19,7 @@ struct GSNode::Impl {
     rttr::type m_type;
     rttr::variant m_instance;
     std::vector<std::unique_ptr<GSInputPin>> m_inputPins;
+    std::vector<std::unique_ptr<GSOutputPin>> m_outputPins;
 };
 
 GSNode::Impl::Impl(uintptr_t id, std::string_view name, const rttr::type& nodeType)
@@ -31,6 +32,12 @@ GSNode::Impl::Impl(uintptr_t id, std::string_view name, const rttr::type& nodeTy
     m_inputPins.reserve(props.size());
     for(const auto& prop : props) {
         m_inputPins.push_back(std::make_unique<GSInputPin>(GSGetNextID(), prop.get_name().to_string()));
+    }
+
+    auto methods = m_type.get_methods();
+    m_outputPins.reserve(methods.size());
+    for(const auto& method : methods) {
+        m_outputPins.push_back(std::make_unique<GSOutputPin>(GSGetNextID(), method.get_name().to_string()));
     }
 }
 
@@ -70,6 +77,16 @@ void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, f
     if (!impl->m_inputPins.empty()) {
         ImGui::BeginGroup();
         for(const auto& pin: impl->m_inputPins) {
+            pin->Draw(alpha);
+        }
+        ImGui::EndGroup();
+        ImGui::SameLine();
+    }
+
+    // Output pins
+    if (!impl->m_outputPins.empty()) {
+        ImGui::BeginGroup();
+        for(const auto& pin: impl->m_outputPins) {
             pin->Draw(alpha);
         }
         ImGui::EndGroup();
