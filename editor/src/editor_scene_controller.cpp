@@ -47,6 +47,8 @@ void EditorSceneController::Update(double deltaTime) {
     m_previewWindow->Update(deltaTime);
     m_graphWindow->Draw();
     m_gsShemaWindow->Draw();
+
+    // draw after all
     m_propertyWindow->Draw();
     FooterWindow();
     // ImGui::ShowDemoWindow(nullptr);

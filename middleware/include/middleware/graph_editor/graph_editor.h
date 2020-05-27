@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <functional>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
@@ -25,8 +26,8 @@ public:
     ~GraphEditor();
 
     bool AddNode(GraphNode* node);
-    std::shared_ptr<SelectedNode> GetSelectedNode();
     void Draw();
+    std::function<void ()> DrawProperty();
 
 private:
     GraphNode* EditorMenu();

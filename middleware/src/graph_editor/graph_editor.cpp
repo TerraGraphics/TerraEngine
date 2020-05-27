@@ -45,10 +45,6 @@ bool GraphEditor::AddNode(GraphNode* node) {
     return m_storage->AddNode(node);
 }
 
-std::shared_ptr<SelectedNode> GraphEditor::GetSelectedNode() {
-    return m_selectedNode;
-}
-
 void GraphEditor::Draw() {
     ne::SetCurrentEditor(m_context);
     ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
@@ -136,6 +132,12 @@ void GraphEditor::Draw() {
 
     ne::End();
     ne::PopStyleVar(3);
+}
+
+std::function<void ()> GraphEditor::DrawProperty() {
+    return [node = m_selectedNode]() {
+        node->Draw();
+    };
 }
 
 GraphNode* GraphEditor::EditorMenu() {

@@ -6,7 +6,6 @@
 
 
 class GraphEditor;
-class SelectedNode;
 class PropertyWindow;
 class GraphWindow : Fixed {
 public:
@@ -19,6 +18,5 @@ public:
 
 private:
     std::shared_ptr<GraphEditor> m_graphEditor;
-    std::shared_ptr<SelectedNode> m_selectedNode;
     std::shared_ptr<PropertyWindow> m_propertyWindow;
 };

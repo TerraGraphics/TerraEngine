@@ -9,7 +9,6 @@
 #include "middleware/imgui/imgui.h"
 #include "core/dg/texture_utilities.h"
 #include "middleware/graph_editor/graph_editor.h"
-#include "middleware/graph_editor/graph_selected_node.h"
 #include "middleware/generator/texture/noise_rasterization.h"
 #include "middleware/generator/texture/texture_node_factory.h"
 
@@ -38,14 +37,6 @@ void GraphWindow::Create(const std::shared_ptr<PropertyWindow>& propertyWindow) 
     NoiseToTexture* node = factory->CreateNoiseToTexture();
     m_graphEditor = std::make_shared<GraphEditor>("NodeEditor", device->GetDeviceCaps().IsGLDevice(), texBackground, std::move(factory));
     m_graphEditor->AddNode(static_cast<GraphNode*>(node));
-    m_selectedNode = m_graphEditor->GetSelectedNode();
-
-    // TODO: remove
-    m_propertyWindow->SetProperties({
-        Property([node = m_selectedNode]() {
-            node->Draw();
-        })
-    });
 }
 
 void GraphWindow::Draw() {
@@ -54,5 +45,7 @@ void GraphWindow::Draw() {
     if (ImGui::Begin("graph", pOpen, windowFlags)) {
         m_graphEditor->Draw();
         ImGui::End();
+
+        m_propertyWindow->SetProperties({m_graphEditor->DrawProperty()});
     }
 }
