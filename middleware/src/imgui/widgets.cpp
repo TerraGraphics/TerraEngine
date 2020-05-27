@@ -395,6 +395,30 @@ void DrawNodeIcon(ImDrawList* drawList, math::RectF rect, IconType type, bool fi
 
 } // end namespace gui::detail
 
+void BeginGroup() {
+    ImGui::BeginGroup();
+}
+
+void EndGroup() {
+    ImGui::EndGroup();
+}
+
+void SameLine(float offsetFromStartX, float spacing) {
+    ImGui::SameLine(offsetFromStartX, spacing);
+}
+
+void Dummy(math::SizeF size) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems) {
+        return;
+    }
+
+    const auto imSize = ToImGui(size);
+    const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + imSize);
+    ImGui::ItemSize(imSize);
+    ImGui::ItemAdd(bb, 0);
+}
+
 void Text(const std::string& text) {
     ImGui::TextEx(text.c_str(), nullptr, ImGuiTextFlags_NoWidthForLargeClippedText);
 }

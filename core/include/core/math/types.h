@@ -275,7 +275,7 @@ struct SizeT {
 };
 
 using Size = SizeT<uint32_t>;
-using Sizef = SizeT<float>;
+using SizeF = SizeT<float>;
 
 template <typename T>
 struct RectT {

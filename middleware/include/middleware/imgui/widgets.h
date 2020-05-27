@@ -88,6 +88,10 @@ template<typename T, size_t N>
         return false;
     }
 
+void BeginGroup();
+void EndGroup();
+void SameLine(float offsetFromStartX = 0.0f, float spacing = -1.0f);
+void Dummy(math::SizeF size);
 void Text(const std::string& text);
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,

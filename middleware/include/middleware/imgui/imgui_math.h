@@ -7,6 +7,7 @@ struct ImVec2;
 namespace gui {
 
 ImVec2 ToImGui(math::Size value);
+ImVec2 ToImGui(math::SizeF value);
 ImVec2 ToImGui(math::Point value);
 ImVec2 ToImGui(math::PointI value);
 ImVec2 ToImGui(math::PointF value);
