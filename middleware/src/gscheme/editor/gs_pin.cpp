@@ -2,14 +2,16 @@
 
 #include "core/math/types.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/gscheme/rttr/type.h"
 #include "middleware/imgui/imgui_node_editor.h"
+#include "middleware/gscheme/reflection/gs_type.h"
 
 
 static const auto iconSize = math::Size(24, 24);
 
-GSInputPin::GSInputPin(uintptr_t id, const std::string& name)
+GSInputPin::GSInputPin(uintptr_t id, const rttr::variant& instance, const rttr::property& property)
     : m_id(id)
-    , m_name(name) {
+    , m_type(CreateGSType(instance, property)) {
 
 }
 
@@ -24,17 +26,16 @@ void GSInputPin::Draw(uint8_t alpha) const {
     ne::BeginPin(ne::PinId(m_id), ne::PinKind::Input);
     gui::NodeIcon(iconSize, gui::IconType::Circle, m_isConnected, pinColor, innerPinColor);
     ne::EndPin();
-    if (!m_name.empty()) {
-        gui::SameLine();
-        gui::BeginGroup();
-        gui::Dummy(math::SizeF(0, 1.f));
-        gui::Text(m_name);
-        gui::EndGroup();
-    }
+
+    gui::SameLine();
+    gui::BeginGroup();
+    gui::Dummy(math::SizeF(0, 1.f));
+    gui::Text(m_type->GetName());
+    gui::EndGroup();
 }
 
 void GSInputPin::DrawEditGui() {
-    gui::Text(m_name);
+    m_type->DrawEditGui();
 }
 
 GSOutputPin::GSOutputPin(uintptr_t id, const std::string& name)

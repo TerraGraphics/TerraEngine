@@ -2,6 +2,7 @@
     { ref: "./core.imp" },
 
     { include: ['"rttr/string_view.h"', public, '"rttr/enumeration.h"', public] },
+    { include: ['"rttr/detail/impl/instance_impl.h"', private, '"rttr/instance.h"', public] },
     { include: ['"rttr/detail/impl/argument_impl.h"', private, '"rttr/argument.h"', public] },
     { include: ['"rttr/detail/impl/string_view_impl.h"', private, '"rttr/string_view.h"', public] },
 
@@ -29,6 +30,7 @@
     { include: ['"rttr/detail/base/core_prerequisites.h"', public, '"middleware/gscheme/rttr/registration.h"', public] },
     { include: ['"rttr/detail/registration/bind_impl.h"', private, '"middleware/gscheme/rttr/registration.h"', public] },
     { include: ['"rttr/detail/registration/bind_types.h"', private, '"middleware/gscheme/rttr/registration.h"', public] },
+    { include: ['"rttr/detail/property/property_wrapper.h"', private, '"middleware/gscheme/rttr/registration.h"', public] },
     { include: ['"rttr/detail/registration/registration_impl.h"', private, '"middleware/gscheme/rttr/registration.h"', public] },
 
     { include: ['"middleware/generator/mesh/cone_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },

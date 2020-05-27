@@ -33,7 +33,7 @@ GSNode::Impl::Impl(uintptr_t id, std::string_view name, const rttr::type& nodeTy
     auto props = m_type.get_properties();
     m_inputPins.reserve(props.size());
     for(const auto& prop : props) {
-        m_inputPins.push_back(std::make_unique<GSInputPin>(GSGetNextID(), prop.get_name().to_string()));
+        m_inputPins.push_back(std::make_unique<GSInputPin>(GSGetNextID(), m_instance, prop));
     }
 
     auto methods = m_type.get_methods();
