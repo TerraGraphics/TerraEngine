@@ -20,18 +20,20 @@ GSInputPin::~GSInputPin() {
 }
 
 void GSInputPin::Draw(uint8_t alpha) const {
-    const auto pinColor = math::Color(0, 255, 0, alpha);
-    const auto innerPinColor = math::Color(32, 32, 32, alpha);
+    if (!m_type->IsEmbedded()) {
+        const auto pinColor = math::Color(0, 255, 0, alpha);
+        const auto innerPinColor = math::Color(32, 32, 32, alpha);
 
-    ne::BeginPin(ne::PinId(m_id), ne::PinKind::Input);
-    gui::NodeIcon(iconSize, gui::IconType::Circle, m_isConnected, pinColor, innerPinColor);
-    ne::EndPin();
+        ne::BeginPin(ne::PinId(m_id), ne::PinKind::Input);
+        gui::NodeIcon(iconSize, gui::IconType::Circle, m_isConnected, pinColor, innerPinColor);
+        ne::EndPin();
 
-    gui::SameLine();
-    gui::BeginGroup();
-    gui::Dummy(math::SizeF(0, 1.f));
-    gui::Text(m_type->GetName());
-    gui::EndGroup();
+        gui::SameLine();
+        gui::BeginGroup();
+        gui::Dummy(math::SizeF(0, 1.f));
+        gui::Text(m_type->GetName());
+        gui::EndGroup();
+    }
 }
 
 void GSInputPin::DrawEditGui() {

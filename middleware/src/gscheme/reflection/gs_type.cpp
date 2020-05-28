@@ -2,10 +2,12 @@
 
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/gscheme/reflection/gs_metadata.h"
 
 
 GSType::GSType(const rttr::variant& instance, const rttr::property& property)
-    : m_instance(instance)
+    : m_embedded(property.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY).is_valid())
+    , m_instance(instance)
     , m_property(property) {
 
 }

@@ -14,10 +14,12 @@ public:
     virtual ~GSType() = default;
 
     const char* GetName() const;
+    bool IsEmbedded() const noexcept { return m_embedded; }
 
     virtual void DrawEditGui() = 0;
 
 protected:
+    const bool m_embedded;
     const rttr::variant m_instance;
     const rttr::property m_property;
 };

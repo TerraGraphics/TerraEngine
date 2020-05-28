@@ -23,6 +23,6 @@ REFLECTION_IMPL(FuncConstant) {
     registration::class_<FuncConstant>("Constant")(metadata(GSMetaTypes::GS_CLASS, true))
         .constructor<>()
         .method("Result", &FuncConstant::Result)
-        .property("Value", &FuncConstant::GetValue, &FuncConstant::SetValue)
+        .property("Value", &FuncConstant::GetValue, &FuncConstant::SetValue)(metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY, true))
         ;
 }
