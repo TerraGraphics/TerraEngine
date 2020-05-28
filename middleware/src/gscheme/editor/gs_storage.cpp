@@ -3,6 +3,7 @@
 #include <memory>
 #include <cstdint>
 #include <utility>
+#include <type_traits>
 #include <unordered_map>
 
 #include "core/dg/texture.h"
@@ -18,9 +19,16 @@
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
 
+struct LinkInfo {
+    uintptr_t srcPin;
+    uintptr_t dstPin;
+};
+
 struct GSStorage::Impl {
     Impl(TexturePtr& texBackground);
 
+    bool AddNode(const std::string& name);
+    bool AddLink(uintptr_t pinFirst, uintptr_t pinSecond, bool checkOnly);
     void Draw();
 
     float m_texBackgroundWidht = 1.f;
@@ -28,6 +36,7 @@ struct GSStorage::Impl {
     TextureViewPtr m_texBackground;
 
     std::shared_ptr<GSNode> m_selectedNode;
+    std::unordered_map<uintptr_t, LinkInfo> m_links;
     std::unordered_map<uintptr_t, std::shared_ptr<GSNode>> m_nodes;
     std::unordered_map<std::string, std::shared_ptr<GSNodeType>> m_nodeTypes;
 };
@@ -37,6 +46,31 @@ GSStorage::Impl::Impl(TexturePtr& texBackground)
 
     m_texBackgroundWidht = static_cast<float>(texBackground->GetDesc().Width);
     m_texBackgroundheight = static_cast<float>(texBackground->GetDesc().Height);
+}
+
+bool GSStorage::Impl::AddNode(const std::string& name) {
+    if (const auto it = m_nodeTypes.find(name); it != m_nodeTypes.cend()) {
+        auto id = GSGetNextID();
+        m_nodes[id] = it->second->NewInstance(id);
+        return true;
+    }
+
+    return false;
+}
+
+bool GSStorage::Impl::AddLink(uintptr_t pinFirst, uintptr_t pinSecond, bool checkOnly) {
+    if ((pinFirst == 0) ||
+        (pinSecond == 0) ||
+        (pinFirst == pinSecond)) {
+        return false;
+    }
+
+    if (!checkOnly) {
+        auto id = GSGetNextID();
+        m_links[id] = LinkInfo{pinFirst, pinSecond};
+    }
+
+    return true;
 }
 
 void GSStorage::Impl::Draw() {
@@ -49,6 +83,10 @@ void GSStorage::Impl::Draw() {
         if (doubleClickedNodeId == nodeId) {
            m_selectedNode = node;
         }
+    }
+
+    for (const auto& [linkId, info] : m_links) {
+        ne::Link(ne::LinkId(linkId), ne::PinId(info.srcPin), ne::PinId(info.dstPin));
     }
 
     if (ne::IsBackgroundClicked()) {
@@ -75,13 +113,11 @@ void GSStorage::Create() {
 }
 
 bool GSStorage::AddNode(const std::string& name) {
-    if (const auto it = impl->m_nodeTypes.find(name); it != impl->m_nodeTypes.cend()) {
-        auto id = GSGetNextID();
-        impl->m_nodes[id] = it->second->NewInstance(id);
-        return true;
-    }
+    return impl->AddNode(name);
+}
 
-    return false;
+bool GSStorage::AddLink(uintptr_t pinFirst, uintptr_t pinSecond, bool checkOnly) {
+    return impl->AddLink(pinFirst, pinSecond, checkOnly);
 }
 
 void GSStorage::Draw() {

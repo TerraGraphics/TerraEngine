@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include <functional>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
@@ -24,11 +23,11 @@ public:
 
     void Create();
     void Draw();
-    std::function<void ()> DrawProperty();
+    void DrawProperty();
 
 private:
     std::string m_name;
     ax::NodeEditor::Config* m_config = nullptr;
     ax::NodeEditor::EditorContext* m_context = nullptr;
-    std::shared_ptr<GSStorage> m_storage;
+    std::unique_ptr<GSStorage> m_storage;
 };

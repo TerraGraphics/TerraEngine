@@ -7,7 +7,7 @@
 GSEditor::GSEditor(const std::string& name, TexturePtr& texBackground)
     : m_name(name)
     , m_config(new ne::Config())
-    , m_storage(std::make_shared<GSStorage>(texBackground)) {
+    , m_storage(new GSStorage(texBackground)) {
 
 }
 
@@ -40,12 +40,26 @@ void GSEditor::Draw() {
 
     m_storage->Draw();
 
+    if (ne::BeginCreate()) {
+        ne::PinId pinIdFirst, pinIdSecond;
+        if (ne::QueryNewLink(&pinIdFirst, &pinIdSecond)) {
+            bool checkOnly = true;
+            auto pinFirst = pinIdFirst.Get();
+            auto pinSecond = pinIdSecond.Get();
+            if (!m_storage->AddLink(pinFirst, pinSecond, checkOnly)) {
+                ne::RejectNewItem();
+            } else if (ne::AcceptNewItem()) {
+                checkOnly = false;
+                m_storage->AddLink(pinFirst, pinSecond, checkOnly);
+            }
+        }
+        ne::EndCreate();
+    }
+
     ne::End();
     ne::PopStyleVar(3);
 }
 
-std::function<void ()> GSEditor::DrawProperty() {
-    return [storage = m_storage]() {
-        storage->DrawProperty();
-    };
+void GSEditor::DrawProperty() {
+    m_storage->DrawProperty();
 }

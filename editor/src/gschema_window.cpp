@@ -38,6 +38,10 @@ void GSchemaWindow::Draw() {
         m_editor->Draw();
         ImGui::End();
 
-        m_propertyWindow->SetProperties({m_editor->DrawProperty()});
+        m_propertyWindow->SetProperties({
+            Property([editor = m_editor]() {
+                editor->DrawProperty();
+            })
+        });
     }
 }
