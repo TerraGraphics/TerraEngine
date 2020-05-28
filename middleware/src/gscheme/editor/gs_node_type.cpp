@@ -3,7 +3,6 @@
 #include <string>
 
 #include "middleware/gscheme/rttr/type.h"
-#include "middleware/gscheme/editor/gs_node.h"
 
 
 struct GSNodeType::Impl {
@@ -28,6 +27,10 @@ GSNodeType::~GSNodeType() {
 
 }
 
-std::shared_ptr<GSNode> GSNodeType::NewInstance(uintptr_t id) {
-    return std::make_shared<GSNode>(id, impl->m_name, impl->m_gsType);
+std::string_view GSNodeType::GetName() const noexcept {
+    return impl->m_name;
+}
+
+const rttr::type& GSNodeType::GetType() const noexcept {
+    return impl->m_gsType;
 }

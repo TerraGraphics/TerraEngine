@@ -2,10 +2,11 @@
 
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
 
-GSType::GSType(const rttr::variant& instance, const rttr::property& property)
+GSType::GSType(rttr::variant& instance, const rttr::property& property)
     : m_embedded(property.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY).is_valid())
     , m_instance(instance)
     , m_property(property) {
@@ -16,7 +17,7 @@ const char* GSType::GetName() const {
     return m_property.get_name().empty() ? "<name>" : m_property.get_name().cbegin();
 }
 
-GSTypeFloat::GSTypeFloat(const rttr::variant& instance, const rttr::property& property)
+GSTypeFloat::GSTypeFloat(rttr::variant& instance, const rttr::property& property)
     : GSType(instance, property) {
 
 }
@@ -28,7 +29,7 @@ void GSTypeFloat::DrawEditGui() {
     }
 }
 
-std::shared_ptr<GSType> CreateGSType(const rttr::variant& instance, const rttr::property& property) {
+std::shared_ptr<GSType> CreateGSType(rttr::variant& instance, const rttr::property& property) {
     auto gsType = property.get_type();
     if (gsType == rttr::type::get<float>()) {
         return std::make_shared<GSTypeFloat>(instance, property);

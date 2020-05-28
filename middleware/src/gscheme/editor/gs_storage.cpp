@@ -1,6 +1,7 @@
 #include "middleware/gscheme/editor/gs_storage.h"
 
 #include <memory>
+#include <vector>
 #include <cstdint>
 #include <utility>
 #include <type_traits>
@@ -13,6 +14,7 @@
 #include "middleware/gscheme/rttr/type.h"
 #include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/editor/gs_id.h"
+#include "middleware/gscheme/editor/gs_pin.h"
 #include "middleware/gscheme/editor/gs_node.h"
 #include "middleware/imgui/imgui_node_editor.h"
 #include "middleware/gscheme/editor/gs_node_type.h"
@@ -24,9 +26,15 @@ struct LinkInfo {
     uintptr_t dstPin;
 };
 
+struct PinInfo {
+    bool isInput;
+    uintptr_t nodeId;
+};
+
 struct GSStorage::Impl {
     Impl(TexturePtr& texBackground);
 
+    void Create();
     bool AddNode(const std::string& name);
     bool AddLink(uintptr_t pinFirst, uintptr_t pinSecond, bool checkOnly);
     void Draw();
@@ -36,9 +44,10 @@ struct GSStorage::Impl {
     TextureViewPtr m_texBackground;
 
     std::shared_ptr<GSNode> m_selectedNode;
+    std::unordered_map<uintptr_t, PinInfo> m_pins;
     std::unordered_map<uintptr_t, LinkInfo> m_links;
     std::unordered_map<uintptr_t, std::shared_ptr<GSNode>> m_nodes;
-    std::unordered_map<std::string, std::shared_ptr<GSNodeType>> m_nodeTypes;
+    std::unordered_map<std::string, std::unique_ptr<GSNodeType>> m_nodeTypes;
 };
 
 GSStorage::Impl::Impl(TexturePtr& texBackground)
@@ -48,10 +57,46 @@ GSStorage::Impl::Impl(TexturePtr& texBackground)
     m_texBackgroundheight = static_cast<float>(texBackground->GetDesc().Height);
 }
 
+void GSStorage::Impl::Create() {
+    for(const auto& t : rttr::type::get_types()) {
+        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+            std::string name = t.get_name().to_string();
+            m_nodeTypes[name] = std::make_unique<GSNodeType>(name, t);
+        }
+    }
+}
+
 bool GSStorage::Impl::AddNode(const std::string& name) {
     if (const auto it = m_nodeTypes.find(name); it != m_nodeTypes.cend()) {
-        auto id = GSGetNextID();
-        m_nodes[id] = it->second->NewInstance(id);
+        auto nodeId = GSGetNextID();
+        const auto& nodeType = it->second->GetType();
+
+        auto node = std::make_shared<GSNode>(nodeId, it->second->GetName(), nodeType);
+        m_nodes[nodeId] = node;
+        auto& nodeInstance = node->GetInstance();
+
+        auto nodeProps = nodeType.get_properties();
+        std::vector<std::unique_ptr<GSInputPin>> inputPins;
+        inputPins.reserve(nodeProps.size());
+        for(const auto& prop : nodeProps) {
+            auto pinId = GSGetNextID();
+            m_pins[pinId] = PinInfo{true, nodeId};
+            inputPins.push_back(std::make_unique<GSInputPin>(pinId, nodeInstance, prop));
+        }
+
+        node->SetInputPins(std::move(inputPins));
+
+        auto nodeMethods = nodeType.get_methods();
+        std::vector<std::unique_ptr<GSOutputPin>> outputPins;
+        outputPins.reserve(nodeMethods.size());
+        for(const auto& method : nodeMethods) {
+            auto pinId = GSGetNextID();
+            m_pins[pinId] = PinInfo{false, nodeId};
+            outputPins.push_back(std::make_unique<GSOutputPin>(pinId, method.get_name().to_string()));
+        }
+
+        node->GetOutputPins(std::move(outputPins));
+
         return true;
     }
 
@@ -62,6 +107,23 @@ bool GSStorage::Impl::AddLink(uintptr_t pinFirst, uintptr_t pinSecond, bool chec
     if ((pinFirst == 0) ||
         (pinSecond == 0) ||
         (pinFirst == pinSecond)) {
+        return false;
+    }
+
+    PinInfo pinInfoFirst, pinInfoSecond;
+    if (const auto it = m_pins.find(pinFirst); it != m_pins.cend()) {
+        pinInfoFirst = it->second;
+    } else {
+        return false;
+    }
+    if (const auto it = m_pins.find(pinSecond); it != m_pins.cend()) {
+        pinInfoSecond = it->second;
+    } else {
+        return false;
+    }
+
+    if ((pinInfoFirst.nodeId == pinInfoSecond.nodeId) ||
+        (pinInfoFirst.isInput == pinInfoSecond.isInput)) {
         return false;
     }
 
@@ -104,12 +166,7 @@ GSStorage::~GSStorage() {
 }
 
 void GSStorage::Create() {
-    for(const auto& t : rttr::type::get_types()) {
-        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
-            std::string name = t.get_name().to_string();
-            impl->m_nodeTypes[name] = std::make_shared<GSNodeType>(name, t);
-        }
-    }
+    impl->Create();
 }
 
 bool GSStorage::AddNode(const std::string& name) {

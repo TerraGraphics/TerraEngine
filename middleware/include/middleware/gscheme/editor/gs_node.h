@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+#include <vector>
 #include <cstdint>
 #include <string_view>
 
@@ -10,13 +12,21 @@
 
 namespace rttr {
     class type;
+    class variant;
 }
 
+class GSInputPin;
+class GSOutputPin;
 class GSNode : Fixed {
 public:
     GSNode() = delete;
     GSNode(uintptr_t id, std::string_view name, const rttr::type& nodeType);
     ~GSNode();
+
+    rttr::variant& GetInstance();
+
+    void SetInputPins(std::vector<std::unique_ptr<GSInputPin>>&& pins);
+    void GetOutputPins(std::vector<std::unique_ptr<GSOutputPin>>&& pins);
 
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
     void DrawEditGui();

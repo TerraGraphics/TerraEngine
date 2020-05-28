@@ -9,7 +9,7 @@
 
 static const auto iconSize = math::Size(24, 24);
 
-GSInputPin::GSInputPin(uintptr_t id, const rttr::variant& instance, const rttr::property& property)
+GSInputPin::GSInputPin(uintptr_t id, rttr::variant& instance, const rttr::property& property)
     : m_id(id)
     , m_type(CreateGSType(instance, property)) {
 

@@ -16,7 +16,7 @@ class GSType;
 class GSInputPin : Fixed {
 public:
     GSInputPin() = delete;
-    GSInputPin(uintptr_t id, const rttr::variant& instance, const rttr::property& property);
+    GSInputPin(uintptr_t id, rttr::variant& instance, const rttr::property& property);
     ~GSInputPin();
 
     void Draw(uint8_t alpha) const;
