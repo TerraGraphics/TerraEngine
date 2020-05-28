@@ -28,6 +28,7 @@ struct LinkInfo {
 
 struct PinInfo {
     bool isInput;
+    uint8_t pinNumber;
     uintptr_t nodeId;
 };
 
@@ -135,9 +136,38 @@ bool GSStorage::Impl::AddLink(uintptr_t pinFirst, uintptr_t pinSecond, bool chec
         return false;
     }
 
+    LinkInfo linkInfo;
+    PinInfo srcPinInfo, dstPinInfo;
+    if (pinInfoFirst.isInput) {
+        linkInfo = LinkInfo{pinSecond, pinFirst};
+        srcPinInfo = pinInfoSecond;
+        dstPinInfo = pinInfoFirst;
+    } else {
+        linkInfo = LinkInfo{pinFirst, pinSecond};
+        srcPinInfo = pinInfoFirst;
+        dstPinInfo = pinInfoSecond;
+    }
+
+    std::shared_ptr<GSNode> srcNode, dstNode;
+    if (const auto it = m_nodes.find(srcPinInfo.nodeId); it != m_nodes.cend()) {
+        srcNode = it->second;
+    } else {
+        return false;
+    }
+
+    if (const auto it = m_nodes.find(dstPinInfo.nodeId); it != m_nodes.cend()) {
+        dstNode = it->second;
+    } else {
+        return false;
+    }
+
+    if (dstNode->IsInputAttached(dstPinInfo.pinNumber)) {
+        return false;
+    }
+
     if (!checkOnly) {
-        auto id = GSGetNextID();
-        m_links[id] = LinkInfo{pinFirst, pinSecond};
+        srcNode->AttachToOutput(srcPinInfo.pinNumber, dstPinInfo.pinNumber, dstNode);
+        m_links[GSGetNextID()] = linkInfo;
     }
 
     return true;

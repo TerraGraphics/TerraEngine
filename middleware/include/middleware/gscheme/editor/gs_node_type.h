@@ -15,7 +15,7 @@ namespace rttr {
 class GSNodeType : Fixed {
 public:
     GSNodeType() = delete;
-    GSNodeType(const rttr::type& gsType);
+    explicit GSNodeType(const rttr::type& gsType);
     ~GSNodeType();
 
     std::string_view GetName() const noexcept;

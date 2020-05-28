@@ -28,6 +28,10 @@ public:
     void SetInputPins(std::vector<std::unique_ptr<GSInputPin>>&& pins);
     void GetOutputPins(std::vector<std::unique_ptr<GSOutputPin>>&& pins);
 
+    bool IsInputAttached(uint8_t pinNumber) const;
+    void AttachToInput(uint8_t pinNumber);
+    void AttachToOutput(uint8_t srcPinNumber, uint8_t dstPinNumber, const std::shared_ptr<GSNode>& dstNode);
+
     void SetValue(uint8_t pinNumber, const rttr::variant& value);
 
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);

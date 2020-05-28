@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <cstddef>
+#include <ext/alloc_traits.h>
 
 #include "core/math/types.h"
 #include "core/common/exception.h"
@@ -53,11 +54,36 @@ void GSNode::GetOutputPins(std::vector<std::unique_ptr<GSOutputPin>>&& pins) {
     impl->m_outputPins = std::move(pins);
 }
 
+bool GSNode::IsInputAttached(uint8_t pinNumber) const {
+    if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
+        return impl->m_inputPins[pinNumber]->IsConnected();
+    }
+
+    throw EngineError("GSNode:IsInputAttached: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);
+}
+
+void GSNode::AttachToInput(uint8_t pinNumber) {
+    if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
+        impl->m_inputPins[pinNumber]->SetConnected(true);
+    } else {
+        throw EngineError("GSNode:AttachToInput: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);
+    }
+}
+
+void GSNode::AttachToOutput(uint8_t srcPinNumber, uint8_t dstPinNumber, const std::shared_ptr<GSNode>& dstNode) {
+    if (impl->m_outputPins.size() < static_cast<size_t>(srcPinNumber)) {
+        impl->m_outputPins[srcPinNumber]->Attach(dstPinNumber, dstNode);
+        dstNode->AttachToInput(dstPinNumber);
+    } else {
+        throw EngineError("GSNode:AttachToOutput: wrong arg srcPinNumber {}, max value is {}", srcPinNumber, impl->m_outputPins.size() - 1);
+    }
+}
+
 void GSNode::SetValue(uint8_t pinNumber, const rttr::variant& value) {
     if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
         impl->m_inputPins[pinNumber]->SetValue(value);
     } else {
-        throw EngineError("GSNode: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);
+        throw EngineError("GSNode:SetValue: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);
     }
 }
 

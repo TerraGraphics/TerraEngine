@@ -4,11 +4,12 @@
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/rttr/type.h"
+#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
 
 struct GSNodeType::Impl {
-    Impl(const rttr::type& gsType);
+    explicit Impl(const rttr::type& gsType);
 
     std::string m_name;
     const rttr::type m_gsType;

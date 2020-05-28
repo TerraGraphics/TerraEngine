@@ -2,6 +2,7 @@
 
 #include "core/math/types.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/imgui/imgui_node_editor.h"
 #include "middleware/gscheme/reflection/gs_type.h"
 
@@ -16,6 +17,10 @@ GSInputPin::GSInputPin(uintptr_t id, rttr::variant& instance, const rttr::proper
 
 GSInputPin::~GSInputPin() {
 
+}
+
+void GSInputPin::SetConnected(bool value) {
+    m_isConnected = value;
 }
 
 void GSInputPin::SetValue(const rttr::variant& value) {
@@ -53,8 +58,8 @@ GSOutputPin::~GSOutputPin() {
 
 }
 
-rttr::variant GSOutputPin::GetValue() const {
-    return m_type->GetValue();
+void GSOutputPin::Attach(uint8_t pinNumber, const std::shared_ptr<GSNode>& node) {
+    m_attachments.push_back(Attachment{pinNumber, node});
 }
 
 void GSOutputPin::Draw(uint8_t alpha) const {
@@ -68,6 +73,6 @@ void GSOutputPin::Draw(uint8_t alpha) const {
     gui::SameLine();
 
     ne::BeginPin(ne::PinId(m_id), ne::PinKind::Output);
-    gui::NodeIcon(ICON_SIZE, gui::IconType::Circle, m_isConnected, pinColor, innerPinColor);
+    gui::NodeIcon(ICON_SIZE, gui::IconType::Circle, !m_attachments.empty(), pinColor, innerPinColor);
     ne::EndPin();
 }
