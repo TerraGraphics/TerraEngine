@@ -4,11 +4,8 @@
 
 #include "core/common/ctor.h"
 #include "middleware/gscheme/rttr/type.h"
+#include "middleware/gscheme/rttr/variant.h"
 
-
-namespace rttr {
-    class variant;
-}
 
 class GSType : Fixed {
 public:
@@ -18,6 +15,9 @@ public:
 
     const char* GetName() const;
     bool IsEmbedded() const noexcept { return m_embedded; }
+
+    rttr::variant GetValue() const;
+    void SetValue(const rttr::variant& value);
 
     virtual void DrawEditGui() = 0;
 
@@ -31,7 +31,7 @@ class GSTypeFloat : public GSType {
 public:
     GSTypeFloat() = delete;
     GSTypeFloat(rttr::variant& instance, const rttr::property& property);
-    virtual ~GSTypeFloat() = default;
+    ~GSTypeFloat() override = default;
 
     void DrawEditGui() override;
 };

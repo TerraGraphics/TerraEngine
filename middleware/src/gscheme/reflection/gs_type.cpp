@@ -2,7 +2,6 @@
 
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
-#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
 
@@ -15,6 +14,14 @@ GSType::GSType(rttr::variant& instance, const rttr::property& property)
 
 const char* GSType::GetName() const {
     return m_property.get_name().empty() ? "<name>" : m_property.get_name().cbegin();
+}
+
+rttr::variant GSType::GetValue() const {
+    return m_property.get_value(m_instance);
+}
+
+void GSType::SetValue(const rttr::variant& value) {
+    m_property.set_value(m_instance, value);
 }
 
 GSTypeFloat::GSTypeFloat(rttr::variant& instance, const rttr::property& property)

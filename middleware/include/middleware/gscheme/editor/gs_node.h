@@ -28,6 +28,8 @@ public:
     void SetInputPins(std::vector<std::unique_ptr<GSInputPin>>&& pins);
     void GetOutputPins(std::vector<std::unique_ptr<GSOutputPin>>&& pins);
 
+    void SetValue(uint8_t pinNumber, const rttr::variant& value);
+
     void Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight);
     void DrawEditGui();
 

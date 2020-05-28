@@ -30,8 +30,8 @@ REFLECTION_IMPL(FuncSum) {
 
     registration::class_<FuncSum>("Sum")(metadata(GSMetaTypes::GS_CLASS, true))
         .constructor<>()
-        .method("Result", &FuncSum::Result)
-        .property("A", &FuncSum::GetA, &FuncSum::SetA)
-        .property("B", &FuncSum::GetB, &FuncSum::SetB)
+        .property_readonly("Result", &FuncSum::Result)(metadata(GSMetaTypes::GS_OUTPUT_PIN, true))
+        .property("A", &FuncSum::GetA, &FuncSum::SetA)(metadata(GSMetaTypes::GS_INPUT_PIN, true))
+        .property("B", &FuncSum::GetB, &FuncSum::SetB)(metadata(GSMetaTypes::GS_INPUT_PIN, true))
         ;
 }

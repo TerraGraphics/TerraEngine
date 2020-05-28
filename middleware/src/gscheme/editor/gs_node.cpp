@@ -2,8 +2,10 @@
 
 #include <string>
 #include <utility>
+#include <cstddef>
 
 #include "core/math/types.h"
+#include "core/common/exception.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gscheme/rttr/variant.h"
@@ -49,6 +51,14 @@ void GSNode::SetInputPins(std::vector<std::unique_ptr<GSInputPin>>&& pins) {
 
 void GSNode::GetOutputPins(std::vector<std::unique_ptr<GSOutputPin>>&& pins) {
     impl->m_outputPins = std::move(pins);
+}
+
+void GSNode::SetValue(uint8_t pinNumber, const rttr::variant& value) {
+    if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
+        impl->m_inputPins[pinNumber]->SetValue(value);
+    } else {
+        throw EngineError("GSNode: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);
+    }
 }
 
 void GSNode::Draw(uint8_t alpha, TextureViewRaw texBackground, float texWidth, float texHeight) {

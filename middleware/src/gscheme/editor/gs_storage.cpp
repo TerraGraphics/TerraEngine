@@ -32,7 +32,7 @@ struct PinInfo {
 };
 
 struct GSStorage::Impl {
-    Impl(TexturePtr& texBackground);
+    explicit Impl(TexturePtr& texBackground);
 
     void Create();
     bool AddNode(const std::string& name);
@@ -60,8 +60,9 @@ GSStorage::Impl::Impl(TexturePtr& texBackground)
 void GSStorage::Impl::Create() {
     for(const auto& t : rttr::type::get_types()) {
         if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
-            std::string name = t.get_name().to_string();
-            m_nodeTypes[name] = std::make_unique<GSNodeType>(name, t);
+            auto node = std::make_unique<GSNodeType>(t);
+            auto name = std::string(node->GetName());
+            m_nodeTypes[name] = std::move(node);
         }
     }
 }
@@ -69,30 +70,37 @@ void GSStorage::Impl::Create() {
 bool GSStorage::Impl::AddNode(const std::string& name) {
     if (const auto it = m_nodeTypes.find(name); it != m_nodeTypes.cend()) {
         auto nodeId = GSGetNextID();
-        const auto& nodeType = it->second->GetType();
-
-        auto node = std::make_shared<GSNode>(nodeId, it->second->GetName(), nodeType);
+        auto node = std::make_shared<GSNode>(nodeId, it->second->GetName(), it->second->GetType());
         m_nodes[nodeId] = node;
-        auto& nodeInstance = node->GetInstance();
 
-        auto nodeProps = nodeType.get_properties();
+        auto& nodeInstance = node->GetInstance();
+        const auto& embeddedProps = it->second->GetEmbeddedProps();
+        const auto& inputPinProps = it->second->GetInputPinProps();
+        const auto& outputPinProps = it->second->GetOutputPinProps();
+
         std::vector<std::unique_ptr<GSInputPin>> inputPins;
-        inputPins.reserve(nodeProps.size());
-        for(const auto& prop : nodeProps) {
+        inputPins.reserve(embeddedProps.size() + inputPinProps.size());
+        for(const auto& prop : embeddedProps) {
             auto pinId = GSGetNextID();
-            m_pins[pinId] = PinInfo{true, nodeId};
             inputPins.push_back(std::make_unique<GSInputPin>(pinId, nodeInstance, prop));
+        }
+
+        auto number = static_cast<uint8_t>(embeddedProps.size());
+        for(const auto& prop : inputPinProps) {
+            auto pinId = GSGetNextID();
+            inputPins.push_back(std::make_unique<GSInputPin>(pinId, nodeInstance, prop));
+            m_pins[pinId] = PinInfo{true, number++, nodeId};
         }
 
         node->SetInputPins(std::move(inputPins));
 
-        auto nodeMethods = nodeType.get_methods();
         std::vector<std::unique_ptr<GSOutputPin>> outputPins;
-        outputPins.reserve(nodeMethods.size());
-        for(const auto& method : nodeMethods) {
+        outputPins.reserve(outputPinProps.size());
+        number = 0;
+        for(const auto& prop : outputPinProps) {
             auto pinId = GSGetNextID();
-            m_pins[pinId] = PinInfo{false, nodeId};
-            outputPins.push_back(std::make_unique<GSOutputPin>(pinId, method.get_name().to_string()));
+            outputPins.push_back(std::make_unique<GSOutputPin>(pinId, nodeInstance, prop));
+            m_pins[pinId] = PinInfo{false, number++, nodeId};
         }
 
         node->GetOutputPins(std::move(outputPins));

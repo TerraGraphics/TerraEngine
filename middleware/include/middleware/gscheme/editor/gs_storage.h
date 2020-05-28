@@ -11,7 +11,7 @@
 class GSStorage : Fixed {
 public:
     GSStorage() = delete;
-    GSStorage(TexturePtr& texBackground);
+    explicit GSStorage(TexturePtr& texBackground);
     ~GSStorage();
 
     void Create();
