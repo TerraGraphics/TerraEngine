@@ -4,7 +4,7 @@
 
 #include "core/engine.h"
 #include "core/camera/camera.h"
-#include "core/scene/transform_graph.h"
+#include "core/render/transform_graph.h"
 #include "middleware/gizmo/gizmo_base.h"
 #include "middleware/gizmo/gizmo_move.h"
 #include "middleware/gizmo/gizmo_scale.h"

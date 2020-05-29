@@ -1,13 +1,13 @@
-#include "graph_window.h"
+#include "editor/windows/graph_window.h"
 
 #include <utility>
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
 #include "core/dg/device.h"
-#include "property_window.h"
 #include "middleware/imgui/imgui.h"
 #include "core/dg/texture_utilities.h"
+#include "editor/windows/property_window.h"
 #include "middleware/graph_editor/graph_editor.h"
 #include "middleware/generator/texture/noise_rasterization.h"
 #include "middleware/generator/texture/texture_node_factory.h"

@@ -1,4 +1,4 @@
-#include "property_window.h"
+#include "editor/windows/property_window.h"
 
 #include <utility>
 

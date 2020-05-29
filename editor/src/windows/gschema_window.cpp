@@ -1,10 +1,10 @@
-#include "gschema_window.h"
+#include "editor/windows/gschema_window.h"
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
-#include "property_window.h"
 #include "middleware/imgui/imgui.h"
 #include "core/dg/texture_utilities.h"
+#include "editor/windows/property_window.h"
 #include "middleware/gscheme/editor/gs_editor.h"
 
 

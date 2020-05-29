@@ -5,7 +5,7 @@
 
 #include "core/dg/dg.h"
 #include "core/math/types.h"
-#include "core/scene/scene.h"
+#include "core/render/scene.h"
 #include "middleware/std_render/structures.h"
 
 

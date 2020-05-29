@@ -5,6 +5,8 @@ file(GLOB_RECURSE SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
     PRIVATE
         ${CMAKE_SOURCE_DIR}/platforms/include
         ${CMAKE_SOURCE_DIR}/core/include

@@ -1,11 +1,11 @@
-#include "preview_window.h"
+#include "editor/windows/preview_window.h"
 
 #include "core/dg/dg.h"
 #include "core/engine.h"
-#include "preview_scene.h"
 #include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
+#include "editor/preview_scene.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gizmo/gizmo_3d.h"

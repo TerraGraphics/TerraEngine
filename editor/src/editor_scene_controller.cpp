@@ -1,16 +1,15 @@
-#include "editor_scene_controller.h"
+#include "editor/editor_scene_controller.h"
 
 #include <cstddef>
 
 #include "core/dg/dg.h"
-#include "graph_window.h"
-#include "gschema_window.h"
-#include "core/dg/device.h" // IWYU pragma: keep
-#include "preview_window.h"
-#include "property_window.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
 #include "middleware/imgui/imgui.h"
+#include "editor/windows/graph_window.h"
+#include "editor/windows/preview_window.h"
+#include "editor/windows/gschema_window.h"
+#include "editor/windows/property_window.h"
 #include "middleware/imgui/imgui_internal.h"
 #include "middleware/std_render/std_scene.h"
 

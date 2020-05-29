@@ -2,7 +2,7 @@
 
 #include <utility>
 
- #include "core/scene/vertexes.h"
+ #include "core/render/vertexes.h"
  #include "core/common/exception.h"
  #include "core/math/normal_matrix.h"
 

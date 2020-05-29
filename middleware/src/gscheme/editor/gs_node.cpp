@@ -55,7 +55,7 @@ void GSNode::GetOutputPins(std::vector<std::unique_ptr<GSOutputPin>>&& pins) {
 }
 
 bool GSNode::IsInputAttached(uint8_t pinNumber) const {
-    if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
+    if (impl->m_inputPins.size() > static_cast<size_t>(pinNumber)) {
         return impl->m_inputPins[pinNumber]->IsConnected();
     }
 
@@ -63,7 +63,7 @@ bool GSNode::IsInputAttached(uint8_t pinNumber) const {
 }
 
 void GSNode::AttachToInput(uint8_t pinNumber) {
-    if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
+    if (impl->m_inputPins.size() > static_cast<size_t>(pinNumber)) {
         impl->m_inputPins[pinNumber]->SetConnected(true);
     } else {
         throw EngineError("GSNode:AttachToInput: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);
@@ -71,7 +71,7 @@ void GSNode::AttachToInput(uint8_t pinNumber) {
 }
 
 void GSNode::AttachToOutput(uint8_t srcPinNumber, uint8_t dstPinNumber, const std::shared_ptr<GSNode>& dstNode) {
-    if (impl->m_outputPins.size() < static_cast<size_t>(srcPinNumber)) {
+    if (impl->m_outputPins.size() > static_cast<size_t>(srcPinNumber)) {
         impl->m_outputPins[srcPinNumber]->Attach(dstPinNumber, dstNode);
         dstNode->AttachToInput(dstPinNumber);
     } else {
@@ -80,7 +80,7 @@ void GSNode::AttachToOutput(uint8_t srcPinNumber, uint8_t dstPinNumber, const st
 }
 
 void GSNode::SetValue(uint8_t pinNumber, const rttr::variant& value) {
-    if (impl->m_inputPins.size() < static_cast<size_t>(pinNumber)) {
+    if (impl->m_inputPins.size() > static_cast<size_t>(pinNumber)) {
         impl->m_inputPins[pinNumber]->SetValue(value);
     } else {
         throw EngineError("GSNode:SetValue: wrong arg pinNumber {}, max value is {}", pinNumber, impl->m_inputPins.size() - 1);

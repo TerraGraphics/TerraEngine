@@ -1,19 +1,19 @@
-#include "general_scene.h"
+#include "editor/general_scene.h"
 
 #include <cstdint>
 
 #include "core/engine.h"
-#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/math/types.h"
+#include "core/dg/texture.h"
 #include "core/math/random.h"
-#include "core/scene/vertexes.h"
 #include "core/math/constants.h"
-#include "core/scene/geometry.h"
+#include "core/render/vertexes.h"
+#include "core/render/geometry.h"
 #include "core/dg/graphics_types.h"
-#include "core/scene/vertex_buffer.h"
 #include "core/dg/rasterizer_state.h"
 #include "core/dg/texture_utilities.h"
-#include "core/scene/transform_graph.h"
+#include "core/render/vertex_buffer.h"
+#include "core/render/transform_graph.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/std_render/std_material.h"
 #include "middleware/generator/mesh_generator.h"

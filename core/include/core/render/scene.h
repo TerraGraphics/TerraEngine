@@ -5,7 +5,7 @@
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
-#include "core/scene/transform_graph.h"
+#include "core/render/transform_graph.h"
 
 
 class Scene : public TransformGraph, Fixed {

@@ -19,6 +19,7 @@
 #include "middleware/imgui/imgui_node_editor.h"
 #include "middleware/gscheme/editor/gs_node_type.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
+#include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
 struct LinkInfo {

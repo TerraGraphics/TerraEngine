@@ -12,9 +12,9 @@
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/gui.h"
-#include "editor_scene_controller.h"
-#include "general_scene_controller.h"
+#include "editor/editor_scene_controller.h"
 #include "core/material/material_builder.h"
+#include "editor/general_scene_controller.h"
 #include "core/material/material_builder_desc.h"
 
 

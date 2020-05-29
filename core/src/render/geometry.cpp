@@ -1,9 +1,9 @@
-#include "core/scene/geometry.h"
+#include "core/render/geometry.h"
 
 #include "core/dg/context.h"
 #include "core/dg/graphics_types.h"
-#include "core/scene/index_buffer.h"
-#include "core/scene/vertex_buffer.h"
+#include "core/render/index_buffer.h"
+#include "core/render/vertex_buffer.h"
 
 
 Geometry::Geometry(uint16_t vDeclId)

@@ -1,7 +1,7 @@
 #include "middleware/generator/mesh/uv_grid_generator.h"
 
 #include <utility>
-#include "core/scene/vertexes.h"
+#include "core/render/vertexes.h"
 
 
 UVGridGenerator::UVGridGenerator(dg::uint2 segments, bool counterClockwise)

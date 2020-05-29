@@ -1,4 +1,4 @@
-#include "core/scene/index_buffer.h"
+#include "core/render/index_buffer.h"
 
 #include "core/dg/device.h"
 #include "core/dg/context.h"

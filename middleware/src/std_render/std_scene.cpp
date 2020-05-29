@@ -10,9 +10,9 @@
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
 #include "core/material/vdecl_item.h"
-#include "core/scene/vertex_buffer.h"
-#include "core/render/render_target.h"
-#include "core/scene/transform_graph.h"
+#include "core/render/vertex_buffer.h"
+#include "core/render/transform_graph.h"
+#include "core/material/render_target.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/material_builder.h"
 

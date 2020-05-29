@@ -1,4 +1,4 @@
-#include "core/scene/vertex_buffer.h"
+#include "core/render/vertex_buffer.h"
 
 #include "core/dg/device.h"
 #include "core/dg/context.h"

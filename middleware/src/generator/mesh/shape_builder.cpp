@@ -3,10 +3,10 @@
 #include <cstdint>
 
 #include "core/dg/device.h" // IWYU pragma: keep
-#include "core/scene/geometry.h"
-#include "core/scene/vertexes.h"
-#include "core/scene/index_buffer.h"
-#include "core/scene/vertex_buffer.h"
+#include "core/render/geometry.h"
+#include "core/render/vertexes.h"
+#include "core/render/index_buffer.h"
+#include "core/render/vertex_buffer.h"
 #include "middleware/generator/mesh/shape_generator.h"
 
 

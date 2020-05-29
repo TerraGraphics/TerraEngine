@@ -1,6 +1,6 @@
-#include "core/scene/transform_graph.h"
+#include "core/render/transform_graph.h"
 
-#include "core/scene/geometry.h"
+#include "core/render/geometry.h"
 #include "core/common/exception.h"
 #include "core/material/material.h"
 #include "core/math/normal_matrix.h"
