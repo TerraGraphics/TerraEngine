@@ -24,14 +24,15 @@ struct Pin {
 
 class Node {
 public:
-    Node() = default;
-    ~Node() = default;
-
     void Init(uint16_t id);
+
+    uint16_t GetNextFreeIndex() const noexcept { return m_nextFreeIndex; }
     void Clear(uint16_t nextFreeIndex);
 
     // return nextFreeIndex
     uint16_t Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
+    void SetInputPinData(uint8_t index, void* data);
+    void SetOutputPinData(uint8_t index, void* data);
 
 private:
     // nodeID - index in Graph::m_nodes + 1
@@ -63,11 +64,12 @@ class Graph {
     ~Graph();
 
     Node& AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data);
+    void RemoveNode(uint16_t id);
 
 private:
     uint16_t m_free = 0;
     uint16_t m_capacity = 0;
-    uint16_t m_firstFree = 0;
+    uint16_t m_firstFreeIndex = 0;
     Node* m_nodes = nullptr;
 };
 
