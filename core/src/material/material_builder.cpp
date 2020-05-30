@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <utility>
-#include <strings.h>
 #include <unordered_map>
 
 #include "core/dg/device.h"
@@ -164,10 +163,10 @@ void TargetsFormat::SetDepthTarget(dg::TEXTURE_FORMAT format) {
 
 void TargetsFormat::SetCountColorTargets(uint8_t value) {
     if (value > MAX_COLOR_TARGETS) {
-        throw EngineError("wrong countColorTargets {} for TargetsFormat::SetCountColorTargets, max count is {}", index, MAX_COLOR_TARGETS);
+        throw EngineError("wrong value {} for TargetsFormat::SetCountColorTargets, max count is {}", value, MAX_COLOR_TARGETS);
     }
     if (value == 0) {
-        throw EngineError("wrong countColorTargets {} for RenderTarget::Update, min count is 0", index);
+        throw EngineError("wrong value {} for RenderTarget::Update, min count is 0", value);
     }
     countColorTargets = value;
 }

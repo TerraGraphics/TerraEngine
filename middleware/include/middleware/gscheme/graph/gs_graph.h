@@ -5,34 +5,51 @@
 /*
     valid ID (pinID, linkID, nodeID) more than 0
     uint16_t nodeID - index in Graph::m_nodes + 1
-    uint32_t pinID = nodeID << 16 | pinNumber << 8 | input / output, embedded or not
-    uint64_t linkID = outputPinID << 32 | inputPinID
+    uint8_t pinIndex - index in Node::m_pins
+    bool isInput - input or output pin
+    uint32_t pinID = nodeID << 16 | pinIndex << 8 | isInput
+    uint64_t linkID = srcPinID << 32 | dstPinID == outputPinID << 32 | inputPinID
 */
 
 namespace gs {
 
+inline uint16_t NodeIdFromPinId(uint32_t pinId) {
+    return static_cast<uint16_t>(pinId >> uint32_t(16));
+}
+
+inline uint8_t PinIndexFromPinId(uint32_t pinId) {
+    return static_cast<uint8_t>((pinId >> uint32_t(8)) & uint32_t(0xFF));
+}
+
+inline bool IsInputFromPinId(uint32_t pinId) {
+    return ((pinId & uint32_t(1)) == 1);
+}
+
 struct Pin {
     uint32_t id = 0;
     union {
-        // for OutputPin
-        uint32_t attachedPinID = 0;
         // for InputPin
+        uint32_t attachedPinID = 0;
+        // for OutputPin
         uint32_t linksCount;
     };
     void* data = nullptr;
 };
 
 class Node {
+    friend class Graph;
 public:
-    void Init(uint16_t id);
-
-    uint16_t GetNextFreeIndex() const noexcept { return m_nextFreeIndex; }
-    void Clear(uint16_t nextFreeIndex);
-
-    // return nextFreeIndex
-    uint16_t Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void SetInputPinData(uint8_t index, void* data);
     void SetOutputPinData(uint8_t index, void* data);
+
+private:
+    void Init(uint16_t id);
+    void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
+    void Reset();
+
+    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
+    void IncLinkForOutputPin(uint8_t outputPinIndex);
+    void DecLinkForOutputPin(uint8_t outputPinIndex);
 
 private:
     // nodeID - index in Graph::m_nodes + 1
@@ -65,6 +82,8 @@ class Graph {
 
     Node& AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void RemoveNode(uint16_t id);
+
+    uint64_t AddLink(uint32_t srcPinId, uint32_t dstPinId);
 
 private:
     uint16_t m_free = 0;
