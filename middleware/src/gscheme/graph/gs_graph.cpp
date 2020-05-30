@@ -72,6 +72,7 @@ void Node::Reset(uint16_t nextIndex) {
     m_data = nullptr;
     if (m_pins != nullptr) {
         delete[] m_pins;
+        m_pins = nullptr;
     }
 }
 
@@ -112,11 +113,35 @@ uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
     return m_order;
 }
 
-uint16_t Node::SetNextCalcIndex(uint16_t nodeIndex) {
+uint16_t Node::SetNextCalcIndex(uint16_t nodeIndex) noexcept {
     uint16_t result = m_nextIndex;
     m_nextIndex = nodeIndex;
 
     return result;
+}
+
+void Node::ResetAcyclicityChecked() noexcept {
+    m_isAcyclicityChecked = false;
+}
+
+bool Node::CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept {
+    if (m_isAcyclicityChecked) {
+        return true;
+    }
+    m_isAcyclicityChecked = true;
+    if (m_id == startNodeId) {
+        return false;
+    }
+
+    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
+        if (m_pins[i].attachedPinID != 0) {
+            if (!nodes[NodeIndexFromPinId(m_pins[i].attachedPinID)].CheckAcyclicity(nodes, startNodeId)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) {
@@ -425,6 +450,16 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
         }
 
         throw EngineError("gs::Graph::AddLink: wrong dstPinIndex = {} (from dstPinId = {}), no input pins", dstPinIndex, dstPinId);
+    }
+
+    for (uint16_t i=0; i!=m_capacity; ++i) {
+        m_nodes[i].ResetAcyclicityChecked();
+    }
+
+    if (!m_nodes[dstNodeIndex].CheckAcyclicity(m_nodes, srcNodeId)) {
+        throw EngineError(
+                "gs::Graph::AddLink: wrong link from srcPinId = {} to dstPinId = {}, graph after add this link is not acyclic",
+                srcPinId, dstPinId);
     }
 }
 

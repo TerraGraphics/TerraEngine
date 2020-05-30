@@ -71,7 +71,10 @@ private:
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
-    uint16_t SetNextCalcIndex(uint16_t nodeIndex);
+    uint16_t SetNextCalcIndex(uint16_t nodeIndex) noexcept;
+
+    void ResetAcyclicityChecked() noexcept;
+    bool CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept;
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
     void DetachFromInputPin(uint8_t inputPinIndex);
@@ -86,7 +89,11 @@ private:
     uint8_t m_countInputPins;
     uint8_t m_countOutputPins;
 
-    uint16_t m_order = 0;
+    union {
+        uint16_t m_order = 0;
+        bool m_isAcyclicityChecked;
+    };
+
     // index in Graph::m_nodes (next free node or next node for calc)
     uint16_t m_nextIndex;
 
