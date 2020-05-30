@@ -25,6 +25,14 @@ inline bool IsInputFromPinId(uint32_t pinId) {
     return ((pinId & uint32_t(1)) == 1);
 }
 
+inline uint32_t SrcPinIdFromLinkID(uint64_t linkId) {
+    return static_cast<uint32_t>(linkId >> uint64_t(32));
+}
+
+inline uint32_t DstPinIdFromLinkID(uint64_t linkId) {
+    return static_cast<uint32_t>(linkId & uint64_t(0xFFFFFFFF));
+}
+
 struct Pin {
     uint32_t id = 0;
     union {
@@ -48,6 +56,7 @@ private:
     void Reset();
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
+    void DetachFromInputPin(uint8_t inputPinIndex);
     void IncLinkForOutputPin(uint8_t outputPinIndex);
     void DecLinkForOutputPin(uint8_t outputPinIndex);
 
@@ -81,9 +90,10 @@ class Graph {
     ~Graph();
 
     Node& AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data);
-    void RemoveNode(uint16_t id);
+    void RemoveNode(uint16_t nodeId);
 
     uint64_t AddLink(uint32_t srcPinId, uint32_t dstPinId);
+    void RemoveLink(uint64_t linkId);
 
 private:
     uint16_t m_free = 0;

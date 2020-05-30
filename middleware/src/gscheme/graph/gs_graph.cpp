@@ -58,6 +58,18 @@ void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) {
     m_pins[inputPinIndex].attachedPinID = attachedPinID;
 }
 
+void Node::DetachFromInputPin(uint8_t inputPinIndex) {
+    if (inputPinIndex >= m_countInputPins) {
+        if (m_countInputPins != 0) {
+            throw EngineError("gs:Node:DetachFromInputPin wrong inputPinIndex = {}, max index = {}", inputPinIndex, m_countInputPins - 1);
+        }
+
+        throw EngineError("gs:Node:DetachFromInputPin wrong inputPinIndex = {}, no input pins", inputPinIndex);
+    }
+
+    m_pins[inputPinIndex].attachedPinID = 0;
+}
+
 void Node::IncLinkForOutputPin(uint8_t outputPinIndex) {
     if (outputPinIndex >= m_countOutputPins) {
         if (m_countOutputPins != 0) {
@@ -129,11 +141,13 @@ Graph::~Graph() {
 
 Node& Graph::AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data) {
     if (countInputPins > (MAX_PINS_COUNT - countOutputPins)) {
-        throw EngineError("gs:Graph:AddNode wrong value (countInputPins + countOutputPins), max sum = {}", MAX_PINS_COUNT);
+        throw EngineError(
+            "gs::Graph::AddNode: wrong countInputPins = {} + countOutputPins = {}, max sum = {}",
+            countInputPins, countOutputPins, MAX_PINS_COUNT);
     }
     if (m_free == 0) {
         if (m_capacity == MAX_NODES_COUNT) {
-            throw EngineError("gs:Graph:AddNode failed to add node, node limit exceeded");
+            throw EngineError("gs::Graph::AddNode: failed to add node, node limit exceeded");
         }
 
         auto* prevNodes = m_nodes;
@@ -164,14 +178,14 @@ Node& Graph::AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data
     return m_nodes[m_firstFreeIndex];
 }
 
-void Graph::RemoveNode(uint16_t id) {
-    if (id == 0) {
-        throw EngineError("gs:Graph:RemoveNode wrong id = {}, min id = 1", id);
+void Graph::RemoveNode(uint16_t nodeId) {
+    if (nodeId == 0) {
+        throw EngineError("gs::Graph::RemoveNode: wrong nodeId = {}, min value = 1", nodeId);
     }
-    if (id > m_capacity) {
-        throw EngineError("gs:Graph:RemoveNode wrong id = {}, max id = {}", id, m_capacity);
+    if (nodeId > m_capacity) {
+        throw EngineError("gs::Graph::RemoveNode: wrong nodeId = {}, max value = {}", id, m_capacity);
     }
-    uint16_t index = id - 1;
+    uint16_t index = nodeId - 1;
 
     if (m_free == 0) {
         m_firstFreeIndex = index;
@@ -200,46 +214,46 @@ void Graph::RemoveNode(uint16_t id) {
 
 uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     if (srcPinId == 0) {
-        throw EngineError("gs:Graph:AddLink wrong srcPinId = {}, min value = 1", srcPinId);
+        throw EngineError("gs::Graph::AddLink: wrong srcPinId = {}, min value = 1", srcPinId);
     }
     if (dstPinId == 0) {
-        throw EngineError("gs:Graph:AddLink wrong dstPinId = {}, min value = 1", dstPinId);
+        throw EngineError("gs::Graph::AddLink: wrong dstPinId = {}, min value = 1", dstPinId);
     }
     if (srcPinId == dstPinId) {
-        throw EngineError("gs:Graph:AddLink wrong srcPinId = {} and dstPinId = {}, it cannot be equivalent", srcPinId, dstPinId);
+        throw EngineError("gs::Graph::AddLink: wrong srcPinId = {} and dstPinId = {}, it cannot be equivalent", srcPinId, dstPinId);
     }
 
 
     if (IsInputFromPinId(srcPinId)) {
-        throw EngineError("gs:Graph:AddLink wrong srcPinId = {}, it can be output pin", srcPinId);
+        throw EngineError("gs::Graph::AddLink: wrong srcPinId = {}, it can be output pin", srcPinId);
     }
     if (!IsInputFromPinId(dstPinId)) {
-        throw EngineError("gs:Graph:AddLink wrong dstPinId = {}, it can be input pin", dstPinId);
+        throw EngineError("gs::Graph::AddLink: wrong dstPinId = {}, it can be input pin", dstPinId);
     }
+
 
     uint16_t srcNodeId = NodeIdFromPinId(srcPinId);
     if (srcNodeId == 0) {
-        throw EngineError("gs:Graph:AddLink wrong srcPinId = {}, there is no corresponding node with id {}", srcPinId, srcNodeId);
+        throw EngineError("gs::Graph::AddLink: wrong srcNodeId = {} (from srcPinId = {}), min value = 1", srcNodeId, srcPinId);
     }
     if (srcNodeId > m_capacity) {
-        throw EngineError(
-            "gs:Graph:AddLink wrong srcPinId = {}, there is no corresponding node with id {}, max nodeId = {}", srcPinId, srcNodeId, m_capacity);
+        throw EngineError("gs::Graph::AddLink: wrong srcNodeId = {} (from srcPinId = {}), max value = {}", srcNodeId, srcPinId, m_capacity);
     }
 
     uint16_t dstNodeId = NodeIdFromPinId(dstPinId);
     if (dstNodeId == 0) {
-        throw EngineError("gs:Graph:AddLink wrong dstPinId = {}, there is no corresponding node with id {}", dstPinId, dstNodeId);
+        throw EngineError("gs::Graph::AddLink: wrong dstNodeId = {} (from dstPinId = {}), min value = 1", dstNodeId, dstPinId);
     }
     if (dstNodeId > m_capacity) {
-        throw EngineError(
-            "gs:Graph:AddLink wrong dstPinId = {}, there is no corresponding node with id {}, max nodeId = {}", dstPinId, dstNodeId, m_capacity);
+        throw EngineError("gs::Graph::AddLink: wrong dstNodeId = {} (from dstPinId = {}), max value = {}", dstNodeId, dstPinId, m_capacity);
     }
 
     if (srcNodeId == dstNodeId) {
         throw EngineError(
-            "gs:Graph:AddLink wrong srcPinId = {} (srcNodeId = {}) and dstPinId = {} (dstNodeId = {}), node id cannot be equivalent",
-            srcPinId, srcNodeId, dstPinId, dstNodeId);
+            "gs::Graph::AddLink: wrong srcPinId = {} and dstPinId = {} (from srcPinId = {} and dstPinId = {}), node ids cannot be equivalent",
+            srcPinId, dstPinId, srcNodeId, dstNodeId);
     }
+
 
     uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
     uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
@@ -248,6 +262,66 @@ uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     m_nodes[srcNodeId].IncLinkForOutputPin(srcPinIndex);
 
     return (static_cast<uint64_t>(srcPinId) << uint64_t(32)) | static_cast<uint64_t>(dstPinId);
+}
+
+void Graph::RemoveLink(uint64_t linkId) {
+    if (linkId == 0) {
+        throw EngineError("gs::Graph::RemoveLink: wrong linkId = {}, min value = 1", linkId);
+    }
+
+
+    uint32_t srcPinId = SrcPinIdFromLinkID(linkId);
+    uint32_t dstPinId = DstPinIdFromLinkID(linkId);
+
+    if (srcPinId == 0) {
+        throw EngineError("gs::Graph::RemoveLink: wrong srcPinId = {} (from linkId = {}), min value = 1", srcPinId, linkId);
+    }
+    if (dstPinId == 0) {
+        throw EngineError("gs::Graph::RemoveLink: wrong dstPinId = {} (from linkId = {}), min value = 1", dstPinId, linkId);
+    }
+    if (srcPinId == dstPinId) {
+        throw EngineError(
+            "gs::Graph::RemoveLink: wrong srcPinId = {} and dstPinId = {} (from linkId = {}), it cannot be equivalent",
+            srcPinId, dstPinId, linkId);
+    }
+
+
+    if (IsInputFromPinId(srcPinId)) {
+        throw EngineError("gs::Graph::RemoveLink: wrong srcPinId = {} (from linkId = {}), it can be output pin", srcPinId, linkId);
+    }
+    if (!IsInputFromPinId(dstPinId)) {
+        throw EngineError("gs::Graph::RemoveLink: wrong dstPinId = {} (from linkId = {}), it can be input pin", dstPinId, linkId);
+    }
+
+
+    uint16_t srcNodeId = NodeIdFromPinId(srcPinId);
+    if (srcNodeId == 0) {
+        throw EngineError("gs::Graph::RemoveLink: wrong srcNodeId = {} (from linkId = {}), min value = 1", srcNodeId, linkId);
+    }
+    if (srcNodeId > m_capacity) {
+        throw EngineError("gs::Graph::RemoveLink: wrong srcNodeId = {} (from linkId = {}), max value = {}", srcNodeId, linkId, m_capacity);
+    }
+
+    uint16_t dstNodeId = NodeIdFromPinId(dstPinId);
+    if (dstNodeId == 0) {
+        throw EngineError("gs::Graph::RemoveLink: wrong dstNodeId = {} (from linkId = {}), min value = 1", dstNodeId, linkId);
+    }
+    if (dstNodeId > m_capacity) {
+        throw EngineError("gs::Graph::RemoveLink: wrong dstNodeId = {} (from linkId = {}), max value = {}", dstNodeId, linkId, m_capacity);
+    }
+
+    if (srcNodeId == dstNodeId) {
+        throw EngineError(
+            "gs::Graph::RemoveLink: wrong srcPinId = {} and dstPinId = {} (from linkId = {}), node ids cannot be equivalent",
+            srcPinId, dstPinId, linkId);
+    }
+
+
+    uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
+    uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
+
+    m_nodes[dstNodeId].DetachFromInputPin(dstPinIndex);
+    m_nodes[srcNodeId].DecLinkForOutputPin(srcPinIndex);
 }
 
 }
