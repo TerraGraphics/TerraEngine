@@ -2,6 +2,9 @@
 
 #include <cstdint>
 
+#include "core/common/ctor.h"
+
+
 /*
     valid ID (pinID, linkID, nodeID) more than 0
     uint16_t nodeID - index in Graph::m_nodes + 1
@@ -33,7 +36,7 @@ inline uint32_t DstPinIdFromLinkID(uint64_t linkId) {
     return static_cast<uint32_t>(linkId & uint64_t(0xFFFFFFFF));
 }
 
-struct Pin {
+struct Pin : Fixed {
     uint32_t id = 0;
     union {
         // for InputPin
@@ -44,7 +47,7 @@ struct Pin {
     void* data = nullptr;
 };
 
-class Node {
+class Node : Fixed {
     friend class Graph;
 public:
     void SetInputPinData(uint8_t index, void* data);
@@ -85,15 +88,26 @@ private:
     void* m_data = nullptr;
 };
 
-class Graph {
+class Graph : Fixed {
+public:
     Graph(uint16_t initialNodeCount = 16);
     ~Graph();
 
     Node& AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data);
+
+    bool TestRemoveNode(uint16_t nodeId) const noexcept;
     void RemoveNode(uint16_t nodeId);
 
+    bool TestAddLink(uint32_t srcPinId, uint32_t dstPinId) const noexcept;
     uint64_t AddLink(uint32_t srcPinId, uint32_t dstPinId);
+
+    bool TestRemoveLink(uint64_t linkId) const noexcept;
     void RemoveLink(uint64_t linkId);
+
+private:
+    void CheckRemoveNode(uint16_t nodeId) const;
+    void CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const;
+    void CheckRemoveLink(uint64_t linkId) const;
 
 private:
     uint16_t m_free = 0;
