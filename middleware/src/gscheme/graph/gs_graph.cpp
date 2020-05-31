@@ -4,14 +4,18 @@
 #include <cstring>
 
 #include "core/common/exception.h"
+#include "middleware/gscheme/rttr/type.h"
+#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/graph/gs_limits.h"
+#include "middleware/gscheme/graph/gs_type_class.h"
+#include "middleware/gscheme/reflection/gs_metadata.h"
 
 
 namespace gs {
 
 static_assert(sizeof(Pin) == 16, "sizeof(Pin) == 16 bytes");
 static_assert(sizeof(Node) == 32, "sizeof(Node) == 32 bytes");
-static_assert(sizeof(Graph) == 16, "sizeof(Graph) == 24 bytes");
+static_assert(sizeof(Graph) == 32, "sizeof(Graph) == 24 bytes");
 
 void Node::Init(uint16_t id) noexcept {
     m_id = id;
@@ -192,10 +196,25 @@ Graph::Graph(uint16_t initialNodeCount)
     , m_capacity(initialNodeCount)
     , m_firstFreeIndex(0)
     , m_firstCalcIndex(INVALID_NODE_INDEX)
+    , m_countTypeClasses(0)
     , m_nodes(new Node[m_capacity]) {
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].Init(i + 1);
+    }
+
+    for(const auto& t : rttr::type::get_types()) {
+        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+            ++m_countTypeClasses;
+        }
+    }
+    m_typeClasses = new TypeClass[m_countTypeClasses];
+
+    uint16_t index = 0;
+    for(const auto& t : rttr::type::get_types()) {
+        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+            m_typeClasses[index].Create(t);
+        }
     }
 }
 
@@ -205,6 +224,10 @@ Graph::~Graph() {
             m_nodes[i].Reset(INVALID_NODE_INDEX);
         }
         delete[] m_nodes;
+    }
+
+    if (m_typeClasses != nullptr) {
+        delete[] m_typeClasses;
     }
 }
 

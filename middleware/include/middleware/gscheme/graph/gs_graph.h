@@ -123,6 +123,7 @@ private:
     void* m_data = nullptr;
 };
 
+class TypeClass;
 class Graph : Fixed {
 public:
     Graph(uint16_t initialNodeCount = 16);
@@ -152,6 +153,9 @@ private:
     uint16_t m_capacity = 0;
     uint16_t m_firstFreeIndex = 0;
     uint16_t m_firstCalcIndex = 0;
+    uint16_t m_countTypeClasses = 0;
+    // TODO: add binary search
+    TypeClass* m_typeClasses;
     Node* m_nodes = nullptr;
 };
 

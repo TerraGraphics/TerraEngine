@@ -9,18 +9,25 @@
 
 namespace rttr {
     class type;
+    class variant;
+    class instance;
     class property;
 }
 
 namespace gs {
 
-class Class : Fixed {
+class TypeClass : Fixed {
 public:
-    Class() = delete;
-    explicit Class(const rttr::type& clsType);
-    ~Class();
+    TypeClass() = default;
+    ~TypeClass();
+
+    void Create(const rttr::type& clsType);
 
     std::string_view GetName() const;
+    std::string_view GetPrettyName() const;
+
+    rttr::variant GetValue(uint8_t pinIndex, rttr::instance& instance) const;
+    void SetValue(uint8_t pinIndex, rttr::instance& instance, rttr::variant& value) const;
 
 private:
     uint8_t m_countEmbeddedPins = 0;

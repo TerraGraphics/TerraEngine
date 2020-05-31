@@ -20,7 +20,7 @@ void FuncConstant::SetValue(float v) noexcept {
 REFLECTION_IMPL(FuncConstant) {
     using namespace rttr;
 
-    registration::class_<FuncConstant>("Constant")(metadata(GSMetaTypes::GS_CLASS, true))
+    registration::class_<FuncConstant>("Constant")(metadata(GSMetaTypes::GS_CLASS, "Constant"))
         .constructor<>()
         .property_readonly("Result", &FuncConstant::Result)(metadata(GSMetaTypes::GS_OUTPUT_PIN, true))
         .property("Value", &FuncConstant::GetValue, &FuncConstant::SetValue)(metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY, true))
