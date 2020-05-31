@@ -14,6 +14,7 @@ static_assert(sizeof(Graph) == 16, "sizeof(Graph) == 24 bytes");
 
 static constexpr const uint16_t MAX_PINS_COUNT = std::numeric_limits<uint8_t>::max();
 static constexpr const uint16_t MAX_NODES_COUNT = std::numeric_limits<uint16_t>::max() - 1;
+static constexpr const uint16_t INVALID_NODE_INDEX = std::numeric_limits<uint16_t>::max();
 
 void Node::SetInputPinData(uint8_t index, void* data) {
     if (index >= m_countInputPins) {
@@ -41,6 +42,8 @@ void Node::SetOutputPinData(uint8_t index, void* data) {
 
 void Node::Init(uint16_t id) {
     m_id = id;
+    // next free node index
+    m_nextIndex = id;
 }
 
 void Node::Create(uint8_t countInputPins, uint8_t countOutputPins, void* data) {
@@ -62,7 +65,8 @@ void Node::Create(uint8_t countInputPins, uint8_t countOutputPins, void* data) {
     }
 }
 
-void Node::Reset() {
+void Node::Reset(uint16_t nextIndex) {
+    m_nextIndex = nextIndex;
     m_data = nullptr;
     if (m_pins != nullptr) {
         delete[] m_pins;
@@ -71,22 +75,36 @@ void Node::Reset() {
 
 void Node::ResetOrder() noexcept {
     m_order = 0;
+    m_nextIndex = INVALID_NODE_INDEX;
 }
 
 uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
     if (m_order == 0) {
+        m_order = 1;
+        uint16_t maxAttachedNodeIndex = INVALID_NODE_INDEX;
         for(uint8_t i=0; i!=m_countInputPins; ++i) {
             if (m_pins[i].attachedPinID != 0) {
-                uint16_t nodeId = NodeIdFromPinId(m_pins[i].attachedPinID);
-                uint16_t order = nodes[nodeId - 1].GetOrderNumber(nodes) + 1;
+                uint16_t nodeIndex = NodeIndexFromPinId(m_pins[i].attachedPinID);
+                uint16_t order = nodes[nodeIndex].GetOrderNumber(nodes) + 1;
                 if (order > m_order) {
                     m_order = order;
+                    maxAttachedNodeIndex = nodeIndex;
                 }
             }
+        }
+        if (m_order > 1) {
+            m_nextIndex = nodes[maxAttachedNodeIndex].SetNextCalcIndex(m_id - 1);
         }
     }
 
     return m_order;
+}
+
+uint16_t Node::SetNextCalcIndex(uint16_t nodeIndex) {
+    uint16_t result = m_nextIndex;
+    m_nextIndex = nodeIndex;
+
+    return result;
 }
 
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) {
@@ -113,14 +131,13 @@ Graph::Graph(uint16_t initialNodeCount)
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].Init(i + 1);
-        m_nodes[i].m_nextFreeIndex = i + 1;
     }
 }
 
 Graph::~Graph() {
     if (m_nodes != nullptr) {
         for (uint16_t i=0; i!=m_capacity; ++i) {
-            m_nodes[i].Reset();
+            m_nodes[i].Reset(INVALID_NODE_INDEX);
         }
         delete[] m_nodes;
     }
@@ -154,11 +171,10 @@ Node& Graph::AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data
         delete[] prevNodes;
         for (uint16_t i=prevCapacity; i!=m_capacity; ++i) {
             m_nodes[i].Init(i + 1);
-            m_nodes[i].m_nextFreeIndex = i + 1;
         }
     }
 
-    m_firstFreeIndex = m_nodes[m_firstFreeIndex].m_nextFreeIndex;
+    m_firstFreeIndex = m_nodes[m_firstFreeIndex].GetNextIndex();
     m_nodes[m_firstFreeIndex].Create(countInputPins, countOutputPins, data);
     --m_free;
 
@@ -193,24 +209,22 @@ void Graph::RemoveNode(uint16_t nodeId) {
 
     if (m_free == 0) {
         m_firstFreeIndex = index;
-        node.Reset();
+        node.Reset(INVALID_NODE_INDEX);
     } else if (m_firstFreeIndex > index) {
-        node.Reset();
-        node.m_nextFreeIndex = m_firstFreeIndex;
+        node.Reset(m_firstFreeIndex);
         m_firstFreeIndex = index;
     } else {
         uint16_t lastIt = 0;
         uint16_t it = m_firstFreeIndex;
-        for(;it <= index; it = m_nodes[it].m_nextFreeIndex) {
+        for(;it <= index; it = m_nodes[it].GetNextIndex()) {
             if (it == index) {
                 // double remove
                 return;
             }
             lastIt = it;
         }
-        m_nodes[lastIt].m_nextFreeIndex = index;
-        node.m_nextFreeIndex = it;
-        node.Reset();
+        m_nodes[lastIt].Reset(index);
+        node.Reset(it);
     }
 
     ++m_free;
@@ -267,8 +281,6 @@ void Graph::RemoveLink(uint64_t linkId) {
 
     m_nodes[dstNodeIndex].DetachFromInputPin(dstPinIndex);
     m_nodes[srcNodeIndex].DecLinkForOutputPin(srcPinIndex);
-
-    SortNodesByDependency();
 }
 
 void Graph::SortNodesByDependency() {

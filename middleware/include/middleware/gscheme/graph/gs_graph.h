@@ -62,10 +62,13 @@ private:
 
     void Init(uint16_t id);
     void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
-    void Reset();
+    void Reset(uint16_t nextIndex);
+
+    uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
+    uint16_t SetNextCalcIndex(uint16_t nodeIndex);
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
     void DetachFromInputPin(uint8_t inputPinIndex);
@@ -79,11 +82,9 @@ private:
     uint8_t m_countInputPins;
     uint8_t m_countOutputPins;
 
-    union {
-        uint16_t m_order = 0;
-        // index in Graph::m_nodes for removed nodes
-        uint16_t m_nextFreeIndex;
-    };
+    uint16_t m_order = 0;
+    // index in Graph::m_nodes (next free node or next node for calc)
+    uint16_t m_nextIndex;
 
     Pin* m_pins = nullptr;
     void* m_data = nullptr;
