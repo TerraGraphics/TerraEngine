@@ -81,6 +81,30 @@ void Node::ResetOrder() noexcept {
     m_nextIndex = INVALID_NODE_INDEX;
 }
 
+void Node::CheckIsValidInputPinIndex(uint8_t pinIndex) const {
+    if (m_countInputPins == 0) {
+        throw EngineError("no input pins");
+    }
+
+    if (m_countInputPins <= pinIndex) {
+        throw EngineError("max value = {}", m_countInputPins - 1);
+    }
+}
+
+void Node::CheckIsValidOutputPinIndex(uint8_t pinIndex) const {
+    if (m_countOutputPins == 0) {
+        throw EngineError("no output pins");
+    }
+
+    if (m_countInputPins > pinIndex) {
+        throw EngineError("min value = {}", m_countInputPins);
+    }
+
+    if ((m_countInputPins + m_countOutputPins) <= pinIndex) {
+        throw EngineError("max value = {}", m_countInputPins + m_countOutputPins - 1);
+    }
+}
+
 bool Node::IsExistsConnectedOutputPins() const noexcept {
     for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
         if (m_pins[i].linksCount != 0) {
@@ -244,8 +268,8 @@ void Graph::RemoveNode(uint16_t nodeId) {
     uint16_t index = nodeId - 1;
     Node& node = m_nodes[index];
 
-    for(uint8_t i=0; i!=node.m_countInputPins; ++i) {
-        auto attachedPinID = node.m_pins[i].attachedPinID;
+    for (auto it = node.InputPinsBegin(); it != node.InputPinsEnd(); ++it) {
+        auto attachedPinID = it->attachedPinID;
         if (attachedPinID != 0) {
             m_nodes[NodeIndexFromPinId(attachedPinID)].DecLinkForOutputPin(PinIndexFromPinId(attachedPinID));
         }
@@ -430,27 +454,19 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
 
 
     uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
-    uint8_t countSrcNodeOutputPins = m_nodes[srcNodeIndex].m_countOutputPins;
-    if (srcPinIndex >= countSrcNodeOutputPins) {
-        if (countSrcNodeOutputPins != 0) {
-            throw EngineError(
-                "gs::Graph::AddLink: wrong srcPinIndex = {} (from srcPinId = {}), max value = {}",
-                srcPinIndex, srcPinId, countSrcNodeOutputPins - 1);
-        }
-
-        throw EngineError("gs::Graph::AddLink: wrong srcPinIndex = {} (from srcPinId = {}), no output pins", srcPinIndex, srcPinId);
+    try {
+        m_nodes[srcNodeIndex].CheckIsValidOutputPinIndex(srcPinIndex);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::AddLink: wrong srcPinIndex = {} (from srcPinId = {}), {}", srcPinIndex, srcPinId, e.what());
     }
 
     uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
-    uint8_t countDstNodeInputPins = m_nodes[dstNodeIndex].m_countInputPins;
-    if (dstPinIndex >= countDstNodeInputPins) {
-        if (countDstNodeInputPins != 0) {
-            throw EngineError("gs::Graph::AddLink: wrong dstPinIndex = {} (from dstPinId = {}), max value = {}",
-            dstPinIndex, dstPinId, countDstNodeInputPins - 1);
-        }
-
-        throw EngineError("gs::Graph::AddLink: wrong dstPinIndex = {} (from dstPinId = {}), no input pins", dstPinIndex, dstPinId);
+    try {
+        m_nodes[dstNodeIndex].CheckIsValidInputPinIndex(dstPinIndex);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::AddLink: wrong dstPinIndex = {} (from dstPinId = {}), {}", dstPinIndex, dstPinId, e.what());
     }
+
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].ResetAcyclicityChecked();
@@ -525,26 +541,17 @@ void Graph::CheckRemoveLink(uint64_t linkId) const {
 
 
     uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
-    uint8_t countSrcNodeOutputPins = m_nodes[srcNodeIndex].m_countOutputPins;
-    if (srcPinIndex >= countSrcNodeOutputPins) {
-        if (countSrcNodeOutputPins != 0) {
-            throw EngineError(
-                "gs::Graph::RemoveLink: wrong srcPinIndex = {} (from linkId = {}), max value = {}",
-                srcPinIndex, linkId, countSrcNodeOutputPins - 1);
-        }
-
-        throw EngineError("gs::Graph::RemoveLink: wrong srcPinIndex = {} (from linkId = {}), no output pins", srcPinIndex, linkId);
+    try {
+        m_nodes[srcNodeIndex].CheckIsValidOutputPinIndex(srcPinIndex);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::RemoveLink: wrong srcPinIndex = {} (from linkId = {}), {}", srcPinIndex, linkId, e.what());
     }
 
     uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
-    uint8_t countDstNodeInputPins = m_nodes[dstNodeIndex].m_countInputPins;
-    if (dstPinIndex >= countDstNodeInputPins) {
-        if (countDstNodeInputPins != 0) {
-            throw EngineError("gs::Graph::RemoveLink: wrong dstPinIndex = {} (from linkId = {}), max value = {}",
-            dstPinIndex, linkId, countDstNodeInputPins - 1);
-        }
-
-        throw EngineError("gs::Graph::RemoveLink: wrong dstPinIndex = {} (from linkId = {}), no input pins", dstPinIndex, linkId);
+    try {
+        m_nodes[dstNodeIndex].CheckIsValidInputPinIndex(dstPinIndex);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::RemoveLink: wrong dstPinIndex = {} (from linkId = {}), {}", dstPinIndex, linkId, e.what());
     }
 }
 

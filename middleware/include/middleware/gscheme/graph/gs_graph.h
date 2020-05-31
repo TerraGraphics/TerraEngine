@@ -56,8 +56,6 @@ class Node : Fixed {
 public:
     uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
     bool IsRemoved() const noexcept { return (m_pins == nullptr); }
-    bool IsExistsInputPins() const noexcept { return (m_countInputPins != 0); }
-    bool IsExistsOutputPins() const noexcept { return (m_countOutputPins != 0); }
 
     void SetInputPinData(uint8_t index, void* data);
     void SetOutputPinData(uint8_t index, void* data);
@@ -67,7 +65,13 @@ private:
     void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void Reset(uint16_t nextIndex);
 
+    void CheckIsValidInputPinIndex(uint8_t pinIndex) const;
+    void CheckIsValidOutputPinIndex(uint8_t pinIndex) const;
+
     bool IsExistsConnectedOutputPins() const noexcept;
+
+    const Pin* InputPinsBegin() const noexcept { return &m_pins[0]; }
+    const Pin* InputPinsEnd() const noexcept { return &m_pins[m_countInputPins]; }
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
