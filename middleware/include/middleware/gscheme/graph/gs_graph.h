@@ -20,6 +20,10 @@ inline uint16_t NodeIdFromPinId(uint32_t pinId) {
     return static_cast<uint16_t>(pinId >> uint32_t(16));
 }
 
+inline uint16_t NodeIndexFromPinId(uint32_t pinId) {
+    return static_cast<uint16_t>(pinId >> uint32_t(16)) - 1;
+}
+
 inline uint8_t PinIndexFromPinId(uint32_t pinId) {
     return static_cast<uint8_t>((pinId >> uint32_t(8)) & uint32_t(0xFF));
 }
@@ -54,9 +58,14 @@ public:
     void SetOutputPinData(uint8_t index, void* data);
 
 private:
+    bool IsRemoved() const noexcept { return (m_pins == nullptr); }
+
     void Init(uint16_t id);
     void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void Reset();
+
+    void ResetOrder() noexcept;
+    uint16_t GetOrderNumber(Node* nodes) noexcept;
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
     void DetachFromInputPin(uint8_t inputPinIndex);
@@ -67,22 +76,14 @@ private:
     // nodeID - index in Graph::m_nodes + 1
     uint16_t m_id = 0;
 
-#pragma GCC diagnostic push
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wnested-anon-types"
-#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
-#elif defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
+    uint8_t m_countInputPins;
+    uint8_t m_countOutputPins;
+
     union {
-        // index in Graph::m_nodes
-        uint16_t m_nextFreeIndex = 0;
-        struct {
-            uint8_t m_countInputPins;
-            uint8_t m_countOutputPins;
-        };
+        uint16_t m_order = 0;
+        // index in Graph::m_nodes for removed nodes
+        uint16_t m_nextFreeIndex;
     };
-#pragma GCC diagnostic pop
 
     Pin* m_pins = nullptr;
     void* m_data = nullptr;
@@ -105,6 +106,7 @@ public:
     void RemoveLink(uint64_t linkId);
 
 private:
+    void SortNodesByDependency();
     void CheckRemoveNode(uint16_t nodeId) const;
     void CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const;
     void CheckRemoveLink(uint64_t linkId) const;
