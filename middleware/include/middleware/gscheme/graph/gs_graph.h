@@ -54,17 +54,19 @@ struct Pin : Fixed {
 class Node : Fixed {
     friend class Graph;
 public:
+    uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
+    bool IsRemoved() const noexcept { return (m_pins == nullptr); }
+    bool IsExistsInputPins() const noexcept { return (m_countInputPins != 0); }
+    bool IsExistsOutputPins() const noexcept { return (m_countOutputPins != 0); }
+    bool IsExistsConnectedOutputPins() const noexcept;
+
     void SetInputPinData(uint8_t index, void* data);
     void SetOutputPinData(uint8_t index, void* data);
 
 private:
-    bool IsRemoved() const noexcept { return (m_pins == nullptr); }
-
     void Init(uint16_t id);
     void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void Reset(uint16_t nextIndex);
-
-    uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
@@ -116,6 +118,7 @@ private:
     uint16_t m_free = 0;
     uint16_t m_capacity = 0;
     uint16_t m_firstFreeIndex = 0;
+    uint16_t m_firstCalcIndex = 0;
     Node* m_nodes = nullptr;
 };
 

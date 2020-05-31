@@ -1,6 +1,7 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
 #include <limits>
+#include <vector>
 #include <cstring>
 
 #include "core/common/exception.h"
@@ -15,6 +16,17 @@ static_assert(sizeof(Graph) == 16, "sizeof(Graph) == 24 bytes");
 static constexpr const uint16_t MAX_PINS_COUNT = std::numeric_limits<uint8_t>::max();
 static constexpr const uint16_t MAX_NODES_COUNT = std::numeric_limits<uint16_t>::max() - 1;
 static constexpr const uint16_t INVALID_NODE_INDEX = std::numeric_limits<uint16_t>::max();
+
+
+bool Node::IsExistsConnectedOutputPins() const noexcept {
+    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
+        if (m_pins[i].linksCount != 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 void Node::SetInputPinData(uint8_t index, void* data) {
     if (index >= m_countInputPins) {
@@ -127,6 +139,7 @@ Graph::Graph(uint16_t initialNodeCount)
     : m_free(initialNodeCount)
     , m_capacity(initialNodeCount)
     , m_firstFreeIndex(0)
+    , m_firstCalcIndex(INVALID_NODE_INDEX)
     , m_nodes(new Node[m_capacity]) {
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
@@ -288,9 +301,30 @@ void Graph::SortNodesByDependency() {
         m_nodes[i].ResetOrder();
     }
 
-    for (uint16_t i=0; i!=m_capacity; ++i) {
-        if (!m_nodes[i].IsRemoved()) {
-            m_nodes[i].GetOrderNumber(m_nodes);
+    std::vector<uint16_t> firstIndexes;
+    m_firstCalcIndex = INVALID_NODE_INDEX;
+    for (uint16_t index=0; index!=m_capacity; ++index) {
+        if (!m_nodes[index].IsRemoved()) {
+            uint16_t order = m_nodes[index].GetOrderNumber(m_nodes);
+            if (order == 1) {
+                if (m_firstCalcIndex == INVALID_NODE_INDEX) {
+                    m_firstCalcIndex = index;
+                }
+                firstIndexes.push_back(index);
+            }
+        }
+    }
+
+    if (firstIndexes.size() <= 1) {
+        return;
+    }
+
+    uint16_t lastIndex = INVALID_NODE_INDEX;
+    for (uint16_t firstIndex : firstIndexes) {
+        if (lastIndex != INVALID_NODE_INDEX) {
+            m_nodes[lastIndex].SetNextCalcIndex(firstIndex);
+        }
+        for(lastIndex = firstIndex; m_nodes[lastIndex].IsExistsConnectedOutputPins(); lastIndex = m_nodes[lastIndex].GetNextIndex()) {
         }
     }
 }
