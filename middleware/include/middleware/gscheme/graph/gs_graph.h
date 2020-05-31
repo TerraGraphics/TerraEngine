@@ -58,7 +58,6 @@ public:
     bool IsRemoved() const noexcept { return (m_pins == nullptr); }
     bool IsExistsInputPins() const noexcept { return (m_countInputPins != 0); }
     bool IsExistsOutputPins() const noexcept { return (m_countOutputPins != 0); }
-    bool IsExistsConnectedOutputPins() const noexcept;
 
     void SetInputPinData(uint8_t index, void* data);
     void SetOutputPinData(uint8_t index, void* data);
@@ -68,12 +67,15 @@ private:
     void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void Reset(uint16_t nextIndex);
 
+    bool IsExistsConnectedOutputPins() const noexcept;
+
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
     uint16_t SetNextCalcIndex(uint16_t nodeIndex);
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
     void DetachFromInputPin(uint8_t inputPinIndex);
+    void DetachFromInputPinIfExists(uint16_t attachedNodeID);
     void IncLinkForOutputPin(uint8_t outputPinIndex);
     void DecLinkForOutputPin(uint8_t outputPinIndex);
 

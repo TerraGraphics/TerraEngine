@@ -18,16 +18,6 @@ static constexpr const uint16_t MAX_NODES_COUNT = std::numeric_limits<uint16_t>:
 static constexpr const uint16_t INVALID_NODE_INDEX = std::numeric_limits<uint16_t>::max();
 
 
-bool Node::IsExistsConnectedOutputPins() const noexcept {
-    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
-        if (m_pins[i].linksCount != 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void Node::SetInputPinData(uint8_t index, void* data) {
     if (index >= m_countInputPins) {
         if (m_countInputPins != 0) {
@@ -90,6 +80,16 @@ void Node::ResetOrder() noexcept {
     m_nextIndex = INVALID_NODE_INDEX;
 }
 
+bool Node::IsExistsConnectedOutputPins() const noexcept {
+    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
+        if (m_pins[i].linksCount != 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
     if (m_order == 0) {
         m_order = 1;
@@ -125,6 +125,14 @@ void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) {
 
 void Node::DetachFromInputPin(uint8_t inputPinIndex) {
     m_pins[inputPinIndex].attachedPinID = 0;
+}
+
+void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
+    for(uint8_t i=0; i!=m_countInputPins; ++i) {
+        if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
+            m_pins[i].attachedPinID = 0;
+        }
+    }
 }
 
 void Node::IncLinkForOutputPin(uint8_t outputPinIndex) {
@@ -214,11 +222,15 @@ void Graph::RemoveNode(uint16_t nodeId) {
     for(uint8_t i=0; i!=node.m_countInputPins; ++i) {
         auto attachedPinID = node.m_pins[i].attachedPinID;
         if (attachedPinID != 0) {
-            node.DetachFromInputPin(i);
             m_nodes[NodeIndexFromPinId(attachedPinID)].DecLinkForOutputPin(PinIndexFromPinId(attachedPinID));
         }
     }
-    // TODO: remove connect for output pins
+
+    for (uint16_t i=0; i!=m_capacity; ++i) {
+        if ((i != index) && (!m_nodes[i].IsRemoved())) {
+            m_nodes[i].DetachFromInputPinIfExists(nodeId);
+        }
+    }
 
     if (m_free == 0) {
         m_firstFreeIndex = index;
