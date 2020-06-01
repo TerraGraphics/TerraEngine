@@ -1,10 +1,10 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
-#include <limits>
 #include <vector>
 #include <cstring>
 
 #include "core/common/exception.h"
+#include "middleware/gscheme/graph/gs_limits.h"
 
 
 namespace gs {
@@ -12,11 +12,6 @@ namespace gs {
 static_assert(sizeof(Pin) == 16, "sizeof(Pin) == 16 bytes");
 static_assert(sizeof(Node) == 32, "sizeof(Node) == 32 bytes");
 static_assert(sizeof(Graph) == 16, "sizeof(Graph) == 24 bytes");
-
-static constexpr const uint16_t MAX_PINS_COUNT = std::numeric_limits<uint8_t>::max() - 1;
-static constexpr const uint16_t MAX_NODES_COUNT = std::numeric_limits<uint16_t>::max() - 1;
-static constexpr const uint16_t INVALID_NODE_INDEX = std::numeric_limits<uint16_t>::max();
-
 
 void Node::Init(uint16_t id) noexcept {
     m_id = id;
