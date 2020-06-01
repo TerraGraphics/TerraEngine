@@ -10,60 +10,42 @@
 namespace gs {
 
 static_assert(sizeof(Pin) == 16, "sizeof(Pin) == 16 bytes");
-static_assert(sizeof(Node) == 24, "sizeof(Node) == 24 bytes");
+static_assert(sizeof(Node) == 32, "sizeof(Node) == 32 bytes");
 static_assert(sizeof(Graph) == 16, "sizeof(Graph) == 24 bytes");
 
-static constexpr const uint16_t MAX_PINS_COUNT = std::numeric_limits<uint8_t>::max();
+static constexpr const uint16_t MAX_PINS_COUNT = std::numeric_limits<uint8_t>::max() - 1;
 static constexpr const uint16_t MAX_NODES_COUNT = std::numeric_limits<uint16_t>::max() - 1;
 static constexpr const uint16_t INVALID_NODE_INDEX = std::numeric_limits<uint16_t>::max();
 
 
-void Node::SetInputPinData(uint8_t index, void* data) {
-    if (index >= m_countInputPins) {
-        if (m_countInputPins != 0) {
-            throw EngineError("gs::Node::SetInputPinData: wrong index = {}, max value = {}", index, m_countInputPins - 1);
-        }
-
-        throw EngineError("gs::Node::SetInputPinData: wrong index = {}, no input pins", index);
-    }
-
-    m_pins[index].data = data;
-}
-
-void Node::SetOutputPinData(uint8_t index, void* data) {
-    if (index >= m_countOutputPins) {
-        if (m_countOutputPins != 0) {
-            throw EngineError("gs::Node::SetOutputPinData: wrong index = {}, max value = {}", index, m_countOutputPins - 1);
-        }
-
-        throw EngineError("gs::Node::SetOutputPinData: wrong index = {}, no output pins", index);
-    }
-
-    m_pins[m_countInputPins + index].data = data;
-}
-
-void Node::Init(uint16_t id) {
+void Node::Init(uint16_t id) noexcept {
     m_id = id;
     // next free node index
     m_nextIndex = id;
 }
 
-void Node::Create(uint8_t countInputPins, uint8_t countOutputPins, void* data) {
+void Node::Create(uint8_t countEmbeddedPins, uint8_t countInputPins, uint8_t countOutputPins, void* data) {
     m_data = data;
 
+    m_countEmbeddedPins = countEmbeddedPins;
     m_countInputPins = countInputPins;
     m_countOutputPins = countOutputPins;
     m_pins = new Pin[countInputPins + countOutputPins];
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
 
-    uint32_t isInput = 1;
-    for(uint8_t i=0; i!=m_countInputPins; ++i) {
-        m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | isInput;
+    uint32_t typePin = 3; // embeded
+    for(uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
+        m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
     }
 
-    isInput = 0;
-    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
-        m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | isInput;
+    typePin = 1; // input
+    for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
+    }
+
+    typePin = 0; // output
+    for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
+        m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
     }
 }
 
@@ -81,32 +63,8 @@ void Node::ResetOrder() noexcept {
     m_nextIndex = INVALID_NODE_INDEX;
 }
 
-void Node::CheckIsValidInputPinIndex(uint8_t pinIndex) const {
-    if (m_countInputPins == 0) {
-        throw EngineError("no input pins");
-    }
-
-    if (m_countInputPins <= pinIndex) {
-        throw EngineError("max value = {}", m_countInputPins - 1);
-    }
-}
-
-void Node::CheckIsValidOutputPinIndex(uint8_t pinIndex) const {
-    if (m_countOutputPins == 0) {
-        throw EngineError("no output pins");
-    }
-
-    if (m_countInputPins > pinIndex) {
-        throw EngineError("min value = {}", m_countInputPins);
-    }
-
-    if ((m_countInputPins + m_countOutputPins) <= pinIndex) {
-        throw EngineError("max value = {}", m_countInputPins + m_countOutputPins - 1);
-    }
-}
-
 bool Node::IsExistsConnectedOutputPins() const noexcept {
-    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
+    for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
         if (m_pins[i].linksCount != 0) {
             return true;
         }
@@ -115,11 +73,53 @@ bool Node::IsExistsConnectedOutputPins() const noexcept {
     return false;
 }
 
+void Node::CheckIsValidEmbededPinIndex(uint8_t pinIndex) const {
+    if (m_countEmbeddedPins == 0) {
+        throw EngineError("no embedded pins");
+    }
+
+    if (EmbededPinsBeginIndex() > pinIndex) {
+        throw EngineError("min value = {}", EmbededPinsBeginIndex());
+    }
+
+    if (EmbededPinsEndIndex() <= pinIndex) {
+        throw EngineError("max value = {}", EmbededPinsEndIndex() - 1);
+    }
+}
+
+void Node::CheckIsValidInputPinIndex(uint8_t pinIndex) const {
+    if (m_countInputPins == 0) {
+        throw EngineError("no input pins");
+    }
+
+    if (InputPinsBeginIndex() > pinIndex) {
+        throw EngineError("min value = {}", InputPinsBeginIndex());
+    }
+
+    if (InputPinsEndIndex() <= pinIndex) {
+        throw EngineError("max value = {}", InputPinsEndIndex() - 1);
+    }
+}
+
+void Node::CheckIsValidOutputPinIndex(uint8_t pinIndex) const {
+    if (m_countOutputPins == 0) {
+        throw EngineError("no output pins");
+    }
+
+    if (OutputPinsBeginIndex() > pinIndex) {
+        throw EngineError("min value = {}", OutputPinsBeginIndex());
+    }
+
+    if (OutputPinsEndIndex() <= pinIndex) {
+        throw EngineError("max value = {}", OutputPinsEndIndex() - 1);
+    }
+}
+
 uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
     if (m_order == 0) {
         m_order = 1;
         uint16_t maxAttachedNodeIndex = INVALID_NODE_INDEX;
-        for(uint8_t i=0; i!=m_countInputPins; ++i) {
+        for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
             if (m_pins[i].attachedPinID != 0) {
                 uint16_t nodeIndex = NodeIndexFromPinId(m_pins[i].attachedPinID);
                 uint16_t order = nodes[nodeIndex].GetOrderNumber(nodes) + 1;
@@ -157,7 +157,7 @@ bool Node::CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept {
         return false;
     }
 
-    for(uint8_t i=m_countInputPins; i!=(m_countInputPins + m_countOutputPins); ++i) {
+    for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (m_pins[i].attachedPinID != 0) {
             if (!nodes[NodeIndexFromPinId(m_pins[i].attachedPinID)].CheckAcyclicity(nodes, startNodeId)) {
                 return false;
@@ -168,28 +168,28 @@ bool Node::CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept {
     return true;
 }
 
-void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) {
+void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
     m_pins[inputPinIndex].attachedPinID = attachedPinID;
 }
 
-void Node::DetachFromInputPin(uint8_t inputPinIndex) {
+void Node::DetachFromInputPin(uint8_t inputPinIndex) noexcept {
     m_pins[inputPinIndex].attachedPinID = 0;
 }
 
-void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
-    for(uint8_t i=0; i!=m_countInputPins; ++i) {
+void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) noexcept {
+    for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
             m_pins[i].attachedPinID = 0;
         }
     }
 }
 
-void Node::IncLinkForOutputPin(uint8_t outputPinIndex) {
-    m_pins[m_countInputPins + outputPinIndex].linksCount++;
+void Node::IncLinkForOutputPin(uint8_t outputPinIndex) noexcept {
+    m_pins[outputPinIndex].linksCount++;
 }
 
-void Node::DecLinkForOutputPin(uint8_t outputPinIndex) {
-    m_pins[m_countInputPins + outputPinIndex].linksCount--;
+void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
+    m_pins[outputPinIndex].linksCount--;
 }
 
 Graph::Graph(uint16_t initialNodeCount)
@@ -213,11 +213,12 @@ Graph::~Graph() {
     }
 }
 
-Node& Graph::AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data) {
-    if (countInputPins > (MAX_PINS_COUNT - countOutputPins)) {
+Node& Graph::AddNode(uint8_t countEmbeddedPins, uint8_t countInputPins, uint8_t countOutputPins, void* data) {
+    uint16_t countPins = static_cast<uint16_t>(countEmbeddedPins) + static_cast<uint16_t>(countInputPins) + static_cast<uint16_t>(countOutputPins);
+    if (countPins > static_cast<uint16_t>(MAX_PINS_COUNT)) {
         throw EngineError(
-            "gs::Graph::AddNode: wrong countInputPins = {} + countOutputPins = {}, max sum = {}",
-            countInputPins, countOutputPins, MAX_PINS_COUNT);
+            "gs::Graph::AddNode: wrong countEmbeddedPins = {} + countInputPins = {} + countOutputPins = {}, max sum = {}",
+            countEmbeddedPins, countInputPins, countOutputPins, MAX_PINS_COUNT);
     }
     if (m_free == 0) {
         if (m_capacity == MAX_NODES_COUNT) {
@@ -244,13 +245,14 @@ Node& Graph::AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data
         }
     }
 
+    uint16_t nodeIndex = m_firstFreeIndex;
     m_firstFreeIndex = m_nodes[m_firstFreeIndex].GetNextIndex();
-    m_nodes[m_firstFreeIndex].Create(countInputPins, countOutputPins, data);
+    m_nodes[nodeIndex].Create(countEmbeddedPins, countInputPins, countOutputPins, data);
     --m_free;
 
     SortNodesByDependency();
 
-    return m_nodes[m_firstFreeIndex];
+    return m_nodes[nodeIndex];
 }
 
 bool Graph::TestRemoveNode(uint16_t nodeId) const noexcept {
@@ -414,10 +416,10 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
     }
 
 
-    if (IsInputFromPinId(srcPinId)) {
-        throw EngineError("gs::Graph::AddLink: wrong srcPinId = {}, it can be output pin", srcPinId);
+    if (IsEmbededFromPinId(srcPinId) || IsInputFromPinId(srcPinId)) {
+        throw EngineError("gs::Graph::AddLink: wrong srcPinId = {}, it can be input pin", srcPinId);
     }
-    if (!IsInputFromPinId(dstPinId)) {
+    if (IsEmbededFromPinId(dstPinId) || (!IsInputFromPinId(dstPinId))) {
         throw EngineError("gs::Graph::AddLink: wrong dstPinId = {}, it can be input pin", dstPinId);
     }
 
@@ -501,10 +503,10 @@ void Graph::CheckRemoveLink(uint64_t linkId) const {
     }
 
 
-    if (IsInputFromPinId(srcPinId)) {
+    if (IsEmbededFromPinId(srcPinId) || IsInputFromPinId(srcPinId)) {
         throw EngineError("gs::Graph::RemoveLink: wrong srcPinId = {} (from linkId = {}), it can be output pin", srcPinId, linkId);
     }
-    if (!IsInputFromPinId(dstPinId)) {
+    if (IsEmbededFromPinId(dstPinId) || (!IsInputFromPinId(dstPinId))) {
         throw EngineError("gs::Graph::RemoveLink: wrong dstPinId = {} (from linkId = {}), it can be input pin", dstPinId, linkId);
     }
 

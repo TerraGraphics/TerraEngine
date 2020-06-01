@@ -10,7 +10,8 @@
     uint16_t nodeID - index in Graph::m_nodes + 1
     uint8_t pinIndex - index in Node::m_pins
     bool isInput - input or output pin
-    uint32_t pinID = nodeID << 16 | pinIndex << 8 | isInput
+    bool isEmbeded - formally input pin, without the ability to connect a link to it, if this bit is set, the isInput bit is not parsed
+    uint32_t pinID = nodeID << 16 | pinIndex << 8 | isEmbeded << 1 | isInput
     uint64_t linkID = srcPinID << 32 | dstPinID == outputPinID << 32 | inputPinID
 */
 
@@ -26,6 +27,10 @@ inline uint16_t NodeIndexFromPinId(uint32_t pinId) {
 
 inline uint8_t PinIndexFromPinId(uint32_t pinId) {
     return static_cast<uint8_t>((pinId >> uint32_t(8)) & uint32_t(0xFF));
+}
+
+inline bool IsEmbededFromPinId(uint32_t pinId) {
+    return ((pinId >> uint32_t(1)) & uint32_t(1));
 }
 
 inline bool IsInputFromPinId(uint32_t pinId) {
@@ -57,21 +62,33 @@ public:
     uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
     bool IsRemoved() const noexcept { return (m_pins == nullptr); }
 
-    void SetInputPinData(uint8_t index, void* data);
-    void SetOutputPinData(uint8_t index, void* data);
-
 private:
-    void Init(uint16_t id);
-    void Create(uint8_t countInputPins, uint8_t countOutputPins, void* data);
+    void Init(uint16_t id) noexcept;
+    void Create(uint8_t countEmbeddedPins, uint8_t countInputPins, uint8_t countOutputPins, void* data);
     void Reset(uint16_t nextIndex);
-
-    void CheckIsValidInputPinIndex(uint8_t pinIndex) const;
-    void CheckIsValidOutputPinIndex(uint8_t pinIndex) const;
 
     bool IsExistsConnectedOutputPins() const noexcept;
 
-    const Pin* InputPinsBegin() const noexcept { return &m_pins[0]; }
-    const Pin* InputPinsEnd() const noexcept { return &m_pins[m_countInputPins]; }
+    uint8_t EmbededPinsCount() const noexcept { return m_countEmbeddedPins; }
+    uint8_t EmbededPinsBeginIndex() const noexcept { return 0; }
+    uint8_t EmbededPinsEndIndex() const noexcept { return m_countEmbeddedPins; }
+    const Pin* EmbededPinsBegin() const noexcept { return &m_pins[EmbededPinsBeginIndex()]; }
+    const Pin* EmbededPinsEnd() const noexcept { return &m_pins[EmbededPinsEndIndex()]; }
+    void CheckIsValidEmbededPinIndex(uint8_t pinIndex) const;
+
+    uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
+    uint8_t InputPinsBeginIndex() const noexcept { return m_countEmbeddedPins; }
+    uint8_t InputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
+    const Pin* InputPinsBegin() const noexcept { return &m_pins[InputPinsBeginIndex()]; }
+    const Pin* InputPinsEnd() const noexcept { return &m_pins[InputPinsEndIndex()]; }
+    void CheckIsValidInputPinIndex(uint8_t pinIndex) const;
+
+    uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
+    uint8_t OutputPinsBeginIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
+    uint8_t OutputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins + m_countOutputPins; }
+    const Pin* OutputPinsBegin() const noexcept { return &m_pins[OutputPinsBeginIndex()]; }
+    const Pin* OutputPinsEnd() const noexcept { return &m_pins[OutputPinsEndIndex()]; }
+    void CheckIsValidOutputPinIndex(uint8_t pinIndex) const;
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
@@ -80,16 +97,17 @@ private:
     void ResetAcyclicityChecked() noexcept;
     bool CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept;
 
-    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID);
-    void DetachFromInputPin(uint8_t inputPinIndex);
-    void DetachFromInputPinIfExists(uint16_t attachedNodeID);
-    void IncLinkForOutputPin(uint8_t outputPinIndex);
-    void DecLinkForOutputPin(uint8_t outputPinIndex);
+    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
+    void DetachFromInputPin(uint8_t inputPinIndex) noexcept;
+    void DetachFromInputPinIfExists(uint16_t attachedNodeID) noexcept;
+    void IncLinkForOutputPin(uint8_t outputPinIndex) noexcept;
+    void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
 private:
     // nodeID - index in Graph::m_nodes + 1
     uint16_t m_id = 0;
 
+    uint8_t m_countEmbeddedPins;
     uint8_t m_countInputPins;
     uint8_t m_countOutputPins;
 
@@ -110,7 +128,7 @@ public:
     Graph(uint16_t initialNodeCount = 16);
     ~Graph();
 
-    Node& AddNode(uint8_t countInputPins, uint8_t countOutputPins, void* data);
+    Node& AddNode(uint8_t countEmbeddedPins, uint8_t countInputPins, uint8_t countOutputPins, void* data);
 
     bool TestRemoveNode(uint16_t nodeId) const noexcept;
     void RemoveNode(uint16_t nodeId);
