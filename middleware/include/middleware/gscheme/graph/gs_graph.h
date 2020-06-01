@@ -141,6 +141,8 @@ public:
 
 private:
     void SortNodesByDependency();
+
+    void CheckIsValidNodeId(uint16_t nodeId) const;
     void CheckRemoveNode(uint16_t nodeId) const;
     void CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const;
     void CheckRemoveLink(uint64_t linkId) const;
