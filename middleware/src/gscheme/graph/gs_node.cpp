@@ -1,5 +1,7 @@
 #include "middleware/gscheme/graph/gs_node.h"
 
+#include <utility>
+
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_limits.h"
@@ -8,8 +10,8 @@
 
 namespace gs {
 
-static_assert(sizeof(Pin) == 16, "sizeof(Pin) == 16 bytes");
-static_assert(sizeof(Node) == 32, "sizeof(Node) == 32 bytes");
+static_assert(sizeof(Pin) == 8, "sizeof(Pin) == 8 bytes");
+static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
 void Node::Init(uint16_t id) noexcept {
     m_id = id;
@@ -17,8 +19,9 @@ void Node::Init(uint16_t id) noexcept {
     m_nextIndex = id;
 }
 
-void Node::Create(TypeClass* typeClass) {
+void Node::Create(TypeClass* typeClass, rttr::variant&& instance) {
     m_typeClass = typeClass;
+    m_instance = std::move(instance);
 
     m_countEmbeddedPins = m_typeClass->EmbeddedPinsCount();
     m_countInputPins = m_typeClass->InputPinsCount();

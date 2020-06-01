@@ -89,7 +89,7 @@ Node& Graph::AddNode(uint16_t typeClassIndex) {
 
     uint16_t nodeIndex = m_firstFreeIndex;
     m_firstFreeIndex = m_nodes[m_firstFreeIndex].GetNextIndex();
-    m_nodes[nodeIndex].Create(&m_typeClasses[typeClassIndex]);
+    m_nodes[nodeIndex].Create(&m_typeClasses[typeClassIndex], m_typeClasses[typeClassIndex].NewInstance());
     --m_free;
 
     SortNodesByDependency();

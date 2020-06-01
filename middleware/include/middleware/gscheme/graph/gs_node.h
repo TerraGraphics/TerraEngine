@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "core/common/ctor.h"
+#include "middleware/gscheme/rttr/variant.h"
 
 
 namespace gs {
@@ -15,7 +16,6 @@ struct Pin : Fixed {
         // for OutputPin
         uint32_t linksCount;
     };
-    void* data = nullptr;
 };
 
 class TypeClass;
@@ -27,7 +27,7 @@ public:
 
 private:
     void Init(uint16_t id) noexcept;
-    void Create(TypeClass* typeClass);
+    void Create(TypeClass* typeClass, rttr::variant&& instance);
     void Reset(uint16_t nextIndex);
 
     bool IsExistsConnectedOutputPins() const noexcept;
@@ -84,6 +84,7 @@ private:
 
     Pin* m_pins = nullptr;
     TypeClass* m_typeClass = nullptr;
+    rttr::variant m_instance;
 };
 
 }
