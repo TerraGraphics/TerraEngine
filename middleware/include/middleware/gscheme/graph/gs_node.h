@@ -43,8 +43,11 @@ private:
     void Create(TypeClass* typeClass, rttr::variant&& instance);
     void Reset(uint16_t nextIndex);
 
+    // works for all pins type
+    bool IsConnectedPin(uint8_t pinIndex) const noexcept;
     bool IsExistsConnectedOutputPins() const noexcept;
 
+    uint32_t GetEmbededPinId(uint8_t offset) const noexcept;
     uint8_t EmbededPinsCount() const noexcept { return m_countEmbeddedPins; }
     uint8_t EmbededPinsBeginIndex() const noexcept { return 0; }
     uint8_t EmbededPinsEndIndex() const noexcept { return m_countEmbeddedPins; }
@@ -78,7 +81,9 @@ private:
     void ResetChangeState() noexcept;
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
+
     const rttr::variant& GetValue(uint8_t pinIndex) const;
+    void SetValue(uint8_t pinIndex, const rttr::variant& value);
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
     void DetachFromInputPin(uint8_t inputPinIndex);

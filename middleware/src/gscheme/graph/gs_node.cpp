@@ -66,6 +66,10 @@ void Node::ResetOrder() noexcept {
     m_nextIndex = INVALID_NODE_INDEX;
 }
 
+bool Node::IsConnectedPin(uint8_t pinIndex) const noexcept {
+    return (m_pins[pinIndex].linksCount != 0);
+}
+
 bool Node::IsExistsConnectedOutputPins() const noexcept {
     for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
         if (m_pins[i].linksCount != 0) {
@@ -76,20 +80,12 @@ bool Node::IsExistsConnectedOutputPins() const noexcept {
     return false;
 }
 
-uint32_t Node::GetInputPinId(uint8_t offset) const noexcept {
-    if (offset >= InputPinsCount()) {
+uint32_t Node::GetEmbededPinId(uint8_t offset) const noexcept {
+    if (offset >= EmbededPinsCount()) {
         return 0;
     }
 
-    return m_pins[InputPinsBeginIndex() + offset].id;
-}
-
-uint32_t Node::GetOutputPinId(uint8_t offset) const noexcept {
-    if (offset >= OutputPinsCount()) {
-        return 0;
-    }
-
-    return m_pins[OutputPinsBeginIndex() + offset].id;
+    return m_pins[EmbededPinsBeginIndex() + offset].id;
 }
 
 void Node::CheckIsValidEmbededPinId(uint32_t pinId) const {
@@ -113,6 +109,14 @@ void Node::CheckIsValidEmbededPinId(uint32_t pinId) const {
     if (EmbededPinsEndIndex() <= pinIndex) {
         throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, EmbededPinsEndIndex() - 1);
     }
+}
+
+uint32_t Node::GetInputPinId(uint8_t offset) const noexcept {
+    if (offset >= InputPinsCount()) {
+        return 0;
+    }
+
+    return m_pins[InputPinsBeginIndex() + offset].id;
 }
 
 void Node::CheckIsValidInputPinId(uint32_t pinId) const {
@@ -140,6 +144,14 @@ void Node::CheckIsValidInputPinId(uint32_t pinId) const {
     if (InputPinsEndIndex() <= pinIndex) {
         throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, InputPinsEndIndex() - 1);
     }
+}
+
+uint32_t Node::GetOutputPinId(uint8_t offset) const noexcept {
+    if (offset >= OutputPinsCount()) {
+        return 0;
+    }
+
+    return m_pins[OutputPinsBeginIndex() + offset].id;
 }
 
 void Node::CheckIsValidOutputPinId(uint32_t pinId) const {
@@ -253,6 +265,11 @@ uint16_t Node::UpdateState(Node* nodes) {
 
 const rttr::variant& Node::GetValue(uint8_t pinIndex) const {
     return m_pins[pinIndex].value;
+}
+
+void Node::SetValue(uint8_t pinIndex, const rttr::variant& value) {
+    m_changeState = ChangeState::NeedUpdateOutputs;
+    m_typeClass->SetValue(pinIndex, m_instance, value);
 }
 
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {

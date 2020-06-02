@@ -75,24 +75,69 @@ void Graph::UpdateState() {
     }
 }
 
-const rttr::variant& Graph::GetValue(uint32_t pinId) const {
+const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {
     try {
         CheckIsValidOutputPinId(pinId);
     } catch(const EngineError& e) {
-        throw EngineError("gs::Graph::GetValue: wrong pinId, {}", e.what());
+        throw EngineError("gs::Graph::GetOutputValue: wrong pinId, {}", e.what());
     }
 
     return m_nodes[NodeIndexFromPinId(pinId)].GetValue(PinIndexFromPinId(pinId));
 }
 
-const rttr::variant& Graph::GetValue(uint16_t nodeId, uint8_t outputPinOffset) const {
+const rttr::variant& Graph::GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const {
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
-        throw EngineError("gs::Graph::GetValue: wrong nodeId, {}", e.what());
+        throw EngineError("gs::Graph::GetOutputValue: wrong nodeId, {}", e.what());
     }
 
-    return GetValue(m_nodes[nodeId - 1].GetOutputPinId(outputPinOffset));
+    return GetOutputValue(m_nodes[nodeId - 1].GetOutputPinId(outputPinOffset));
+}
+
+void Graph::SetEmbeddedValue(uint32_t pinId, const rttr::variant& value) {
+    try {
+        CheckIsValidEmbededPinId(pinId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::SetEmbeddedValue: wrong pinId, {}", e.what());
+    }
+
+    m_nodes[NodeIndexFromPinId(pinId)].SetValue(PinIndexFromPinId(pinId), value);
+}
+
+void Graph::SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const rttr::variant& value) {
+    try {
+        CheckIsValidNodeId(nodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::SetEmbeddedValue: wrong nodeId, {}", e.what());
+    }
+
+    return SetEmbeddedValue(m_nodes[nodeId - 1].GetEmbededPinId(embeddedPinOffset), value);
+}
+
+void Graph::SetInputValue(uint32_t pinId, const rttr::variant& value) {
+    try {
+        CheckIsValidInputPinId(pinId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::SetInputValue: wrong pinId, {}", e.what());
+    }
+
+    uint8_t pinIndex = PinIndexFromPinId(pinId);
+    uint16_t nodeIndex = NodeIndexFromPinId(pinId);
+    if (m_nodes[nodeIndex].IsConnectedPin(pinIndex)) {
+        throw EngineError("gs::Graph::SetInputValue: wrong pinId = {}, pin is connected", pinId);
+    }
+    m_nodes[nodeIndex].SetValue(pinIndex, value);
+}
+
+void Graph::SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const rttr::variant& value) {
+    try {
+        CheckIsValidNodeId(nodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::SetInputValue: wrong nodeId, {}", e.what());
+    }
+
+    return SetInputValue(m_nodes[nodeId - 1].GetInputPinId(inputPinOffset), value);
 }
 
 uint16_t Graph::AddNode(uint16_t typeClassIndex) {

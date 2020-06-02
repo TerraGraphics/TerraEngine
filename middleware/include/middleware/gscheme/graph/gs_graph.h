@@ -21,8 +21,12 @@ public:
     void ResetChangeState() noexcept;
     void UpdateState();
 
-    const rttr::variant& GetValue(uint32_t pinId) const;
-    const rttr::variant& GetValue(uint16_t nodeId, uint8_t outputPinOffset) const;
+    const rttr::variant& GetOutputValue(uint32_t pinId) const;
+    const rttr::variant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
+    void SetEmbeddedValue(uint32_t pinId, const rttr::variant& value);
+    void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const rttr::variant& value);
+    void SetInputValue(uint32_t pinId, const rttr::variant& value);
+    void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const rttr::variant& value);
 
     uint16_t AddNode(uint16_t typeClassIndex);
     uint16_t AddNode(std::string_view name);

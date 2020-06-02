@@ -24,7 +24,7 @@ TEST(gsGraph, SmokeTest) {
         graph.UpdateState();
         graph.ResetChangeState();
 
-        rttr::variant sumResult = graph.GetValue(nodeSumId, 0);
+        rttr::variant sumResult = graph.GetOutputValue(nodeSumId, 0);
         ASSERT_TRUE(sumResult.is_valid());
         ASSERT_TRUE(sumResult.is_type<float>());
         ASSERT_FLOAT_EQ(0, sumResult.get_value<float>());
