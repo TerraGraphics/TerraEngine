@@ -10,7 +10,7 @@
 
 namespace gs {
 
-static_assert(sizeof(Pin) == 8, "sizeof(Pin) == 8 bytes");
+static_assert(sizeof(Pin) == 24, "sizeof(Pin) == 24 bytes");
 static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
 void Node::Init(uint16_t id) noexcept {
@@ -26,22 +26,29 @@ void Node::Create(TypeClass* typeClass, rttr::variant&& instance) {
     m_countEmbeddedPins = m_typeClass->EmbeddedPinsCount();
     m_countInputPins = m_typeClass->InputPinsCount();
     m_countOutputPins = m_typeClass->OutputPinsCount();
+    m_changeState = ChangeState::NotChanged;
     m_pins = new Pin[m_countEmbeddedPins + m_countInputPins + m_countOutputPins];
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
 
     uint32_t typePin = 3; // embeded
     for(uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
+        m_pins[i].attachedPinID = 0;
+        m_pins[i].value = m_typeClass->GetValue(i, m_instance);
     }
 
     typePin = 1; // input
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
+        m_pins[i].attachedPinID = 0;
+        m_pins[i].value = m_typeClass->GetValue(i, m_instance);
     }
 
     typePin = 0; // output
     for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
+        m_pins[i].linksCount = 0;
+        m_pins[i].value = m_typeClass->GetValue(i, m_instance);
     }
 }
 
@@ -164,17 +171,55 @@ bool Node::CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept {
     return true;
 }
 
+void Node::ResetChangeState() noexcept {
+    m_changeState = ChangeState::NotChanged;
+}
+
+void Node::UpdateState(Node* nodes) {
+    bool isChanged = false;
+    for (uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
+        uint32_t attachedPinID = m_pins[inputPinIndex].attachedPinID;
+        if (attachedPinID != 0) {
+            uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinID);
+            if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
+                isChanged = true;
+                m_typeClass->SetValue(inputPinIndex, m_instance, nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinID)));
+            }
+        }
+    }
+
+    if (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs)) {
+        for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
+            isChanged = true;
+            m_pins[outputPinIndex].value = m_typeClass->GetValue(outputPinIndex, m_instance);
+        }
+    }
+
+    m_changeState = isChanged ? ChangeState::Updated : ChangeState::NotChanged;
+}
+
+rttr::variant& Node::GetValue(uint8_t pinIndex) const {
+    return m_pins[pinIndex].value;
+}
+
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
+    m_changeState = ChangeState::NeedUpdateInputs;
     m_pins[inputPinIndex].attachedPinID = attachedPinID;
 }
 
-void Node::DetachFromInputPin(uint8_t inputPinIndex) noexcept {
+void Node::DetachFromInputPin(uint8_t inputPinIndex) {
+    m_changeState = ChangeState::NeedUpdateOutputs;
+    // Restore default value
+    m_typeClass->SetValue(inputPinIndex, m_instance, m_pins[inputPinIndex].value);
     m_pins[inputPinIndex].attachedPinID = 0;
 }
 
-void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) noexcept {
+void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
+            m_changeState = ChangeState::NeedUpdateOutputs;
+            // Restore default value
+            m_typeClass->SetValue(i, m_instance, m_pins[i].value);
             m_pins[i].attachedPinID = 0;
         }
     }

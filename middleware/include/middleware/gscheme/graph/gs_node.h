@@ -9,18 +9,31 @@
 namespace gs {
 
 struct Pin : Fixed {
+    Pin() {}
+    ~Pin() {}
+
     uint32_t id = 0;
     union {
-        // for InputPin
+        // for input pin
         uint32_t attachedPinID = 0;
-        // for OutputPin
+        // for output pin
         uint32_t linksCount;
     };
+
+    // defaultValue for embeded or input Pin
+    // cachedValue for output pin
+    rttr::variant value;
 };
 
 class TypeClass;
 class Node : Fixed {
     friend class Graph;
+    enum class ChangeState : uint8_t {
+        NotChanged = 0,
+        NeedUpdateInputs = 1,
+        NeedUpdateOutputs = 2,
+        Updated = 3,
+    };
 public:
     uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
     bool IsRemoved() const noexcept { return (m_pins == nullptr); }
@@ -60,9 +73,13 @@ private:
     void ResetAcyclicityChecked() noexcept;
     bool CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept;
 
+    void ResetChangeState() noexcept;
+    void UpdateState(Node* nodes);
+    rttr::variant& GetValue(uint8_t pinIndex) const;
+
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
-    void DetachFromInputPin(uint8_t inputPinIndex) noexcept;
-    void DetachFromInputPinIfExists(uint16_t attachedNodeID) noexcept;
+    void DetachFromInputPin(uint8_t inputPinIndex);
+    void DetachFromInputPinIfExists(uint16_t attachedNodeID);
     void IncLinkForOutputPin(uint8_t outputPinIndex) noexcept;
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
@@ -73,6 +90,8 @@ private:
     uint8_t m_countEmbeddedPins;
     uint8_t m_countInputPins;
     uint8_t m_countOutputPins;
+
+    ChangeState m_changeState = ChangeState::NotChanged;
 
     union {
         uint16_t m_order = 0;
