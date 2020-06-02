@@ -74,7 +74,8 @@ private:
     bool CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept;
 
     void ResetChangeState() noexcept;
-    void UpdateState(Node* nodes);
+    // return next node index for update
+    uint16_t UpdateState(Node* nodes);
     rttr::variant& GetValue(uint8_t pinIndex) const;
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;

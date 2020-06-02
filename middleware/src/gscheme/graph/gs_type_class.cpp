@@ -11,7 +11,7 @@
 
 namespace gs {
 
-static_assert(sizeof(TypeClass) == 24, "sizeof(TypeClass) == 48 bytes");
+static_assert(sizeof(TypeClass) == 24, "sizeof(TypeClass) == 24 bytes");
 
 TypeClass::~TypeClass() {
     if (m_props != nullptr) {

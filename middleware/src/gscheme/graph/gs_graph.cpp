@@ -15,7 +15,7 @@
 
 namespace gs {
 
-static_assert(sizeof(Graph) == 32, "sizeof(Graph) == 24 bytes");
+static_assert(sizeof(Graph) == 32, "sizeof(Graph) == 32 bytes");
 
 Graph::Graph(uint16_t initialNodeCount)
     : m_free(initialNodeCount)
@@ -54,6 +54,17 @@ Graph::~Graph() {
 
     if (m_typeClasses != nullptr) {
         delete[] m_typeClasses;
+    }
+}
+
+void Graph::ResetChangeState() noexcept {
+    for (uint16_t i=0; i!=m_capacity; ++i) {
+        m_nodes[i].ResetChangeState();
+    }
+}
+
+void Graph::UpdateState() {
+    for(uint16_t it = m_firstCalcIndex; it != INVALID_NODE_INDEX; it = m_nodes[it].UpdateState(m_nodes)) {
     }
 }
 

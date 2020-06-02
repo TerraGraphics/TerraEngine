@@ -175,7 +175,7 @@ void Node::ResetChangeState() noexcept {
     m_changeState = ChangeState::NotChanged;
 }
 
-void Node::UpdateState(Node* nodes) {
+uint16_t Node::UpdateState(Node* nodes) {
     bool isChanged = false;
     for (uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
         uint32_t attachedPinID = m_pins[inputPinIndex].attachedPinID;
@@ -196,6 +196,8 @@ void Node::UpdateState(Node* nodes) {
     }
 
     m_changeState = isChanged ? ChangeState::Updated : ChangeState::NotChanged;
+
+    return m_nextIndex;
 }
 
 rttr::variant& Node::GetValue(uint8_t pinIndex) const {

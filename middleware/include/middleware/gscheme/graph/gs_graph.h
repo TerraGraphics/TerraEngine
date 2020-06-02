@@ -14,6 +14,9 @@ public:
     Graph(uint16_t initialNodeCount = 16);
     ~Graph();
 
+    void ResetChangeState() noexcept;
+    void UpdateState();
+
     Node& AddNode(uint16_t typeClassIndex);
 
     bool TestRemoveNode(uint16_t nodeId) const noexcept;
