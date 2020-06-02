@@ -92,45 +92,80 @@ uint32_t Node::GetOutputPinId(uint8_t offset) const noexcept {
     return m_pins[OutputPinsBeginIndex() + offset].id;
 }
 
-void Node::CheckIsValidEmbededPinIndex(uint8_t pinIndex) const {
-    if (m_countEmbeddedPins == 0) {
-        throw EngineError("no embedded pins");
+void Node::CheckIsValidEmbededPinId(uint32_t pinId) const {
+    if (pinId == 0) {
+        throw EngineError("for pinId = {}, min value = 1", pinId);
     }
 
+    if (!IsEmbededFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsEmbeded not set", pinId);
+    }
+
+    if (m_countEmbeddedPins == 0) {
+        throw EngineError("for pinId = {}, not found embedded pins", pinId);
+    }
+
+    uint8_t pinIndex = PinIndexFromPinId(pinId);
     if (EmbededPinsBeginIndex() > pinIndex) {
-        throw EngineError("min value = {}", EmbededPinsBeginIndex());
+        throw EngineError("for pinId = {}, pinIndex = {} less than the minimum value = {}", pinId, pinIndex, EmbededPinsBeginIndex());
     }
 
     if (EmbededPinsEndIndex() <= pinIndex) {
-        throw EngineError("max value = {}", EmbededPinsEndIndex() - 1);
+        throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, EmbededPinsEndIndex() - 1);
     }
 }
 
-void Node::CheckIsValidInputPinIndex(uint8_t pinIndex) const {
-    if (m_countInputPins == 0) {
-        throw EngineError("no input pins");
+void Node::CheckIsValidInputPinId(uint32_t pinId) const {
+    if (pinId == 0) {
+        throw EngineError("for pinId = {}, min value = 1", pinId);
     }
 
+    if (IsEmbededFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsEmbeded is setting", pinId);
+    }
+
+    if (!IsInputFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsInput not set", pinId);
+    }
+
+    if (m_countInputPins == 0) {
+        throw EngineError("for pinId = {}, not found input pins", pinId);
+    }
+
+    uint8_t pinIndex = PinIndexFromPinId(pinId);
     if (InputPinsBeginIndex() > pinIndex) {
-        throw EngineError("min value = {}", InputPinsBeginIndex());
+        throw EngineError("for pinId = {}, pinIndex = {} less than the minimum value = {}", pinId, pinIndex, InputPinsBeginIndex());
     }
 
     if (InputPinsEndIndex() <= pinIndex) {
-        throw EngineError("max value = {}", InputPinsEndIndex() - 1);
+        throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, InputPinsEndIndex() - 1);
     }
 }
 
-void Node::CheckIsValidOutputPinIndex(uint8_t pinIndex) const {
-    if (m_countOutputPins == 0) {
-        throw EngineError("no output pins");
+void Node::CheckIsValidOutputPinId(uint32_t pinId) const {
+    if (pinId == 0) {
+        throw EngineError("for pinId = {}, min value = 1", pinId);
     }
 
+    if (IsEmbededFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsEmbeded is setting", pinId);
+    }
+
+    if (IsInputFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsInput is setting", pinId);
+    }
+
+    if (m_countOutputPins == 0) {
+        throw EngineError("for pinId = {}, not found output pins", pinId);
+    }
+
+    uint8_t pinIndex = PinIndexFromPinId(pinId);
     if (OutputPinsBeginIndex() > pinIndex) {
-        throw EngineError("min value = {}", OutputPinsBeginIndex());
+        throw EngineError("for pinId = {}, pinIndex = {} less than the minimum value = {}", pinId, pinIndex, OutputPinsBeginIndex());
     }
 
     if (OutputPinsEndIndex() <= pinIndex) {
-        throw EngineError("max value = {}", OutputPinsEndIndex() - 1);
+        throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, OutputPinsEndIndex() - 1);
     }
 }
 

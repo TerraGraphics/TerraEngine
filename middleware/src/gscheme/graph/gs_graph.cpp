@@ -216,12 +216,12 @@ uint64_t Graph::AddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t ds
     try {
         CheckIsValidNodeId(srcNodeId);
     } catch(const EngineError& e) {
-        throw EngineError("gs::Graph::AddLink: wrong srcNodeId = {}, {}", srcNodeId, e.what());
+        throw EngineError("gs::Graph::AddLink: wrong srcNodeId, {}", e.what());
     }
     try {
         CheckIsValidNodeId(dstNodeId);
     } catch(const EngineError& e) {
-        throw EngineError("gs::Graph::AddLink: wrong dstNodeId = {}, {}", dstNodeId, e.what());
+        throw EngineError("gs::Graph::AddLink: wrong dstNodeId, {}", e.what());
     }
 
     uint32_t srcPinId = m_nodes[srcNodeId - 1].GetOutputPinId(outputPinOffset);
@@ -288,86 +288,74 @@ void Graph::SortNodesByDependency() {
         if (lastIndex != INVALID_NODE_INDEX) {
             m_nodes[lastIndex].SetNextCalcIndex(firstIndex);
         }
-        for(lastIndex = firstIndex; m_nodes[lastIndex].IsExistsConnectedOutputPins(); lastIndex = m_nodes[lastIndex].GetNextIndex()) {
+        for(uint16_t it = firstIndex; ((it != INVALID_NODE_INDEX) && m_nodes[it].IsExistsConnectedOutputPins()); it = m_nodes[it].GetNextIndex()) {
+            lastIndex = it;
         }
     }
 }
 
 void Graph::CheckIsValidNodeId(uint16_t nodeId) const {
     if (nodeId == 0) {
-        throw EngineError("min value = 1");
+        throw EngineError("for nodeId = {}, min value = 1", nodeId);
     }
     if (nodeId > m_capacity) {
-        throw EngineError("max value = {}", m_capacity);
+        throw EngineError("for nodeId = {}, max value = {}", nodeId, m_capacity);
     }
     if (m_nodes[nodeId - 1].IsRemoved()) {
-        throw EngineError("node is removed");
+        throw EngineError("for nodeId = {}, node is removed", nodeId);
     }
+}
+
+void Graph::CheckIsValidEmbededPinId(uint32_t pinId) const {
+    uint16_t nodeId = NodeIdFromPinId(pinId);
+    CheckIsValidNodeId(nodeId);
+    m_nodes[nodeId - 1].CheckIsValidEmbededPinId(pinId);
+}
+
+void Graph::CheckIsValidInputPinId(uint32_t pinId) const {
+    uint16_t nodeId = NodeIdFromPinId(pinId);
+    CheckIsValidNodeId(nodeId);
+    m_nodes[nodeId - 1].CheckIsValidInputPinId(pinId);
+}
+
+void Graph::CheckIsValidOutputPinId(uint32_t pinId) const {
+    uint16_t nodeId = NodeIdFromPinId(pinId);
+    CheckIsValidNodeId(nodeId);
+    m_nodes[nodeId - 1].CheckIsValidOutputPinId(pinId);
 }
 
 void Graph::CheckRemoveNode(uint16_t nodeId) const {
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
-        throw EngineError("wrong nodeId = {}, {}", nodeId, e.what());
+        throw EngineError("wrong node, {}", e.what());
     }
 }
 
 void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
-    if (srcPinId == 0) {
-        throw EngineError("wrong srcPinId = {}, min value = 1", srcPinId);
+    try {
+        CheckIsValidOutputPinId(srcPinId);
+    } catch(const EngineError& e) {
+        throw EngineError("wrong srcPinId, {}", e.what());
     }
-    if (dstPinId == 0) {
-        throw EngineError("wrong dstPinId = {}, min value = 1", dstPinId);
+
+    try {
+        CheckIsValidInputPinId(dstPinId);
+    } catch(const EngineError& e) {
+        throw EngineError("wrong dstPinId, {}", e.what());
     }
+
     if (srcPinId == dstPinId) {
         throw EngineError("wrong srcPinId = {} and dstPinId = {}, it cannot be equivalent", srcPinId, dstPinId);
     }
 
-
-    if (IsEmbededFromPinId(srcPinId) || IsInputFromPinId(srcPinId)) {
-        throw EngineError("wrong srcPinId = {}, it can be input pin", srcPinId);
-    }
-    if (IsEmbededFromPinId(dstPinId) || (!IsInputFromPinId(dstPinId))) {
-        throw EngineError("wrong dstPinId = {}, it can be input pin", dstPinId);
-    }
-
-
     uint16_t srcNodeId = NodeIdFromPinId(srcPinId);
-    try {
-        CheckIsValidNodeId(srcNodeId);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong srcNodeId = {} (from srcPinId = {}), {}", srcNodeId, srcPinId, e.what());
-    }
-
     uint16_t dstNodeId = NodeIdFromPinId(dstPinId);
-    try {
-        CheckIsValidNodeId(dstNodeId);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong dstNodeId = {} (from dstPinId = {}), {}", dstNodeId, dstPinId, e.what());
-    }
-
     if (srcNodeId == dstNodeId) {
         throw EngineError(
-            "wrong srcPinId = {} and dstPinId = {} (from srcPinId = {} and dstPinId = {}), node ids cannot be equivalent",
+            "wrong srcPinId = {} and dstPinId = {}, node ids (srcNodeId = {} and dstPinId = {}) cannot be equivalent",
             srcPinId, dstPinId, srcNodeId, dstNodeId);
     }
-
-
-    uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
-    try {
-        m_nodes[srcNodeId - 1].CheckIsValidOutputPinIndex(srcPinIndex);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong srcPinIndex = {} (from srcPinId = {}), {}", srcPinIndex, srcPinId, e.what());
-    }
-
-    uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
-    try {
-        m_nodes[dstNodeId - 1].CheckIsValidInputPinIndex(dstPinIndex);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong dstPinIndex = {} (from dstPinId = {}), {}", dstPinIndex, dstPinId, e.what());
-    }
-
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].ResetAcyclicityChecked();
@@ -384,62 +372,30 @@ void Graph::CheckRemoveLink(uint64_t linkId) const {
         throw EngineError("wrong linkId = {}, min value = 1", linkId);
     }
 
-
     uint32_t srcPinId = SrcPinIdFromLinkID(linkId);
-    uint32_t dstPinId = DstPinIdFromLinkID(linkId);
+    try {
+        CheckIsValidOutputPinId(srcPinId);
+    } catch(const EngineError& e) {
+        throw EngineError("wrong srcPinId (from linkId = {}), {}", linkId, e.what());
+    }
 
-    if (srcPinId == 0) {
-        throw EngineError("wrong srcPinId = {} (from linkId = {}), min value = 1", srcPinId, linkId);
+    uint32_t dstPinId = DstPinIdFromLinkID(linkId);
+    try {
+        CheckIsValidInputPinId(dstPinId);
+    } catch(const EngineError& e) {
+        throw EngineError("wrong dstPinId (from linkId = {}), {}", linkId, e.what());
     }
-    if (dstPinId == 0) {
-        throw EngineError("wrong dstPinId = {} (from linkId = {}), min value = 1", dstPinId, linkId);
-    }
+
     if (srcPinId == dstPinId) {
         throw EngineError(
             "wrong srcPinId = {} and dstPinId = {} (from linkId = {}), it cannot be equivalent", srcPinId, dstPinId, linkId);
     }
 
-
-    if (IsEmbededFromPinId(srcPinId) || IsInputFromPinId(srcPinId)) {
-        throw EngineError("wrong srcPinId = {} (from linkId = {}), it can be output pin", srcPinId, linkId);
-    }
-    if (IsEmbededFromPinId(dstPinId) || (!IsInputFromPinId(dstPinId))) {
-        throw EngineError("wrong dstPinId = {} (from linkId = {}), it can be input pin", dstPinId, linkId);
-    }
-
-
     uint16_t srcNodeId = NodeIdFromPinId(srcPinId);
-    try {
-        CheckIsValidNodeId(srcNodeId);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong srcNodeId = {} (from linkId = {}), {}", srcNodeId, linkId, e.what());
-    }
-
     uint16_t dstNodeId = NodeIdFromPinId(dstPinId);
-    try {
-        CheckIsValidNodeId(dstNodeId);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong dstNodeId = {} (from linkId = {}), {}", dstNodeId, linkId, e.what());
-    }
-
     if (srcNodeId == dstNodeId) {
         throw EngineError(
-            "wrong srcPinId = {} and dstPinId = {} (from linkId = {}), node ids cannot be equivalent", srcPinId, dstPinId, linkId);
-    }
-
-
-    uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
-    try {
-        m_nodes[srcNodeId - 1].CheckIsValidOutputPinIndex(srcPinIndex);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong srcPinIndex = {} (from linkId = {}), {}", srcPinIndex, linkId, e.what());
-    }
-
-    uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
-    try {
-        m_nodes[dstNodeId - 1].CheckIsValidInputPinIndex(dstPinIndex);
-    } catch(const EngineError& e) {
-        throw EngineError("wrong dstPinIndex = {} (from linkId = {}), {}", dstPinIndex, linkId, e.what());
+            "wrong srcNodeId = {} and dstNodeId = {} (from linkId = {}), node ids cannot be equivalent", srcNodeId, dstNodeId, linkId);
     }
 }
 

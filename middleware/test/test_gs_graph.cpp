@@ -1,5 +1,6 @@
 #include "gtest.h"
 
+#include <string>
 #include <cstdint>
 #include <exception>
 
@@ -8,7 +9,7 @@
 
 namespace {
 
-TEST(SuiteA, TestA) {
+TEST(gsGraph, SmokeTest) {
     try {
         gs::Graph graph(16);
         uint16_t nodeConstantId1 = graph.AddNode("Constant");
@@ -16,6 +17,8 @@ TEST(SuiteA, TestA) {
         uint16_t nodeSumId = graph.AddNode("Sum");
         graph.AddLink(nodeConstantId1, 0, nodeSumId, 0);
         graph.AddLink(nodeConstantId2, 0, nodeSumId, 1);
+        graph.UpdateState();
+        graph.ResetChangeState();
     } catch(const std::exception& e) {
         std::string err = e.what();
         ASSERT_EQ(std::string("~!@#$%^&*()_+"), err);

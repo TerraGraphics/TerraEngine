@@ -50,7 +50,7 @@ private:
     uint8_t EmbededPinsEndIndex() const noexcept { return m_countEmbeddedPins; }
     const Pin* EmbededPinsBegin() const noexcept { return &m_pins[EmbededPinsBeginIndex()]; }
     const Pin* EmbededPinsEnd() const noexcept { return &m_pins[EmbededPinsEndIndex()]; }
-    void CheckIsValidEmbededPinIndex(uint8_t pinIndex) const;
+    void CheckIsValidEmbededPinId(uint32_t pinId) const;
 
     uint32_t GetInputPinId(uint8_t offset) const noexcept;
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
@@ -58,7 +58,7 @@ private:
     uint8_t InputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
     const Pin* InputPinsBegin() const noexcept { return &m_pins[InputPinsBeginIndex()]; }
     const Pin* InputPinsEnd() const noexcept { return &m_pins[InputPinsEndIndex()]; }
-    void CheckIsValidInputPinIndex(uint8_t pinIndex) const;
+    void CheckIsValidInputPinId(uint32_t pinId) const;
 
     uint32_t GetOutputPinId(uint8_t offset) const noexcept;
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
@@ -66,7 +66,7 @@ private:
     uint8_t OutputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins + m_countOutputPins; }
     const Pin* OutputPinsBegin() const noexcept { return &m_pins[OutputPinsBeginIndex()]; }
     const Pin* OutputPinsEnd() const noexcept { return &m_pins[OutputPinsEndIndex()]; }
-    void CheckIsValidOutputPinIndex(uint8_t pinIndex) const;
+    void CheckIsValidOutputPinId(uint32_t pinId) const;
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
