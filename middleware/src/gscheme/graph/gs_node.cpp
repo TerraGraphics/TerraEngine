@@ -76,6 +76,22 @@ bool Node::IsExistsConnectedOutputPins() const noexcept {
     return false;
 }
 
+uint32_t Node::GetInputPinId(uint8_t offset) const noexcept {
+    if (offset >= InputPinsCount()) {
+        return 0;
+    }
+
+    return m_pins[InputPinsBeginIndex() + offset].id;
+}
+
+uint32_t Node::GetOutputPinId(uint8_t offset) const noexcept {
+    if (offset >= OutputPinsCount()) {
+        return 0;
+    }
+
+    return m_pins[OutputPinsBeginIndex() + offset].id;
+}
+
 void Node::CheckIsValidEmbededPinIndex(uint8_t pinIndex) const {
     if (m_countEmbeddedPins == 0) {
         throw EngineError("no embedded pins");

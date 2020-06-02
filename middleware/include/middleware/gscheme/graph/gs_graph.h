@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 #include "core/common/ctor.h"
 
@@ -17,13 +18,15 @@ public:
     void ResetChangeState() noexcept;
     void UpdateState();
 
-    Node& AddNode(uint16_t typeClassIndex);
+    uint16_t AddNode(uint16_t typeClassIndex);
+    uint16_t AddNode(std::string_view name);
 
     bool TestRemoveNode(uint16_t nodeId) const noexcept;
     void RemoveNode(uint16_t nodeId);
 
     bool TestAddLink(uint32_t srcPinId, uint32_t dstPinId) const noexcept;
     uint64_t AddLink(uint32_t srcPinId, uint32_t dstPinId);
+    uint64_t AddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t dstNodeId, uint8_t inputPinOffset);
 
     bool TestRemoveLink(uint64_t linkId) const noexcept;
     void RemoveLink(uint64_t linkId);

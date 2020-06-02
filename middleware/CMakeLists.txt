@@ -28,6 +28,8 @@ add_executable(${PROJECT_TEST_NAME} ${SOURCE_TEST_FILES})
 target_include_directories(${PROJECT_TEST_NAME}
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/platforms/include
+        ${CMAKE_SOURCE_DIR}/core/include
 )
 target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})
 if(${IWYU_ENABLE})

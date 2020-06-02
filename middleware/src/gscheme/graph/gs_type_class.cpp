@@ -43,6 +43,9 @@ void TypeClass::Create(const rttr::type& clsType) {
         throw EngineError("gs::TypeClass::Create: invalid clsType (name = \"{}\"), max count properties = {}", clsName, MAX_PINS_COUNT);
     }
 
+    uint8_t countEmbeddedPins = 0;
+    uint8_t countInputPins = 0;
+    uint8_t countOutputPins = 0;
     for(auto prop: props) {
         if (!prop.is_valid()) {
             throw EngineError("gs::TypeClass::Create: invalid clsType (name = \"{}\"), has invalid property", clsName);
@@ -52,11 +55,11 @@ void TypeClass::Create(const rttr::type& clsType) {
         }
 
         if (prop.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY).is_valid()) {
-            ++m_countEmbeddedPins;
+            ++countEmbeddedPins;
         } else if (prop.get_metadata(GSMetaTypes::GS_INPUT_PIN).is_valid()) {
-            ++m_countInputPins;
+            ++countInputPins;
         } else if (prop.get_metadata(GSMetaTypes::GS_OUTPUT_PIN).is_valid()) {
-            ++m_countOutputPins;
+            ++countOutputPins;
         } else {
             throw EngineError("gs::TypeClass::Create: invalid clsType (name = \"{}\"), property (name = \"{}\"), has no known metadata",
                 clsName, prop.get_name().to_string());
@@ -64,13 +67,19 @@ void TypeClass::Create(const rttr::type& clsType) {
     }
 
     uint8_t embeddedIndex = 0;
-    uint8_t inputIndex = embeddedIndex + m_countEmbeddedPins;
-    uint8_t outputIndex = inputIndex + m_countInputPins;
+    uint8_t inputIndex = embeddedIndex + countEmbeddedPins;
+    uint8_t outputIndex = inputIndex + countInputPins;
 
     m_props = reinterpret_cast<rttr::property*>(malloc(props.size() * sizeof(rttr::property)));
     if (m_props == nullptr) {
         throw std::bad_alloc();
     }
+
+    // filling fields after all checks
+    m_countEmbeddedPins = countEmbeddedPins;
+    m_countInputPins = countInputPins;
+    m_countOutputPins = countOutputPins;
+    m_clsType = clsType;
     for(auto prop: props) {
         if (prop.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY).is_valid()) {
             m_props[embeddedIndex++] = prop;

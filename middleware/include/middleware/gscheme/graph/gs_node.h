@@ -52,6 +52,7 @@ private:
     const Pin* EmbededPinsEnd() const noexcept { return &m_pins[EmbededPinsEndIndex()]; }
     void CheckIsValidEmbededPinIndex(uint8_t pinIndex) const;
 
+    uint32_t GetInputPinId(uint8_t offset) const noexcept;
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t InputPinsBeginIndex() const noexcept { return m_countEmbeddedPins; }
     uint8_t InputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
@@ -59,6 +60,7 @@ private:
     const Pin* InputPinsEnd() const noexcept { return &m_pins[InputPinsEndIndex()]; }
     void CheckIsValidInputPinIndex(uint8_t pinIndex) const;
 
+    uint32_t GetOutputPinId(uint8_t offset) const noexcept;
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
     uint8_t OutputPinsBeginIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
     uint8_t OutputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins + m_countOutputPins; }

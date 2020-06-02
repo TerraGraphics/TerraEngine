@@ -1,6 +1,7 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
 #include <vector>
+#include <string>
 #include <cstring>
 
 #include "core/common/exception.h"
@@ -11,6 +12,7 @@
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
+#include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
 namespace gs {
@@ -38,9 +40,14 @@ Graph::Graph(uint16_t initialNodeCount)
 
     uint16_t index = 0;
     for(const auto& t : rttr::type::get_types()) {
-        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
-            m_typeClasses[index].Create(t);
+        if (!t.is_valid()) {
+            continue;
         }
+        if (!t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+            continue;
+        }
+
+        m_typeClasses[index++].Create(t);
     }
 }
 
@@ -68,7 +75,7 @@ void Graph::UpdateState() {
     }
 }
 
-Node& Graph::AddNode(uint16_t typeClassIndex) {
+uint16_t Graph::AddNode(uint16_t typeClassIndex) {
     if (typeClassIndex >= m_countTypeClasses) {
         throw EngineError(
             "gs::Graph::AddNode: wrong typeClassIndex = {}, max value = {}", typeClassIndex, m_countTypeClasses - 1);
@@ -105,7 +112,17 @@ Node& Graph::AddNode(uint16_t typeClassIndex) {
 
     SortNodesByDependency();
 
-    return m_nodes[nodeIndex];
+    return nodeIndex + 1;
+}
+
+uint16_t Graph::AddNode(std::string_view name) {
+    for (uint16_t i=0; i!=m_countTypeClasses; ++i) {
+        if (m_typeClasses[i].GetName() == name) {
+            return AddNode(i);
+        }
+    }
+
+    throw EngineError("gs::Graph::AddNode: wrong name = {}, not found node with this name", name);
 }
 
 bool Graph::TestRemoveNode(uint16_t nodeId) const noexcept {
@@ -195,6 +212,23 @@ uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     return (static_cast<uint64_t>(srcPinId) << uint64_t(32)) | static_cast<uint64_t>(dstPinId);
 }
 
+uint64_t Graph::AddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t dstNodeId, uint8_t inputPinOffset) {
+    try {
+        CheckIsValidNodeId(srcNodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::AddLink: wrong srcNodeId = {}, {}", srcNodeId, e.what());
+    }
+    try {
+        CheckIsValidNodeId(dstNodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::AddLink: wrong dstNodeId = {}, {}", dstNodeId, e.what());
+    }
+
+    uint32_t srcPinId = m_nodes[srcNodeId - 1].GetOutputPinId(outputPinOffset);
+    uint32_t dstPinId = m_nodes[dstNodeId - 1].GetInputPinId(inputPinOffset);
+    return AddLink(srcPinId, dstPinId);
+}
+
 bool Graph::TestRemoveLink(uint64_t linkId) const noexcept {
     try {
         CheckRemoveLink(linkId);
@@ -226,7 +260,9 @@ void Graph::RemoveLink(uint64_t linkId) {
 
 void Graph::SortNodesByDependency() {
     for (uint16_t i=0; i!=m_capacity; ++i) {
-        m_nodes[i].ResetOrder();
+        if (!m_nodes[i].IsRemoved()) {
+            m_nodes[i].ResetOrder();
+        }
     }
 
     std::vector<uint16_t> firstIndexes;
