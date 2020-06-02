@@ -109,7 +109,7 @@ rttr::variant TypeClass::GetValue(uint8_t pinIndex, rttr::variant& instance) con
     return m_props[pinIndex].get_value(instance);
 }
 
-void TypeClass::SetValue(uint8_t pinIndex, rttr::variant& instance, rttr::variant& value) const {
+void TypeClass::SetValue(uint8_t pinIndex, rttr::variant& instance, const rttr::variant& value) const {
     m_props[pinIndex].set_value(instance, value);
 }
 

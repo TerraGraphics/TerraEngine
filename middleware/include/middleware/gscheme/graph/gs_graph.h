@@ -6,6 +6,9 @@
 #include "core/common/ctor.h"
 
 
+namespace rttr {
+    class variant;
+}
 namespace gs {
 
 class Node;
@@ -17,6 +20,9 @@ public:
 
     void ResetChangeState() noexcept;
     void UpdateState();
+
+    const rttr::variant& GetValue(uint32_t pinId) const;
+    const rttr::variant& GetValue(uint16_t nodeId, uint8_t outputPinOffset) const;
 
     uint16_t AddNode(uint16_t typeClassIndex);
     uint16_t AddNode(std::string_view name);

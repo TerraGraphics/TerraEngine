@@ -75,6 +75,26 @@ void Graph::UpdateState() {
     }
 }
 
+const rttr::variant& Graph::GetValue(uint32_t pinId) const {
+    try {
+        CheckIsValidOutputPinId(pinId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::GetValue: wrong pinId, {}", e.what());
+    }
+
+    return m_nodes[NodeIndexFromPinId(pinId)].GetValue(PinIndexFromPinId(pinId));
+}
+
+const rttr::variant& Graph::GetValue(uint16_t nodeId, uint8_t outputPinOffset) const {
+    try {
+        CheckIsValidNodeId(nodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::GetValue: wrong nodeId, {}", e.what());
+    }
+
+    return GetValue(m_nodes[nodeId - 1].GetOutputPinId(outputPinOffset));
+}
+
 uint16_t Graph::AddNode(uint16_t typeClassIndex) {
     if (typeClassIndex >= m_countTypeClasses) {
         throw EngineError(

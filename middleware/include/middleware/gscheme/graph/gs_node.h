@@ -78,7 +78,7 @@ private:
     void ResetChangeState() noexcept;
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
-    rttr::variant& GetValue(uint8_t pinIndex) const;
+    const rttr::variant& GetValue(uint8_t pinIndex) const;
 
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
     void DetachFromInputPin(uint8_t inputPinIndex);

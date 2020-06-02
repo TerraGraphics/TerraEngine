@@ -251,7 +251,7 @@ uint16_t Node::UpdateState(Node* nodes) {
     return m_nextIndex;
 }
 
-rttr::variant& Node::GetValue(uint8_t pinIndex) const {
+const rttr::variant& Node::GetValue(uint8_t pinIndex) const {
     return m_pins[pinIndex].value;
 }
 

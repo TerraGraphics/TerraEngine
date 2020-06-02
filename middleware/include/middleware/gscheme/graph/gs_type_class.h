@@ -28,7 +28,7 @@ public:
     rttr::variant NewInstance() const;
 
     rttr::variant GetValue(uint8_t pinIndex, rttr::variant& instance) const;
-    void SetValue(uint8_t pinIndex, rttr::variant& instance, rttr::variant& value) const;
+    void SetValue(uint8_t pinIndex, rttr::variant& instance, const rttr::variant& value) const;
 
 private:
     uint8_t m_countEmbeddedPins = 0;
