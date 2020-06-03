@@ -45,6 +45,7 @@ private:
 
     // works for all pins type
     bool IsConnectedPin(uint8_t pinIndex) const noexcept;
+    bool IsThisPinAttached(uint8_t inputPinIndex, uint32_t attachedPinID) const noexcept;
     bool IsExistsConnectedOutputPins() const noexcept;
 
     uint32_t GetEmbededPinId(uint8_t offset) const noexcept;

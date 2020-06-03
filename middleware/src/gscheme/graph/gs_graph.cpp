@@ -470,6 +470,11 @@ void Graph::CheckRemoveLink(uint64_t linkId) const {
         throw EngineError(
             "wrong srcNodeId = {} and dstNodeId = {} (from linkId = {}), node ids cannot be equivalent", srcNodeId, dstNodeId, linkId);
     }
+
+    if (!m_nodes[dstNodeId - 1].IsThisPinAttached(PinIndexFromPinId(dstPinId), srcPinId)) {
+        throw EngineError(
+            "wrong linkId = {}, link does not exist", linkId);
+    }
 }
 
 }

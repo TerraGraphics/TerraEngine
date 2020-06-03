@@ -65,6 +65,10 @@ bool Node::IsConnectedPin(uint8_t pinIndex) const noexcept {
     return (m_pins[pinIndex].linksCount != 0);
 }
 
+bool Node::IsThisPinAttached(uint8_t inputPinIndex, uint32_t attachedPinID) const noexcept {
+    return (m_pins[inputPinIndex].attachedPinID == attachedPinID);
+}
+
 bool Node::IsExistsConnectedOutputPins() const noexcept {
     for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
         if (m_pins[i].linksCount != 0) {

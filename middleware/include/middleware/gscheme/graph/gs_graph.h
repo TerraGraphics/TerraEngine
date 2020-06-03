@@ -21,6 +21,8 @@ public:
     void ResetChangeState() noexcept;
     void UpdateState();
 
+    uint16_t CountNodes() const noexcept { return m_capacity - m_free; }
+
     const rttr::variant& GetOutputValue(uint32_t pinId) const;
     const rttr::variant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
     void SetEmbeddedValue(uint32_t pinId, const rttr::variant& value);

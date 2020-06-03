@@ -16,6 +16,29 @@
 
 namespace {
 
+TEST(gsGraph, DoubleRemoveNode) {
+    gs::Graph graph(16);
+
+    uint16_t nodeId = graph.AddNode("Constant");
+    graph.RemoveNode(nodeId);
+    ASSERT_EQ(0, graph.CountNodes());
+
+    ASSERT_ANY_THROW(graph.RemoveNode(nodeId));
+    ASSERT_ANY_THROW(graph.RemoveNode(10000));
+}
+
+TEST(gsGraph, DoubleRemoveLink) {
+    gs::Graph graph(16);
+
+    uint16_t constantId = graph.AddNode("Constant");
+    uint16_t sumId = graph.AddNode("Sum");
+    uint64_t linkId = graph.AddLink(constantId, 0, sumId, 0);
+
+    graph.RemoveLink(linkId);
+    ASSERT_ANY_THROW(graph.RemoveLink(linkId));
+    ASSERT_ANY_THROW(graph.RemoveLink(100000));
+}
+
 TEST(gsGraph, ChangeEmbededPins) {
     gs::Graph graph(16);
 
