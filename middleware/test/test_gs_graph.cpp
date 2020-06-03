@@ -7,55 +7,99 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
 
+#define ASSERT_FLOAT(expected, actual) do { \
+    const auto& tmpFloatValue = actual; \
+    ASSERT_TRUE(tmpFloatValue.is_valid()); \
+    ASSERT_TRUE(tmpFloatValue.is_type<float>()); \
+    ASSERT_FLOAT_EQ(expected, tmpFloatValue.get_value<float>()); \
+    } while(false)
+
 namespace {
 
-TEST(gsGraph, SmokeTest) {
+TEST(gsGraph, ChangeEmbededPins) {
     gs::Graph graph(16);
 
-    uint16_t nodeConstantId1 = graph.AddNode("Constant");
-    uint16_t nodeConstantId2 =graph.AddNode("Constant");
+    uint16_t nodeId = graph.AddNode("Constant");
+
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(0, graph.GetOutputValue(nodeId, 0));
+
+    graph.SetEmbeddedValue(nodeId, 0, 1.f);
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeId, 0));
+}
+
+TEST(gsGraph, ChangeInvalidEmbededPins) {
+    gs::Graph graph(16);
+
+    uint16_t constantId = graph.AddNode("Constant");
+    ASSERT_ANY_THROW(graph.SetEmbeddedValue(constantId, 10, 1.f));
+
+    uint16_t nodeSumId = graph.AddNode("Sum");
+    ASSERT_ANY_THROW(graph.SetEmbeddedValue(nodeSumId, 0, 1.f));
+}
+
+TEST(gsGraph, ChangeInputPins) {
+    gs::Graph graph(16);
+
     uint16_t nodeSumId = graph.AddNode("Sum");
 
-    // without links
     graph.UpdateState();
     graph.ResetChangeState();
+    ASSERT_FLOAT(0, graph.GetOutputValue(nodeSumId, 0));
 
-    rttr::variant sumResult = graph.GetOutputValue(nodeSumId, 0);
-    ASSERT_TRUE(sumResult.is_valid());
-    ASSERT_TRUE(sumResult.is_type<float>());
-    ASSERT_FLOAT_EQ(0, sumResult.get_value<float>());
-
-    // links with default nodes values
-    graph.AddLink(nodeConstantId1, 0, nodeSumId, 0);
-    graph.AddLink(nodeConstantId2, 0, nodeSumId, 1);
-
+    graph.SetInputValue(nodeSumId, 0, 1.f);
     graph.UpdateState();
     graph.ResetChangeState();
+    ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeSumId, 0));
 
-    sumResult = graph.GetOutputValue(nodeSumId, 0);
-    ASSERT_TRUE(sumResult.is_valid());
-    ASSERT_TRUE(sumResult.is_type<float>());
-    ASSERT_FLOAT_EQ(0, sumResult.get_value<float>());
-
-    // change node - Constant 1
-    graph.SetEmbeddedValue(nodeConstantId1, 0, 1.f);
+    graph.SetInputValue(nodeSumId, 1, 2.f);
     graph.UpdateState();
     graph.ResetChangeState();
+    ASSERT_FLOAT(3.f, graph.GetOutputValue(nodeSumId, 0));
 
-    sumResult = graph.GetOutputValue(nodeSumId, 0);
-    ASSERT_TRUE(sumResult.is_valid());
-    ASSERT_TRUE(sumResult.is_type<float>());
-    ASSERT_FLOAT_EQ(1.f, sumResult.get_value<float>());
-
-    // change node - Constant 2
-    graph.SetEmbeddedValue(nodeConstantId2, 0, 2.f);
+    uint16_t nodeConstantId1 = graph.AddNode("Constant");
+    graph.SetEmbeddedValue(nodeConstantId1, 0, 10.f);
+    uint64_t link1 = graph.AddLink(nodeConstantId1, 0, nodeSumId, 0);
     graph.UpdateState();
     graph.ResetChangeState();
+    ASSERT_FLOAT(12.f, graph.GetOutputValue(nodeSumId, 0));
 
-    sumResult = graph.GetOutputValue(nodeSumId, 0);
-    ASSERT_TRUE(sumResult.is_valid());
-    ASSERT_TRUE(sumResult.is_type<float>());
-    ASSERT_FLOAT_EQ(3.f, sumResult.get_value<float>());
+    uint16_t nodeConstantId2 = graph.AddNode("Constant");
+    graph.SetEmbeddedValue(nodeConstantId2, 0, 20.f);
+    uint64_t link2 = graph.AddLink(nodeConstantId2, 0, nodeSumId, 1);
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(30.f, graph.GetOutputValue(nodeSumId, 0));
+
+    graph.RemoveLink(link2);
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(10.f, graph.GetOutputValue(nodeSumId, 0));
+
+    graph.RemoveLink(link1);
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(0.f, graph.GetOutputValue(nodeSumId, 0));
+}
+
+TEST(gsGraph, ChangeInvalidInputPins) {
+    gs::Graph graph(16);
+
+    uint16_t constantId = graph.AddNode("Constant");
+    ASSERT_ANY_THROW(graph.SetInputValue(constantId, 0, 1.f));
+
+    uint16_t nodeSumId = graph.AddNode("Sum");
+    ASSERT_ANY_THROW(graph.SetInputValue(nodeSumId, 10, 1.f));
+}
+
+TEST(gsGraph, GetInvalidOutputPins) {
+    gs::Graph graph(16);
+
+    uint16_t constantId = graph.AddNode("Constant");
+    ASSERT_ANY_THROW(graph.GetOutputValue(constantId, 10));
 }
 
 TEST(gsGraph, AcyclicityForOneNode) {
