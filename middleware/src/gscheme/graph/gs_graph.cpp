@@ -1,8 +1,8 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
-#include <vector>
 #include <string>
 #include <cstring>
+#include <algorithm>
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/rttr/type.h"
@@ -17,7 +17,7 @@
 
 namespace gs {
 
-static_assert(sizeof(Graph) == 32, "sizeof(Graph) == 32 bytes");
+static_assert(sizeof(Graph) == 40, "sizeof(Graph) == 40 bytes");
 
 Graph::Graph(uint16_t initialNodeCount)
     : m_free(initialNodeCount)
@@ -25,7 +25,8 @@ Graph::Graph(uint16_t initialNodeCount)
     , m_firstFreeIndex(0)
     , m_firstCalcIndex(INVALID_NODE_INDEX)
     , m_countTypeClasses(0)
-    , m_nodes(new Node[m_capacity]) {
+    , m_nodes(new Node[m_capacity])
+    , m_indeciesForOrder(new uint16_t[m_capacity + m_capacity]) {
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].Init(i + 1);
@@ -57,6 +58,10 @@ Graph::~Graph() {
             m_nodes[i].Reset(INVALID_NODE_INDEX);
         }
         delete[] m_nodes;
+    }
+
+    if (m_indeciesForOrder != nullptr) {
+        delete[] m_indeciesForOrder;
     }
 
     if (m_typeClasses != nullptr) {
@@ -163,6 +168,8 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
         m_firstFreeIndex = prevCapacity;
 
         m_nodes = new Node[m_capacity];
+        delete[] m_indeciesForOrder;
+        m_indeciesForOrder = new uint16_t[m_capacity + m_capacity];
         std::memcpy(m_nodes, prevNodes, prevCapacity * sizeof(Node));
         delete[] prevNodes;
         for (uint16_t i=prevCapacity; i!=m_capacity; ++i) {
@@ -324,38 +331,39 @@ void Graph::RemoveLink(uint64_t linkId) {
 }
 
 void Graph::SortNodesByDependency() {
+    std::fill(m_indeciesForOrder, m_indeciesForOrder + m_capacity + m_capacity, INVALID_NODE_INDEX);
     for (uint16_t i=0; i!=m_capacity; ++i) {
         if (!m_nodes[i].IsRemoved()) {
             m_nodes[i].ResetOrder();
         }
     }
 
-    std::vector<uint16_t> firstIndexes;
     m_firstCalcIndex = INVALID_NODE_INDEX;
+    uint16_t maxOrder = 0;
     for (uint16_t index=0; index!=m_capacity; ++index) {
         if (!m_nodes[index].IsRemoved()) {
             uint16_t order = m_nodes[index].GetOrderNumber(m_nodes);
-            if (order == 1) {
-                if (m_firstCalcIndex == INVALID_NODE_INDEX) {
-                    m_firstCalcIndex = index;
-                }
-                firstIndexes.push_back(index);
+            if ((m_firstCalcIndex == INVALID_NODE_INDEX) && (order == 0)) {
+                m_firstCalcIndex = index;
             }
+            if (order > maxOrder) {
+                maxOrder = order;
+            }
+
+            uint16_t lastIndexForOrder = m_indeciesForOrder[order + m_capacity];
+            if (lastIndexForOrder != INVALID_NODE_INDEX) {
+                m_nodes[lastIndexForOrder].SetNextCalcIndex(index);
+            } else {
+                m_indeciesForOrder[order] = index;
+            }
+            m_indeciesForOrder[order + m_capacity] = index;
         }
     }
 
-    if (firstIndexes.size() <= 1) {
-        return;
-    }
-
-    uint16_t lastIndex = INVALID_NODE_INDEX;
-    for (uint16_t firstIndex : firstIndexes) {
-        if (lastIndex != INVALID_NODE_INDEX) {
-            m_nodes[lastIndex].SetNextCalcIndex(firstIndex);
-        }
-        for(uint16_t it = firstIndex; ((it != INVALID_NODE_INDEX) && m_nodes[it].IsExistsConnectedOutputPins()); it = m_nodes[it].GetNextIndex()) {
-            lastIndex = it;
-        }
+    for (uint16_t order=1; order<=maxOrder; ++order) {
+        uint16_t lastIndexForPrevOrder = m_indeciesForOrder[order - 1 + m_capacity];
+        uint16_t firstIndexForCurOrder = m_indeciesForOrder[order];
+        m_nodes[lastIndexForPrevOrder].SetNextCalcIndex(firstIndexForCurOrder);
     }
 }
 

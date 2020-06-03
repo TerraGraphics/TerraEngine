@@ -61,11 +61,6 @@ void Node::Reset(uint16_t nextIndex) {
     }
 }
 
-void Node::ResetOrder() noexcept {
-    m_order = 0;
-    m_nextIndex = INVALID_NODE_INDEX;
-}
-
 bool Node::IsConnectedPin(uint8_t pinIndex) const noexcept {
     return (m_pins[pinIndex].linksCount != 0);
 }
@@ -181,9 +176,14 @@ void Node::CheckIsValidOutputPinId(uint32_t pinId) const {
     }
 }
 
+void Node::ResetOrder() noexcept {
+    m_order = INVALID_ORDER_VALUE;
+    m_nextIndex = INVALID_NODE_INDEX;
+}
+
 uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
-    if (m_order == 0) {
-        m_order = 1;
+    if (m_order == INVALID_ORDER_VALUE) {
+        m_order = 0;
         uint16_t maxAttachedNodeIndex = INVALID_NODE_INDEX;
         for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
             if (m_pins[i].attachedPinID != 0) {
@@ -195,19 +195,9 @@ uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
                 }
             }
         }
-        if (m_order > 1) {
-            m_nextIndex = nodes[maxAttachedNodeIndex].SetNextCalcIndex(m_id - 1);
-        }
     }
 
     return m_order;
-}
-
-uint16_t Node::SetNextCalcIndex(uint16_t nodeIndex) noexcept {
-    uint16_t result = m_nextIndex;
-    m_nextIndex = nodeIndex;
-
-    return result;
 }
 
 void Node::ResetAcyclicityChecked() noexcept {

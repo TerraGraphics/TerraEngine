@@ -62,6 +62,7 @@ private:
     // TODO: add binary search
     TypeClass* m_typeClasses;
     Node* m_nodes = nullptr;
+    uint16_t* m_indeciesForOrder = nullptr;
 };
 
 }

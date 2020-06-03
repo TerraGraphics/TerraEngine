@@ -73,7 +73,7 @@ private:
 
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
-    uint16_t SetNextCalcIndex(uint16_t nodeIndex) noexcept;
+    void SetNextCalcIndex(uint16_t nodeIndex) noexcept { m_nextIndex = nodeIndex; }
 
     void ResetAcyclicityChecked() noexcept;
     bool CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept;
