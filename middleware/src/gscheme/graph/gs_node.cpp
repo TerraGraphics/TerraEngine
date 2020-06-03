@@ -204,18 +204,18 @@ void Node::ResetAcyclicityChecked() noexcept {
     m_isAcyclicityChecked = false;
 }
 
-bool Node::CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept {
+bool Node::CheckAcyclicity(Node* nodes, uint16_t dstNodeId) noexcept {
     if (m_isAcyclicityChecked) {
         return true;
     }
     m_isAcyclicityChecked = true;
-    if (m_id == startNodeId) {
+    if (m_id == dstNodeId) {
         return false;
     }
 
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (m_pins[i].attachedPinID != 0) {
-            if (!nodes[NodeIndexFromPinId(m_pins[i].attachedPinID)].CheckAcyclicity(nodes, startNodeId)) {
+            if (!nodes[NodeIndexFromPinId(m_pins[i].attachedPinID)].CheckAcyclicity(nodes, dstNodeId)) {
                 return false;
             }
         }

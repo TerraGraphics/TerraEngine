@@ -434,7 +434,7 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
         m_nodes[i].ResetAcyclicityChecked();
     }
 
-    if (!m_nodes[dstNodeId - 1].CheckAcyclicity(m_nodes, srcNodeId)) {
+    if (!m_nodes[srcNodeId - 1].CheckAcyclicity(m_nodes, dstNodeId)) {
         throw EngineError(
                 "wrong link from srcPinId = {} to dstPinId = {}, graph after add this link is not acyclic", srcPinId, dstPinId);
     }

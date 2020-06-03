@@ -58,4 +58,31 @@ TEST(gsGraph, SmokeTest) {
     ASSERT_FLOAT_EQ(3.f, sumResult.get_value<float>());
 }
 
+TEST(gsGraph, AcyclicityForOneNode) {
+    gs::Graph graph(16);
+
+    uint16_t nodeSumId1 = graph.AddNode("Sum");
+    ASSERT_ANY_THROW(graph.AddLink(nodeSumId1, 0, nodeSumId1, 0));
+}
+
+TEST(gsGraph, AcyclicityForTwoNodes) {
+    gs::Graph graph(16);
+
+    uint16_t nodeSumId1 = graph.AddNode("Sum");
+    uint16_t nodeSumId2 = graph.AddNode("Sum");
+    graph.AddLink(nodeSumId2, 0, nodeSumId1, 0);
+    ASSERT_ANY_THROW(graph.AddLink(nodeSumId1, 0, nodeSumId2, 0));
+}
+
+TEST(gsGraph, AcyclicityForThreeNodes) {
+    gs::Graph graph(16);
+
+    uint16_t nodeSumId1 = graph.AddNode("Sum");
+    uint16_t nodeSumId2 = graph.AddNode("Sum");
+    uint16_t nodeSumId3 = graph.AddNode("Sum");
+    graph.AddLink(nodeSumId2, 0, nodeSumId3, 0);
+    graph.AddLink(nodeSumId3, 0, nodeSumId1, 0);
+    ASSERT_ANY_THROW(graph.AddLink(nodeSumId1, 0, nodeSumId2, 0));
+}
+
 }

@@ -76,7 +76,7 @@ private:
     void SetNextCalcIndex(uint16_t nodeIndex) noexcept { m_nextIndex = nodeIndex; }
 
     void ResetAcyclicityChecked() noexcept;
-    bool CheckAcyclicity(Node* nodes, uint16_t startNodeId) noexcept;
+    bool CheckAcyclicity(Node* nodes, uint16_t dstNodeId) noexcept;
 
     void ResetChangeState() noexcept;
     // return next node index for update
