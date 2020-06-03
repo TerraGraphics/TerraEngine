@@ -27,6 +27,15 @@ TEST(gsGraph, DoubleRemoveNode) {
     ASSERT_ANY_THROW(graph.RemoveNode(10000));
 }
 
+TEST(gsGraph, DoubleAddLink) {
+    gs::Graph graph(16);
+
+    uint16_t constantId = graph.AddNode("Constant");
+    uint16_t sumId = graph.AddNode("Sum");
+    graph.AddLink(constantId, 0, sumId, 0);
+    ASSERT_ANY_THROW(graph.AddLink(constantId, 0, sumId, 0));
+}
+
 TEST(gsGraph, DoubleRemoveLink) {
     gs::Graph graph(16);
 
@@ -37,6 +46,27 @@ TEST(gsGraph, DoubleRemoveLink) {
     graph.RemoveLink(linkId);
     ASSERT_ANY_THROW(graph.RemoveLink(linkId));
     ASSERT_ANY_THROW(graph.RemoveLink(100000));
+}
+
+TEST(gsGraph, ReplaceLink) {
+    gs::Graph graph(16);
+
+    uint16_t constantId1 = graph.AddNode("Constant");
+    graph.SetEmbeddedValue(constantId1, 0, 1.f);
+
+    uint16_t constantId2 = graph.AddNode("Constant");
+    graph.SetEmbeddedValue(constantId2, 0, 2.f);
+
+    uint16_t sumId = graph.AddNode("Sum");
+    graph.AddLink(constantId1, 0, sumId, 0);
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(1.f, graph.GetOutputValue(sumId, 0));
+
+    graph.AddLink(constantId2, 0, sumId, 0);
+    graph.UpdateState();
+    graph.ResetChangeState();
+    ASSERT_FLOAT(2.f, graph.GetOutputValue(sumId, 0));
 }
 
 TEST(gsGraph, ChangeEmbededPins) {

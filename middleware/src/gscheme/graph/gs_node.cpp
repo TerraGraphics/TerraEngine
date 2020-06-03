@@ -61,6 +61,10 @@ void Node::Reset(uint16_t nextIndex) {
     }
 }
 
+uint32_t Node::GetAttachedPinId(uint8_t inputPinIndex) const noexcept {
+    return m_pins[inputPinIndex].attachedPinID;
+}
+
 bool Node::IsConnectedPin(uint8_t pinIndex) const noexcept {
     return (m_pins[pinIndex].linksCount != 0);
 }

@@ -34,12 +34,16 @@ inline bool IsInputFromPinId(uint32_t pinId) {
     return ((pinId & uint32_t(1)) == 1);
 }
 
-inline uint32_t SrcPinIdFromLinkID(uint64_t linkId) {
+inline uint32_t SrcPinIdFromLinkId(uint64_t linkId) {
     return static_cast<uint32_t>(linkId >> uint64_t(32));
 }
 
-inline uint32_t DstPinIdFromLinkID(uint64_t linkId) {
+inline uint32_t DstPinIdFromLinkId(uint64_t linkId) {
     return static_cast<uint32_t>(linkId & uint64_t(0xFFFFFFFF));
+}
+
+inline uint64_t LinkId(uint32_t srcPinId, uint32_t dstPinId) {
+    return (static_cast<uint64_t>(srcPinId) << uint64_t(32)) | static_cast<uint64_t>(dstPinId);
 }
 
 }

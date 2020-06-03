@@ -43,6 +43,8 @@ private:
     void Create(TypeClass* typeClass, rttr::variant&& instance);
     void Reset(uint16_t nextIndex);
 
+    uint32_t GetAttachedPinId(uint8_t inputPinIndex) const noexcept;
+
     // works for all pins type
     bool IsConnectedPin(uint8_t pinIndex) const noexcept;
     bool IsThisPinAttached(uint8_t inputPinIndex, uint32_t attachedPinID) const noexcept;

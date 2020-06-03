@@ -276,12 +276,17 @@ uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
     uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
 
+    uint32_t attachedPinId = m_nodes[NodeIndexFromPinId(dstPinId)].GetAttachedPinId(PinIndexFromPinId(dstPinId));
+    if (attachedPinId != 0) {
+        RemoveLink(LinkId(attachedPinId, dstPinId));
+    }
+
     m_nodes[dstNodeIndex].AttachToInputPin(dstPinIndex, srcPinId);
     m_nodes[srcNodeIndex].IncLinkForOutputPin(srcPinIndex);
 
     SortNodesByDependency();
 
-    return (static_cast<uint64_t>(srcPinId) << uint64_t(32)) | static_cast<uint64_t>(dstPinId);
+    return LinkId(srcPinId, dstPinId);
 }
 
 uint64_t Graph::AddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t dstNodeId, uint8_t inputPinOffset) {
@@ -317,8 +322,8 @@ void Graph::RemoveLink(uint64_t linkId) {
         throw EngineError("gs::Graph::RemoveLink: {}", e.what());
     }
 
-    uint32_t srcPinId = SrcPinIdFromLinkID(linkId);
-    uint32_t dstPinId = DstPinIdFromLinkID(linkId);
+    uint32_t srcPinId = SrcPinIdFromLinkId(linkId);
+    uint32_t dstPinId = DstPinIdFromLinkId(linkId);
 
     uint16_t srcNodeIndex = NodeIndexFromPinId(srcPinId);
     uint16_t dstNodeIndex = NodeIndexFromPinId(dstPinId);
@@ -438,6 +443,23 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
         throw EngineError(
                 "wrong link from srcPinId = {} to dstPinId = {}, graph after add this link is not acyclic", srcPinId, dstPinId);
     }
+
+    uint32_t attachedPinId = m_nodes[dstNodeId - 1].GetAttachedPinId(PinIndexFromPinId(dstPinId));
+    if (attachedPinId == srcPinId) {
+        throw EngineError(
+            "wrong link from srcPinId = {} to dstPinId = {}, link already exist", srcPinId, dstPinId);
+    }
+
+    if (attachedPinId != 0) {
+        auto existsLinkId = LinkId(attachedPinId, dstPinId);
+        try {
+            CheckRemoveLink(existsLinkId);
+        } catch(const EngineError& e) {
+            throw EngineError(
+                "wrong link from srcPinId = {} to dstPinId = {}, to create it, can't delete an already existing linkId = {}, {}",
+                srcPinId, dstPinId, existsLinkId, e.what());
+        }
+    }
 }
 
 void Graph::CheckRemoveLink(uint64_t linkId) const {
@@ -445,14 +467,14 @@ void Graph::CheckRemoveLink(uint64_t linkId) const {
         throw EngineError("wrong linkId = {}, min value = 1", linkId);
     }
 
-    uint32_t srcPinId = SrcPinIdFromLinkID(linkId);
+    uint32_t srcPinId = SrcPinIdFromLinkId(linkId);
     try {
         CheckIsValidOutputPinId(srcPinId);
     } catch(const EngineError& e) {
         throw EngineError("wrong srcPinId (from linkId = {}), {}", linkId, e.what());
     }
 
-    uint32_t dstPinId = DstPinIdFromLinkID(linkId);
+    uint32_t dstPinId = DstPinIdFromLinkId(linkId);
     try {
         CheckIsValidInputPinId(dstPinId);
     } catch(const EngineError& e) {
