@@ -12,6 +12,7 @@ namespace rttr {
 namespace gs {
 
 class Node;
+class IDraw;
 class TypeClass;
 class Graph : Fixed {
 public:
@@ -20,6 +21,8 @@ public:
 
     void ResetChangeState() noexcept;
     void UpdateState();
+    void DrawGraph(IDraw* drawer);
+    void DrawNodeEditGui(uint16_t nodeId, IDraw* drawer);
 
     uint16_t CountNodes() const noexcept { return m_capacity - m_free; }
 

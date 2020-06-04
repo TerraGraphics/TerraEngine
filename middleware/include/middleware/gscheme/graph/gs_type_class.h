@@ -25,7 +25,7 @@ public:
     // unique pin name
     std::string_view GetPinName(uint8_t pinIndex) const;
     // pin name for UI
-    std::string GetPrettyPinName(uint8_t pinIndex) const;
+    std::string GetPinPrettyName(uint8_t pinIndex) const;
 
     uint8_t EmbeddedPinsCount() const noexcept { return m_countEmbeddedPins; }
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }

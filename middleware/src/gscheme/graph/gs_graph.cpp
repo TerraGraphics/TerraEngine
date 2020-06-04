@@ -16,6 +16,7 @@
 #include "middleware/gscheme/graph/gs_type_class.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
+#include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
 namespace gs {
@@ -85,6 +86,39 @@ void Graph::ResetChangeState() noexcept {
 void Graph::UpdateState() {
     for(uint16_t it = m_firstCalcIndex; it != INVALID_NODE_INDEX; it = m_nodes[it].UpdateState(m_nodes)) {
     }
+}
+
+void Graph::DrawGraph(IDraw* drawer) {
+    for (uint16_t i=0; i!=m_capacity; ++i) {
+        if (!m_nodes[i].IsRemoved()) {
+            m_nodes[i].DrawGraph(drawer);
+        }
+    }
+
+    for (uint16_t i=0; i!=m_capacity; ++i) {
+        if (!m_nodes[i].IsRemoved()) {
+            for(const Pin* pin=m_nodes[i].InputPinsBegin(); pin!=m_nodes[i].InputPinsEnd(); ++pin) {
+                if (pin->attachedPinID != 0) {
+                    uint32_t dstPinId = pin->id;
+                    uint32_t srcPinId = pin->attachedPinID;
+                    drawer->OnDrawLink(
+                        static_cast<uintptr_t>(LinkId(srcPinId, dstPinId)),
+                        static_cast<uintptr_t>(srcPinId),
+                        static_cast<uintptr_t>(dstPinId));
+                }
+            }
+        }
+    }
+}
+
+void Graph::DrawNodeEditGui(uint16_t nodeId, IDraw* drawer) {
+    try {
+        CheckRemoveNode(nodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::DrawNodeEditGui: {}", e.what());
+    }
+
+    m_nodes[nodeId - 1].DrawNodeEditGui(drawer);
 }
 
 const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {

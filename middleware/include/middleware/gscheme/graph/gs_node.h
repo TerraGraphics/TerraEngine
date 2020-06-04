@@ -25,6 +25,7 @@ struct Pin : Fixed {
     rttr::variant value;
 };
 
+class IDraw;
 class TypeClass;
 class Node : Fixed {
     friend class Graph;
@@ -84,6 +85,8 @@ private:
     void ResetChangeState() noexcept;
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
+    void DrawGraph(IDraw* drawer);
+    void DrawNodeEditGui(IDraw* drawer);
 
     const rttr::variant& GetValue(uint8_t pinIndex) const;
     void SetValue(uint8_t pinIndex, const rttr::variant& value);

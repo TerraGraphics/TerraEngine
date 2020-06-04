@@ -73,7 +73,7 @@ std::string_view TypeClass::GetPinName(uint8_t pinIndex) const {
     return std::string_view(name.cbegin(), name.cend());
 }
 
-std::string TypeClass::GetPrettyPinName(uint8_t pinIndex) const {
+std::string TypeClass::GetPinPrettyName(uint8_t pinIndex) const {
     GSMetaTypes metaName = GSMetaTypes::GS_OUTPUT_PIN;
     if (pinIndex < m_countEmbeddedPins) {
         metaName = GSMetaTypes::GS_EMBEDDED_PROPERTY;

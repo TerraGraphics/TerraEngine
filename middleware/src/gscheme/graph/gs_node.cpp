@@ -6,6 +6,7 @@
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
+#include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
 namespace gs {
@@ -259,6 +260,33 @@ uint16_t Node::UpdateState(Node* nodes) {
     m_changeState = isChanged ? ChangeState::Updated : ChangeState::NotChanged;
 
     return m_nextIndex;
+}
+
+void Node::DrawGraph(IDraw* drawer) {
+    drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_typeClass->GetPrettyName());
+    for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), true, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+    }
+    for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
+        drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), false, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+    }
+    drawer->OnFinishDrawNode();
+}
+
+void Node::DrawNodeEditGui(IDraw* drawer) {
+    drawer->OnDrawEditingHeader(m_typeClass->GetPrettyName());
+    for (uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
+        auto value = m_typeClass->GetValue(i, m_instance);
+        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), false, m_pins[i].value, value)) {
+            SetValue(i, value);
+        }
+    }
+    for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        auto value = m_typeClass->GetValue(i, m_instance);
+        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), m_pins[i].value, value)) {
+            SetValue(i, value);
+        }
+    }
 }
 
 const rttr::variant& Node::GetValue(uint8_t pinIndex) const {
