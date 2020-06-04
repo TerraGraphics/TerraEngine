@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <cstdint>
 
 #include "core/dg/dg.h"
 #include "core/common/ctor.h"
@@ -35,4 +36,5 @@ private:
     ax::NodeEditor::EditorContext* m_context = nullptr;
     std::unique_ptr<gs::Draw> m_draw;
     std::unique_ptr<gs::Graph> m_graph;
+    uint16_t m_selectedNodeId = 0;
 };

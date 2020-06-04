@@ -1,6 +1,5 @@
 #include "middleware/gscheme/editor/gs_editor.h"
 
-#include <cstdint>
 #include <utility>
 
 #include "middleware/gscheme/graph/gs_id.h"
@@ -48,6 +47,12 @@ void GSEditor::Draw() {
 
     m_graph->DrawGraph(m_draw.get());
 
+    if (const auto id = ne::GetDoubleClickedNode().Get(); id != 0) {
+        m_selectedNodeId = static_cast<uint16_t>(id);
+    } else if (ne::IsBackgroundClicked()) {
+        m_selectedNodeId = 0;
+    }
+
     if (ne::BeginCreate()) {
         ne::PinId pinIdFirst, pinIdSecond;
         if (ne::QueryNewLink(&pinIdFirst, &pinIdSecond)) {
@@ -71,5 +76,7 @@ void GSEditor::Draw() {
 }
 
 void GSEditor::DrawProperty() {
-    // m_storage->DrawProperty();
+    if (m_selectedNodeId != 0) {
+        m_graph->DrawNodeEditGui(m_selectedNodeId, m_draw.get());
+    }
 }
