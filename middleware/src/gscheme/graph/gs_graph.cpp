@@ -2,8 +2,11 @@
 
 #include <string>
 #include <cstring>
+#include <utility>
 #include <algorithm>
+#include <unordered_set>
 
+#include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "middleware/gscheme/rttr/type.h"
 #include "middleware/gscheme/graph/gs_id.h"
@@ -32,8 +35,12 @@ Graph::Graph(uint16_t initialNodeCount)
         m_nodes[i].Init(i + 1);
     }
 
+    std::unordered_set<std::string> names;
     for(const auto& t : rttr::type::get_types()) {
-        if (t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+        if (t.is_valid() && t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+            if (!names.insert(t.get_name().to_string()).second) {
+                throw EngineError("gs::Graph: type classes have a duplicate name = '{}'", t.get_name().to_string());
+            }
             ++m_countTypeClasses;
         }
     }
