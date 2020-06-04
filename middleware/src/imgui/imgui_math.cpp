@@ -39,6 +39,10 @@ math::Size ToSize(ImVec2 value) {
     return math::Size(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
 }
 
+math::SizeF ToSizeF(ImVec2 value) {
+    return math::SizeF(value.x, value.y);
+}
+
 math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax) {
     return math::RectF(ToPointF(pointMin), ToPointF(pointMax));
 }

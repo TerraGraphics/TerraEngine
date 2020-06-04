@@ -264,12 +264,23 @@ uint16_t Node::UpdateState(Node* nodes) {
 
 void Node::DrawGraph(IDraw* drawer) {
     drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_typeClass->GetPrettyName());
-    for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), true, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+
+    if (InputPinsCount() != 0) {
+        drawer->OnStartDrawInputPins();
+        for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), true, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+        }
+        drawer->OnFinishDrawInputPins();
     }
-    for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-        drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), false, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+
+    if (OutputPinsCount() != 0) {
+        drawer->OnStartDrawOutputPins();
+        for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
+            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), false, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+        }
+        drawer->OnFinishDrawOutputPins();
     }
+
     drawer->OnFinishDrawNode();
 }
 

@@ -89,6 +89,8 @@ void Graph::UpdateState() {
 }
 
 void Graph::DrawGraph(IDraw* drawer) {
+    drawer->OnStartDrawGraph();
+
     for (uint16_t i=0; i!=m_capacity; ++i) {
         if (!m_nodes[i].IsRemoved()) {
             m_nodes[i].DrawGraph(drawer);
@@ -109,6 +111,8 @@ void Graph::DrawGraph(IDraw* drawer) {
             }
         }
     }
+
+    drawer->OnFinishDrawGraph();
 }
 
 void Graph::DrawNodeEditGui(uint16_t nodeId, IDraw* drawer) {

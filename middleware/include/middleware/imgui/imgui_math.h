@@ -14,6 +14,7 @@ ImVec2 ToImGui(math::PointF value);
 math::Point ToPoint(ImVec2 value);
 math::PointF ToPointF(ImVec2 value);
 math::Size ToSize(ImVec2 value);
+math::SizeF ToSizeF(ImVec2 value);
 math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax);
 
 }
