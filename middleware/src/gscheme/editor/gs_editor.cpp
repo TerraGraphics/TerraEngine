@@ -1,13 +1,19 @@
 #include "middleware/gscheme/editor/gs_editor.h"
 
+#include <cstdint>
+#include <utility>
+
+#include "middleware/gscheme/graph/gs_id.h"
+#include "middleware/gscheme/editor/gs_draw.h"
+#include "middleware/gscheme/graph/gs_graph.h"
 #include "middleware/imgui/imgui_node_editor.h"
-#include "middleware/gscheme/editor/gs_storage.h"
 
 
 GSEditor::GSEditor(const std::string& name, TexturePtr& texBackground)
     : m_name(name)
     , m_config(new ne::Config())
-    , m_storage(new GSStorage(texBackground)) {
+    , m_draw(new gs::Draw(texBackground))
+    , m_graph(new gs::Graph(16)) {
 
 }
 
@@ -22,13 +28,15 @@ GSEditor::~GSEditor() {
         m_config = nullptr;
     }
 
-    m_storage.reset();
+    m_draw.reset();
+    m_graph.reset();
 }
 
 void GSEditor::Create() {
     m_config->SettingsFile = "";
     m_context = ne::CreateEditor(m_config);
-    m_storage->Create();
+    m_graph->AddNode("Sum");
+    m_graph->AddNode("Constant");
 }
 
 void GSEditor::Draw() {
@@ -38,19 +46,21 @@ void GSEditor::Draw() {
     ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
     ne::Begin(m_name.c_str());
 
-    m_storage->Draw();
+    m_graph->DrawGraph(m_draw.get());
 
     if (ne::BeginCreate()) {
         ne::PinId pinIdFirst, pinIdSecond;
         if (ne::QueryNewLink(&pinIdFirst, &pinIdSecond)) {
-            bool checkOnly = true;
-            auto pinFirst = pinIdFirst.Get();
-            auto pinSecond = pinIdSecond.Get();
-            if (!m_storage->AddLink(pinFirst, pinSecond, checkOnly)) {
+            uint32_t srcPinId = static_cast<uint32_t>(pinIdFirst.Get());
+            uint32_t dstPinId = static_cast<uint32_t>(pinIdSecond.Get());
+            if (gs::IsInputFromPinId(srcPinId)) {
+                std::swap(srcPinId, dstPinId);
+            }
+
+            if (!m_graph->TestAddLink(srcPinId, dstPinId)) {
                 ne::RejectNewItem();
             } else if (ne::AcceptNewItem()) {
-                checkOnly = false;
-                m_storage->AddLink(pinFirst, pinSecond, checkOnly);
+                m_graph->AddLink(srcPinId, dstPinId);
             }
         }
         ne::EndCreate();
@@ -61,5 +71,5 @@ void GSEditor::Draw() {
 }
 
 void GSEditor::DrawProperty() {
-    m_storage->DrawProperty();
+    // m_storage->DrawProperty();
 }

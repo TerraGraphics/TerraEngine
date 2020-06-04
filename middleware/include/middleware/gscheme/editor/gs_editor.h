@@ -14,7 +14,11 @@ namespace ax {
     }
 }
 
-class GSStorage;
+namespace gs {
+    class Draw;
+    class Graph;
+}
+
 class GSEditor : Fixed {
 public:
     GSEditor() = delete;
@@ -29,5 +33,6 @@ private:
     std::string m_name;
     ax::NodeEditor::Config* m_config = nullptr;
     ax::NodeEditor::EditorContext* m_context = nullptr;
-    std::unique_ptr<GSStorage> m_storage;
+    std::unique_ptr<gs::Draw> m_draw;
+    std::unique_ptr<gs::Graph> m_graph;
 };

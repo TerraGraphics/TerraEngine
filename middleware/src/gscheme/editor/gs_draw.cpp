@@ -5,6 +5,7 @@
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/imgui/imgui_node_editor.h"
 
 
@@ -23,10 +24,14 @@ Draw::~Draw() {
 
 void Draw::OnStartDrawGraph() {
     m_alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
+
+    ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
+    ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
+    ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
 }
 
 void Draw::OnFinishDrawGraph() {
-
+    ne::PopStyleVar(3);
 }
 
 void Draw::OnStartDrawNode(uintptr_t id, const std::string& prettyName) {
@@ -40,8 +45,8 @@ void Draw::OnStartDrawNode(uintptr_t id, const std::string& prettyName) {
     gui::Text(prettyName);
     m_headerMin = gui::ToPointF(ImGui::GetItemRectMin());
     m_headerSize = gui::ToSizeF(ImGui::GetItemRectSize());
-    ImGui::Dummy(ImVec2(1.0f, m_nodePaddingTop));
-    ImGui::EndGroup();
+    gui::Dummy(math::SizeF(1.0f, m_nodePaddingTop));
+    gui::EndGroup();
 }
 
 void Draw::OnFinishDrawNode() {
@@ -128,11 +133,17 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::OnDrawEditingHeader(const std::string& /* prettyName */) {
-
+void Draw::OnDrawEditingHeader(const std::string& prettyName) {
+    gui::Text(prettyName + ":");
 }
 
-bool Draw::OnDrawEditingPin(const std::string& /* prettyName */, bool /* disabled */, const rttr::variant& /* defaultValue */, rttr::variant& /* value */) {
+bool Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, const rttr::variant& /* defaultValue */, rttr::variant& value) {
+    float tmp = value.get_value<float>();
+    if (gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}")) {
+        value = tmp;
+        return true;
+    }
+
     return false;
 }
 
