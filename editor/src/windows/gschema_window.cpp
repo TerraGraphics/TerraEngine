@@ -27,7 +27,7 @@ void GSchemaWindow::Create(const std::shared_ptr<PropertyWindow>& propertyWindow
     loadInfo.IsSRGB = true;
     CreateTextureFromFile("assets/graph_node_background.png", loadInfo, device, &texBackground);
 
-    m_editor = std::make_shared<GSEditor>("GSEditor", texBackground);
+    m_editor = std::make_shared<gs::Editor>("GSEditor", texBackground);
     m_editor->Create();
 }
 
@@ -35,12 +35,12 @@ void GSchemaWindow::Draw() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
     if (ImGui::Begin("gseditor", pOpen, windowFlags)) {
-        m_editor->Draw();
+        m_editor->DrawGraph();
         ImGui::End();
 
         m_propertyWindow->SetProperties({
             Property([editor = m_editor]() {
-                editor->DrawProperty();
+                editor->DrawNodeProperty();
             })
         });
     }

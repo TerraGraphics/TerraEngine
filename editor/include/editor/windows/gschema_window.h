@@ -5,7 +5,9 @@
 #include "core/common/ctor.h"
 
 
-class GSEditor;
+namespace gs {
+    class Editor;
+}
 class PropertyWindow;
 class GSchemaWindow : Fixed {
 public:
@@ -17,6 +19,6 @@ public:
     void Draw();
 
 private:
-    std::shared_ptr<GSEditor> m_editor;
+    std::shared_ptr<gs::Editor> m_editor;
     std::shared_ptr<PropertyWindow> m_propertyWindow;
 };

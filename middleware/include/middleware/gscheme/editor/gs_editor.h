@@ -16,25 +16,26 @@ namespace ax {
 }
 
 namespace gs {
-    class Draw;
-    class Graph;
-}
 
-class GSEditor : Fixed {
+class Draw;
+class Graph;
+class Editor : Fixed {
 public:
-    GSEditor() = delete;
-    GSEditor(const std::string& name, TexturePtr& texBackground);
-    ~GSEditor();
+    Editor() = delete;
+    Editor(const std::string& name, TexturePtr& texBackground);
+    ~Editor();
 
     void Create();
-    void Draw();
-    void DrawProperty();
+    void DrawGraph();
+    void DrawNodeProperty();
 
 private:
     std::string m_name;
     ax::NodeEditor::Config* m_config = nullptr;
     ax::NodeEditor::EditorContext* m_context = nullptr;
-    std::unique_ptr<gs::Draw> m_draw;
-    std::unique_ptr<gs::Graph> m_graph;
+    std::unique_ptr<Draw> m_draw;
+    std::unique_ptr<Graph> m_graph;
     uint16_t m_selectedNodeId = 0;
 };
+
+}

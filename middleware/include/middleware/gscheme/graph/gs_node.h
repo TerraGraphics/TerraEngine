@@ -86,7 +86,7 @@ private:
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
     void DrawGraph(IDraw* drawer);
-    void DrawNodeEditGui(IDraw* drawer);
+    void DrawNodeProperty(IDraw* drawer);
 
     const rttr::variant& GetValue(uint8_t pinIndex) const;
     void SetValue(uint8_t pinIndex, const rttr::variant& value);

@@ -3,6 +3,8 @@
 #include "core/common/ctor.h"
 
 
+namespace gs {
+
 class FuncSum : Fixed {
 public:
     FuncSum() = default;
@@ -19,3 +21,5 @@ private:
     float m_a = 0.f;
     float m_b = 0.f;
 };
+
+}

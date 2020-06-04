@@ -3,6 +3,8 @@
 #include "core/common/ctor.h"
 
 
+namespace gs {
+
 class FuncConstant : Fixed {
 public:
     FuncConstant() = default;
@@ -16,3 +18,5 @@ public:
 private:
     float m_value = 0.f;
 };
+
+}

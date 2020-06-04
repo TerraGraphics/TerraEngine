@@ -35,9 +35,9 @@ void TypeClass::Create(const rttr::type& clsType) {
     }
 
     for(auto prop: props) {
-        if (prop.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY).is_valid()) {
+        if (prop.get_metadata(MetaTypes::EMBEDDED_PROPERTY).is_valid()) {
             ++m_countEmbeddedPins;
-        } else if (prop.get_metadata(GSMetaTypes::GS_INPUT_PIN).is_valid()) {
+        } else if (prop.get_metadata(MetaTypes::INPUT_PIN).is_valid()) {
             ++m_countInputPins;
         } else {
             ++m_countOutputPins;
@@ -49,9 +49,9 @@ void TypeClass::Create(const rttr::type& clsType) {
     uint8_t outputIndex = inputIndex + m_countInputPins;
     m_clsType = clsType;
     for(auto prop: props) {
-        if (prop.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY).is_valid()) {
+        if (prop.get_metadata(MetaTypes::EMBEDDED_PROPERTY).is_valid()) {
             m_props[embeddedIndex++] = prop;
-        } else if (prop.get_metadata(GSMetaTypes::GS_INPUT_PIN).is_valid()) {
+        } else if (prop.get_metadata(MetaTypes::INPUT_PIN).is_valid()) {
             m_props[inputIndex++] = prop;
         } else {
             m_props[outputIndex++] = prop;
@@ -65,7 +65,7 @@ std::string_view TypeClass::GetName() const {
 }
 
 std::string TypeClass::GetPrettyName() const {
-    return m_clsType.get_metadata(GSMetaTypes::GS_CLASS).get_value<std::string>();
+    return m_clsType.get_metadata(MetaTypes::CLASS).get_value<std::string>();
 }
 
 std::string_view TypeClass::GetPinName(uint8_t pinIndex) const {
@@ -74,11 +74,11 @@ std::string_view TypeClass::GetPinName(uint8_t pinIndex) const {
 }
 
 std::string TypeClass::GetPinPrettyName(uint8_t pinIndex) const {
-    GSMetaTypes metaName = GSMetaTypes::GS_OUTPUT_PIN;
+    MetaTypes metaName = MetaTypes::OUTPUT_PIN;
     if (pinIndex < m_countEmbeddedPins) {
-        metaName = GSMetaTypes::GS_EMBEDDED_PROPERTY;
+        metaName = MetaTypes::EMBEDDED_PROPERTY;
     } else if (pinIndex < (m_countEmbeddedPins + m_countInputPins)) {
-        metaName = GSMetaTypes::GS_INPUT_PIN;
+        metaName = MetaTypes::INPUT_PIN;
     }
 
     return m_props[pinIndex].get_metadata(metaName).get_value<std::string>();
@@ -110,12 +110,12 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
         throw EngineError("invalid clsType, type name is empty");
     }
 
-    auto clsMeta = clsType.get_metadata(GSMetaTypes::GS_CLASS);
+    auto clsMeta = clsType.get_metadata(MetaTypes::CLASS);
     if (!clsMeta.is_valid()) {
-        throw EngineError("invalid clsType (name = '{}'), has invalid metadata GS_CLASS", clsName);
+        throw EngineError("invalid clsType (name = '{}'), has invalid metadata CLASS", clsName);
     }
     if (clsMeta.get_type().get_id() != TYPE_STRING) {
-        throw EngineError("invalid clsType (name = '{}'), has invalid value type = '{}' for metadata GS_CLASS, need std::string",
+        throw EngineError("invalid clsType (name = '{}'), has invalid value type = '{}' for metadata CLASS, need std::string",
             clsName, clsMeta.get_type().get_name().to_string());
     }
 
@@ -140,11 +140,11 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
                 clsName, propName, prop.get_type().get_name().to_string());
         }
 
-        auto propMeta = prop.get_metadata(GSMetaTypes::GS_EMBEDDED_PROPERTY);
+        auto propMeta = prop.get_metadata(MetaTypes::EMBEDDED_PROPERTY);
         if (!propMeta.is_valid()) {
-            propMeta = prop.get_metadata(GSMetaTypes::GS_INPUT_PIN);
+            propMeta = prop.get_metadata(MetaTypes::INPUT_PIN);
             if (!propMeta.is_valid()) {
-                propMeta = prop.get_metadata(GSMetaTypes::GS_OUTPUT_PIN);
+                propMeta = prop.get_metadata(MetaTypes::OUTPUT_PIN);
                 if (!propMeta.is_valid()) {
                     throw EngineError("invalid clsType (name = '{}'), has property with name = '{}' and without metadata",
                         clsName, propName);

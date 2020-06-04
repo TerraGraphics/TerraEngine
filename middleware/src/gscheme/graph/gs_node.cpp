@@ -284,7 +284,7 @@ void Node::DrawGraph(IDraw* drawer) {
     drawer->OnFinishDrawNode();
 }
 
-void Node::DrawNodeEditGui(IDraw* drawer) {
+void Node::DrawNodeProperty(IDraw* drawer) {
     drawer->OnDrawEditingHeader(m_typeClass->GetPrettyName());
     for (uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
         auto value = m_typeClass->GetValue(i, m_instance);

@@ -5,6 +5,8 @@
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 
 
+namespace gs {
+
 float FuncSum::Result() const noexcept {
     return m_a + m_b;
 }
@@ -28,10 +30,12 @@ void FuncSum::SetB(float v) noexcept {
 REFLECTION_IMPL(FuncSum) {
     using namespace rttr;
 
-    registration::class_<FuncSum>("Sum")(metadata(GSMetaTypes::GS_CLASS, "Sum"))
+    registration::class_<FuncSum>("Sum")(metadata(MetaTypes::CLASS, "Sum"))
         .constructor<>()
-        .property_readonly("Result", &FuncSum::Result)(metadata(GSMetaTypes::GS_OUTPUT_PIN, "Result"))
-        .property("A", &FuncSum::GetA, &FuncSum::SetA)(metadata(GSMetaTypes::GS_INPUT_PIN, "A"))
-        .property("B", &FuncSum::GetB, &FuncSum::SetB)(metadata(GSMetaTypes::GS_INPUT_PIN, "B"))
+        .property_readonly("Result", &FuncSum::Result)(metadata(MetaTypes::OUTPUT_PIN, "Result"))
+        .property("A", &FuncSum::GetA, &FuncSum::SetA)(metadata(MetaTypes::INPUT_PIN, "A"))
+        .property("B", &FuncSum::GetB, &FuncSum::SetB)(metadata(MetaTypes::INPUT_PIN, "B"))
         ;
+}
+
 }

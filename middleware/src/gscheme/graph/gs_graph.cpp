@@ -38,7 +38,7 @@ Graph::Graph(uint16_t initialNodeCount)
 
     std::unordered_set<std::string> names;
     for(const auto& t : rttr::type::get_types()) {
-        if (t.is_valid() && t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+        if (t.is_valid() && t.get_metadata(MetaTypes::CLASS).is_valid()) {
             if (!names.insert(t.get_name().to_string()).second) {
                 throw EngineError("gs::Graph: type classes have a duplicate name = '{}'", t.get_name().to_string());
             }
@@ -52,7 +52,7 @@ Graph::Graph(uint16_t initialNodeCount)
         if (!t.is_valid()) {
             continue;
         }
-        if (!t.get_metadata(GSMetaTypes::GS_CLASS).is_valid()) {
+        if (!t.get_metadata(MetaTypes::CLASS).is_valid()) {
             continue;
         }
 
@@ -115,14 +115,14 @@ void Graph::DrawGraph(IDraw* drawer) {
     drawer->OnFinishDrawGraph();
 }
 
-void Graph::DrawNodeEditGui(uint16_t nodeId, IDraw* drawer) {
+void Graph::DrawNodeProperty(uint16_t nodeId, IDraw* drawer) {
     try {
         CheckRemoveNode(nodeId);
     } catch(const EngineError& e) {
-        throw EngineError("gs::Graph::DrawNodeEditGui: {}", e.what());
+        throw EngineError("gs::Graph::DrawNodeProperty: {}", e.what());
     }
 
-    m_nodes[nodeId - 1].DrawNodeEditGui(drawer);
+    m_nodes[nodeId - 1].DrawNodeProperty(drawer);
 }
 
 const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {

@@ -7,16 +7,17 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 #include "middleware/imgui/imgui_node_editor.h"
 
+namespace gs {
 
-GSEditor::GSEditor(const std::string& name, TexturePtr& texBackground)
+Editor::Editor(const std::string& name, TexturePtr& texBackground)
     : m_name(name)
     , m_config(new ne::Config())
-    , m_draw(new gs::Draw(texBackground))
-    , m_graph(new gs::Graph(16)) {
+    , m_draw(new Draw(texBackground))
+    , m_graph(new Graph(16)) {
 
 }
 
-GSEditor::~GSEditor() {
+Editor::~Editor() {
     if (m_context) {
         ne::DestroyEditor(m_context);
         m_context = nullptr;
@@ -31,14 +32,14 @@ GSEditor::~GSEditor() {
     m_graph.reset();
 }
 
-void GSEditor::Create() {
+void Editor::Create() {
     m_config->SettingsFile = "";
     m_context = ne::CreateEditor(m_config);
     m_graph->AddNode("Sum");
     m_graph->AddNode("Constant");
 }
 
-void GSEditor::Draw() {
+void Editor::DrawGraph() {
     ne::SetCurrentEditor(m_context);
     ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
     ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
@@ -58,7 +59,7 @@ void GSEditor::Draw() {
         if (ne::QueryNewLink(&pinIdFirst, &pinIdSecond)) {
             uint32_t srcPinId = static_cast<uint32_t>(pinIdFirst.Get());
             uint32_t dstPinId = static_cast<uint32_t>(pinIdSecond.Get());
-            if (gs::IsInputFromPinId(srcPinId)) {
+            if (IsInputFromPinId(srcPinId)) {
                 std::swap(srcPinId, dstPinId);
             }
 
@@ -75,8 +76,10 @@ void GSEditor::Draw() {
     ne::PopStyleVar(3);
 }
 
-void GSEditor::DrawProperty() {
+void Editor::DrawNodeProperty() {
     if (m_selectedNodeId != 0) {
-        m_graph->DrawNodeEditGui(m_selectedNodeId, m_draw.get());
+        m_graph->DrawNodeProperty(m_selectedNodeId, m_draw.get());
     }
+}
+
 }
