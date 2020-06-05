@@ -6,20 +6,13 @@
 #include <stdexcept>
 #include <algorithm>
 
-#pragma GCC diagnostic push
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
-#endif
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#pragma GCC diagnostic pop
-
 #include <DiligentCore/Primitives/interface/DebugOutput.h>
 
 #include "editor.h"
-#include "fmt/fmt.h"
+#include "log/log.h"
 #include "core/engine.h"
 #include "dg/graphics_types.h"
+#include "log/basic_file_sink.h"
 #include "platforms/platforms_supported.h"
 
 

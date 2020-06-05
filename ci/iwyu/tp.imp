@@ -5,6 +5,11 @@
     { include: ['"fmt/core.h"', private, '"fmt/fmt.h"', public] },
     { include: ['"fmt/format.h"', private, '"fmt/fmt.h"', public] },
 
+    { include: ['"spdlog/common.h"', private, '"log/log.h"', public] },
+    { include: ['"spdlog/logger.h"', private, '"log/log.h"', public] },
+    { include: ['"spdlog/spdlog.h"', private, '"log/log.h"', public] },
+    { include: ['"spdlog/sinks/basic_file_sink.h"', private, '"log/basic_file_sink.h"', public] },
+
     { include: ['"DiligentCore/Primitives/interface/Object.h"', private, '"dg/dg.h"', public] },
     { include: ['"DiligentCore/Common/interface/BasicMath.hpp"', private, '"dg/math.h"', public] },
     { include: ['"DiligentCore/Common/interface/RefCntAutoPtr.hpp"', private, '"dg/dg.h"', public] },

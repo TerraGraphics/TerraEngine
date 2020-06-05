@@ -193,14 +193,12 @@ void Node::ResetOrder() noexcept {
 uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
     if (m_order == INVALID_ORDER_VALUE) {
         m_order = 0;
-        uint16_t maxAttachedNodeIndex = INVALID_NODE_INDEX;
         for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
             if (m_pins[i].attachedPinID != 0) {
                 uint16_t nodeIndex = NodeIndexFromPinId(m_pins[i].attachedPinID);
                 uint16_t order = nodes[nodeIndex].GetOrderNumber(nodes) + 1;
                 if (order > m_order) {
                     m_order = order;
-                    maxAttachedNodeIndex = nodeIndex;
                 }
             }
         }

@@ -102,10 +102,10 @@ uint16_t VDeclStorage::Add(std::vector<VDeclItem>&& items) {
         return it->second;
     }
 
-    if (impl->m_semanticDeclsStorage.size() != (impl->m_nextIndex - 1)) {
+    if (impl->m_semanticDeclsStorage.size() != static_cast<size_t>(impl->m_nextIndex - 1)) {
         throw EngineError("VDeclStorage: wrong size for m_semanticDeclsStorage");
     }
-    if (impl->m_layoutElementsStorage.size() != (impl->m_nextIndex - 1)) {
+    if (impl->m_layoutElementsStorage.size() != static_cast<size_t>(impl->m_nextIndex - 1)) {
         throw EngineError("VDeclStorage: wrong size for m_layoutElementsStorage");
     }
 
@@ -147,10 +147,10 @@ uint16_t VDeclStorage::Join(uint16_t vDeclIdPerVertex, uint16_t vDeclIdPerInstan
     if (impl->m_semanticDeclsStorage.size() < vDeclIdPerInstance) {
         throw EngineError("VDeclStorage: wrong vDeclIdPerInstance arg");
     }
-    if (impl->m_semanticDeclsStorage.size() != (impl->m_nextIndex - 1)) {
+    if (impl->m_semanticDeclsStorage.size() != static_cast<size_t>(impl->m_nextIndex - 1)) {
         throw EngineError("VDeclStorage: wrong size for m_semanticDeclsStorage");
     }
-    if (impl->m_layoutElementsStorage.size() != (impl->m_nextIndex - 1)) {
+    if (impl->m_layoutElementsStorage.size() != static_cast<size_t>(impl->m_nextIndex - 1)) {
         throw EngineError("VDeclStorage: wrong size for m_layoutElementsStorage");
     }
 

@@ -70,7 +70,7 @@ private:
     uint32_t GetOutputPinId(uint8_t offset) const noexcept;
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
     uint8_t OutputPinsBeginIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
-    uint8_t OutputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins + m_countOutputPins; }
+    uint8_t OutputPinsEndIndex() const noexcept { return static_cast<uint8_t>(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); }
     const Pin* OutputPinsBegin() const noexcept { return &m_pins[OutputPinsBeginIndex()]; }
     const Pin* OutputPinsEnd() const noexcept { return &m_pins[OutputPinsEndIndex()]; }
     void CheckIsValidOutputPinId(uint32_t pinId) const;
