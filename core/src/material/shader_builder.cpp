@@ -5,9 +5,9 @@
 
 #include <DiligentCore/Primitives/interface/DataBlob.h>
 
+#include "fmt/fmt.h"
 #include "dg/errors.h"
 #include "dg/device.h"
-#include "core/str/format.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "dg/graphics_accessories.h"

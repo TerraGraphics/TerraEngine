@@ -17,8 +17,8 @@
 #include <DiligentCore/Primitives/interface/DebugOutput.h>
 
 #include "editor.h"
+#include "fmt/fmt.h"
 #include "core/engine.h"
-#include "core/str/format.h"
 #include "dg/graphics_types.h"
 #include "platforms/platforms_supported.h"
 

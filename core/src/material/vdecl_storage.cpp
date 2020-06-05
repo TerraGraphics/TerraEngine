@@ -7,7 +7,7 @@
 
 #include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
 
-#include "core/str/format.h"
+#include "fmt/fmt.h"
 #include "core/common/hash.h"
 #include "dg/graphics_types.h"
 #include "core/common/exception.h"

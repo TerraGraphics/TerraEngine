@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-#include "core/str/format.h"
+#include "fmt/fmt.h"
 
 
 class EngineError : public std::runtime_error {

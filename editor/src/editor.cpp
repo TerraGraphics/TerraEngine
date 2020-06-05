@@ -5,10 +5,10 @@
 #include <filesystem>
 #include <functional>
 
+#include "fmt/fmt.h"
 #include "dg/device.h" // IWYU pragma: keep
 #include "dg/context.h" // IWYU pragma: keep
 #include "core/path/path.h"
-#include "core/str/format.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/gui.h"
