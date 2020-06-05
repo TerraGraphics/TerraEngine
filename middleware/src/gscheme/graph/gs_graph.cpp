@@ -77,14 +77,11 @@ Graph::~Graph() {
     }
 }
 
-void Graph::ResetChangeState() noexcept {
-    for (uint16_t i=0; i!=m_capacity; ++i) {
-        m_nodes[i].ResetChangeState();
-    }
-}
-
 void Graph::UpdateState() {
     for(uint16_t it = m_firstCalcIndex; it != INVALID_NODE_INDEX; it = m_nodes[it].UpdateState(m_nodes)) {
+    }
+    for (uint16_t i=0; i!=m_capacity; ++i) {
+        m_nodes[i].ResetChangeState();
     }
 }
 
@@ -123,6 +120,14 @@ void Graph::DrawNodeProperty(uint16_t nodeId, IDraw* drawer) {
     }
 
     m_nodes[nodeId - 1].DrawNodeProperty(drawer);
+}
+
+const TypeClass* Graph::TypeClassesBegin() const noexcept {
+    return m_typeClasses;
+}
+
+const TypeClass* Graph::TypeClassesEnd() const noexcept {
+    return m_typeClasses + m_countTypeClasses;
 }
 
 const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {

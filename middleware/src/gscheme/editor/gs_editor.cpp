@@ -1,11 +1,14 @@
 #include "middleware/gscheme/editor/gs_editor.h"
 
 #include <utility>
+#include <string_view>
 
+#include "middleware/imgui/imgui.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/editor/gs_draw.h"
 #include "middleware/gscheme/graph/gs_graph.h"
 #include "middleware/imgui/imgui_node_editor.h"
+#include "middleware/gscheme/graph/gs_type_class.h"
 
 namespace gs {
 
@@ -41,9 +44,6 @@ void Editor::Create() {
 
 void Editor::DrawGraph() {
     ne::SetCurrentEditor(m_context);
-    ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
-    ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
-    ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
     ne::Begin(m_name.c_str());
 
     m_graph->DrawGraph(m_draw.get());
@@ -55,10 +55,10 @@ void Editor::DrawGraph() {
     }
 
     if (ne::BeginCreate()) {
-        ne::PinId pinIdFirst, pinIdSecond;
-        if (ne::QueryNewLink(&pinIdFirst, &pinIdSecond)) {
-            uint32_t srcPinId = static_cast<uint32_t>(pinIdFirst.Get());
-            uint32_t dstPinId = static_cast<uint32_t>(pinIdSecond.Get());
+        ne::PinId srcPin, dstPin;
+        if (ne::QueryNewLink(&srcPin, &dstPin)) {
+            auto srcPinId = static_cast<uint32_t>(srcPin.Get());
+            auto dstPinId = static_cast<uint32_t>(dstPin.Get());
             if (IsInputFromPinId(srcPinId)) {
                 std::swap(srcPinId, dstPinId);
             }
@@ -72,13 +72,75 @@ void Editor::DrawGraph() {
         ne::EndCreate();
     }
 
+    if (ne::BeginDelete()) {
+        ne::LinkId link = 0;
+        while (ne::QueryDeletedLink(&link)) {
+            auto linkId = static_cast<uint64_t>(link.Get());
+            if (!m_graph->TestRemoveLink(linkId)) {
+                ne::RejectDeletedItem();
+            } else if (ne::AcceptDeletedItem()) {
+                m_graph->RemoveLink(linkId);
+            }
+        }
+
+        ne::NodeId node = 0;
+        while (ne::QueryDeletedNode(&node)) {
+            auto nodeId = static_cast<uint16_t>(node.Get());
+            if (!m_graph->TestRemoveNode(nodeId)) {
+                ne::RejectDeletedItem();
+            } else if (ne::AcceptDeletedItem()) {
+                if (m_selectedNodeId == nodeId) {
+                    m_selectedNodeId = 0;
+                }
+                m_graph->RemoveNode(nodeId);
+            }
+        }
+        ne::EndDelete();
+    }
+
+    auto currentCursorPosition = ImGui::GetMousePos();
+    static auto openPopupPosition = ImGui::GetMousePos();
+
+    ne::Suspend();
+
+    if (ne::ShowBackgroundContextMenu()) {
+        ImGui::OpenPopup("Create New Node");
+        openPopupPosition = currentCursorPosition;
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+    if (ImGui::BeginPopup("Create New Node")) {
+        DrawNewNodeMenu(openPopupPosition.x, openPopupPosition.y);
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleVar();
+
+    ne::Resume();
+
+    m_graph->UpdateState();
+
     ne::End();
-    ne::PopStyleVar(3);
 }
 
 void Editor::DrawNodeProperty() {
     if (m_selectedNodeId != 0) {
         m_graph->DrawNodeProperty(m_selectedNodeId, m_draw.get());
+    }
+}
+
+void Editor::DrawNewNodeMenu(float x, float y) {
+    std::string_view newNodeTypeName;
+    if (ImGui::BeginMenu("All")) {
+        for(const auto* it = m_graph->TypeClassesBegin(); it != m_graph->TypeClassesEnd(); ++it) {
+            if (ImGui::MenuItem(it->GetPrettyName().c_str())) {
+                newNodeTypeName = it->GetName();
+            }
+        }
+        ImGui::EndMenu();
+    }
+    if (!newNodeTypeName.empty()) {
+        auto nodeId =  m_graph->AddNode(newNodeTypeName);
+        ne::SetNodePosition(ne::NodeId(nodeId), ImVec2(x, y));
     }
 }
 

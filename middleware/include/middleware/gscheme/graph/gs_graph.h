@@ -19,12 +19,14 @@ public:
     Graph(uint16_t initialNodeCount = 16);
     ~Graph();
 
-    void ResetChangeState() noexcept;
     void UpdateState();
     void DrawGraph(IDraw* drawer);
     void DrawNodeProperty(uint16_t nodeId, IDraw* drawer);
 
     uint16_t CountNodes() const noexcept { return m_capacity - m_free; }
+
+    const TypeClass* TypeClassesBegin() const noexcept;
+    const TypeClass* TypeClassesEnd() const noexcept;
 
     const rttr::variant& GetOutputValue(uint32_t pinId) const;
     const rttr::variant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;

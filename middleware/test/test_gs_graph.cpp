@@ -60,12 +60,10 @@ TEST(gsGraph, ReplaceLink) {
     uint16_t sumId = graph.AddNode("Sum");
     graph.AddLink(constantId1, 0, sumId, 0);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(1.f, graph.GetOutputValue(sumId, 0));
 
     graph.AddLink(constantId2, 0, sumId, 0);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(2.f, graph.GetOutputValue(sumId, 0));
 }
 
@@ -75,12 +73,10 @@ TEST(gsGraph, ChangeEmbededPins) {
     uint16_t nodeId = graph.AddNode("Constant");
 
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(0, graph.GetOutputValue(nodeId, 0));
 
     graph.SetEmbeddedValue(nodeId, 0, 1.f);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeId, 0));
 }
 
@@ -100,41 +96,34 @@ TEST(gsGraph, ChangeInputPins) {
     uint16_t nodeSumId = graph.AddNode("Sum");
 
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(0, graph.GetOutputValue(nodeSumId, 0));
 
     graph.SetInputValue(nodeSumId, 0, 1.f);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeSumId, 0));
 
     graph.SetInputValue(nodeSumId, 1, 2.f);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(3.f, graph.GetOutputValue(nodeSumId, 0));
 
     uint16_t nodeConstantId1 = graph.AddNode("Constant");
     graph.SetEmbeddedValue(nodeConstantId1, 0, 10.f);
     uint64_t link1 = graph.AddLink(nodeConstantId1, 0, nodeSumId, 0);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(12.f, graph.GetOutputValue(nodeSumId, 0));
 
     uint16_t nodeConstantId2 = graph.AddNode("Constant");
     graph.SetEmbeddedValue(nodeConstantId2, 0, 20.f);
     uint64_t link2 = graph.AddLink(nodeConstantId2, 0, nodeSumId, 1);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(30.f, graph.GetOutputValue(nodeSumId, 0));
 
     graph.RemoveLink(link2);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(10.f, graph.GetOutputValue(nodeSumId, 0));
 
     graph.RemoveLink(link1);
     graph.UpdateState();
-    graph.ResetChangeState();
     ASSERT_FLOAT(0.f, graph.GetOutputValue(nodeSumId, 0));
 }
 

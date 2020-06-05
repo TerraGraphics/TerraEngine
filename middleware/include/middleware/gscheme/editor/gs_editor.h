@@ -30,6 +30,9 @@ public:
     void DrawNodeProperty();
 
 private:
+    void DrawNewNodeMenu(float x, float y);
+
+private:
     std::string m_name;
     ax::NodeEditor::Config* m_config = nullptr;
     ax::NodeEditor::EditorContext* m_context = nullptr;
