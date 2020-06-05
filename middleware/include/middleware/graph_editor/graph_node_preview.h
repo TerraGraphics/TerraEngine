@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/math/types.h"
 #include "middleware/graph_editor/graph_node.h"
 

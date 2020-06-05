@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <initializer_list>
 
-#include "core/dg/dg.h"
-#include "core/dg/object_base.h"
+#include "dg/dg.h"
+#include "dg/object_base.h"
 
 
 namespace Diligent {

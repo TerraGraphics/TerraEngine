@@ -3,8 +3,8 @@
 #include <memory>
 #include <algorithm>
 
+#include "dg/device.h"
 #include "core/engine.h"
-#include "core/dg/device.h"
 #include "core/common/exception.h"
 #include "core/material/texture.h"
 #include "middleware/imgui/widgets.h"

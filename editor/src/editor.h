@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/engine.h"
 #include "core/common/counter.h"
 

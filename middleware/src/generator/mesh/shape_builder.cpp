@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "core/dg/device.h" // IWYU pragma: keep
+#include "dg/device.h" // IWYU pragma: keep
 #include "core/render/geometry.h"
 #include "core/render/vertexes.h"
 #include "core/render/index_buffer.h"

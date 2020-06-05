@@ -3,11 +3,11 @@
 #include <memory>
 #include <cstring>
 
-#include "core/dg/dg.h"
-#include "core/dg/device.h"
-#include "core/dg/context.h"
+#include "dg/dg.h"
+#include "dg/device.h"
+#include "dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/shader_resource_variable.h"
+#include "dg/shader_resource_variable.h"
 
 
 StaticVarsStorage::StaticVarsStorage(const DevicePtr& device, const ContextPtr& context)

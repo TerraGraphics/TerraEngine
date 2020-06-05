@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "core/dg/math.h"
+#include "dg/math.h"
 #include "core/common/ctor.h"
 #include "core/math/constants.h"
 #include "core/material/material_view.h"

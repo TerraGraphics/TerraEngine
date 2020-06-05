@@ -2,13 +2,13 @@
 
 #include <memory>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/engine.h"
+#include "dg/swap_chain.h"
 #include "core/math/types.h"
+#include "dg/graphics_types.h"
 #include "core/camera/camera.h"
-#include "core/dg/swap_chain.h"
 #include "editor/general_scene.h"
-#include "core/dg/graphics_types.h"
 #include "middleware/std_render/std_scene.h"
 #include "middleware/camera/fly_controller.h"
 

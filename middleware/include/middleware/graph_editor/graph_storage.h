@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/common/ctor.h"
 #include "middleware/graph_editor/graph_node.h"
 

@@ -5,12 +5,12 @@
 
 #include <DiligentCore/Primitives/interface/DataBlob.h>
 
-#include "core/dg/errors.h"
-#include "core/dg/device.h"
+#include "dg/errors.h"
+#include "dg/device.h"
 #include "core/str/format.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_accessories.h"
+#include "dg/graphics_accessories.h"
 
 
 size_t ShaderBuilder::CacheKey::operator()(const ShaderBuilder::CacheKey& value) const {

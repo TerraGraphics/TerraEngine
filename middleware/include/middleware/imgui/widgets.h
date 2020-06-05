@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/math/types.h"
 
 

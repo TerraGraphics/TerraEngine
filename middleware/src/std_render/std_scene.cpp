@@ -3,10 +3,10 @@
 #include <vector>
 #include <cstddef>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
+#include "dg/device.h"
+#include "dg/context.h" // IWYU pragma: keep
 #include "core/engine.h"
-#include "core/dg/device.h"
-#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/camera/camera.h"
 #include "core/math/constants.h"
 #include "core/material/vdecl_item.h"

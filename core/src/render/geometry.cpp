@@ -1,7 +1,7 @@
 #include "core/render/geometry.h"
 
-#include "core/dg/context.h"
-#include "core/dg/graphics_types.h"
+#include "dg/context.h"
+#include "dg/graphics_types.h"
 #include "core/render/index_buffer.h"
 #include "core/render/vertex_buffer.h"
 

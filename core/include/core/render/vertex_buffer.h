@@ -6,10 +6,10 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/common/ctor.h"
+#include "dg/graphics_types.h"
 #include "core/common/counter.h"
-#include "core/dg/graphics_types.h"
 
 
 class VertexBuffer : public Counter<VertexBuffer>, Fixed {

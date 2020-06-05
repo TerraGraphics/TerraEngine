@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include "core/dg/math.h"
+#include "dg/math.h"
 
 
 namespace Diligent {

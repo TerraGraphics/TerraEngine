@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/common/ctor.h"
 
 

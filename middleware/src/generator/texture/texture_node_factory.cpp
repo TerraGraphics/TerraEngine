@@ -3,10 +3,10 @@
 #include <string>
 #include <functional>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/common/exception.h"
+#include "dg/default_raw_memory_allocator.h"
 #include "middleware/graph_editor/graph_node.h"
-#include "core/dg/default_raw_memory_allocator.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"

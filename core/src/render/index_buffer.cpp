@@ -1,7 +1,7 @@
 #include "core/render/index_buffer.h"
 
-#include "core/dg/device.h"
-#include "core/dg/context.h"
+#include "dg/device.h"
+#include "dg/context.h"
 
 
 IndexBuffer::IndexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name) {

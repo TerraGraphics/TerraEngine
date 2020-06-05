@@ -2,16 +2,16 @@
 
 #include <cstdint>
 
+#include "dg/texture.h"
 #include "core/engine.h"
 #include "core/math/types.h"
-#include "core/dg/texture.h"
 #include "core/math/random.h"
+#include "dg/graphics_types.h"
+#include "dg/rasterizer_state.h"
 #include "core/math/constants.h"
+#include "dg/texture_utilities.h"
 #include "core/render/vertexes.h"
 #include "core/render/geometry.h"
-#include "core/dg/graphics_types.h"
-#include "core/dg/rasterizer_state.h"
-#include "core/dg/texture_utilities.h"
 #include "core/render/vertex_buffer.h"
 #include "core/render/transform_graph.h"
 #include "middleware/std_render/std_scene.h"

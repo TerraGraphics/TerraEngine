@@ -2,13 +2,13 @@
 
 #include <memory>
 
+#include "dg/device.h"
+#include "dg/context.h"
 #include "core/engine.h"
-#include "core/dg/device.h"
-#include "core/dg/context.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/material_view.h"
+#include "dg/shader_resource_variable.h"
 #include "core/material/material_builder.h"
-#include "core/dg/shader_resource_variable.h"
 
 
 namespace {

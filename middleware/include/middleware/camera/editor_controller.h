@@ -3,7 +3,7 @@
 #include <memory>
 #include <cstdint>
 
-#include "core/dg/math.h"
+#include "dg/math.h"
 #include "core/common/ctor.h"
 
 

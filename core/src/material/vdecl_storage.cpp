@@ -9,8 +9,8 @@
 
 #include "core/str/format.h"
 #include "core/common/hash.h"
+#include "dg/graphics_types.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_types.h"
 #include "core/material/vdecl_item.h"
 #include "core/material/microshader_types.h"
 

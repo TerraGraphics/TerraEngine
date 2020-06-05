@@ -3,7 +3,7 @@
 #include <memory>
 #include <initializer_list>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 
 
 class Geometry;

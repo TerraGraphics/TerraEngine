@@ -5,9 +5,9 @@
 #include <filesystem>
 #include <functional>
 
+#include "dg/device.h" // IWYU pragma: keep
+#include "dg/context.h" // IWYU pragma: keep
 #include "core/path/path.h"
-#include "core/dg/device.h" // IWYU pragma: keep
-#include "core/dg/context.h" // IWYU pragma: keep
 #include "core/str/format.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"

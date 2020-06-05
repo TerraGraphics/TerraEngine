@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <unordered_map>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/common/ctor.h"
 #include "core/material/microshader_loader.h"
 #include "core/material/material_builder_desc.h"

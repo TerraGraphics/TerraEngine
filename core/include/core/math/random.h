@@ -2,7 +2,8 @@
 
 #include <random>
 #include <type_traits>
-#include "core/dg/math.h"
+
+#include "dg/math.h"
 
 
 extern std::mt19937_64 randomGenerator;

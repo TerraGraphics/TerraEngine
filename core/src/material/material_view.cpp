@@ -1,9 +1,9 @@
 #include "core/material/material_view.h"
 
-#include "core/dg/context.h"
+#include "dg/context.h"
 #include "core/common/exception.h"
-#include "core/dg/shader_resource_binding.h"
-#include "core/dg/shader_resource_variable.h"
+#include "dg/shader_resource_binding.h"
+#include "dg/shader_resource_variable.h"
 
 
 struct MaterialView::Impl {

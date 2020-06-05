@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/common/ctor.h"
 #include "core/common/pimpl.h"
 

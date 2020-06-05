@@ -4,15 +4,15 @@
 #include <utility>
 #include <unordered_map>
 
-#include "core/dg/device.h"
+#include "dg/device.h"
+#include "dg/swap_chain.h" // IWYU pragma: keep
 #include "core/common/hash.h"
-#include "core/dg/swap_chain.h" // IWYU pragma: keep
 #include "core/common/exception.h"
+#include "dg/shader_resource_variable.h"
 #include "core/material/material_vars.h"
 #include "core/material/vdecl_storage.h"
 #include "core/material/shader_builder.h"
 #include "core/material/microshader_loader.h"
-#include "core/dg/shader_resource_variable.h"
 
 
 namespace {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dg/math.h"
+#include "dg/math.h"
 
 namespace Diligent {
 #include "structures.fxh"

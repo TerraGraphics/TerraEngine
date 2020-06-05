@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include "core/dg/math.h"
+
+#include "dg/math.h"
 
 
 struct VertexP {

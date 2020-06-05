@@ -2,11 +2,11 @@
 
 #include <utility>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
+#include "dg/device.h"
 #include "core/engine.h"
-#include "core/dg/device.h"
+#include "dg/texture_utilities.h"
 #include "middleware/imgui/imgui.h"
-#include "core/dg/texture_utilities.h"
 #include "editor/windows/property_window.h"
 #include "middleware/graph_editor/graph_editor.h"
 #include "middleware/generator/texture/noise_rasterization.h"

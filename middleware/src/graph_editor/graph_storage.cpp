@@ -4,9 +4,9 @@
 #include <utility>
 #include <type_traits>
 
-#include "core/dg/texture.h"
+#include "dg/texture.h"
+#include "dg/graphics_types.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/imgui_node_editor.h"
 

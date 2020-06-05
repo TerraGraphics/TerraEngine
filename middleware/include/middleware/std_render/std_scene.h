@@ -3,7 +3,7 @@
 #include <memory>
 #include <cstdint>
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
 #include "core/math/types.h"
 #include "core/render/scene.h"
 #include "middleware/std_render/structures.h"

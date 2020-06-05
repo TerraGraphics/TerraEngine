@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <algorithm>
 
-#include "core/dg/texture.h"
+#include "dg/texture.h"
 #include "core/math/types.h"
-#include "core/dg/graphics_types.h"
+#include "dg/graphics_types.h"
 #include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"

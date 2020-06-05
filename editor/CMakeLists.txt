@@ -8,6 +8,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
     PRIVATE
+        ${CMAKE_SOURCE_DIR}/tp
         ${CMAKE_SOURCE_DIR}/platforms/include
         ${CMAKE_SOURCE_DIR}/core/include
         ${CMAKE_SOURCE_DIR}/middleware/include

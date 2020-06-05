@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dg/math.h"
+#include "dg/math.h"
 
 
 // convert m to dg::float3x3, inverse, transpose and convert to dg::float4x4

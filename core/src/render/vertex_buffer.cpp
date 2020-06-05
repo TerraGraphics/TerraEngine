@@ -1,7 +1,7 @@
 #include "core/render/vertex_buffer.h"
 
-#include "core/dg/device.h"
-#include "core/dg/context.h"
+#include "dg/device.h"
+#include "dg/context.h"
 #include "core/common/exception.h"
 
 

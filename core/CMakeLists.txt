@@ -8,6 +8,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
     PRIVATE
+        ${CMAKE_SOURCE_DIR}/tp
         ${CMAKE_SOURCE_DIR}/platforms/include
         ${PROJECT_SOURCE_DIR}/src
 )
@@ -26,6 +27,7 @@ add_executable(${PROJECT_TEST_NAME} ${SOURCE_TEST_FILES})
 target_include_directories(${PROJECT_TEST_NAME}
     PRIVATE
         ${PROJECT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/tp
         ${CMAKE_SOURCE_DIR}/platforms/include
 )
 target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})

@@ -1,8 +1,8 @@
 #include "editor/windows/preview_window.h"
 
-#include "core/dg/dg.h"
+#include "dg/dg.h"
+#include "dg/device.h"
 #include "core/engine.h"
-#include "core/dg/device.h"
 #include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "editor/preview_scene.h"

@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "core/dg/context.h"
+#include "dg/context.h"
+#include "dg/graphics_types.h"
+#include "dg/rasterizer_state.h"
 #include "core/common/exception.h"
-#include "core/dg/graphics_types.h"
-#include "core/dg/rasterizer_state.h"
 #include "core/material/material_builder.h"
 
 
