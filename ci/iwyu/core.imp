@@ -2,10 +2,8 @@
     { ref: "./common.imp" },
     { ref: "./tp.imp" },
 
-    { include: ['"core/dg/math.h"', public, '"core/math/types.h"', public] },
+    { include: ['"dg/math.h"', public, '"core/math/types.h"', public] },
 
-    { include: ['"ucl.h"', private, '"core/path/ucl.h"', public] },
-    { include: ['"ucl++.h"', private, '"core/path/ucl.h"', public] },
     { include: ['"fmt/core.h"', private, '"core/str/format.h"', public] },
     { include: ['"fmt/format.h"', private, '"core/str/format.h"', public] },
 

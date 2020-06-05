@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <type_traits>
 
-#include "core/path/ucl.h"
+#include "ucl/ucl.h"
 #include "core/common/exception.h"
 #include "core/material/material_builder_desc.h"
 
