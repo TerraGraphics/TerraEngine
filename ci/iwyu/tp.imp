@@ -27,6 +27,7 @@
 
     { include: ["<Eigen/Core>", private, '"eigen/core.h"', public] },
     { include: ['"Eigen/src/Core/IO.h"', private, '"eigen/core.h"', public] },
+    { include: ['"src/Core/MatrixBase.h"', private, '"eigen/core.h"', public] },
 
 
     { include: ['"DiligentCore/Primitives/interface/Object.h"', private, '"dg/dg.h"', public] },

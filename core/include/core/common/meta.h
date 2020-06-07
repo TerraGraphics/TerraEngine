@@ -10,8 +10,10 @@
 #include <type_traits>
 
 
+namespace meta {
+
 // example: TypeName<double>()
-template <class T> std::string TypeName() {
+template <typename T> std::string TypeName() {
     typedef typename std::remove_reference<T>::type TR;
     std::unique_ptr<char, void(*)(void*)> own
            (
@@ -33,4 +35,24 @@ template <class T> std::string TypeName() {
     else if (std::is_rvalue_reference<T>::value)
         r += "&&";
     return r;
+}
+
+template <typename...>
+    using void_t = void;
+
+template <typename, template <typename> class, typename = void_t<>>
+    struct Detect : std::false_type {};
+
+template <typename T, template <typename> class Op>
+    struct Detect<T, Op, void_t<Op<T>>> : std::true_type {};
+
+template <typename T>
+    using ArrayLikeT = decltype(std::declval<T>()[0]);
+
+template <typename T>
+    using IsArrayLike = Detect<T, ArrayLikeT>;
+
+template <typename T>
+  inline constexpr bool IsArrayLikeV = IsArrayLike<T>::value;
+
 }
