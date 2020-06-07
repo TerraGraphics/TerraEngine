@@ -18,15 +18,15 @@ template<typename T> typename std::enable_if<std::is_floating_point<T>::value, T
     return std::uniform_real_distribution<T>()(randomGenerator);
 }
 
-template<typename T> typename std::enable_if<std::is_same<T, Diligent::float2>::value, T>::type inline Rand() {
+template<typename T> typename std::enable_if<std::is_same<T, dg::float2>::value, T>::type inline Rand() {
     return T(Rand<float>(), Rand<float>());
 }
 
-template<typename T> typename std::enable_if<std::is_same<T, Diligent::float3>::value, T>::type inline Rand() {
+template<typename T> typename std::enable_if<std::is_same<T, dg::float3>::value, T>::type inline Rand() {
     return T(Rand<float>(), Rand<float>(), Rand<float>());
 }
 
-template<typename T> typename std::enable_if<std::is_same<T, Diligent::float4>::value, T>::type inline Rand() {
+template<typename T> typename std::enable_if<std::is_same<T, dg::float4>::value, T>::type inline Rand() {
     return T(Rand<float>(), Rand<float>(), Rand<float>(), Rand<float>());
 }
 
@@ -38,14 +38,14 @@ template<typename T> typename std::enable_if<std::is_floating_point<T>::value, T
     return std::uniform_real_distribution<T>(minValue, maxValue)(randomGenerator);
 }
 
-template<typename T> typename std::enable_if<std::is_same<T, Diligent::float2>::value, T>::type inline LinearRand(const T& minValue, const T& maxValue) {
+template<typename T> typename std::enable_if<std::is_same<T, dg::float2>::value, T>::type inline LinearRand(const T& minValue, const T& maxValue) {
     return T(LinearRand<float>(minValue.x, maxValue.x), LinearRand<float>(minValue.y, maxValue.y));
 }
 
-template<typename T> typename std::enable_if<std::is_same<T, Diligent::float3>::value, T>::type inline LinearRand(const T& minValue, const T& maxValue) {
+template<typename T> typename std::enable_if<std::is_same<T, dg::float3>::value, T>::type inline LinearRand(const T& minValue, const T& maxValue) {
     return T(LinearRand<float>(minValue.x, maxValue.x), LinearRand<float>(minValue.y, maxValue.y), LinearRand<float>(minValue.z, maxValue.z));
 }
 
-template<typename T> typename std::enable_if<std::is_same<T, Diligent::float4>::value, T>::type inline LinearRand(const T& minValue, const T& maxValue) {
+template<typename T> typename std::enable_if<std::is_same<T, dg::float4>::value, T>::type inline LinearRand(const T& minValue, const T& maxValue) {
     return T(LinearRand<float>(minValue.x, maxValue.x), LinearRand<float>(minValue.y, maxValue.y), LinearRand<float>(minValue.z, maxValue.z), LinearRand<float>(minValue.w, maxValue.w));
 }

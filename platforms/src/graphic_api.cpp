@@ -1,16 +1,7 @@
 #include "platforms/graphic_api.h"
 
-#pragma GCC diagnostic push
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#pragma GCC diagnostic pop
-#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
+#include "dg/device.h" // IWYU pragma: keep
+#include "dg/context.h"
 
 
 GraphicAPI::~GraphicAPI() {

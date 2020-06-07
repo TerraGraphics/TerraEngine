@@ -4,28 +4,10 @@
 #include <vector>
 #include <stdexcept>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic push
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
-#pragma GCC diagnostic pop
-
 #include <DiligentCore/Platforms/Linux/interface/LinuxNativeWindow.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
+
+#include "dg/dg.h"
+#include "dg/engine_factory_vk.h"
 
 
 VulkanAPI::VulkanAPI(uint32_t window, xcb_connection_t* connection)
@@ -49,10 +31,10 @@ void VulkanAPI::Create(int validationLevel) {
     LoadGraphicsEngineVk(GetEngineFactoryVk);
 #endif
 
-    auto* engineFactoryVk = Diligent::GetEngineFactoryVk();
+    auto* engineFactoryVk = dg::GetEngineFactoryVk();
     m_engineFactory = engineFactoryVk;
 
-    std::vector<Diligent::IDeviceContext*> contexts;
+    std::vector<ContextRaw> contexts;
     contexts.resize(1 + m_createInfo.NumDeferredContexts);
 
     engineFactoryVk->CreateDeviceAndContextsVk(m_createInfo, &m_device, contexts.data());
@@ -61,12 +43,12 @@ void VulkanAPI::Create(int validationLevel) {
     }
 
     if (!m_swapChain) {
-        Diligent::LinuxNativeWindow nativeWindowHandle;
+        dg::LinuxNativeWindow nativeWindowHandle;
         nativeWindowHandle.WindowId = m_window;
         nativeWindowHandle.pXCBConnection = m_connection;
 
-        Diligent::SwapChainDesc scDesc;
-        scDesc.ColorBufferFormat = Diligent::TEX_FORMAT_BGRA8_UNORM_SRGB;
+        dg::SwapChainDesc scDesc;
+        scDesc.ColorBufferFormat = dg::TEX_FORMAT_BGRA8_UNORM_SRGB;
         engineFactoryVk->CreateSwapChainVk(m_device, contexts[0], scDesc, nativeWindowHandle, &m_swapChain);
     }
 

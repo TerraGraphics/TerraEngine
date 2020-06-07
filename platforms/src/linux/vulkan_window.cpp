@@ -24,17 +24,11 @@
 #    undef False
 #endif
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-#include <DiligentCore/Primitives/interface/Errors.hpp>
-#pragma GCC diagnostic pop
-#include <DiligentCore/Platforms/Linux/interface/LinuxPlatformDefinitions.h>
-
+#include "dg/errors.h"
+#include "dg/pipeline_state.h"
 #include "linux/x11_key_map.h"
 #include "linux/x11_input_handler.h"
+
 
 enum ATOM : uint32_t {
     WM_PROTOCOLS = 0,

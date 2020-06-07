@@ -52,7 +52,7 @@ if (!useOpenGL) {
     vulkanWindow->Create();
 
     auto vulkanAPI = std::make_shared<VulkanAPI>(vulkanWindow->GetWindow(), vulkanWindow->GetConnection());
-    Diligent::EngineVkCreateInfo& info = vulkanAPI->GetCreateInfo();
+    dg::EngineVkCreateInfo& info = vulkanAPI->GetCreateInfo();
     info.DynamicHeapSize = 8 << 21;
     info.DebugMessageCallback = logMessageCallback;
 
@@ -67,7 +67,7 @@ if (!useOpenGL) {
     glWindow->Create();
 
     auto openGLAPI = std::make_shared<OpenGLAPI>(static_cast<uint32_t>(glWindow->GetWindow()), glWindow->GetDisplay());
-    Diligent::EngineGLCreateInfo& info = openGLAPI->GetCreateInfo();
+    dg::EngineGLCreateInfo& info = openGLAPI->GetCreateInfo();
     info.DebugMessageCallback = logMessageCallback;
 
     engineDesc.window = glWindow;

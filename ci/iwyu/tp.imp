@@ -37,10 +37,12 @@
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h"', private, '"dg/graphics_types.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/RasterizerState.h"', private, '"dg/rasterizer_state.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h"', private, '"dg/graphics_utilities.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h"', private, '"dg/engine_factory_vk.h"', public] },
     { include: ['"DiligentCore/Common/interface/DefaultRawMemoryAllocator.hpp"', private, '"dg/default_raw_memory_allocator.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceBinding.h"', private, '"dg/shader_resource_binding.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsEngine/interface/ShaderResourceVariable.h"', private, '"dg/shader_resource_variable.h"', public] },
     { include: ['"DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.hpp"', private, '"dg/graphics_accessories.h"', public] },
+    { include: ['"DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h"', private, '"dg/engine_factory_open_gl.h"', public] },
 
     { include: ['"dg/shader.h"', public, '"dg/device.h"', public] },
     { include: ['"dg/buffer.h"', public, '"dg/device.h"', public] },

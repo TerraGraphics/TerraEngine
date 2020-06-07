@@ -1,6 +1,5 @@
 [
     { ref: "./platform.imp" },
-    { ref: "./tp.imp" },
 
     { include: ['"dg/math.h"', public, '"core/math/types.h"', public] },
 

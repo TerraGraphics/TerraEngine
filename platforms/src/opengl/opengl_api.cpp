@@ -5,29 +5,11 @@
 #include <cstdint>
 #include <stdexcept>
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-#include <DiligentCore/Primitives/interface/Errors.hpp>
-#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
-#pragma GCC diagnostic pop
-
-#pragma GCC diagnostic push
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
-#include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
-#pragma GCC diagnostic pop
-
 #include <DiligentCore/Platforms/interface/NativeWindow.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
-#include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
+
+#include "dg/dg.h"
+#include "dg/errors.h"
+#include "dg/engine_factory_open_gl.h"
 
 
 OpenGLAPI::OpenGLAPI(uint32_t window, Display* display) {
@@ -43,7 +25,7 @@ void OpenGLAPI::Create(int /* validationLevel */) {
     LoadGraphicsEngineOpenGL(GetEngineFactoryOpenGL);
 #endif
 
-    auto* engineFactoryGL = Diligent::GetEngineFactoryOpenGL();
+    auto* engineFactoryGL = dg::GetEngineFactoryOpenGL();
     m_engineFactory = engineFactoryGL;
 
     if (m_createInfo.NumDeferredContexts != 0) {
@@ -51,10 +33,10 @@ void OpenGLAPI::Create(int /* validationLevel */) {
         m_createInfo.NumDeferredContexts = 0;
     }
 
-    std::vector<Diligent::IDeviceContext*> contexts;
+    std::vector<ContextRaw> contexts;
     contexts.resize(1 + m_createInfo.NumDeferredContexts);
 
-    Diligent::SwapChainDesc scDesc;
+    dg::SwapChainDesc scDesc;
     engineFactoryGL->CreateDeviceAndSwapChainGL(m_createInfo, &m_device, contexts.data(), scDesc, &m_swapChain);
     if (!m_device) {
         throw std::runtime_error("failed to initialize OpenGL");

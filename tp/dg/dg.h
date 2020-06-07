@@ -39,6 +39,7 @@ namespace dg = Diligent;
 
 using BufferRaw = dg::IBuffer*;
 using DeviceRaw = dg::IDeviceObject*;
+using ContextRaw = dg::IDeviceContext*;
 using TextureViewRaw = dg::ITextureView*;
 using PipelineStateRaw = dg::IPipelineState*;
 using ShaderResourceVariableRaw = dg::IShaderResourceVariable*;

@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#pragma GCC diagnostic push
-#include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
-#pragma GCC diagnostic pop
 
+#include "dg/graphics_types.h"
 #include "platforms/graphic_api.h"
 
 
@@ -15,10 +13,10 @@ public:
     OpenGLAPI(uint32_t window, Display* display);
     ~OpenGLAPI() override = default;
 
-    Diligent::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
+    dg::EngineGLCreateInfo& GetCreateInfo() noexcept { return m_createInfo; }
 
     void Create(int validationLevel = -1) override;
 
 private:
-    Diligent::EngineGLCreateInfo m_createInfo;
+    dg::EngineGLCreateInfo m_createInfo;
 };
