@@ -7,6 +7,11 @@
     { include: ['"fmt/format.h"', private, '"fmt/fmt.h"', public] },
 
 
+    { include: ['"imgui.h"', private, '"imgui/imgui.h"', public] },
+    { include: ['"imgui_internal.h"', private, '"imgui/internal.h"', public] },
+    { include: ['"imgui_node_editor.h"', private, '"imgui/node_editor.h"', public] },
+
+
     { include: ['"spdlog/common.h"', private, '"log/log.h"', public] },
     { include: ['"spdlog/logger.h"', private, '"log/log.h"', public] },
     { include: ['"spdlog/spdlog.h"', private, '"log/log.h"', public] },

@@ -2,11 +2,11 @@
 
 #include "rttr/rttr.h"
 #include "dg/texture.h"
+#include "imgui/imgui.h"
+#include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
-#include "middleware/imgui/imgui.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
-#include "middleware/imgui/imgui_node_editor.h"
 
 
 namespace gs {

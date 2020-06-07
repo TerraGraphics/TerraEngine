@@ -4,9 +4,9 @@
 
 #include "dg/dg.h"
 #include "dg/device.h"
+#include "imgui/imgui.h"
 #include "core/engine.h"
 #include "dg/texture_utilities.h"
-#include "middleware/imgui/imgui.h"
 #include "editor/windows/property_window.h"
 #include "middleware/graph_editor/graph_editor.h"
 #include "middleware/generator/texture/noise_rasterization.h"

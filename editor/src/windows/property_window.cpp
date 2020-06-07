@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "middleware/imgui/imgui.h"
+#include "imgui/imgui.h"
 
 
 Property::Property(Property::Callback&& drawCallback)

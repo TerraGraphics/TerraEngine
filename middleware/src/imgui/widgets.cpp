@@ -9,12 +9,11 @@
 #include <system_error>
 
 #include "fmt/fmt.h"
+#include "imgui/imgui.h"
+#include "imgui/internal.h"
 #include "middleware/imgui/font.h"
 #include "core/common/exception.h"
-#include "middleware/imgui/imgui.h"
 #include "middleware/imgui/imgui_math.h"
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include "middleware/imgui/imgui_internal.h"
 
 namespace {
 

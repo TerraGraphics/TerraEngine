@@ -5,5 +5,6 @@
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wsign-promo"
 #endif
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 #pragma GCC diagnostic pop

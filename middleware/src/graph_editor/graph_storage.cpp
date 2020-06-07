@@ -5,10 +5,10 @@
 #include <type_traits>
 
 #include "dg/texture.h"
+#include "imgui/imgui.h"
+#include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
 #include "core/common/exception.h"
-#include "middleware/imgui/imgui.h"
-#include "middleware/imgui/imgui_node_editor.h"
 
 
 GraphStorage::GraphStorage(TexturePtr& texBackground)

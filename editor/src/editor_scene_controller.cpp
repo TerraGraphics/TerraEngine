@@ -3,14 +3,14 @@
 #include <cstddef>
 
 #include "dg/dg.h"
+#include "imgui/imgui.h"
+#include "imgui/internal.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
-#include "middleware/imgui/imgui.h"
 #include "editor/windows/graph_window.h"
 #include "editor/windows/preview_window.h"
 #include "editor/windows/gschema_window.h"
 #include "editor/windows/property_window.h"
-#include "middleware/imgui/imgui_internal.h"
 #include "middleware/std_render/std_scene.h"
 
 

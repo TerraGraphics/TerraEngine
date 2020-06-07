@@ -3,11 +3,11 @@
 #include <utility>
 #include <string_view>
 
-#include "middleware/imgui/imgui.h"
+#include "imgui/imgui.h"
+#include "imgui/node_editor.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/editor/gs_draw.h"
 #include "middleware/gscheme/graph/gs_graph.h"
-#include "middleware/imgui/imgui_node_editor.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
 
 namespace gs {

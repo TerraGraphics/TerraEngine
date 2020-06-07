@@ -1,9 +1,9 @@
 #include "editor/windows/gschema_window.h"
 
 #include "dg/dg.h"
+#include "imgui/imgui.h"
 #include "core/engine.h"
 #include "dg/texture_utilities.h"
-#include "middleware/imgui/imgui.h"
 #include "editor/windows/property_window.h"
 #include "middleware/gscheme/editor/gs_editor.h"
 
