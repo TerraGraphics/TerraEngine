@@ -2,7 +2,7 @@
 #include <random>
 #include <cstdint>
 
-#include "gtest.h"
+#include "test/test.h"
 #include "test_helpers.h"
 #include "core/math/types.h"
 #include "core/math/intersection.h"

@@ -1,12 +1,13 @@
 [
-    { ref: "./common.imp" },
+    { ref: "./platform.imp" },
     { ref: "./tp.imp" },
 
     { include: ['"dg/math.h"', public, '"core/math/types.h"', public] },
 
-    { include: ["<gtest/gtest.h>", public, '"gtest.h"', public] },
-
     { include: ["<stdexcept>", public, '"core/common/exception.h"', public] },
+
+    { symbol: ["std::hash", public, '"core/common/hash.h"', public] },
+    { symbol: ["std::size_t", public, '"core/common/hash.h"', public] },
 
     { include: ['"platforms/window.h"', private, '"platforms/platforms.h"', public] },
     { include: ['"platforms/graphic_api.h"', private, '"platforms/platforms.h"', public] },

@@ -13,6 +13,13 @@
     { include: ['"spdlog/sinks/basic_file_sink.h"', private, '"log/basic_file_sink.h"', public] },
 
 
+    { include: ['"gtest/gtest.h"', private, '"test/test.h"', public] },
+    { include: ['"gtest/gtest-message.h"', private, '"test/test.h"', public] },
+    { include: ['"gtest/gtest_pred_impl.h"', private, '"test/test.h"', public] },
+    { include: ['"gtest/gtest-test-part.h"', private, '"test/test.h"', public] },
+    { include: ['"gtest/gtest-typed-test.h"', private, '"test/test.h"', public] },
+
+
     { include: ['"DiligentCore/Primitives/interface/Object.h"', private, '"dg/dg.h"', public] },
     { include: ['"DiligentCore/Common/interface/BasicMath.hpp"', private, '"dg/math.h"', public] },
     { include: ['"DiligentCore/Common/interface/RefCntAutoPtr.hpp"', private, '"dg/dg.h"', public] },

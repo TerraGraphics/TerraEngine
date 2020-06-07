@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "gtest.h"
+#include "test/test.h"
 #include "core/math/equation.h"
 
 

@@ -1,0 +1,4 @@
+[
+    { include: ["<bits/exception.h>", private, "<exception>", public] },
+    { include: ["<exception>", public, "<stdexcept>", public] },
+]

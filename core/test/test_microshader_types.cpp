@@ -2,7 +2,7 @@
 #include <vector>
 #include <utility>
 
-#include "gtest.h"
+#include "test/test.h"
 #include "core/material/microshader_types.h"
 
 namespace {

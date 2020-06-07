@@ -1,7 +1,7 @@
 #include <memory>
 #include <random>
 
-#include "gtest.h"
+#include "test/test.h"
 #include "test_helpers.h"
 #include "core/math/types.h"
 

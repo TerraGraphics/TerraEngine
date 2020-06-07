@@ -1,8 +1,7 @@
-#include "gtest.h"
-
 #include <string>
 #include <cstdint>
 
+#include "test/test.h"
 #include "rttr/rttr.h"
 #include "middleware/gscheme/graph/gs_graph.h"
 
