@@ -14,6 +14,29 @@ namespace gs {
 static_assert(sizeof(Pin) == 24, "sizeof(Pin) == 24 bytes");
 static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
+Node::Node(Node&& other) noexcept {
+    *this = std::move(other);
+}
+
+Node& Node::operator=(Node&& other) noexcept {
+    m_id = other.m_id;
+    m_countEmbeddedPins = other.m_countEmbeddedPins;
+    m_countInputPins = other.m_countInputPins;
+    m_countOutputPins = other.m_countOutputPins;
+    m_changeState = other.m_changeState;
+    m_order = other.m_order;
+    m_nextIndex = other.m_nextIndex;
+    m_pins = other.m_pins;
+    m_typeClass = other.m_typeClass;
+    m_instance = std::move(other.m_instance);
+
+    other.m_pins = nullptr;
+    other.m_typeClass = nullptr;
+    other.m_instance.clear();
+
+    return *this;
+}
+
 void Node::Init(uint16_t id) noexcept {
     m_id = id;
     // next free node index

@@ -1,16 +1,14 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
 #include <string>
-#include <cstring>
 #include <utility>
 #include <algorithm>
 #include <unordered_set>
 
+#include "rttr/rttr.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
-#include "middleware/gscheme/rttr/type.h"
 #include "middleware/gscheme/graph/gs_id.h"
-#include "middleware/gscheme/rttr/variant.h"
 #include "middleware/gscheme/graph/gs_node.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
@@ -220,7 +218,9 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
         m_nodes = new Node[m_capacity];
         delete[] m_indeciesForOrder;
         m_indeciesForOrder = new uint16_t[m_capacity + m_capacity];
-        std::memcpy(m_nodes, prevNodes, prevCapacity * sizeof(Node));
+        for (uint16_t i=0; i!=prevCapacity; ++i) {
+            m_nodes[i] = std::move(prevNodes[i]);
+        }
         delete[] prevNodes;
         for (uint16_t i=prevCapacity; i!=m_capacity; ++i) {
             m_nodes[i].Init(i + 1);

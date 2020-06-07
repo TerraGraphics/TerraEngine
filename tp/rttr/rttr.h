@@ -1,0 +1,16 @@
+#pragma once
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wsign-promo"
+#pragma GCC diagnostic ignored "-Wredundant-decls"
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
+#pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
+#endif
+#include <rttr/variant.h>
+#pragma GCC diagnostic pop

@@ -3,7 +3,7 @@
 #include <string>
 #include <cstdint>
 
-#include "middleware/gscheme/rttr/variant.h"
+#include "rttr/rttr.h"
 #include "middleware/gscheme/graph/gs_graph.h"
 
 

@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
+#include "rttr/rttr.h"
 #include "core/common/ctor.h"
-#include "middleware/gscheme/rttr/variant.h"
 
 
 namespace gs {
@@ -36,6 +36,10 @@ class Node : Fixed {
         Updated = 3,
     };
 public:
+    Node() = default;
+    Node(Node&& other) noexcept;
+    Node& operator=(Node&& other) noexcept;
+
     uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
     bool IsRemoved() const noexcept { return (m_pins == nullptr); }
 
@@ -101,9 +105,9 @@ private:
     // nodeID - index in Graph::m_nodes + 1
     uint16_t m_id = 0;
 
-    uint8_t m_countEmbeddedPins;
-    uint8_t m_countInputPins;
-    uint8_t m_countOutputPins;
+    uint8_t m_countEmbeddedPins = 0;
+    uint8_t m_countInputPins = 0;
+    uint8_t m_countOutputPins = 0;
 
     ChangeState m_changeState = ChangeState::NotChanged;
 
@@ -113,7 +117,7 @@ private:
     };
 
     // index in Graph::m_nodes (next free node or next node for calc)
-    uint16_t m_nextIndex;
+    uint16_t m_nextIndex = 0;
 
     Pin* m_pins = nullptr;
     TypeClass* m_typeClass = nullptr;

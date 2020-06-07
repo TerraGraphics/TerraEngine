@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <string_view>
 
+#include "rttr/rttr.h"
 #include "core/common/ctor.h"
-#include "middleware/gscheme/rttr/variant.h"
 
 
 namespace gs {
