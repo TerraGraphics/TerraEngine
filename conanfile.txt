@@ -1,10 +1,10 @@
 [requires]
+eigen/3.3.7@conan/stable
 fmt/6.0.0@bincrafters/stable
 gtest/1.8.1@bincrafters/stable
 spdlog/1.4.2@bincrafters/stable
 rttr/0.9.6@terragraphics/stable
 libucl/0.8.1@terragraphics/stable
-libnoise/1.0.032caf6@terragraphics/stable
 fastnoise/0.4.faba444@terragraphics/stable
 imgui/1.76.docking.1e7672a@terragraphics/wip
 imgui_node_editor/0.9.2522c65@terragraphics/stable

@@ -8,9 +8,10 @@
 
 #include <DiligentCore/Primitives/interface/DebugOutput.h>
 
-#include "editor.h"
 #include "log/log.h"
 #include "core/engine.h"
+#include "editor/editor.h"
+#include "editor/test_code.h"
 #include "dg/graphics_types.h"
 #include "log/basic_file_sink.h"
 #include "platforms/platforms_supported.h"
@@ -155,15 +156,12 @@ static bool IsCmdOptionExists(char** begin, char** end, const std::string& optio
     return std::find(begin, end, option) != end;
 }
 
-static void Test() {
-}
-
 int main(int argc, char * argv[]) {
     bool useOpenGL = IsCmdOptionExists(argv, argv+argc, "-opengl");
-    bool runTest = IsCmdOptionExists(argv, argv+argc, "-test");
+    bool runTestCode = IsCmdOptionExists(argv, argv+argc, "-test_code");
 
-    if (runTest) {
-        Test();
+    if (runTestCode) {
+        TestCode();
         return EXIT_SUCCESS;
     } else {
         return Run(useOpenGL, spdlog::level::debug, false) ? EXIT_SUCCESS : EXIT_FAILURE;

@@ -28,9 +28,9 @@
             ]
         },
         {
-            "label": "Run Test",
+            "label": "Run Test code",
             "type": "shell",
-            "command": "./terra -test",
+            "command": "./terra -test_code",
             "group": "build",
             "presentation": {
                 "reveal": "always",
