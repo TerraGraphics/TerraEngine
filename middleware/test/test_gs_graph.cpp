@@ -66,7 +66,7 @@ TEST(gsGraph, ReplaceLink) {
     ASSERT_FLOAT(2.f, graph.GetOutputValue(sumId, 0));
 }
 
-TEST(gsGraph, ChangeEmbededPins) {
+TEST(gsGraph, ChangeEmbeddedPins) {
     gs::Graph graph(16);
 
     uint16_t nodeId = graph.AddNode("Constant");
@@ -79,7 +79,7 @@ TEST(gsGraph, ChangeEmbededPins) {
     ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeId, 0));
 }
 
-TEST(gsGraph, ChangeInvalidEmbededPins) {
+TEST(gsGraph, ChangeInvalidEmbeddedPins) {
     gs::Graph graph(16);
 
     uint16_t constantId = graph.AddNode("Constant");

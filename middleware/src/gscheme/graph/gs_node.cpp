@@ -55,7 +55,7 @@ void Node::Create(TypeClass* typeClass, rttr::variant&& instance) {
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
 
     uint32_t typePin = 3; // embeded
-    for(uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
+    for(uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
     }
@@ -105,21 +105,21 @@ bool Node::IsExistsConnectedOutputPins() const noexcept {
     return false;
 }
 
-uint32_t Node::GetEmbededPinId(uint8_t offset) const noexcept {
-    if (offset >= EmbededPinsCount()) {
+uint32_t Node::GetEmbeddedPinId(uint8_t offset) const noexcept {
+    if (offset >= EmbeddedPinsCount()) {
         return 0;
     }
 
-    return m_pins[EmbededPinsBeginIndex() + offset].id;
+    return m_pins[EmbeddedPinsBeginIndex() + offset].id;
 }
 
-void Node::CheckIsValidEmbededPinId(uint32_t pinId) const {
+void Node::CheckIsValidEmbeddedPinId(uint32_t pinId) const {
     if (pinId == 0) {
         throw EngineError("for pinId = {}, min value = 1", pinId);
     }
 
-    if (!IsEmbededFromPinId(pinId)) {
-        throw EngineError("for pinId = {}, flag IsEmbeded not set", pinId);
+    if (!IsEmbeddedFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsEmbedded not set", pinId);
     }
 
     if (m_countEmbeddedPins == 0) {
@@ -127,12 +127,12 @@ void Node::CheckIsValidEmbededPinId(uint32_t pinId) const {
     }
 
     uint8_t pinIndex = PinIndexFromPinId(pinId);
-    if (EmbededPinsBeginIndex() > pinIndex) {
-        throw EngineError("for pinId = {}, pinIndex = {} less than the minimum value = {}", pinId, pinIndex, EmbededPinsBeginIndex());
+    if (EmbeddedPinsBeginIndex() > pinIndex) {
+        throw EngineError("for pinId = {}, pinIndex = {} less than the minimum value = {}", pinId, pinIndex, EmbeddedPinsBeginIndex());
     }
 
-    if (EmbededPinsEndIndex() <= pinIndex) {
-        throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, EmbededPinsEndIndex() - 1);
+    if (EmbeddedPinsEndIndex() <= pinIndex) {
+        throw EngineError("for pinId = {}, pinIndex = {} greater than maximum value = {}", pinId, pinIndex, EmbeddedPinsEndIndex() - 1);
     }
 }
 
@@ -149,8 +149,8 @@ void Node::CheckIsValidInputPinId(uint32_t pinId) const {
         throw EngineError("for pinId = {}, min value = 1", pinId);
     }
 
-    if (IsEmbededFromPinId(pinId)) {
-        throw EngineError("for pinId = {}, flag IsEmbeded is setting", pinId);
+    if (IsEmbeddedFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsEmbedded is setting", pinId);
     }
 
     if (!IsInputFromPinId(pinId)) {
@@ -184,8 +184,8 @@ void Node::CheckIsValidOutputPinId(uint32_t pinId) const {
         throw EngineError("for pinId = {}, min value = 1", pinId);
     }
 
-    if (IsEmbededFromPinId(pinId)) {
-        throw EngineError("for pinId = {}, flag IsEmbeded is setting", pinId);
+    if (IsEmbeddedFromPinId(pinId)) {
+        throw EngineError("for pinId = {}, flag IsEmbedded is setting", pinId);
     }
 
     if (IsInputFromPinId(pinId)) {
@@ -305,7 +305,7 @@ void Node::DrawGraph(IDraw* drawer) {
 
 void Node::DrawNodeProperty(IDraw* drawer) {
     drawer->OnDrawEditingHeader(m_typeClass->GetPrettyName());
-    for (uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
+    for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         auto value = m_typeClass->GetValue(i, m_instance);
         if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), false, m_typeClass->GetDefaultValue(i), value)) {
             SetValue(i, value);

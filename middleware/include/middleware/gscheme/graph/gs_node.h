@@ -54,13 +54,13 @@ private:
     bool IsThisPinAttached(uint8_t inputPinIndex, uint32_t attachedPinID) const noexcept;
     bool IsExistsConnectedOutputPins() const noexcept;
 
-    uint32_t GetEmbededPinId(uint8_t offset) const noexcept;
-    uint8_t EmbededPinsCount() const noexcept { return m_countEmbeddedPins; }
-    uint8_t EmbededPinsBeginIndex() const noexcept { return 0; }
-    uint8_t EmbededPinsEndIndex() const noexcept { return m_countEmbeddedPins; }
-    const Pin* EmbededPinsBegin() const noexcept { return &m_pins[EmbededPinsBeginIndex()]; }
-    const Pin* EmbededPinsEnd() const noexcept { return &m_pins[EmbededPinsEndIndex()]; }
-    void CheckIsValidEmbededPinId(uint32_t pinId) const;
+    uint32_t GetEmbeddedPinId(uint8_t offset) const noexcept;
+    uint8_t EmbeddedPinsCount() const noexcept { return m_countEmbeddedPins; }
+    uint8_t EmbeddedPinsBeginIndex() const noexcept { return 0; }
+    uint8_t EmbeddedPinsEndIndex() const noexcept { return m_countEmbeddedPins; }
+    const Pin* EmbeddedPinsBegin() const noexcept { return &m_pins[EmbeddedPinsBeginIndex()]; }
+    const Pin* EmbeddedPinsEnd() const noexcept { return &m_pins[EmbeddedPinsEndIndex()]; }
+    void CheckIsValidEmbeddedPinId(uint32_t pinId) const;
 
     uint32_t GetInputPinId(uint8_t offset) const noexcept;
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }

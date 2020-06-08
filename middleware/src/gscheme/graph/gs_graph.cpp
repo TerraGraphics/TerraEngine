@@ -150,7 +150,7 @@ const rttr::variant& Graph::GetOutputValue(uint16_t nodeId, uint8_t outputPinOff
 
 void Graph::SetEmbeddedValue(uint32_t pinId, const rttr::variant& value) {
     try {
-        CheckIsValidEmbededPinId(pinId);
+        CheckIsValidEmbeddedPinId(pinId);
     } catch(const EngineError& e) {
         throw EngineError("gs::Graph::SetEmbeddedValue: wrong pinId, {}", e.what());
     }
@@ -165,7 +165,7 @@ void Graph::SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const r
         throw EngineError("gs::Graph::SetEmbeddedValue: wrong nodeId, {}", e.what());
     }
 
-    return SetEmbeddedValue(m_nodes[nodeId - 1].GetEmbededPinId(embeddedPinOffset), value);
+    return SetEmbeddedValue(m_nodes[nodeId - 1].GetEmbeddedPinId(embeddedPinOffset), value);
 }
 
 void Graph::SetInputValue(uint32_t pinId, const rttr::variant& value) {
@@ -434,10 +434,10 @@ void Graph::CheckIsValidNodeId(uint16_t nodeId) const {
     }
 }
 
-void Graph::CheckIsValidEmbededPinId(uint32_t pinId) const {
+void Graph::CheckIsValidEmbeddedPinId(uint32_t pinId) const {
     uint16_t nodeId = NodeIdFromPinId(pinId);
     CheckIsValidNodeId(nodeId);
-    m_nodes[nodeId - 1].CheckIsValidEmbededPinId(pinId);
+    m_nodes[nodeId - 1].CheckIsValidEmbeddedPinId(pinId);
 }
 
 void Graph::CheckIsValidInputPinId(uint32_t pinId) const {
