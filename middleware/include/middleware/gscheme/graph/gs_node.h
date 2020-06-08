@@ -20,9 +20,8 @@ struct Pin : Fixed {
         uint32_t linksCount;
     };
 
-    // defaultValue for embeded or input Pin
     // cachedValue for output pin
-    rttr::variant value;
+    rttr::variant cachedValue;
 };
 
 class IDraw;

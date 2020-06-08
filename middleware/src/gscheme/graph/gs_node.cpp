@@ -58,21 +58,19 @@ void Node::Create(TypeClass* typeClass, rttr::variant&& instance) {
     for(uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
-        m_pins[i].value = m_typeClass->GetValue(i, m_instance);
     }
 
     typePin = 1; // input
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
-        m_pins[i].value = m_typeClass->GetValue(i, m_instance);
     }
 
     typePin = 0; // output
     for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].linksCount = 0;
-        m_pins[i].value = m_typeClass->GetValue(i, m_instance);
+        m_pins[i].cachedValue = m_typeClass->GetValue(i, m_instance);
     }
 }
 
@@ -274,7 +272,7 @@ uint16_t Node::UpdateState(Node* nodes) {
     if (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs)) {
         for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
             isChanged = true;
-            m_pins[outputPinIndex].value = m_typeClass->GetValue(outputPinIndex, m_instance);
+            m_pins[outputPinIndex].cachedValue = m_typeClass->GetValue(outputPinIndex, m_instance);
         }
     }
 
@@ -309,20 +307,20 @@ void Node::DrawNodeProperty(IDraw* drawer) {
     drawer->OnDrawEditingHeader(m_typeClass->GetPrettyName());
     for (uint8_t i=EmbededPinsBeginIndex(); i!=EmbededPinsEndIndex(); ++i) {
         auto value = m_typeClass->GetValue(i, m_instance);
-        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), false, m_pins[i].value, value)) {
+        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), false, m_typeClass->GetDefaultValue(i), value)) {
             SetValue(i, value);
         }
     }
     for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         auto value = m_typeClass->GetValue(i, m_instance);
-        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), m_pins[i].value, value)) {
+        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), m_typeClass->GetDefaultValue(i), value)) {
             SetValue(i, value);
         }
     }
 }
 
 const rttr::variant& Node::GetValue(uint8_t pinIndex) const {
-    return m_pins[pinIndex].value;
+    return m_pins[pinIndex].cachedValue;
 }
 
 void Node::SetValue(uint8_t pinIndex, const rttr::variant& value) {
@@ -337,8 +335,7 @@ void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexc
 
 void Node::DetachFromInputPin(uint8_t inputPinIndex) {
     m_changeState = ChangeState::NeedUpdateOutputs;
-    // Restore default value
-    m_typeClass->SetValue(inputPinIndex, m_instance, m_pins[inputPinIndex].value);
+    m_typeClass->ResetToDefault(inputPinIndex, m_instance);
     m_pins[inputPinIndex].attachedPinID = 0;
 }
 
@@ -346,8 +343,7 @@ void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
             m_changeState = ChangeState::NeedUpdateOutputs;
-            // Restore default value
-            m_typeClass->SetValue(i, m_instance, m_pins[i].value);
+            m_typeClass->ResetToDefault(i, m_instance);
             m_pins[i].attachedPinID = 0;
         }
     }

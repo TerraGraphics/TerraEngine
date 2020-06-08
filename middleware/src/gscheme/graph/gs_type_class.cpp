@@ -10,7 +10,7 @@
 
 namespace gs {
 
-static_assert(sizeof(TypeClass) == 24, "sizeof(TypeClass) == 24 bytes");
+static_assert(sizeof(TypeClass) == 32, "sizeof(TypeClass) == 32 bytes");
 
 static const rttr::type::type_id TYPE_FLOAT = rttr::type::get<float>().get_id();
 static const rttr::type::type_id TYPE_STRING = rttr::type::get<std::string>().get_id();
@@ -18,6 +18,9 @@ static const rttr::type::type_id TYPE_STRING = rttr::type::get<std::string>().ge
 TypeClass::~TypeClass() {
     if (m_props != nullptr) {
         free(m_props);
+    }
+    if (m_defaults != nullptr) {
+        delete[] m_defaults;
     }
 }
 
@@ -84,8 +87,18 @@ std::string TypeClass::GetPinPrettyName(uint8_t pinIndex) const {
     return m_props[pinIndex].get_metadata(metaName).get_value<std::string>();
 }
 
-rttr::variant TypeClass::NewInstance() const {
-    return m_clsType.create();
+rttr::variant TypeClass::NewInstance() {
+    if (m_defaults != nullptr) {
+        return m_clsType.create();
+    } else {
+        auto instance = m_clsType.create();
+        m_defaults = new rttr::variant[m_countEmbeddedPins + m_countInputPins];
+        for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
+            m_defaults[i] = m_props[i].get_value(instance);
+        }
+
+        return instance;
+    }
 }
 
 rttr::variant TypeClass::GetValue(uint8_t pinIndex, rttr::variant& instance) const {
@@ -94,6 +107,14 @@ rttr::variant TypeClass::GetValue(uint8_t pinIndex, rttr::variant& instance) con
 
 void TypeClass::SetValue(uint8_t pinIndex, rttr::variant& instance, const rttr::variant& value) const {
     m_props[pinIndex].set_value(instance, value);
+}
+
+const rttr::variant& TypeClass::GetDefaultValue(uint8_t pinIndex) const {
+    return m_defaults[pinIndex];
+}
+
+void TypeClass::ResetToDefault(uint8_t pinIndex, rttr::variant& instance) const {
+    m_props[pinIndex].set_value(instance, m_defaults[pinIndex]);
 }
 
 void TypeClass::CheckClassType(const rttr::type& clsType) const {

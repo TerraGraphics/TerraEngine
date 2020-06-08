@@ -31,10 +31,13 @@ public:
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
-    rttr::variant NewInstance() const;
+    rttr::variant NewInstance();
 
     rttr::variant GetValue(uint8_t pinIndex, rttr::variant& instance) const;
     void SetValue(uint8_t pinIndex, rttr::variant& instance, const rttr::variant& value) const;
+
+    const rttr::variant& GetDefaultValue(uint8_t pinIndex) const;
+    void ResetToDefault(uint8_t pinIndex, rttr::variant& instance) const;
 
 private:
     void CheckClassType(const rttr::type& clsType) const;
@@ -44,6 +47,7 @@ private:
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
     rttr::property* m_props = nullptr;
+    rttr::variant* m_defaults = nullptr;
     rttr::type m_clsType = rttr::type::get<bool>();
 };
 
