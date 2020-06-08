@@ -5,6 +5,7 @@
 #include "rttr/rttr.h"
 #include "eigen/core.h"
 #include "core/math/generator_type.h"
+#include "middleware/gscheme/graph/gs_universal_type.h"
 
 
 namespace gs {
@@ -16,6 +17,7 @@ template <typename T> inline constexpr bool IsVector4f = std::is_same_v<T, Eigen
 template <typename T> inline constexpr bool IsVector = IsVector2f<T> || IsVector3f<T> || IsVector4f<T>;
 template <typename T> inline constexpr bool IsGenerator2D = std::is_same_v<T, math::Generator2D>;
 template <typename T> inline constexpr bool IsGenerator3D = std::is_same_v<T, math::Generator3D>;
+template <typename T> inline constexpr bool IsUniversalType = std::is_same_v<T, UniversalType>;
 
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T>>>
@@ -76,9 +78,23 @@ template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T
     }
 }
 
-template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat<To> || IsVector<To> || IsGenerator2D<To> || IsGenerator3D<To>>>
-    To ConvertTo(const From& value) {
-    if constexpr (IsFloat<To>) {
+template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T> || IsGenerator2D<T> || IsGenerator3D<T> || IsUniversalType<T>>>
+    UniversalType ToGenerator3D(const T value) {
+    if constexpr (IsUniversalType<T>) {
+        return value;
+    } else if constexpr (IsFloat<T> || IsVector<T> || IsGenerator2D<T> || IsGenerator3D<T>) {
+        return UniversalType(value);
+    }
+}
+
+template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat<To> || IsVector<To> || IsGenerator2D<To> || IsGenerator3D<To> || IsUniversalType<To>>>
+    To ConvertTo(const From value) {
+    if constexpr (IsUniversalType<From>) {
+        return std::visit([](auto&& v) {
+            using valueType = std::remove_cvref_t<decltype(v)>;
+            return ConvertTo<valueType, To>(v);
+        }, value);
+    } else if constexpr (IsFloat<To>) {
         return ToFloat(value);
     } else if constexpr (IsVector2f<To>) {
         return ToVector2f(value);
@@ -90,6 +106,8 @@ template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat
         return ToGenerator2D(value);
     } else if constexpr (IsGenerator3D<To>) {
         return ToGenerator3D(value);
+    } else if constexpr (IsUniversalType<To>) {
+        return ToUniversalType(value);
     }
 }
 

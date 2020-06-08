@@ -5,6 +5,7 @@
 #include "rttr/rttr.h"
 #include "eigen/core.h"
 #include "core/math/generator_type.h"
+#include "middleware/gscheme/graph/gs_universal_type.h"
 
 
 namespace gs {
@@ -39,6 +40,11 @@ uintptr_t TypeIdGenerator3D() {
     return typeId;
 }
 
+uintptr_t TypeIdUniversalType() {
+    static const rttr::type::type_id typeId = rttr::type::get<UniversalType>().get_id();
+    return typeId;
+}
+
 uintptr_t TypeIdString() {
     static const rttr::type::type_id typeId = rttr::type::get<std::string>().get_id();
     return typeId;
@@ -51,7 +57,8 @@ bool IsValidEmbeddedPinTypeId(uintptr_t typeId) {
         (typeId == TypeIdVector3f()) ||
         (typeId == TypeIdVector4f()) ||
         (typeId == TypeIdGenerator2D()) ||
-        (typeId == TypeIdGenerator3D())
+        (typeId == TypeIdGenerator3D()) ||
+        (typeId == TypeIdUniversalType())
     );
 }
 
@@ -62,7 +69,8 @@ bool IsValidInputPinTypeId(uintptr_t typeId) {
         (typeId == TypeIdVector3f()) ||
         (typeId == TypeIdVector4f()) ||
         (typeId == TypeIdGenerator2D()) ||
-        (typeId == TypeIdGenerator3D())
+        (typeId == TypeIdGenerator3D()) ||
+        (typeId == TypeIdUniversalType())
     );
 }
 
@@ -73,7 +81,8 @@ bool IsValidOutputPinTypeId(uintptr_t typeId) {
         (typeId == TypeIdVector3f()) ||
         (typeId == TypeIdVector4f()) ||
         (typeId == TypeIdGenerator2D()) ||
-        (typeId == TypeIdGenerator3D())
+        (typeId == TypeIdGenerator3D()) ||
+        (typeId == TypeIdUniversalType())
     );
 }
 

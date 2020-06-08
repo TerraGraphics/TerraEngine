@@ -52,6 +52,7 @@ uintptr_t TypeIdVector3f();
 uintptr_t TypeIdVector4f();
 uintptr_t TypeIdGenerator2D();
 uintptr_t TypeIdGenerator3D();
+uintptr_t TypeIdUniversalType();
 uintptr_t TypeIdString();
 
 bool IsValidEmbeddedPinTypeId(uintptr_t typeId);
