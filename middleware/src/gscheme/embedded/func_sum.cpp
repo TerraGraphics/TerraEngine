@@ -15,7 +15,7 @@ float FuncSum::GetA() const noexcept {
     return m_a;
 }
 
-void FuncSum::SetA(float v) noexcept {
+void FuncSum::SetA(const float v) noexcept {
     m_a = v;
 }
 
@@ -23,7 +23,7 @@ float FuncSum::GetB() const noexcept {
     return m_b;
 }
 
-void FuncSum::SetB(float v) noexcept {
+void FuncSum::SetB(const float v) noexcept {
     m_b = v;
 }
 

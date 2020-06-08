@@ -13,9 +13,9 @@ public:
     float Result() const noexcept;
 
     float GetA() const noexcept;
-    void SetA(float v) noexcept;
+    void SetA(const float v) noexcept;
     float GetB() const noexcept;
-    void SetB(float v) noexcept;
+    void SetB(const float v) noexcept;
 
 private:
     float m_a = 0.f;
