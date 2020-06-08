@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "core/common/exception.h"
+#include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
@@ -11,9 +12,6 @@
 namespace gs {
 
 static_assert(sizeof(TypeClass) == 32, "sizeof(TypeClass) == 32 bytes");
-
-static const rttr::type::type_id TYPE_FLOAT = rttr::type::get<float>().get_id();
-static const rttr::type::type_id TYPE_STRING = rttr::type::get<std::string>().get_id();
 
 TypeClass::~TypeClass() {
     if (m_props != nullptr) {
@@ -135,7 +133,7 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
     if (!clsMeta.is_valid()) {
         throw EngineError("invalid clsType (name = '{}'), has invalid metadata CLASS", clsName);
     }
-    if (clsMeta.get_type().get_id() != TYPE_STRING) {
+    if (clsMeta.get_type().get_id() != TypeIdString()) {
         throw EngineError("invalid clsType (name = '{}'), has invalid value type = '{}' for metadata CLASS, need std::string",
             clsName, clsMeta.get_type().get_name().to_string());
     }
@@ -155,25 +153,33 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
             throw EngineError("invalid clsType (name = '{}'), has property with empty name", clsName);
         }
 
-        if (prop.get_type().get_id() != TYPE_FLOAT) {
-            throw EngineError(
-                "invalid clsType (name = '{}'), has property with name = '{}' and unknown type = '{}'",
-                clsName, propName, prop.get_type().get_name().to_string());
-        }
-
+        bool isValidType = false;
+        auto propTypeId = prop.get_type().get_id();
         auto propMeta = prop.get_metadata(MetaTypes::EMBEDDED_PROPERTY);
-        if (!propMeta.is_valid()) {
+        if (propMeta.is_valid()) {
+            isValidType = IsValidEmbeddedPinTypeId(propTypeId);
+        } else  {
             propMeta = prop.get_metadata(MetaTypes::INPUT_PIN);
-            if (!propMeta.is_valid()) {
+            if (propMeta.is_valid()) {
+                isValidType = IsValidInputPinTypeId(propTypeId);
+            } else {
                 propMeta = prop.get_metadata(MetaTypes::OUTPUT_PIN);
-                if (!propMeta.is_valid()) {
+                if (propMeta.is_valid()) {
+                    isValidType = IsValidOutputPinTypeId(propTypeId);
+                } else {
                     throw EngineError("invalid clsType (name = '{}'), has property with name = '{}' and without metadata",
                         clsName, propName);
                 }
             }
         }
 
-        if (propMeta.get_type().get_id() != TYPE_STRING) {
+        if (!isValidType) {
+            throw EngineError(
+                "invalid clsType (name = '{}'), has property with name = '{}' and unknown type = '{}'",
+                clsName, propName, prop.get_type().get_name().to_string());
+        }
+
+        if (propMeta.get_type().get_id() != TypeIdString()) {
             throw EngineError(
                 "invalid clsType (name = '{}'), has property with name = '{}' and invalid metadata value type = '{}', need std::string",
                 clsName, propName, propMeta.get_type().get_name().to_string());
