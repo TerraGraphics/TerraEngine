@@ -11,7 +11,7 @@ namespace math {
 template<typename T>
     using GeneratorEnabledType = typename std::enable_if<std::is_floating_point_v<T>>::type;
 
-template <typename T, typename = GeneratorEnabledType<T>>
+template <typename T, typename Enable = GeneratorEnabledType<T>>
     class Generator2 {
 public:
     using Type = T;
