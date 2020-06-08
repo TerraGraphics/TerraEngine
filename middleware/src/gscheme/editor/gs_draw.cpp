@@ -2,11 +2,14 @@
 
 #include "rttr/rttr.h"
 #include "dg/texture.h"
+#include "eigen/core.h"
 #include "imgui/imgui.h"
 #include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
+#include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/gscheme/graph/gs_id.h"
 
 
 namespace gs {
@@ -138,13 +141,60 @@ void Draw::OnDrawEditingHeader(const std::string& prettyName) {
 }
 
 bool Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, const rttr::variant& /* defaultValue */, rttr::variant& value) {
-    float tmp = value.get_value<float>();
-    if (gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}")) {
-        value = tmp;
-        return true;
+    bool isChanded = false;
+    auto typeId = value.get_type().get_id();
+
+    if (typeId == TypeIdFloat()) {
+        auto tmp = value.get_value<float>();
+        isChanded |= gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}");
+
+        if (isChanded) {
+            value = tmp;
+        }
+    } else if (typeId == TypeIdVector2f()) {
+        if (!prettyName.empty()) {
+            gui::Text(prettyName + ":");
+        }
+        auto tmp = value.get_value<Eigen::Vector2f>();
+
+        isChanded |= gui::InputScalar<float>("R", tmp[0], 0.0001f, "{:.4f}");
+        isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
+
+        if (isChanded) {
+            value = tmp;
+        }
+    } else if (typeId == TypeIdVector3f()) {
+        if (!prettyName.empty()) {
+            gui::Text(prettyName + ":");
+        }
+        auto tmp = value.get_value<Eigen::Vector3f>();
+
+        isChanded |= gui::InputScalar<float>("R", tmp[0], 0.0001f, "{:.4f}");
+        isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
+        isChanded |= gui::InputScalar<float>("B", tmp[2], 0.0001f, "{:.4f}");
+
+        if (isChanded) {
+            value = tmp;
+        }
+    } else if (typeId == TypeIdVector4f()) {
+        if (!prettyName.empty()) {
+            gui::Text(prettyName + ":");
+        }
+        auto tmp = value.get_value<Eigen::Vector4f>();
+
+        isChanded |= gui::InputScalar<float>("R", tmp[0], 0.0001f, "{:.4f}");
+        isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
+        isChanded |= gui::InputScalar<float>("B", tmp[2], 0.0001f, "{:.4f}");
+        isChanded |= gui::InputScalar<float>("A", tmp[3], 0.0001f, "{:.4f}");
+
+        if (isChanded) {
+            value = tmp;
+        }
+    } else {
+        throw EngineError("gs::Draw::OnDrawEditingPin: unknown value type with name = {}", value.get_type().get_name().to_string());
     }
 
-    return false;
+    return isChanded;
 }
 
 }

@@ -46,4 +46,12 @@ inline uint64_t LinkId(uint32_t srcPinId, uint32_t dstPinId) {
     return (static_cast<uint64_t>(srcPinId) << uint64_t(32)) | static_cast<uint64_t>(dstPinId);
 }
 
+uintptr_t TypeIdFloat();
+uintptr_t TypeIdVector2f();
+uintptr_t TypeIdVector3f();
+uintptr_t TypeIdVector4f();
+uintptr_t TypeIdString();
+
+bool IsValidPinTypeId(uintptr_t typeId);
+
 }
