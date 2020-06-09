@@ -33,7 +33,7 @@ public:
     Generator2& operator=(const Generator2& other) { m_functor = other.m_functor; return *this; }
     Generator2& operator=(Generator2&& other) noexcept { m_functor = std::move(other.m_functor); return *this; }
 
-    T operator()(T x, T y) { return m_functor(x, y); }
+    T operator()(T x, T y) const { return m_functor(x, y); }
 
 private:
     Functor m_functor = [](T, T) { return 0.f; };
@@ -64,7 +64,7 @@ public:
     Generator3& operator=(const Generator3& other) { m_functor = other.m_functor; return *this; }
     Generator3& operator=(Generator3&& other) noexcept { m_functor = std::move(other.m_functor); return *this; }
 
-    T operator()(T x, T y, T z) { return m_functor(x, y, z); }
+    T operator()(T x, T y, T z) const { return m_functor(x, y, z); }
 
 private:
     Functor m_functor = [](T, T, T) { return 0.f; };

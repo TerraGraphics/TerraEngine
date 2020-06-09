@@ -10,16 +10,6 @@
 
 namespace gs {
 
-template <typename T> inline constexpr bool IsFloat = std::is_same_v<T, float>;
-template <typename T> inline constexpr bool IsVector2f = std::is_same_v<T, Eigen::Vector2f>;
-template <typename T> inline constexpr bool IsVector3f = std::is_same_v<T, Eigen::Vector3f>;
-template <typename T> inline constexpr bool IsVector4f = std::is_same_v<T, Eigen::Vector4f>;
-template <typename T> inline constexpr bool IsVector = IsVector2f<T> || IsVector3f<T> || IsVector4f<T>;
-template <typename T> inline constexpr bool IsGenerator2D = std::is_same_v<T, math::Generator2D>;
-template <typename T> inline constexpr bool IsGenerator3D = std::is_same_v<T, math::Generator3D>;
-template <typename T> inline constexpr bool IsUniversalType = std::is_same_v<T, UniversalType>;
-
-
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T>>>
     float ToFloat(const T value) {
     if constexpr (IsFloat<T>) {
@@ -39,7 +29,7 @@ template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T
     } else if constexpr (IsVector2f<T>) {
         return value;
     } else if constexpr (IsVector3f<T> || IsVector4f<T>) {
-        return value.head(2);
+        return Eigen::Vector2f(value[0], value[1]);
     }
 }
 
@@ -53,7 +43,7 @@ template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector3f
     } else if constexpr (IsVector3f<T>) {
         return value;
     } else if constexpr (IsVector4f<T>) {
-        return value.head(3);
+        return Eigen::Vector3f(value[0], value[1], value[2]);
     }
 }
 
@@ -63,7 +53,7 @@ template <typename T>
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector4f<T>>>
     Eigen::Vector4f ToVector4f(const T value) {
     if constexpr (IsFloat<T>) {
-        return Eigen::Vector3f(value, value, value);
+        return Eigen::Vector4f(value, value, value, value);
     } else if constexpr (IsVector4f<T>) {
         return value;
     }

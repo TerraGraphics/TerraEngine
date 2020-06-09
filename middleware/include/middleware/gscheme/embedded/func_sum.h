@@ -12,9 +12,9 @@ public:
 
     float Result() const noexcept;
 
-    float GetA() const noexcept;
+    float GetA() const noexcept { return m_a; }
     void SetA(const float v) noexcept;
-    float GetB() const noexcept;
+    float GetB() const noexcept { return m_b; }
     void SetB(const float v) noexcept;
 
 private:
