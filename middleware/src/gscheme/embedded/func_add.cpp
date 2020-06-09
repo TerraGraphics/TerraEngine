@@ -3,12 +3,11 @@
 #include <variant>
 #include <type_traits>
 
+#include "eigen/core.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_convert.h"
 
-
-#include <iostream>
 
 namespace gs {
 
@@ -51,7 +50,7 @@ template<typename T>
 template<typename TMin, typename TMax>
     static TMax TSumMinMax(const TMin& valMin, const TMax& valMax) {
         if constexpr (!CanConvert<TMax, TMin>) {
-            throw EngineError("gs::Add::Result: types are not compatible");
+            throw EngineError("gs::FuncAdd::Result: types are not compatible");
         } else if constexpr (IsGenerator2D<TMax>) {
             return TSumGenerator2D(valMax, valMin);
         } else if constexpr (IsGenerator3D<TMax>) {

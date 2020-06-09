@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(platforms VERSION 0.3 LANGUAGES CXX)
+project(platforms VERSION 0.4 LANGUAGES CXX)
 
 include(platforms_check.cmake)
 

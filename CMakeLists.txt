@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(terra_engine VERSION 0.3)
+project(terra_engine VERSION 0.4)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
