@@ -2,7 +2,6 @@
 
 #include <type_traits>
 
-#include "rttr/rttr.h"
 #include "eigen/core.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_universal_type.h"

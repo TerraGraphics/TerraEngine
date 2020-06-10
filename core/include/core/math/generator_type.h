@@ -56,7 +56,7 @@ public:
     explicit Generator3(Functor&& functor) noexcept : m_functor(std::move(functor)) { }
 
     template <typename U, typename CtorEnable = GeneratorEnabledType<U>>
-        explicit Generator3(U value) : m_functor([v = static_cast<T>(value)](T, T) -> T { return v; }) { }
+        explicit Generator3(U value) : m_functor([v = static_cast<T>(value)](T, T, T) -> T { return v; }) { }
 
     template <typename U, typename CtorEnable = std::enable_if_t<meta::IsArrayLikeV<U>>>
         explicit Generator3(const U& value) : Generator3(value[0]) { }
