@@ -11,7 +11,8 @@
 namespace gs {
 
 enum class TypeId : uint8_t {
-    Int8 = 0,
+    Unknown = 0,
+    Int8 = 1,
     Uint8 = 2,
     Int16 = 3,
     Uint16 = 4,
@@ -21,14 +22,22 @@ enum class TypeId : uint8_t {
     Uint64 = 8,
     Float = 9,
     Double = 10,
-    String = 11,
-    Vector2f = 12,
-    Vector3f = 13,
-    Vector4f = 14,
-    Generator2D = 15,
-    Generator3D = 16,
+    Vector2f = 11,
+    Vector3f = 12,
+    Vector4f = 13,
+    Generator2D = 14,
+    Generator3D = 15,
+    String = 16,
     UniversalType = 128,
+    UniversalFloat = UniversalType + Float,
+    UniversalVector2f = UniversalType + Vector2f,
+    UniversalVector3f = UniversalType + Vector3f,
+    UniversalVector4f = UniversalType + Vector4f,
+    UniversalGenerator2D = UniversalType + Generator2D,
+    UniversalGenerator3D = UniversalType + Generator3D,
 };
+
+TypeId MaxTypeId(TypeId a, TypeId b);
 
 using UniversalType = std::variant<float, Eigen::Vector2f, Eigen::Vector3f, Eigen::Vector4f, math::Generator2D, math::Generator3D>;
 
@@ -45,12 +54,12 @@ template <typename T> inline constexpr bool IsInt64 = std::is_same_v<T, int64_t>
 template <typename T> inline constexpr bool IsUint64 = std::is_same_v<T, uint64_t>;
 template <typename T> inline constexpr bool IsFloat = std::is_same_v<T, float>;
 template <typename T> inline constexpr bool IsDouble = std::is_same_v<T, double>;
-template <typename T> inline constexpr bool IsString = std::is_same_v<T, std::string>;
 template <typename T> inline constexpr bool IsVector2f = std::is_same_v<T, Eigen::Vector2f>;
 template <typename T> inline constexpr bool IsVector3f = std::is_same_v<T, Eigen::Vector3f>;
 template <typename T> inline constexpr bool IsVector4f = std::is_same_v<T, Eigen::Vector4f>;
 template <typename T> inline constexpr bool IsGenerator2D = std::is_same_v<T, math::Generator2D>;
 template <typename T> inline constexpr bool IsGenerator3D = std::is_same_v<T, math::Generator3D>;
+template <typename T> inline constexpr bool IsString = std::is_same_v<T, std::string>;
 template <typename T> inline constexpr bool IsUniversalType = std::is_same_v<T, UniversalType>;
 
 template <typename T> inline constexpr bool IsVector = IsVector2f<T> || IsVector3f<T> || IsVector4f<T>;
