@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/common/ctor.h"
-#include "middleware/gscheme/graph/gs_universal_type.h"
+#include "middleware/gscheme/graph/gs_types.h"
 
 
 namespace gs {

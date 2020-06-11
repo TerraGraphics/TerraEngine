@@ -1,6 +1,8 @@
 #include <string>
+#include <variant>
 
 #include "test/test.h"
+#include "eigen/core.h"
 #include "middleware/gscheme/embedded/func_add.h"
 
 

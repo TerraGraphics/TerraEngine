@@ -7,6 +7,7 @@
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_convert.h"
+#include "middleware/gscheme/graph/gs_universal_type.h"
 
 
 namespace gs {
