@@ -14,12 +14,11 @@ namespace gs {
 
 class Node;
 class IDraw;
-class TypeClass;
 class TypeStorage;
 class Graph : Fixed {
 public:
     Graph() = delete;
-    Graph(std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount = 16);
+    Graph(const std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount = 16);
     ~Graph();
 
     void UpdateState();

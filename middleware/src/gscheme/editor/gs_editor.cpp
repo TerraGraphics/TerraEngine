@@ -1,22 +1,25 @@
 #include "middleware/gscheme/editor/gs_editor.h"
 
 #include <utility>
-#include <string_view>
 
 #include "imgui/imgui.h"
 #include "imgui/node_editor.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/editor/gs_draw.h"
 #include "middleware/gscheme/graph/gs_graph.h"
+#include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
+#include "middleware/gscheme/graph/gs_type_storage.h"
+
 
 namespace gs {
 
-Editor::Editor(const std::string& name, TexturePtr& texBackground)
+Editor::Editor(const std::shared_ptr<TypeStorage>& typeStorage, const std::string& name, TexturePtr& texBackground)
     : m_name(name)
     , m_config(new ne::Config())
     , m_draw(new Draw(texBackground))
-    , m_graph(new Graph(16)) {
+    , m_graph(new Graph(typeStorage, 16))
+    , m_typeStorage(typeStorage) {
 
 }
 
@@ -129,17 +132,19 @@ void Editor::DrawNodeProperty() {
 }
 
 void Editor::DrawNewNodeMenu(float x, float y) {
-    std::string_view newNodeTypeName;
+    uint16_t newNodeTypeClassIndex = gs::INVALID_TYPE_CLASS_INDEX;
     if (ImGui::BeginMenu("All")) {
-        for(const auto* it = m_graph->TypeClassesBegin(); it != m_graph->TypeClassesEnd(); ++it) {
+        uint16_t index = 0;
+        for(const auto* it = m_typeStorage->TypeClassesBegin(); it != m_typeStorage->TypeClassesEnd(); ++it, ++index) {
             if (ImGui::MenuItem(it->GetPrettyName().c_str())) {
-                newNodeTypeName = it->GetName();
+                newNodeTypeClassIndex = index;
             }
+
         }
         ImGui::EndMenu();
     }
-    if (!newNodeTypeName.empty()) {
-        auto nodeId =  m_graph->AddNode(newNodeTypeName);
+    if (newNodeTypeClassIndex != gs::INVALID_TYPE_CLASS_INDEX) {
+        auto nodeId =  m_graph->AddNode(newNodeTypeClassIndex);
         ne::SetNodePosition(ne::NodeId(nodeId), ImVec2(x, y));
     }
 }

@@ -1,19 +1,14 @@
 #include "middleware/gscheme/graph/gs_graph.h"
 
-#include <string>
 #include <utility>
 #include <algorithm>
-#include <unordered_set>
 
-#include "rttr/rttr.h"
-#include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_node.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
 #include "middleware/gscheme/graph/gs_type_storage.h"
-#include "middleware/gscheme/reflection/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
