@@ -6,7 +6,7 @@
 
 namespace {
 
-TEST(gsTypes, MaxTypeId) {
+TEST(GSTypes, MaxTypeId) {
     ASSERT_EQ(gs::TypeId::Float, gs::MaxTypeId(gs::TypeId::Float, gs::TypeId::Float));
     ASSERT_EQ(gs::TypeId::Vector2f, gs::MaxTypeId(gs::TypeId::Float, gs::TypeId::Vector2f));
     ASSERT_EQ(gs::TypeId::Generator3D, gs::MaxTypeId(gs::TypeId::Vector4f, gs::TypeId::Generator3D));

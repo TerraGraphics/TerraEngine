@@ -8,7 +8,7 @@
 
 namespace {
 
-TEST(gsFuncs, FuncAdd) {
+TEST(GSFuncs, FuncAdd) {
     gs::FuncAdd f;
     f.SetA(1.f);
     f.SetB(2.f);

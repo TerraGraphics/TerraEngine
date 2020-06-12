@@ -22,7 +22,7 @@ namespace gs {
 
 static_assert(sizeof(Graph) == 40, "sizeof(Graph) == 40 bytes");
 
-Graph::Graph(std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount)
+Graph::Graph(const std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount)
     : m_free(initialNodeCount)
     , m_capacity(initialNodeCount)
     , m_firstFreeIndex(0)
