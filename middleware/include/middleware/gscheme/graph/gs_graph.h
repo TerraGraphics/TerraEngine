@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <cstdint>
 #include <string_view>
 
@@ -14,9 +15,11 @@ namespace gs {
 class Node;
 class IDraw;
 class TypeClass;
+class TypeStorage;
 class Graph : Fixed {
 public:
-    Graph(uint16_t initialNodeCount = 16);
+    Graph() = delete;
+    Graph(std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount = 16);
     ~Graph();
 
     void UpdateState();
@@ -24,9 +27,6 @@ public:
     void DrawNodeProperty(uint16_t nodeId, IDraw* drawer);
 
     uint16_t CountNodes() const noexcept { return m_capacity - m_free; }
-
-    const TypeClass* TypeClassesBegin() const noexcept;
-    const TypeClass* TypeClassesEnd() const noexcept;
 
     const rttr::variant& GetOutputValue(uint32_t pinId) const;
     const rttr::variant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
@@ -65,11 +65,9 @@ private:
     uint16_t m_capacity = 0;
     uint16_t m_firstFreeIndex = 0;
     uint16_t m_firstCalcIndex = 0;
-    uint16_t m_countTypeClasses = 0;
-    // TODO: add binary search
-    TypeClass* m_typeClasses;
     Node* m_nodes = nullptr;
     uint16_t* m_indeciesForOrder = nullptr;
+    std::shared_ptr<TypeStorage> m_typeStorage;
 };
 
 }

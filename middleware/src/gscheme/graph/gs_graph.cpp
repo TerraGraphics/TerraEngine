@@ -12,6 +12,7 @@
 #include "middleware/gscheme/graph/gs_node.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_type_class.h"
+#include "middleware/gscheme/graph/gs_type_storage.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_draw_interface.h"
@@ -21,40 +22,17 @@ namespace gs {
 
 static_assert(sizeof(Graph) == 40, "sizeof(Graph) == 40 bytes");
 
-Graph::Graph(uint16_t initialNodeCount)
+Graph::Graph(std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount)
     : m_free(initialNodeCount)
     , m_capacity(initialNodeCount)
     , m_firstFreeIndex(0)
     , m_firstCalcIndex(INVALID_NODE_INDEX)
-    , m_countTypeClasses(0)
     , m_nodes(new Node[m_capacity])
-    , m_indeciesForOrder(new uint16_t[m_capacity + m_capacity]) {
+    , m_indeciesForOrder(new uint16_t[m_capacity + m_capacity])
+    , m_typeStorage(typeStorage) {
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].Init(i + 1);
-    }
-
-    std::unordered_set<std::string> names;
-    for(const auto& t : rttr::type::get_types()) {
-        if (t.is_valid() && t.get_metadata(MetaTypes::CLASS).is_valid()) {
-            if (!names.insert(t.get_name().to_string()).second) {
-                throw EngineError("gs::Graph: type classes have a duplicate name = '{}'", t.get_name().to_string());
-            }
-            ++m_countTypeClasses;
-        }
-    }
-    m_typeClasses = new TypeClass[m_countTypeClasses];
-
-    uint16_t index = 0;
-    for(const auto& t : rttr::type::get_types()) {
-        if (!t.is_valid()) {
-            continue;
-        }
-        if (!t.get_metadata(MetaTypes::CLASS).is_valid()) {
-            continue;
-        }
-
-        m_typeClasses[index++].Create(t);
     }
 }
 
@@ -69,10 +47,7 @@ Graph::~Graph() {
     if (m_indeciesForOrder != nullptr) {
         delete[] m_indeciesForOrder;
     }
-
-    if (m_typeClasses != nullptr) {
-        delete[] m_typeClasses;
-    }
+    m_typeStorage.reset();
 }
 
 void Graph::UpdateState() {
@@ -118,14 +93,6 @@ void Graph::DrawNodeProperty(uint16_t nodeId, IDraw* drawer) {
     }
 
     m_nodes[nodeId - 1].DrawNodeProperty(drawer);
-}
-
-const TypeClass* Graph::TypeClassesBegin() const noexcept {
-    return m_typeClasses;
-}
-
-const TypeClass* Graph::TypeClassesEnd() const noexcept {
-    return m_typeClasses + m_countTypeClasses;
 }
 
 const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {
@@ -194,10 +161,7 @@ void Graph::SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const rttr::v
 }
 
 uint16_t Graph::AddNode(uint16_t typeClassIndex) {
-    if (typeClassIndex >= m_countTypeClasses) {
-        throw EngineError(
-            "gs::Graph::AddNode: wrong typeClassIndex = {}, max value = {}", typeClassIndex, m_countTypeClasses - 1);
-    }
+    TypeClass* typeClass = m_typeStorage->GetTypeClass(typeClassIndex);
     if (m_free == 0) {
         if (m_capacity == MAX_NODES_COUNT) {
             throw EngineError("gs::Graph::AddNode: failed to add node, node limit exceeded");
@@ -229,7 +193,7 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
 
     uint16_t nodeIndex = m_firstFreeIndex;
     m_firstFreeIndex = m_nodes[m_firstFreeIndex].GetNextIndex();
-    m_nodes[nodeIndex].Create(&m_typeClasses[typeClassIndex], m_typeClasses[typeClassIndex].NewInstance());
+    m_nodes[nodeIndex].Create(typeClass, typeClass->NewInstance());
     --m_free;
 
     SortNodesByDependency();
@@ -238,13 +202,7 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
 }
 
 uint16_t Graph::AddNode(std::string_view name) {
-    for (uint16_t i=0; i!=m_countTypeClasses; ++i) {
-        if (m_typeClasses[i].GetName() == name) {
-            return AddNode(i);
-        }
-    }
-
-    throw EngineError("gs::Graph::AddNode: wrong name = {}, not found node with this name", name);
+    return AddNode(m_typeStorage->GetTypeClassIndex(name));
 }
 
 bool Graph::TestRemoveNode(uint16_t nodeId) const noexcept {

@@ -17,6 +17,7 @@ public:
 
     TypeClass* GetTypeClass(uint16_t typeClassIndex);
     TypeClass* GetTypeClass(std::string_view name);
+    uint16_t GetTypeClassIndex(std::string_view name);
 
     const TypeClass* TypeClassesBegin() const noexcept;
     const TypeClass* TypeClassesEnd() const noexcept;

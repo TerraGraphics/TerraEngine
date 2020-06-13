@@ -20,7 +20,7 @@ struct TypeStorage::Impl {
 
     uint16_t m_countTypeClasses = 0;
     TypeClass* m_typeClasses;
-    std::unordered_map<std::string_view, TypeClass*> m_typeClassesIndex;
+    std::unordered_map<std::string_view, uint16_t> m_typeClassesIndex;
 };
 
 TypeStorage::Impl::Impl() {
@@ -39,7 +39,7 @@ TypeStorage::Impl::Impl() {
     for(const auto& t : rttr::type::get_types()) {
         if (t.is_valid() && t.get_metadata(MetaTypes::CLASS).is_valid()) {
             m_typeClasses[index].Create(t);
-            m_typeClassesIndex[m_typeClasses[index].GetName()] = &m_typeClasses[index];
+            m_typeClassesIndex[m_typeClasses[index].GetName()] = index;
 
             ++index;
         }
@@ -71,11 +71,15 @@ TypeClass* TypeStorage::GetTypeClass(uint16_t typeClassIndex) {
 }
 
 TypeClass* TypeStorage::GetTypeClass(std::string_view name) {
+    return GetTypeClass(GetTypeClassIndex(name));
+}
+
+uint16_t TypeStorage::GetTypeClassIndex(std::string_view name) {
     if (auto it = impl->m_typeClassesIndex.find(name); it != impl->m_typeClassesIndex.cend()) {
         return it->second;
     }
 
-    throw EngineError("gs::TypeStorage::GetTypeClass: wrong name = {}, not found node with this name", name);
+    throw EngineError("gs::TypeStorage::GetTypeClassIndex: wrong name = {}, not found node with this name", name);
 }
 
 const TypeClass* TypeStorage::TypeClassesBegin() const noexcept {
