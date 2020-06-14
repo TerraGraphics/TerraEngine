@@ -9,6 +9,9 @@
 #include "core/math/generator_type.h"
 
 
+#define UNIVERSAL_TYPES \
+    (float, (Eigen::Vector2f, (Eigen::Vector3f, (Eigen::Vector4f, (math::Generator2D, (math::Generator3D, (gs::UniversalType, BOOST_PP_NIL)))))))
+
 namespace gs {
 
 enum class TypeId : uint8_t {
@@ -41,9 +44,6 @@ enum class TypeId : uint8_t {
 TypeId MaxTypeId(TypeId a, TypeId b);
 
 using UniversalType = std::variant<float, Eigen::Vector2f, Eigen::Vector3f, Eigen::Vector4f, math::Generator2D, math::Generator3D>;
-
-#define UNIVERSAL_TYPES \
-    (float, (Eigen::Vector2f, (Eigen::Vector3f, (Eigen::Vector4f, (math::Generator2D, (math::Generator3D, (gs::UniversalType, BOOST_PP_NIL)))))))
 
 template <typename T> inline constexpr bool IsInt8 = std::is_same_v<T, int8_t>;
 template <typename T> inline constexpr bool IsUint8 = std::is_same_v<T, uint8_t>;

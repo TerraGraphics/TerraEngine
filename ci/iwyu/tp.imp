@@ -123,4 +123,26 @@
     { include: ['"rttr/detail/registration/bind_types.h"', private, '"rttr/reflection.h"', public] },
     { include: ['"rttr/detail/property/property_wrapper.h"', private, '"rttr/reflection.h"', public] },
     { include: ['"rttr/detail/registration/registration_impl.h"', private, '"rttr/reflection.h"', public] },
+
+
+    { include: ['"boost/preprocessor/list/adt.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+    { include: ['"boost/preprocessor/tuple/elem.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+    { include: ['"boost/preprocessor/control/if.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+    { include: ['"boost/preprocessor/tuple/reverse.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+    { include: ['"boost/preprocessor/tuple/to_list.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+    { include: ['"boost/preprocessor/list/to_tuple.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+    { include: ['"boost/preprocessor/repetition/for.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
+
+    { include: ['"boost/preprocessor/control/iif.hpp"', public, '"boost/preprocessor/control/if.hpp"', public] },
+    { include: ['"boost/preprocessor/detail/check.hpp"', private, '"boost/preprocessor/list/adt.hpp"', public] },
+    { include: ['"boost/preprocessor/logical/compl.hpp"', public, '"boost/preprocessor/list/adt.hpp"', public] },
+    { include: ['"boost/preprocessor/list/enum.hpp"', public, '"boost/preprocessor/list/to_tuple.hpp"', public] },
+    { include: ['"boost/preprocessor/variadic/elem.hpp"', public, '"boost/preprocessor/tuple/elem.hpp"', public] },
+    { include: ['"boost/preprocessor/list/for_each_i.hpp"', public, '"boost/preprocessor/list/enum.hpp"', public] },
+    { include: ['"boost/preprocessor/detail/is_binary.hpp"', private, '"boost/preprocessor/list/adt.hpp"', public] },
+    { include: ['"boost/preprocessor/logical/bool.hpp"', public, '"boost/preprocessor/repetition/for.hpp"', public] },
+    { include: ['"boost/preprocessor/arithmetic/inc.hpp"', public, '"boost/preprocessor/list/for_each_i.hpp"', public] },
+    { include: ['"boost/preprocessor/detail/auto_rec.hpp"', private, '"boost/preprocessor/repetition/for.hpp"', public] },
+    { include: ['"boost/preprocessor/repetition/detail/for.hpp"', private, '"boost/preprocessor/repetition/for.hpp"', public] },
+    { include: ['"boost/preprocessor/control/expr_iif.hpp"', public, '"boost/preprocessor/repetition/detail/for.hpp"', private] },
 ]
