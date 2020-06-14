@@ -7,7 +7,6 @@
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_convert.h"
-#include "middleware/gscheme/graph/gs_universal_type.h"
 
 
 namespace gs {
@@ -70,7 +69,7 @@ UniversalType FuncAdd::Result() const {
         using typeA = std::remove_cvref_t<decltype(a)>;
         using typeB = std::remove_cvref_t<decltype(b)>;
 
-        if constexpr (UniversalTypesGetId<typeA>() <= UniversalTypesGetId<typeB>()) {
+        if constexpr (GetTypeId<typeA>() <= GetTypeId<typeB>()) {
             return UniversalType(TSumMinMax(a, b));
         } else {
             return UniversalType(TSumMinMax(b, a));
