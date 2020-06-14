@@ -98,6 +98,46 @@ uintptr_t RttrTypeIdUniversalType() {
     return typeId;
 }
 
+TypeId TypeIdFromRttr(uintptr_t id) {
+    if (id == RttrTypeIdInt8()) {
+        return TypeId::Int8;
+    } else if (id == RttrTypeIdUint8()) {
+        return TypeId::Uint8;
+    } else if (id == RttrTypeIdInt16()) {
+        return TypeId::Int16;
+    } else if (id == RttrTypeIdUint16()) {
+        return TypeId::Uint16;
+    } else if (id == RttrTypeIdInt32()) {
+        return TypeId::Int32;
+    } else if (id == RttrTypeIdUint32()) {
+        return TypeId::Uint32;
+    } else if (id == RttrTypeIdInt64()) {
+        return TypeId::Int64;
+    } else if (id == RttrTypeIdUint64()) {
+        return TypeId::Uint64;
+    } else if (id == RttrTypeIdFloat()) {
+        return TypeId::Float;
+    } else if (id == RttrTypeIdDouble()) {
+        return TypeId::Double;
+    } else if (id == RttrTypeIdVector2f()) {
+        return TypeId::Vector2f;
+    } else if (id == RttrTypeIdVector3f()) {
+        return TypeId::Vector3f;
+    } else if (id == RttrTypeIdVector4f()) {
+        return TypeId::Vector4f;
+    } else if (id == RttrTypeIdGenerator2D()) {
+        return TypeId::Generator2D;
+    } else if (id == RttrTypeIdGenerator3D()) {
+        return TypeId::Generator3D;
+    } else if (id == RttrTypeIdString()) {
+        return TypeId::String;
+    } else if (id == RttrTypeIdUniversalType()) {
+        return TypeId::UniversalType;
+    } else {
+        return TypeId::Unknown;
+    }
+}
+
 bool IsValidEmbeddedPinRttrTypeId(uintptr_t typeId) {
     return (
         (typeId == RttrTypeIdInt8()) ||

@@ -130,6 +130,8 @@ uintptr_t RttrTypeIdGenerator3D();
 uintptr_t RttrTypeIdString();
 uintptr_t RttrTypeIdUniversalType();
 
+TypeId TypeIdFromRttr(uintptr_t id);
+
 bool IsValidEmbeddedPinRttrTypeId(uintptr_t typeId);
 bool IsValidInputPinRttrTypeId(uintptr_t typeId);
 bool IsValidOutputPinRttrTypeId(uintptr_t typeId);
