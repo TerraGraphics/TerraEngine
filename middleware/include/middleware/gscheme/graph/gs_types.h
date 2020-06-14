@@ -10,7 +10,7 @@
 
 
 #define UNIVERSAL_TYPES \
-    (float, (Eigen::Vector2f, (Eigen::Vector3f, (Eigen::Vector4f, (math::Generator2D, (math::Generator3D, (gs::UniversalType, BOOST_PP_NIL)))))))
+    (float, (Eigen::Vector2f, (Eigen::Vector3f, (Eigen::Vector4f, (math::Generator2D, (math::Generator3D, BOOST_PP_NIL))))))
 
 namespace gs {
 
@@ -42,6 +42,9 @@ enum class TypeId : uint8_t {
 };
 
 TypeId MaxTypeId(TypeId a, TypeId b);
+constexpr inline TypeId ToUniversalTypeId(TypeId id) {
+    return static_cast<TypeId>(static_cast<uint8_t>(id) | static_cast<uint8_t>(TypeId::UniversalType));
+}
 
 using UniversalType = std::variant<float, Eigen::Vector2f, Eigen::Vector3f, Eigen::Vector4f, math::Generator2D, math::Generator3D>;
 

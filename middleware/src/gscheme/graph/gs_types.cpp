@@ -13,7 +13,6 @@ TypeId MaxTypeId(TypeId a, TypeId b) {
     return static_cast<TypeId>((aVal > bVal) ? aVal : bVal);
 }
 
-
 uintptr_t RttrTypeIdInt8() {
     static const rttr::type::type_id typeId = rttr::type::get<int8_t>().get_id();
     return typeId;
