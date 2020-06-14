@@ -36,24 +36,10 @@ TEST(GSConvert, ToGenerator3D) {
 }
 
 TEST(GSConvert, ToUniversalType) {
-    ASSERT_CONVERT_TRUE(float, gs::UniversalType);
-    ASSERT_CONVERT_TRUE(Eigen::Vector4f, gs::UniversalType);
-    ASSERT_CONVERT_TRUE(math::Generator2D, gs::UniversalType);
+    ASSERT_CONVERT_FALSE(float, gs::UniversalType);
+    ASSERT_CONVERT_FALSE(Eigen::Vector4f, gs::UniversalType);
+    ASSERT_CONVERT_FALSE(math::Generator2D, gs::UniversalType);
     ASSERT_CONVERT_FALSE(gs::UniversalType, gs::UniversalType);
-}
-
-TEST(GSConvert, FromUniversalType) {
-    gs::UniversalType value;
-
-    value = float(1.f);
-    ASSERT_TRUE(gs::IsCanConvertUniversalType<float>(value));
-    ASSERT_TRUE(gs::IsCanConvertUniversalType<gs::UniversalType>(value));
-
-    value = Eigen::Vector2f(1.f, 2.f);
-    ASSERT_TRUE(gs::IsCanConvertUniversalType<float>(value));
-    ASSERT_TRUE(gs::IsCanConvertUniversalType<Eigen::Vector2f>(value));
-    ASSERT_FALSE(gs::IsCanConvertUniversalType<Eigen::Vector4f>(value));
-    ASSERT_TRUE(gs::IsCanConvertUniversalType<gs::UniversalType>(value));
 }
 
 }

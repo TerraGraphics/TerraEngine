@@ -85,26 +85,9 @@ template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T
 template <typename T>
     using ToGenerator3DT = decltype(ToGenerator3D<T>);
 
-template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T> || IsGenerator2D<T> || IsGenerator3D<T> || IsUniversalType<T>>>
-    UniversalType ToUniversalType(const T value) {
-    if constexpr (IsUniversalType<T>) {
-        return value;
-    } else if constexpr (IsFloat<T> || IsVector<T> || IsGenerator2D<T> || IsGenerator3D<T>) {
-        return UniversalType(value);
-    }
-}
-
-template <typename T>
-    using ToUniversalTypeT = decltype(ToUniversalType<T>);
-
-template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat<To> || IsVector<To> || IsGenerator2D<To> || IsGenerator3D<To> || IsUniversalType<To>>>
+template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat<To> || IsVector<To> || IsGenerator2D<To> || IsGenerator3D<To>>>
     To ConvertTo(const From value) {
-    if constexpr (IsUniversalType<From>) {
-        return std::visit([](auto&& v) {
-            using valueType = std::remove_cvref_t<decltype(v)>;
-            return ConvertTo<To, valueType>(v);
-        }, value);
-    } else if constexpr (IsFloat<To>) {
+    if constexpr (IsFloat<To>) {
         return ToFloat(value);
     } else if constexpr (IsVector2f<To>) {
         return ToVector2f(value);
@@ -116,17 +99,12 @@ template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat
         return ToGenerator2D(value);
     } else if constexpr (IsGenerator3D<To>) {
         return ToGenerator3D(value);
-    } else if constexpr (IsUniversalType<To>) {
-        return ToUniversalType(value);
     }
 }
 
 template <typename To, typename From>
     constexpr bool IsCanConvert() {
-        if constexpr (IsUniversalType<From>) {
-            // we can't known variant type
-            return false;
-        } else if constexpr (IsFloat<To>) {
+        if constexpr (IsFloat<To>) {
             return meta::Detect<From, ToFloatT>::value;
         } else if constexpr (IsVector2f<To>) {
             return meta::Detect<From, ToVector2fT>::value;
@@ -138,19 +116,9 @@ template <typename To, typename From>
             return meta::Detect<From, ToGenerator2DT>::value;
         } else if constexpr (IsGenerator3D<To>) {
             return meta::Detect<From, ToGenerator3DT>::value;
-        } else if constexpr (IsUniversalType<To>) {
-            return meta::Detect<From, ToUniversalTypeT>::value;
         } else {
             return false;
         }
-    }
-
-template <typename To>
-    constexpr bool IsCanConvertUniversalType(const gs::UniversalType& value) {
-        return std::visit([](auto&& v) {
-            using valueType = std::remove_cvref_t<decltype(v)>;
-            return IsCanConvert<To, valueType>();
-        }, value);
     }
 
 template <typename To, typename From>
