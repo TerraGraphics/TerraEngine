@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 #include "core/common/exception.h"
-#include "middleware/gscheme/graph/gs_id.h"
+#include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/reflection/gs_metadata.h"
 
@@ -133,7 +133,7 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
     if (!clsMeta.is_valid()) {
         throw EngineError("invalid clsType (name = '{}'), has invalid metadata CLASS", clsName);
     }
-    if (clsMeta.get_type().get_id() != TypeIdString()) {
+    if (clsMeta.get_type().get_id() != RttrTypeIdString()) {
         throw EngineError("invalid clsType (name = '{}'), has invalid value type = '{}' for metadata CLASS, need std::string",
             clsName, clsMeta.get_type().get_name().to_string());
     }
@@ -157,15 +157,15 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
         auto propTypeId = prop.get_type().get_id();
         auto propMeta = prop.get_metadata(MetaTypes::EMBEDDED_PROPERTY);
         if (propMeta.is_valid()) {
-            isValidType = IsValidEmbeddedPinTypeId(propTypeId);
+            isValidType = IsValidEmbeddedPinRttrTypeId(propTypeId);
         } else  {
             propMeta = prop.get_metadata(MetaTypes::INPUT_PIN);
             if (propMeta.is_valid()) {
-                isValidType = IsValidInputPinTypeId(propTypeId);
+                isValidType = IsValidInputPinRttrTypeId(propTypeId);
             } else {
                 propMeta = prop.get_metadata(MetaTypes::OUTPUT_PIN);
                 if (propMeta.is_valid()) {
-                    isValidType = IsValidOutputPinTypeId(propTypeId);
+                    isValidType = IsValidOutputPinRttrTypeId(propTypeId);
                 } else {
                     throw EngineError("invalid clsType (name = '{}'), has property with name = '{}' and without metadata",
                         clsName, propName);
@@ -179,7 +179,7 @@ void TypeClass::CheckClassType(const rttr::type& clsType) const {
                 clsName, propName, prop.get_type().get_name().to_string());
         }
 
-        if (propMeta.get_type().get_id() != TypeIdString()) {
+        if (propMeta.get_type().get_id() != RttrTypeIdString()) {
             throw EngineError(
                 "invalid clsType (name = '{}'), has property with name = '{}' and invalid metadata value type = '{}', need std::string",
                 clsName, propName, propMeta.get_type().get_name().to_string());

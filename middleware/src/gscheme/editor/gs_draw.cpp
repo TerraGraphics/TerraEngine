@@ -9,7 +9,7 @@
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
-#include "middleware/gscheme/graph/gs_id.h"
+#include "middleware/gscheme/graph/gs_types.h"
 
 
 namespace gs {
@@ -144,14 +144,14 @@ bool Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, 
     bool isChanded = false;
     auto typeId = value.get_type().get_id();
 
-    if (typeId == TypeIdFloat()) {
+    if (typeId == RttrTypeIdFloat()) {
         auto tmp = value.get_value<float>();
         isChanded |= gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}");
 
         if (isChanded) {
             value = tmp;
         }
-    } else if (typeId == TypeIdVector2f()) {
+    } else if (typeId == RttrTypeIdVector2f()) {
         if (!prettyName.empty()) {
             gui::Text(prettyName + ":");
         }
@@ -163,7 +163,7 @@ bool Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, 
         if (isChanded) {
             value = tmp;
         }
-    } else if (typeId == TypeIdVector3f()) {
+    } else if (typeId == RttrTypeIdVector3f()) {
         if (!prettyName.empty()) {
             gui::Text(prettyName + ":");
         }
@@ -176,7 +176,7 @@ bool Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, 
         if (isChanded) {
             value = tmp;
         }
-    } else if (typeId == TypeIdVector4f()) {
+    } else if (typeId == RttrTypeIdVector4f()) {
         if (!prettyName.empty()) {
             gui::Text(prettyName + ":");
         }

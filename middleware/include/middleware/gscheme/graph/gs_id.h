@@ -46,17 +46,4 @@ inline uint64_t LinkId(uint32_t srcPinId, uint32_t dstPinId) {
     return (static_cast<uint64_t>(srcPinId) << uint64_t(32)) | static_cast<uint64_t>(dstPinId);
 }
 
-uintptr_t TypeIdFloat();
-uintptr_t TypeIdVector2f();
-uintptr_t TypeIdVector3f();
-uintptr_t TypeIdVector4f();
-uintptr_t TypeIdGenerator2D();
-uintptr_t TypeIdGenerator3D();
-uintptr_t TypeIdUniversalType();
-uintptr_t TypeIdString();
-
-bool IsValidEmbeddedPinTypeId(uintptr_t typeId);
-bool IsValidInputPinTypeId(uintptr_t typeId);
-bool IsValidOutputPinTypeId(uintptr_t typeId);
-
 }

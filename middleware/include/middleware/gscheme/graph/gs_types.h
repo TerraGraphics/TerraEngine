@@ -109,4 +109,26 @@ template<typename T, typename Enable = std::enable_if_t<IsGsType<T>>>
     }
 }
 
+uintptr_t RttrTypeIdInt8();
+uintptr_t RttrTypeIdUint8();
+uintptr_t RttrTypeIdInt16();
+uintptr_t RttrTypeIdUint16();
+uintptr_t RttrTypeIdInt32();
+uintptr_t RttrTypeIdUint32();
+uintptr_t RttrTypeIdInt64();
+uintptr_t RttrTypeIdUint64();
+uintptr_t RttrTypeIdFloat();
+uintptr_t RttrTypeIdDouble();
+uintptr_t RttrTypeIdVector2f();
+uintptr_t RttrTypeIdVector3f();
+uintptr_t RttrTypeIdVector4f();
+uintptr_t RttrTypeIdGenerator2D();
+uintptr_t RttrTypeIdGenerator3D();
+uintptr_t RttrTypeIdString();
+uintptr_t RttrTypeIdUniversalType();
+
+bool IsValidEmbeddedPinRttrTypeId(uintptr_t typeId);
+bool IsValidInputPinRttrTypeId(uintptr_t typeId);
+bool IsValidOutputPinRttrTypeId(uintptr_t typeId);
+
 }
