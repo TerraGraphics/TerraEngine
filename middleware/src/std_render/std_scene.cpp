@@ -5,7 +5,7 @@
 
 #include "dg/dg.h"
 #include "dg/device.h"
-#include "dg/context.h" // IWYU pragma: keep
+#include "dg/context.h"
 #include "core/engine.h"
 #include "core/camera/camera.h"
 #include "core/math/constants.h"

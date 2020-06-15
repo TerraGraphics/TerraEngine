@@ -3,9 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "dg/context.h" // IWYU pragma: keep
 #include "core/render/geometry.h"
-#include "dg/graphics_utilities.h" // IWYU pragma: keep
 #include "core/material/material_view.h"
 
 

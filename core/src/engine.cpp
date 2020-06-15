@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <utility>
 
-#include "dg/device.h" // IWYU pragma: keep
-#include "dg/context.h" // IWYU pragma: keep
+#include "dg/device.h"
+#include "dg/context.h"
 #include "core/path/path.h"
 #include "core/common/timer.h"
 #include "platforms/platforms.h"

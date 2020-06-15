@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include "dg/device.h" // IWYU pragma: keep
+#include "dg/device.h"
 #include "core/material/texture.h"
 #include "dg/default_raw_memory_allocator.h"
 
