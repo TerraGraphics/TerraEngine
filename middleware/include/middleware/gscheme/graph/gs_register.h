@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/common/defines.h"
+#include "core/common/macros.h"
 
 
 namespace gs {
@@ -22,3 +22,6 @@ template <typename T> inline int GetReg(void (*f)()) {
 	template <> void rttr_auto_register_reflection_function_t<cls>();             \
 	static const int UNIQUE_VAR(auto_register__) =                                \
 		gs::detail::GetReg<cls>(&rttr_auto_register_reflection_function_t<cls>)
+
+
+#define REFLECTION_IMPL(cls) template <> void rttr_auto_register_reflection_function_t<cls>()

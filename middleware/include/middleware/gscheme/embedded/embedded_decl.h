@@ -1,6 +1,7 @@
 #pragma once
 
-#include "middleware/gscheme/reflection/gs_decl.h"
+#include "middleware/gscheme/graph/gs_register.h"
+
 
 namespace gs {
     struct Embedded {};

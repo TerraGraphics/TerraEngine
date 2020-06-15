@@ -6,7 +6,7 @@
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_limits.h"
-#include "middleware/gscheme/reflection/gs_metadata.h"
+#include "middleware/gscheme/graph/gs_metadata.h"
 
 
 namespace gs {
