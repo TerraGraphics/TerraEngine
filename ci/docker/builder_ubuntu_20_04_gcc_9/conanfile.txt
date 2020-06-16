@@ -4,6 +4,7 @@ fmt/6.0.0@bincrafters/stable
 gtest/1.8.1@bincrafters/stable
 spdlog/1.4.2@bincrafters/stable
 rttr/0.9.6@terragraphics/stable
+cpgf/1.6.1@terragraphics/stable
 libucl/0.8.1@terragraphics/stable
 fastnoise/0.4.faba444@terragraphics/stable
 boost_preprocessor/1.69.0@bincrafters/stable
