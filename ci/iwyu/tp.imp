@@ -133,9 +133,12 @@
     { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetapolicy.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetaproperty.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/gmetaannotation.h"', public, '"cpgf/metaclass.h"', public] },
+
+    { include: ['"cpgf/gvariant.h"', private, '"cpgf/variant.h"', public] },
 
     { include: ['"cpgf/private/gmetacommon_p.h"', private, '"cpgf/gmetacommon.h"', public] },
-    { include: ['"cpgf/gvariant.h"', public, '"cpgf/gmetacommon.h"', public] },
+    { include: ['"cpgf/variant.h"', public, '"cpgf/gmetacommon.h"', public] },
 
     { include: ['"cpgf/gmetatype.h"', public, '"cpgf/gmetaapi.h"', public] },
     { include: ['"cpgf/gpolicy.h"', public, '"cpgf/gmetapolicy.h"', public] },
