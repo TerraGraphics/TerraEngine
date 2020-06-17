@@ -10,12 +10,12 @@ public:
     FuncSum() = default;
     ~FuncSum() = default;
 
-    float Result() const noexcept;
+    float Result() const;
 
-    float GetA() const noexcept { return m_a; }
-    void SetA(const float v) noexcept;
-    float GetB() const noexcept { return m_b; }
-    void SetB(const float v) noexcept;
+    float GetA() const { return m_a; }
+    void SetA(const float v);
+    float GetB() const { return m_b; }
+    void SetB(const float v);
 
 private:
     float m_a = 0.f;

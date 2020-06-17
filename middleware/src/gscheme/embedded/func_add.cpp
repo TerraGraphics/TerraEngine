@@ -77,11 +77,11 @@ UniversalType FuncAdd::Result() const {
     }, m_a, m_b);
 }
 
-void FuncAdd::SetA(const UniversalType v) noexcept {
+void FuncAdd::SetA(const UniversalType v) {
     m_a = v;
 }
 
-void FuncAdd::SetB(const UniversalType v) noexcept {
+void FuncAdd::SetB(const UniversalType v) {
     m_b = v;
 }
 

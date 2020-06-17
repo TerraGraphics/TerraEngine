@@ -3,15 +3,15 @@
 
 namespace gs {
 
-float FuncSum::Result() const noexcept {
+float FuncSum::Result() const {
     return m_a + m_b;
 }
 
-void FuncSum::SetA(const float v) noexcept {
+void FuncSum::SetA(const float v) {
     m_a = v;
 }
 
-void FuncSum::SetB(const float v) noexcept {
+void FuncSum::SetB(const float v) {
     m_b = v;
 }
 

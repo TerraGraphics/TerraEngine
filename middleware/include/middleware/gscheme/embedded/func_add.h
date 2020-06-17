@@ -13,10 +13,10 @@ public:
 
     UniversalType Result() const;
 
-    UniversalType GetA() const noexcept { return m_a; }
-    void SetA(const UniversalType v) noexcept;
-    UniversalType GetB() const noexcept { return m_b; }
-    void SetB(const UniversalType v) noexcept;
+    UniversalType GetA() const { return m_a; }
+    void SetA(const UniversalType v);
+    UniversalType GetB() const { return m_b; }
+    void SetB(const UniversalType v);
 
 private:
     UniversalType m_a = 0.f;

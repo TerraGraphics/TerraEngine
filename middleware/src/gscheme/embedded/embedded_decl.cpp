@@ -1,9 +1,10 @@
 #include "middleware/gscheme/embedded/embedded_decl.h"
 
 #include "rttr/reflection.h"
+#include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/embedded/func_sum.h"
+#include "middleware/gscheme/embedded/func_add.h"
 #include "middleware/gscheme/embedded/func_constant.h"
-#include "middleware/gscheme/reflection/gs_metadata.h"
 
 
 REFLECTION_IMPL(gs::Embedded) {
@@ -32,6 +33,13 @@ REFLECTION_IMPL(gs::Embedded) {
         .constructor<>()
         .property_readonly("Result", &FuncConstant4::Result)(metadata(MetaTypes::OUTPUT_PIN, "Result"))
         .property("Value", &FuncConstant4::GetValue, &FuncConstant4::SetValue)(metadata(MetaTypes::EMBEDDED_PROPERTY, "Value"))
+        ;
+
+    registration::class_<FuncAdd>("Add")(metadata(MetaTypes::CLASS, "Add"))
+        .constructor<>()
+        .property_readonly("Result", &FuncAdd::Result)(metadata(MetaTypes::OUTPUT_PIN, "Result"))
+        .property("A", &FuncAdd::GetA, &FuncAdd::SetA)(metadata(MetaTypes::INPUT_PIN, "A"))
+        .property("B", &FuncAdd::GetB, &FuncAdd::SetB)(metadata(MetaTypes::INPUT_PIN, "B"))
         ;
 
     registration::class_<FuncSum>("Sum")(metadata(MetaTypes::CLASS, "Sum"))
