@@ -18,7 +18,7 @@ TypeId MaxTypeId(TypeId a, TypeId b) {
     return static_cast<TypeId>((aVal > bVal) ? aVal : bVal);
 }
 
-TypeId GetTypeId(const std::type_info& info) {
+TypeId GetTypeId(const std::type_info& typeInfo) {
     static const std::unordered_map<std::type_index, TypeId> typeIndexToId = {
         { std::type_index(typeid(int8_t)), TypeId::Int8 },
         { std::type_index(typeid(uint8_t)), TypeId::Uint8 },
@@ -39,15 +39,15 @@ TypeId GetTypeId(const std::type_info& info) {
         { std::type_index(typeid(UniversalType)), TypeId::UniversalType },
     };
 
-    if (const auto it = typeIndexToId.find(std::type_index(info)); it != typeIndexToId.cend()) {
+    if (const auto it = typeIndexToId.find(std::type_index(typeInfo)); it != typeIndexToId.cend()) {
         return it->second;
     }
 
     return TypeId::Unknown;
 }
 
-bool IsValidEmbeddedPinType(const std::type_info& info) {
-    auto typeId = GetTypeId(info);
+bool IsValidEmbeddedPinType(const std::type_info& typeInfo) {
+    auto typeId = GetTypeId(typeInfo);
 
     return (
         (typeId == TypeId::Int8) ||
@@ -67,8 +67,8 @@ bool IsValidEmbeddedPinType(const std::type_info& info) {
     );
 }
 
-bool IsValidInputPinType(const std::type_info& info) {
-    auto typeId = GetTypeId(info);
+bool IsValidInputPinType(const std::type_info& typeInfo) {
+    auto typeId = GetTypeId(typeInfo);
     return (
         (typeId == TypeId::Float) ||
         (typeId == TypeId::Vector2f) ||
@@ -80,8 +80,8 @@ bool IsValidInputPinType(const std::type_info& info) {
     );
 }
 
-bool IsValidOutputPinType(const std::type_info& info) {
-    auto typeId = GetTypeId(info);
+bool IsValidOutputPinType(const std::type_info& typeInfo) {
+    auto typeId = GetTypeId(typeInfo);
 
     return (
         (typeId == TypeId::Float) ||

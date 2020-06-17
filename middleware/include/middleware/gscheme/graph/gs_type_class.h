@@ -4,9 +4,14 @@
 #include <cstdint>
 #include <string_view>
 
-#include "rttr/rttr.h"
 #include "core/common/ctor.h"
 
+
+namespace cpgf {
+    class GVariant;
+    class GMetaClass;
+    class GMetaProperty;
+}
 
 namespace gs {
 
@@ -15,7 +20,7 @@ public:
     TypeClass() = default;
     ~TypeClass();
 
-    void Create(const rttr::type& clsType);
+    void Create(const cpgf::GMetaClass* metaClass);
 
     // unique class name
     std::string_view GetName() const;
@@ -31,24 +36,25 @@ public:
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
-    rttr::variant NewInstance();
+    void* NewInstance();
+    void DeleteInstance(void* instance);
 
-    rttr::variant GetValue(uint8_t pinIndex, rttr::variant& instance) const;
-    void SetValue(uint8_t pinIndex, rttr::variant& instance, const rttr::variant& value) const;
+    cpgf::GVariant GetValue(uint8_t pinIndex, const void* instance) const;
+    void SetValue(uint8_t pinIndex, void* instance, const cpgf::GVariant& value) const;
 
-    const rttr::variant& GetDefaultValue(uint8_t pinIndex) const;
-    void ResetToDefault(uint8_t pinIndex, rttr::variant& instance) const;
+    const cpgf::GVariant& GetDefaultValue(uint8_t pinIndex) const;
+    void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
 private:
-    void CheckClassType(const rttr::type& clsType) const;
+    void CheckMetaClass(const cpgf::GMetaClass* metaClass) const;
 
 private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
-    rttr::property* m_props = nullptr;
-    rttr::variant* m_defaults = nullptr;
-    rttr::type m_clsType = rttr::type::get<bool>();
+    const cpgf::GMetaProperty** m_props = nullptr;
+    cpgf::GVariant* m_defaults = nullptr;
+    const cpgf::GMetaClass* m_metaClass = nullptr;
 };
 
 }
