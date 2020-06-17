@@ -125,6 +125,23 @@
     { include: ['"rttr/detail/registration/registration_impl.h"', private, '"rttr/reflection.h"', public] },
 
 
+    { include: ['"cpgf/gmetadefine.h"', private, '"cpgf/metadefine.h"', public] },
+    { include: ['"cpgf/metaclass.h"', public, '"cpgf/metadefine.h"', public] },
+
+    { include: ['"cpgf/gmetaclass.h"', private, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/gmetaapi.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/gmetapolicy.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/gmetaproperty.h"', public, '"cpgf/metaclass.h"', public] },
+
+    { include: ['"cpgf/private/gmetacommon_p.h"', private, '"cpgf/gmetacommon.h"', public] },
+    { include: ['"cpgf/gvariant.h"', public, '"cpgf/gmetacommon.h"', public] },
+
+    { include: ['"cpgf/gmetatype.h"', public, '"cpgf/gmetaapi.h"', public] },
+    { include: ['"cpgf/gpolicy.h"', public, '"cpgf/gmetapolicy.h"', public] },
+    { include: ['"cpgf/gtypelist.h"', public, '"cpgf/gpolicy.h"', public] },
+
+
     { include: ['"boost/preprocessor/list/adt.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
     { include: ['"boost/preprocessor/tuple/elem.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
     { include: ['"boost/preprocessor/control/if.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },
