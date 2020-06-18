@@ -11,8 +11,8 @@
 
 namespace gs {
 
-static_assert(sizeof(Pin) == 24, "sizeof(Pin) == 24 bytes");
-static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
+static_assert(sizeof(Pin) == 28, "sizeof(Pin) == 28 bytes");
+static_assert(sizeof(Node) == 40, "sizeof(Node) == 40 bytes");
 
 Node::Node(Node&& other) noexcept {
     *this = std::move(other);
@@ -28,11 +28,11 @@ Node& Node::operator=(Node&& other) noexcept {
     m_nextIndex = other.m_nextIndex;
     m_pins = other.m_pins;
     m_typeClass = other.m_typeClass;
-    m_instance = std::move(other.m_instance);
+    m_instance = other.m_instance;
 
     other.m_pins = nullptr;
     other.m_typeClass = nullptr;
-    other.m_instance.clear();
+    other.m_instance = nullptr;
 
     return *this;
 }
@@ -43,9 +43,9 @@ void Node::Init(uint16_t id) noexcept {
     m_nextIndex = id;
 }
 
-void Node::Create(TypeClass* typeClass, rttr::variant&& instance) {
+void Node::Create(TypeClass* typeClass) {
     m_typeClass = typeClass;
-    m_instance = std::move(instance);
+    m_instance = typeClass->NewInstance();
 
     m_countEmbeddedPins = m_typeClass->EmbeddedPinsCount();
     m_countInputPins = m_typeClass->InputPinsCount();
@@ -76,33 +76,17 @@ void Node::Create(TypeClass* typeClass, rttr::variant&& instance) {
 
 void Node::Reset(uint16_t nextIndex) {
     m_nextIndex = nextIndex;
+
+    if (m_instance != nullptr) {
+        m_typeClass->DeleteInstance(m_instance);
+        m_instance = nullptr;
+    }
+
     m_typeClass = nullptr;
     if (m_pins != nullptr) {
         delete[] m_pins;
         m_pins = nullptr;
     }
-}
-
-uint32_t Node::GetAttachedPinId(uint8_t inputPinIndex) const noexcept {
-    return m_pins[inputPinIndex].attachedPinID;
-}
-
-bool Node::IsConnectedPin(uint8_t pinIndex) const noexcept {
-    return (m_pins[pinIndex].linksCount != 0);
-}
-
-bool Node::IsThisPinAttached(uint8_t inputPinIndex, uint32_t attachedPinID) const noexcept {
-    return (m_pins[inputPinIndex].attachedPinID == attachedPinID);
-}
-
-bool Node::IsExistsConnectedOutputPins() const noexcept {
-    for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-        if (m_pins[i].linksCount != 0) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 uint32_t Node::GetEmbeddedPinId(uint8_t offset) const noexcept {
@@ -281,6 +265,45 @@ uint16_t Node::UpdateState(Node* nodes) {
     return m_nextIndex;
 }
 
+const cpgf::GVariant& Node::GetValue(uint8_t pinIndex) const {
+    return m_pins[pinIndex].cachedValue;
+}
+
+void Node::SetValue(uint8_t pinIndex, const cpgf::GVariant& value) {
+    m_changeState = ChangeState::NeedUpdateOutputs;
+    m_typeClass->SetValue(pinIndex, m_instance, value);
+}
+
+void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
+    m_changeState = ChangeState::NeedUpdateInputs;
+    m_pins[inputPinIndex].attachedPinID = attachedPinID;
+}
+
+void Node::DetachFromInputPin(uint8_t inputPinIndex) {
+    m_changeState = ChangeState::NeedUpdateOutputs;
+    m_typeClass->ResetToDefault(inputPinIndex, m_instance);
+    m_pins[inputPinIndex].attachedPinID = 0;
+}
+
+void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
+    for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
+            m_changeState = ChangeState::NeedUpdateOutputs;
+            m_typeClass->ResetToDefault(i, m_instance);
+            m_pins[i].attachedPinID = 0;
+        }
+    }
+}
+
+void Node::IncLinkForOutputPin(uint8_t outputPinIndex) noexcept {
+    m_pins[outputPinIndex].linksCount++;
+}
+
+void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
+    m_pins[outputPinIndex].linksCount--;
+}
+
+
 void Node::DrawGraph(IDraw* drawer) {
     drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_typeClass->GetPrettyName());
 
@@ -317,44 +340,6 @@ void Node::DrawNodeProperty(IDraw* drawer) {
             SetValue(i, value);
         }
     }
-}
-
-const rttr::variant& Node::GetValue(uint8_t pinIndex) const {
-    return m_pins[pinIndex].cachedValue;
-}
-
-void Node::SetValue(uint8_t pinIndex, const rttr::variant& value) {
-    m_changeState = ChangeState::NeedUpdateOutputs;
-    m_typeClass->SetValue(pinIndex, m_instance, value);
-}
-
-void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
-    m_changeState = ChangeState::NeedUpdateInputs;
-    m_pins[inputPinIndex].attachedPinID = attachedPinID;
-}
-
-void Node::DetachFromInputPin(uint8_t inputPinIndex) {
-    m_changeState = ChangeState::NeedUpdateOutputs;
-    m_typeClass->ResetToDefault(inputPinIndex, m_instance);
-    m_pins[inputPinIndex].attachedPinID = 0;
-}
-
-void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
-    for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
-            m_changeState = ChangeState::NeedUpdateOutputs;
-            m_typeClass->ResetToDefault(i, m_instance);
-            m_pins[i].attachedPinID = 0;
-        }
-    }
-}
-
-void Node::IncLinkForOutputPin(uint8_t outputPinIndex) noexcept {
-    m_pins[outputPinIndex].linksCount++;
-}
-
-void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
-    m_pins[outputPinIndex].linksCount--;
 }
 
 }

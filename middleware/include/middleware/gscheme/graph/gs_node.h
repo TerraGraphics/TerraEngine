@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "rttr/rttr.h"
+#include "cpgf/variant.h"
 #include "core/common/ctor.h"
 
 
@@ -21,39 +21,38 @@ struct Pin : Fixed {
     };
 
     // cachedValue for output pin
-    rttr::variant cachedValue;
+    cpgf::GVariant cachedValue = cpgf::GVariant();
 };
 
 class IDraw;
 class TypeClass;
 class Node : Fixed {
-    friend class Graph;
     enum class ChangeState : uint8_t {
         NotChanged = 0,
         NeedUpdateInputs = 1,
         NeedUpdateOutputs = 2,
         Updated = 3,
     };
+
 public:
     Node() = default;
     Node(Node&& other) noexcept;
     Node& operator=(Node&& other) noexcept;
 
+    void Init(uint16_t id) noexcept;
+    void Create(TypeClass* typeClass);
+    void Reset(uint16_t nextIndex);
+
+public:
     uint16_t GetNextIndex() const noexcept { return m_nextIndex; }
     bool IsRemoved() const noexcept { return (m_pins == nullptr); }
 
-private:
-    void Init(uint16_t id) noexcept;
-    void Create(TypeClass* typeClass, rttr::variant&& instance);
-    void Reset(uint16_t nextIndex);
-
-    uint32_t GetAttachedPinId(uint8_t inputPinIndex) const noexcept;
-
+    // valid for input pins
+    uint32_t GetAttachedPinId(uint8_t inputPinIndex) const noexcept { return m_pins[inputPinIndex].attachedPinID; }
     // works for all pins type
-    bool IsConnectedPin(uint8_t pinIndex) const noexcept;
-    bool IsThisPinAttached(uint8_t inputPinIndex, uint32_t attachedPinID) const noexcept;
-    bool IsExistsConnectedOutputPins() const noexcept;
+    bool IsConnectedPin(uint8_t pinIndex) const noexcept { return (m_pins[pinIndex].linksCount != 0); }
 
+public:
     uint32_t GetEmbeddedPinId(uint8_t offset) const noexcept;
     uint8_t EmbeddedPinsCount() const noexcept { return m_countEmbeddedPins; }
     uint8_t EmbeddedPinsBeginIndex() const noexcept { return 0; }
@@ -75,30 +74,37 @@ private:
     uint8_t OutputPinsBeginIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
     uint8_t OutputPinsEndIndex() const noexcept { return static_cast<uint8_t>(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); }
     const Pin* OutputPinsBegin() const noexcept { return &m_pins[OutputPinsBeginIndex()]; }
-    const Pin* OutputPinsEnd() const noexcept { return &m_pins[OutputPinsEndIndex()]; }
+    const Pin* OutputPinsEnd() const noexcept { return &m_pins[OutputPinsBeginIndex()] + OutputPinsCount(); }
     void CheckIsValidOutputPinId(uint32_t pinId) const;
 
+public:
     void ResetOrder() noexcept;
     uint16_t GetOrderNumber(Node* nodes) noexcept;
     void SetNextCalcIndex(uint16_t nodeIndex) noexcept { m_nextIndex = nodeIndex; }
 
+public:
     void ResetAcyclicityChecked() noexcept;
     bool CheckAcyclicity(Node* nodes, uint16_t dstNodeId) noexcept;
 
+public:
     void ResetChangeState() noexcept;
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
-    void DrawGraph(IDraw* drawer);
-    void DrawNodeProperty(IDraw* drawer);
 
-    const rttr::variant& GetValue(uint8_t pinIndex) const;
-    void SetValue(uint8_t pinIndex, const rttr::variant& value);
+public:
+    const cpgf::GVariant& GetValue(uint8_t pinIndex) const;
+    void SetValue(uint8_t pinIndex, const cpgf::GVariant& value);
 
+public:
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
     void DetachFromInputPin(uint8_t inputPinIndex);
     void DetachFromInputPinIfExists(uint16_t attachedNodeID);
     void IncLinkForOutputPin(uint8_t outputPinIndex) noexcept;
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
+
+public:
+    void DrawGraph(IDraw* drawer);
+    void DrawNodeProperty(IDraw* drawer);
 
 private:
     // nodeID - index in Graph::m_nodes + 1
@@ -120,7 +126,7 @@ private:
 
     Pin* m_pins = nullptr;
     TypeClass* m_typeClass = nullptr;
-    rttr::variant m_instance;
+    void* m_instance = nullptr;
 };
 
 }
