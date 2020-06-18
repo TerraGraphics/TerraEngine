@@ -7,13 +7,13 @@
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_node.h"
 #include "middleware/gscheme/graph/gs_limits.h"
-#include "middleware/gscheme/graph/gs_type_class.h"
 #include "middleware/gscheme/graph/gs_type_storage.h"
-#include "middleware/gscheme/embedded/embedded_decl.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
 namespace gs {
+
+class TypeClass;
 
 static_assert(sizeof(Graph) == 40, "sizeof(Graph) == 40 bytes");
 
@@ -90,7 +90,7 @@ void Graph::DrawNodeProperty(uint16_t nodeId, IDraw* drawer) {
     m_nodes[nodeId - 1].DrawNodeProperty(drawer);
 }
 
-const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {
+const cpgf::GVariant& Graph::GetOutputValue(uint32_t pinId) const {
     try {
         CheckIsValidOutputPinId(pinId);
     } catch(const EngineError& e) {
@@ -100,7 +100,7 @@ const rttr::variant& Graph::GetOutputValue(uint32_t pinId) const {
     return m_nodes[NodeIndexFromPinId(pinId)].GetValue(PinIndexFromPinId(pinId));
 }
 
-const rttr::variant& Graph::GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const {
+const cpgf::GVariant& Graph::GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const {
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
@@ -110,7 +110,7 @@ const rttr::variant& Graph::GetOutputValue(uint16_t nodeId, uint8_t outputPinOff
     return GetOutputValue(m_nodes[nodeId - 1].GetOutputPinId(outputPinOffset));
 }
 
-void Graph::SetEmbeddedValue(uint32_t pinId, const rttr::variant& value) {
+void Graph::SetEmbeddedValue(uint32_t pinId, const cpgf::GVariant& value) {
     try {
         CheckIsValidEmbeddedPinId(pinId);
     } catch(const EngineError& e) {
@@ -120,7 +120,7 @@ void Graph::SetEmbeddedValue(uint32_t pinId, const rttr::variant& value) {
     m_nodes[NodeIndexFromPinId(pinId)].SetValue(PinIndexFromPinId(pinId), value);
 }
 
-void Graph::SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const rttr::variant& value) {
+void Graph::SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value) {
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
@@ -130,7 +130,7 @@ void Graph::SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const r
     return SetEmbeddedValue(m_nodes[nodeId - 1].GetEmbeddedPinId(embeddedPinOffset), value);
 }
 
-void Graph::SetInputValue(uint32_t pinId, const rttr::variant& value) {
+void Graph::SetInputValue(uint32_t pinId, const cpgf::GVariant& value) {
     try {
         CheckIsValidInputPinId(pinId);
     } catch(const EngineError& e) {
@@ -145,7 +145,7 @@ void Graph::SetInputValue(uint32_t pinId, const rttr::variant& value) {
     m_nodes[nodeIndex].SetValue(pinIndex, value);
 }
 
-void Graph::SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const rttr::variant& value) {
+void Graph::SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value) {
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
@@ -188,7 +188,7 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
 
     uint16_t nodeIndex = m_firstFreeIndex;
     m_firstFreeIndex = m_nodes[m_firstFreeIndex].GetNextIndex();
-    m_nodes[nodeIndex].Create(typeClass, typeClass->NewInstance());
+    m_nodes[nodeIndex].Create(typeClass);
     --m_free;
 
     SortNodesByDependency();
@@ -496,7 +496,7 @@ void Graph::CheckRemoveLink(uint64_t linkId) const {
             "wrong srcNodeId = {} and dstNodeId = {} (from linkId = {}), node ids cannot be equivalent", srcNodeId, dstNodeId, linkId);
     }
 
-    if (!m_nodes[dstNodeId - 1].IsThisPinAttached(PinIndexFromPinId(dstPinId), srcPinId)) {
+    if (m_nodes[dstNodeId - 1].GetAttachedPinId(PinIndexFromPinId(dstPinId)) != srcPinId) {
         throw EngineError(
             "wrong linkId = {}, link does not exist", linkId);
     }

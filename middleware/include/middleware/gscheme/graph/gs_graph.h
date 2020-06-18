@@ -7,8 +7,8 @@
 #include "core/common/ctor.h"
 
 
-namespace rttr {
-    class variant;
+namespace cpgf {
+    class GVariant;
 }
 namespace gs {
 
@@ -27,12 +27,12 @@ public:
 
     uint16_t CountNodes() const noexcept { return m_capacity - m_free; }
 
-    const rttr::variant& GetOutputValue(uint32_t pinId) const;
-    const rttr::variant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
-    void SetEmbeddedValue(uint32_t pinId, const rttr::variant& value);
-    void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const rttr::variant& value);
-    void SetInputValue(uint32_t pinId, const rttr::variant& value);
-    void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const rttr::variant& value);
+    const cpgf::GVariant& GetOutputValue(uint32_t pinId) const;
+    const cpgf::GVariant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
+    void SetEmbeddedValue(uint32_t pinId, const cpgf::GVariant& value);
+    void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value);
+    void SetInputValue(uint32_t pinId, const cpgf::GVariant& value);
+    void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value);
 
     uint16_t AddNode(uint16_t typeClassIndex);
     uint16_t AddNode(std::string_view name);
