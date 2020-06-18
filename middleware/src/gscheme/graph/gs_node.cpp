@@ -274,22 +274,25 @@ void Node::SetValue(uint8_t pinIndex, const cpgf::GVariant& value) {
     m_typeClass->SetValue(pinIndex, m_instance, value);
 }
 
+void Node::ResetToDefault(uint8_t pinIndex) {
+    m_changeState = ChangeState::NeedUpdateOutputs;
+    m_typeClass->ResetToDefault(pinIndex, m_instance);
+}
+
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
     m_changeState = ChangeState::NeedUpdateInputs;
     m_pins[inputPinIndex].attachedPinID = attachedPinID;
 }
 
 void Node::DetachFromInputPin(uint8_t inputPinIndex) {
-    m_changeState = ChangeState::NeedUpdateOutputs;
-    m_typeClass->ResetToDefault(inputPinIndex, m_instance);
+    ResetToDefault(inputPinIndex);
     m_pins[inputPinIndex].attachedPinID = 0;
 }
 
 void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
-            m_changeState = ChangeState::NeedUpdateOutputs;
-            m_typeClass->ResetToDefault(i, m_instance);
+            ResetToDefault(i);
             m_pins[i].attachedPinID = 0;
         }
     }
@@ -328,16 +331,14 @@ void Node::DrawGraph(IDraw* drawer) {
 
 void Node::DrawNodeProperty(IDraw* drawer) {
     drawer->OnDrawEditingHeader(m_typeClass->GetPrettyName());
-    for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
+    // all embedded and input pins
+    for (uint8_t i=EmbeddedPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         auto value = m_typeClass->GetValue(i, m_instance);
-        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), false, m_typeClass->GetDefaultValue(i), value)) {
+        IDraw::EditResult result = drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), value);
+        if (result == IDraw::EditResult::Changed) {
             SetValue(i, value);
-        }
-    }
-    for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        auto value = m_typeClass->GetValue(i, m_instance);
-        if (drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), m_typeClass->GetDefaultValue(i), value)) {
-            SetValue(i, value);
+        } else if (result == IDraw::EditResult::ResetToDefault) {
+            ResetToDefault(i);
         }
     }
 }

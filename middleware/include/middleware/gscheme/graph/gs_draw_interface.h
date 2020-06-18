@@ -5,8 +5,8 @@
 #include "core/common/ctor.h"
 
 
-namespace rttr {
-    class variant;
+namespace cpgf {
+    class GVariant;
 }
 namespace gs {
 
@@ -30,9 +30,14 @@ public:
 
 // Draw node edit GUI
 public:
+    enum class EditResult : uint8_t {
+        NotChanged = 0,
+        Changed = 1,
+        ResetToDefault = 2,
+    };
     virtual void OnDrawEditingHeader(const std::string& prettyName) = 0;
     // need return true if value chanded
-    virtual bool OnDrawEditingPin(const std::string& prettyName, bool disabled, const rttr::variant& defaultValue, rttr::variant& value) = 0;
+    virtual EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, cpgf::GVariant& value) = 0;
 };
 
 }

@@ -94,6 +94,7 @@ public:
 public:
     const cpgf::GVariant& GetValue(uint8_t pinIndex) const;
     void SetValue(uint8_t pinIndex, const cpgf::GVariant& value);
+    void ResetToDefault(uint8_t pinIndex);
 
 public:
     void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
