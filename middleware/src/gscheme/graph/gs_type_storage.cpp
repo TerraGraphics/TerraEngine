@@ -1,25 +1,25 @@
 #include "middleware/gscheme/graph/gs_type_storage.h"
 
-#include <string>
 #include <utility>
 #include <variant>
+#include <cstddef>
 #include <functional>
-#include <unordered_set>
 #include <unordered_map>
 #include <boost/preprocessor/list/for_each_product.hpp>
 
-#include "rttr/rttr.h"
 #include "eigen/core.h"
+#include "cpgf/metaclass.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_convert.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
+#include "middleware/gscheme/embedded/embedded.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_type_class.h"
 
 
-#define RTTR_CONVERT_FUNC(R, L) AddConvertFunc<BOOST_PP_TUPLE_ELEM(2, 1, L), BOOST_PP_TUPLE_ELEM(2, 0, L)>();
+#define CONVERT_FUNC(R, L) AddConvertFunc<BOOST_PP_TUPLE_ELEM(2, 1, L), BOOST_PP_TUPLE_ELEM(2, 0, L)>();
 
 namespace gs {
 
@@ -32,32 +32,30 @@ struct TypeStorage::Impl {
     uint16_t m_countTypeClasses = 0;
     TypeClass* m_typeClasses;
     std::unordered_map<std::string_view, uint16_t> m_typeClassesIndex;
-    std::unordered_map<uint16_t, std::function<rttr::variant (const rttr::variant&)>> m_convertFuncs;
+    std::unordered_map<uint16_t, std::function<cpgf::GVariant (const cpgf::GVariant&)>> m_convertFuncs;
 };
 
 TypeStorage::Impl::Impl() {
-    std::unordered_set<std::string> names;
-    for(const auto& t : rttr::type::get_types()) {
-        if (t.is_valid() && t.get_metadata(MetaTypes::CLASS).is_valid()) {
-            if (!names.insert(t.get_name().to_string()).second) {
-                throw EngineError("gs::TypeStorage::ctor: type classes have a duplicate name = '{}'", t.get_name().to_string());
-            }
+    const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();
+    for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
+        const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
+        if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
             ++m_countTypeClasses;
         }
     }
 
     m_typeClasses = new TypeClass[m_countTypeClasses];
     uint16_t index = 0;
-    for(const auto& t : rttr::type::get_types()) {
-        if (t.is_valid() && t.get_metadata(MetaTypes::CLASS).is_valid()) {
-            m_typeClasses[index].Create(t);
+    for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
+        const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
+        if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
+            m_typeClasses[index].Create(metaClass);
             m_typeClassesIndex[m_typeClasses[index].GetName()] = index;
-
             ++index;
         }
     }
 
-    BOOST_PP_LIST_FOR_EACH_PRODUCT(RTTR_CONVERT_FUNC, 2, (UNIVERSAL_TYPES, UNIVERSAL_TYPES));
+    BOOST_PP_LIST_FOR_EACH_PRODUCT(CONVERT_FUNC, 2, (UNIVERSAL_TYPES, UNIVERSAL_TYPES));
 }
 
 template <typename To, typename From> void TypeStorage::Impl::AddConvertFunc() {
@@ -67,20 +65,20 @@ template <typename To, typename From> void TypeStorage::Impl::AddConvertFunc() {
         constexpr uint16_t toId = static_cast<uint16_t>(GetTypeId<To>());
         constexpr uint16_t toIdU = static_cast<uint16_t>(ToUniversalTypeId(GetTypeId<To>()));
 
-        m_convertFuncs[(fromId | toId)] = [](const rttr::variant& value) -> rttr::variant {
-            return rttr::variant(ConvertTo<To, From>(value.get_wrapped_value<From>()));
+        m_convertFuncs[(fromId | toId)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
+            return cpgf::GVariant(ConvertTo<To, From>(cpgf::fromVariant<From>(value)));
         };
 
-        m_convertFuncs[(fromId | toIdU)] = [](const rttr::variant& value) -> rttr::variant {
-            return rttr::variant(UniversalType(ConvertTo<To, From>(value.get_wrapped_value<From>())));
+        m_convertFuncs[(fromId | toIdU)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
+            return cpgf::GVariant(UniversalType(ConvertTo<To, From>(cpgf::fromVariant<From>(value))));
         };
 
-        m_convertFuncs[(fromIdU | toId)] = [](const rttr::variant& value) -> rttr::variant {
-            return rttr::variant(ConvertTo<To, From>(std::get<From>(value.get_wrapped_value<UniversalType>())));
+        m_convertFuncs[(fromIdU | toId)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
+            return cpgf::GVariant(ConvertTo<To, From>(std::get<From>(cpgf::fromVariant<UniversalType>(value))));
         };
 
-        m_convertFuncs[(fromIdU | toIdU)] = [](const rttr::variant& value) -> rttr::variant {
-            return rttr::variant(UniversalType(ConvertTo<To, From>(std::get<From>(value.get_wrapped_value<UniversalType>()))));
+        m_convertFuncs[(fromIdU | toIdU)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
+            return cpgf::GVariant(UniversalType(ConvertTo<To, From>(std::get<From>(cpgf::fromVariant<UniversalType>(value)))));
         };
     }
 }
