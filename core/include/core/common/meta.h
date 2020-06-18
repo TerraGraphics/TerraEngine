@@ -1,31 +1,19 @@
 #pragma once
 
-#ifndef _MSC_VER
-#   include <cxxabi.h>
-#endif
-#include <memory>
 #include <string>
-#include <cstdlib>
 #include <typeinfo>
 #include <type_traits>
 
 
 namespace meta {
 
+// example: DemangleTypeName(typeid(int).name())
+const std::string DemangleTypeName(const char* name);
+
 // example: TypeName<double>()
 template <typename T> std::string TypeName() {
-    typedef typename std::remove_reference<T>::type TR;
-    std::unique_ptr<char, void(*)(void*)> own
-           (
-#ifndef _MSC_VER
-                abi::__cxa_demangle(typeid(TR).name(), nullptr,
-                                           nullptr, nullptr),
-#else
-                nullptr,
-#endif
-                std::free
-           );
-    std::string r = own != nullptr ? own.get() : typeid(TR).name();
+    using TR = typename std::remove_reference<T>::type;
+    std::string r = DemangleTypeName(typeid(TR).name());
     if (std::is_const<TR>::value)
         r += " const";
     if (std::is_volatile<TR>::value)

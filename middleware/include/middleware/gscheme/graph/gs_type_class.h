@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "core/common/ctor.h"
+#include "middleware/gscheme/graph/gs_types_decl.h"
 
 
 namespace cpgf {
@@ -36,6 +37,8 @@ public:
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
+    TypeId GetPinTypeId(uint8_t pinIndex) const noexcept;
+
     void* NewInstance();
     void DeleteInstance(void* instance);
 
@@ -52,6 +55,7 @@ private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
+    TypeId* m_typeIds = nullptr;
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;

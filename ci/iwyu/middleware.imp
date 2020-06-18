@@ -9,6 +9,8 @@
     { include: ['"middleware/generator/mesh/shape_builder.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/cylinder_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
 
+    { include: ['"middleware/gscheme/graph/gs_types_decl.h"', public, '"middleware/gscheme/graph/gs_types.h"', public] },
+
     { include: ['"core/dg/math.h"', public, '"middleware/std_render/structures.h"', public] },
     { include: ['"structures.fxh"', private, '"middleware/std_render/structures.h"', public] },
 

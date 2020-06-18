@@ -13,9 +13,12 @@
 
 namespace gs {
 
-static_assert(sizeof(TypeClass) == 32, "sizeof(TypeClass) == 32 bytes");
+static_assert(sizeof(TypeClass) == 40, "sizeof(TypeClass) == 40 bytes");
 
 TypeClass::~TypeClass() {
+    if (m_typeIds != nullptr) {
+        delete[] m_typeIds;
+    }
     if (m_props != nullptr) {
         delete[] m_props;
     }
@@ -54,19 +57,24 @@ void TypeClass::Create(const cpgf::GMetaClass* metaClass) {
     uint8_t inputIndex = embeddedIndex + m_countEmbeddedPins;
     uint8_t outputIndex = inputIndex + m_countInputPins;
     m_metaClass = metaClass;
+    m_typeIds = new TypeId[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
         const cpgf::GMetaAnnotation* pinAnnotation = prop->getAnnotation(gs::MetaNames::PIN);
         const cpgf::GAnnotationValue* propPinTypeValue = pinAnnotation->getValue(gs::MetaNames::PIN_TYPE);
         gs::PinTypes propPinType = propPinTypeValue->toObject<gs::PinTypes>();
+        const auto& typeInfo = prop->getItemType().getBaseType().getStdTypeInfo();
         switch (propPinType) {
         case gs::PinTypes::EMBEDDED:
+            m_typeIds[embeddedIndex] = GetTypeId(typeInfo);
             m_props[embeddedIndex++] = prop;
             break;
         case gs::PinTypes::INPUT:
+            m_typeIds[inputIndex] = GetTypeId(typeInfo);
             m_props[inputIndex++] = prop;
             break;
         case gs::PinTypes::OUTPUT:
+            m_typeIds[outputIndex] = GetTypeId(typeInfo);
             m_props[outputIndex++] = prop;
             break;
         }
@@ -99,6 +107,10 @@ std::string TypeClass::GetPinPrettyName(uint8_t pinIndex) const {
     } else {
         return m_props[pinIndex]->getName();
     }
+}
+
+TypeId TypeClass::GetPinTypeId(uint8_t pinIndex) const noexcept {
+    return m_typeIds[pinIndex];
 }
 
 void* TypeClass::NewInstance() {
