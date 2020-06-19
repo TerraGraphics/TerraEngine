@@ -2,16 +2,16 @@
 #include <cstdint>
 
 #include "test/test.h"
-#include "rttr/rttr.h"
+#include "cpgf/variant.h"
 #include "middleware/gscheme/graph/gs_graph.h"
 #include "middleware/gscheme/graph/gs_type_storage.h"
 
 
 #define ASSERT_FLOAT(expected, actual) do { \
     const auto& tmpFloatValue = actual; \
-    ASSERT_TRUE(tmpFloatValue.is_valid()); \
-    ASSERT_TRUE(tmpFloatValue.is_type<float>()); \
-    ASSERT_FLOAT_EQ(expected, tmpFloatValue.get_value<float>()); \
+    ASSERT_FALSE(tmpFloatValue.isEmpty()); \
+    ASSERT_TRUE(cpgf::canFromVariant<float>(tmpFloatValue)); \
+    ASSERT_FLOAT_EQ(expected, cpgf::fromVariant<float>(tmpFloatValue)); \
     } while(false)
 
 namespace {
