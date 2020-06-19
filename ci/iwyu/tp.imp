@@ -94,37 +94,6 @@
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"dg/dg.h"', "public"] },
 
 
-    { include: ['"rttr/string_view.h"', public, '"rttr/enumeration.h"', public] },
-    { include: ['"rttr/detail/impl/instance_impl.h"', private, '"rttr/instance.h"', public] },
-    { include: ['"rttr/detail/impl/argument_impl.h"', private, '"rttr/argument.h"', public] },
-    { include: ['"rttr/detail/impl/string_view_impl.h"', private, '"rttr/string_view.h"', public] },
-
-    { include: ['"rttr/detail/impl/array_range_impl.h"', private, '"rttr/array_range.h"', public] },
-    { include: ['"rttr/property.h"', public, '"rttr/array_range.h"', public] },
-
-    { include: ['"rttr/variant.h"', private, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/type.h"', private, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/method.h"', private, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/string_view.h"', public, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/array_range.h"', public, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/filter_item.h"', public, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/detail/type/type_data.h"', private, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/detail/type/type_impl.h"', private, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/detail/variant/variant_impl.h"', private, '"rttr/rttr.h"', public] },
-    { include: ['"rttr/detail/base/core_prerequisites.h"', public, '"rttr/rttr.h"', public] },
-
-    { include: ['"rttr/registration.h"', private, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/rttr.h"', public, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/policy.h"', public, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/enumeration.h"', public, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/access_levels.h"', public, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/detail/base/core_prerequisites.h"', public, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/detail/registration/bind_impl.h"', private, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/detail/registration/bind_types.h"', private, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/detail/property/property_wrapper.h"', private, '"rttr/reflection.h"', public] },
-    { include: ['"rttr/detail/registration/registration_impl.h"', private, '"rttr/reflection.h"', public] },
-
-
     { include: ['"cpgf/gmetadefine.h"', private, '"cpgf/metadefine.h"', public] },
     { include: ['"cpgf/metaclass.h"', public, '"cpgf/metadefine.h"', public] },
 

@@ -8,9 +8,10 @@
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
-namespace rttr {
-    class variant;
+namespace cpgf {
+    class GVariant;
 }
+
 namespace gs {
 
 class Draw final : public IDraw {
@@ -35,7 +36,7 @@ public:
 // Draw node edit GUI
 public:
     void OnDrawEditingHeader(const std::string& prettyName) final;
-    bool OnDrawEditingPin(const std::string& prettyName, bool disabled, const rttr::variant& defaultValue, rttr::variant& value) final;
+    EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, cpgf::GVariant& value) final;
 
 // tmp data for draw frame
 private:
