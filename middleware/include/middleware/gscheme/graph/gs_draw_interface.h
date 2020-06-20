@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "core/common/ctor.h"
+#include "middleware/gscheme/graph/gs_types_decl.h"
 
 
 namespace cpgf {
@@ -37,7 +38,7 @@ public:
     };
     virtual void OnDrawEditingHeader(const std::string& prettyName) = 0;
     // need return true if value chanded
-    virtual EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, cpgf::GVariant& value) = 0;
+    virtual EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, TypeId typeId, cpgf::GVariant& value) = 0;
 };
 
 }

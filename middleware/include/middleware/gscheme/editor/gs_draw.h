@@ -5,6 +5,7 @@
 
 #include "dg/dg.h"
 #include "core/math/types.h"
+#include "middleware/gscheme/graph/gs_types_decl.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
@@ -36,7 +37,7 @@ public:
 // Draw node edit GUI
 public:
     void OnDrawEditingHeader(const std::string& prettyName) final;
-    EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, cpgf::GVariant& value) final;
+    EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, TypeId typeId, cpgf::GVariant& value) final;
 
 // tmp data for draw frame
 private:

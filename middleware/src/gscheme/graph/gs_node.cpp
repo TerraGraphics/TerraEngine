@@ -334,7 +334,7 @@ void Node::DrawNodeProperty(IDraw* drawer) {
     // all embedded and input pins
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         auto value = m_typeClass->GetValue(i, m_instance);
-        IDraw::EditResult result = drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), value);
+        auto result = drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), m_typeClass->GetPinTypeId(i), value);
         if (result == IDraw::EditResult::Changed) {
             SetValue(i, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
