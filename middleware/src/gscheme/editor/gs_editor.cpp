@@ -5,21 +5,21 @@
 #include "imgui/imgui.h"
 #include "imgui/node_editor.h"
 #include "middleware/gscheme/graph/gs_id.h"
+#include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/editor/gs_draw.h"
 #include "middleware/gscheme/graph/gs_graph.h"
 #include "middleware/gscheme/graph/gs_limits.h"
-#include "middleware/gscheme/graph/gs_type_class.h"
-#include "middleware/gscheme/graph/gs_type_storage.h"
+#include "middleware/gscheme/graph/gs_class_storage.h"
 
 
 namespace gs {
 
-Editor::Editor(const std::shared_ptr<TypeStorage>& typeStorage, const std::string& name, TexturePtr& texBackground)
+Editor::Editor(const std::shared_ptr<ClassStorage>& classStorage, const std::string& name, TexturePtr& texBackground)
     : m_name(name)
     , m_config(new ne::Config())
     , m_draw(new Draw(texBackground))
-    , m_graph(new Graph(typeStorage, 16))
-    , m_typeStorage(typeStorage) {
+    , m_graph(new Graph(classStorage, 16))
+    , m_classStorage(classStorage) {
 
 }
 
@@ -132,19 +132,19 @@ void Editor::DrawNodeProperty() {
 }
 
 void Editor::DrawNewNodeMenu(float x, float y) {
-    uint16_t newNodeTypeClassIndex = gs::INVALID_TYPE_CLASS_INDEX;
+    uint16_t newNodeClassIndex = gs::INVALID_CLASS_INDEX;
     if (ImGui::BeginMenu("All")) {
         uint16_t index = 0;
-        for(const auto* it = m_typeStorage->TypeClassesBegin(); it != m_typeStorage->TypeClassesEnd(); ++it, ++index) {
+        for(const auto* it = m_classStorage->ClassesBegin(); it != m_classStorage->ClassesEnd(); ++it, ++index) {
             if (ImGui::MenuItem(it->GetPrettyName().c_str())) {
-                newNodeTypeClassIndex = index;
+                newNodeClassIndex = index;
             }
 
         }
         ImGui::EndMenu();
     }
-    if (newNodeTypeClassIndex != gs::INVALID_TYPE_CLASS_INDEX) {
-        auto nodeId =  m_graph->AddNode(newNodeTypeClassIndex);
+    if (newNodeClassIndex != gs::INVALID_CLASS_INDEX) {
+        auto nodeId =  m_graph->AddNode(newNodeClassIndex);
         ne::SetNodePosition(ne::NodeId(nodeId), ImVec2(x, y));
     }
 }

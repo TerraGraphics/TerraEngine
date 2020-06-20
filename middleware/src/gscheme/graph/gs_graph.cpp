@@ -7,24 +7,24 @@
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_node.h"
 #include "middleware/gscheme/graph/gs_limits.h"
-#include "middleware/gscheme/graph/gs_type_storage.h"
+#include "middleware/gscheme/graph/gs_class_storage.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
 namespace gs {
 
-class TypeClass;
+class Class;
 
 static_assert(sizeof(Graph) == 40, "sizeof(Graph) == 40 bytes");
 
-Graph::Graph(const std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount)
+Graph::Graph(const std::shared_ptr<ClassStorage>& classStorage, uint16_t initialNodeCount)
     : m_free(initialNodeCount)
     , m_capacity(initialNodeCount)
     , m_firstFreeIndex(0)
     , m_firstCalcIndex(INVALID_NODE_INDEX)
     , m_nodes(new Node[m_capacity])
     , m_indeciesForOrder(new uint16_t[m_capacity + m_capacity])
-    , m_typeStorage(typeStorage) {
+    , m_classStorage(classStorage) {
 
     for (uint16_t i=0; i!=m_capacity; ++i) {
         m_nodes[i].Init(i + 1);
@@ -42,7 +42,7 @@ Graph::~Graph() {
     if (m_indeciesForOrder != nullptr) {
         delete[] m_indeciesForOrder;
     }
-    m_typeStorage.reset();
+    m_classStorage.reset();
 }
 
 void Graph::UpdateState() {
@@ -155,8 +155,8 @@ void Graph::SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::G
     return SetInputValue(m_nodes[nodeId - 1].GetInputPinId(inputPinOffset), value);
 }
 
-uint16_t Graph::AddNode(uint16_t typeClassIndex) {
-    TypeClass* typeClass = m_typeStorage->GetTypeClass(typeClassIndex);
+uint16_t Graph::AddNode(uint16_t classIndex) {
+    Class* cls = m_classStorage->GetClass(classIndex);
     if (m_free == 0) {
         if (m_capacity == MAX_NODES_COUNT) {
             throw EngineError("gs::Graph::AddNode: failed to add node, node limit exceeded");
@@ -188,7 +188,7 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
 
     uint16_t nodeIndex = m_firstFreeIndex;
     m_firstFreeIndex = m_nodes[m_firstFreeIndex].GetNextIndex();
-    m_nodes[nodeIndex].Create(typeClass);
+    m_nodes[nodeIndex].Create(cls);
     --m_free;
 
     SortNodesByDependency();
@@ -197,7 +197,7 @@ uint16_t Graph::AddNode(uint16_t typeClassIndex) {
 }
 
 uint16_t Graph::AddNode(std::string_view name) {
-    return AddNode(m_typeStorage->GetTypeClassIndex(name));
+    return AddNode(m_classStorage->GetClassIndex(name));
 }
 
 bool Graph::TestRemoveNode(uint16_t nodeId) const noexcept {

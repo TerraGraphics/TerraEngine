@@ -1,4 +1,4 @@
-#include "middleware/gscheme/graph/gs_type_storage.h"
+#include "middleware/gscheme/graph/gs_class_storage.h"
 
 #include <utility>
 #include <variant>
@@ -12,45 +12,45 @@
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
+#include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_convert.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded.h" // IWYU pragma: keep
-#include "middleware/gscheme/graph/gs_type_class.h"
 
 
 #define CONVERT_FUNC(R, L) AddConvertFunc<BOOST_PP_TUPLE_ELEM(2, 1, L), BOOST_PP_TUPLE_ELEM(2, 0, L)>();
 
 namespace gs {
 
-struct TypeStorage::Impl {
+struct ClassStorage::Impl {
     Impl();
     ~Impl();
 
     template <typename To, typename From> void AddConvertFunc();
 
-    uint16_t m_countTypeClasses = 0;
-    TypeClass* m_typeClasses;
-    std::unordered_map<std::string_view, uint16_t> m_typeClassesIndex;
+    uint16_t m_countClasses = 0;
+    Class* m_classes;
+    std::unordered_map<std::string_view, uint16_t> m_classesIndex;
     std::unordered_map<uint16_t, std::function<cpgf::GVariant (const cpgf::GVariant&)>> m_convertFuncs;
 };
 
-TypeStorage::Impl::Impl() {
+ClassStorage::Impl::Impl() {
     const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
-            ++m_countTypeClasses;
+            ++m_countClasses;
         }
     }
 
-    m_typeClasses = new TypeClass[m_countTypeClasses];
+    m_classes = new Class[m_countClasses];
     uint16_t index = 0;
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
-            m_typeClasses[index].Create(metaClass);
-            m_typeClassesIndex[m_typeClasses[index].GetName()] = index;
+            m_classes[index].Create(metaClass);
+            m_classesIndex[m_classes[index].GetName()] = index;
             ++index;
         }
     }
@@ -58,7 +58,7 @@ TypeStorage::Impl::Impl() {
     BOOST_PP_LIST_FOR_EACH_PRODUCT(CONVERT_FUNC, 2, (UNIVERSAL_TYPES, UNIVERSAL_TYPES));
 }
 
-template <typename To, typename From> void TypeStorage::Impl::AddConvertFunc() {
+template <typename To, typename From> void ClassStorage::Impl::AddConvertFunc() {
     if constexpr (gs::CanConvert<To, From>) {
         constexpr uint16_t fromId = (static_cast<uint16_t>(GetTypeId<From>()) << uint16_t(8));
         constexpr uint16_t fromIdU = (static_cast<uint16_t>(ToUniversalTypeId(GetTypeId<From>())) << uint16_t(8));
@@ -83,48 +83,48 @@ template <typename To, typename From> void TypeStorage::Impl::AddConvertFunc() {
     }
 }
 
-TypeStorage::Impl::~Impl() {
-    m_typeClassesIndex.clear();
-    if (m_typeClasses != nullptr) {
-        delete[] m_typeClasses;
+ClassStorage::Impl::~Impl() {
+    m_classesIndex.clear();
+    if (m_classes != nullptr) {
+        delete[] m_classes;
     }
 }
 
-TypeStorage::TypeStorage() {
+ClassStorage::ClassStorage() {
 
 }
 
-TypeStorage::~TypeStorage() {
+ClassStorage::~ClassStorage() {
 
 }
 
-TypeClass* TypeStorage::GetTypeClass(uint16_t typeClassIndex) {
-    if (typeClassIndex >= impl->m_countTypeClasses) {
+Class* ClassStorage::GetClass(uint16_t classIndex) {
+    if (classIndex >= impl->m_countClasses) {
         throw EngineError(
-            "gs::TypeStorage::GetTypeClass: wrong typeClassIndex = {}, max value = {}", typeClassIndex, impl->m_countTypeClasses - 1);
+            "gs::ClassStorage::GetClass: wrong classIndex = {}, max value = {}", classIndex, impl->m_countClasses - 1);
     }
 
-    return &impl->m_typeClasses[typeClassIndex];
+    return &impl->m_classes[classIndex];
 }
 
-TypeClass* TypeStorage::GetTypeClass(std::string_view name) {
-    return GetTypeClass(GetTypeClassIndex(name));
+Class* ClassStorage::GetClass(std::string_view name) {
+    return GetClass(GetClassIndex(name));
 }
 
-uint16_t TypeStorage::GetTypeClassIndex(std::string_view name) {
-    if (auto it = impl->m_typeClassesIndex.find(name); it != impl->m_typeClassesIndex.cend()) {
+uint16_t ClassStorage::GetClassIndex(std::string_view name) {
+    if (auto it = impl->m_classesIndex.find(name); it != impl->m_classesIndex.cend()) {
         return it->second;
     }
 
-    throw EngineError("gs::TypeStorage::GetTypeClassIndex: wrong name = {}, not found node with this name", name);
+    throw EngineError("gs::ClassStorage::GetClassIndex: wrong name = {}, not found node with this name", name);
 }
 
-const TypeClass* TypeStorage::TypeClassesBegin() const noexcept {
-    return impl->m_typeClasses;
+const Class* ClassStorage::ClassesBegin() const noexcept {
+    return impl->m_classes;
 }
 
-const TypeClass* TypeStorage::TypeClassesEnd() const noexcept {
-    return impl->m_typeClasses + impl->m_countTypeClasses;
+const Class* ClassStorage::ClassesEnd() const noexcept {
+    return impl->m_classes + impl->m_countClasses;
 }
 
 }

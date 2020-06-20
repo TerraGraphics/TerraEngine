@@ -16,10 +16,10 @@ namespace cpgf {
 
 namespace gs {
 
-class TypeClass : Fixed {
+class Class : Fixed {
 public:
-    TypeClass() = default;
-    ~TypeClass();
+    Class() = default;
+    ~Class();
 
     void Create(const cpgf::GMetaClass* metaClass);
 

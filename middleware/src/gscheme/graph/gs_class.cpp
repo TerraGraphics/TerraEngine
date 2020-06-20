@@ -1,4 +1,4 @@
-#include "middleware/gscheme/graph/gs_type_class.h"
+#include "middleware/gscheme/graph/gs_class.h"
 
 #include <cstdlib>
 #include <typeinfo>
@@ -13,9 +13,9 @@
 
 namespace gs {
 
-static_assert(sizeof(TypeClass) == 40, "sizeof(TypeClass) == 40 bytes");
+static_assert(sizeof(Class) == 40, "sizeof(Class) == 40 bytes");
 
-TypeClass::~TypeClass() {
+Class::~Class() {
     if (m_typeIds != nullptr) {
         delete[] m_typeIds;
     }
@@ -27,11 +27,11 @@ TypeClass::~TypeClass() {
     }
 }
 
-void TypeClass::Create(const cpgf::GMetaClass* metaClass) {
+void Class::Create(const cpgf::GMetaClass* metaClass) {
     try {
         CheckMetaClass(metaClass);
     } catch(const std::exception& e) {
-        throw EngineError("gs::TypeClass::Create: {}", e.what());
+        throw EngineError("gs::Class::Create: {}", e.what());
     }
 
     m_props = new const cpgf::GMetaProperty*[metaClass->getPropertyCount()];
@@ -77,11 +77,11 @@ void TypeClass::Create(const cpgf::GMetaClass* metaClass) {
     }
 }
 
-std::string_view TypeClass::GetName() const {
+std::string_view Class::GetName() const {
     return m_metaClass->getName();
 }
 
-std::string TypeClass::GetPrettyName() const {
+std::string Class::GetPrettyName() const {
     const cpgf::GMetaAnnotation* clsAnnotation = m_metaClass->getAnnotation(gs::MetaNames::CLASS);
     const cpgf::GAnnotationValue* clsPrettyNameValue = clsAnnotation->getValue(gs::MetaNames::PRETTY_NAME);
     if (clsPrettyNameValue != nullptr) {
@@ -91,11 +91,11 @@ std::string TypeClass::GetPrettyName() const {
     }
 }
 
-std::string_view TypeClass::GetPinName(uint8_t pinIndex) const {
+std::string_view Class::GetPinName(uint8_t pinIndex) const {
     return m_props[pinIndex]->getName();
 }
 
-std::string TypeClass::GetPinPrettyName(uint8_t pinIndex) const {
+std::string Class::GetPinPrettyName(uint8_t pinIndex) const {
     const cpgf::GMetaAnnotation* pinAnnotation = m_props[pinIndex]->getAnnotation(gs::MetaNames::PIN);
     const cpgf::GAnnotationValue* propPrettyNameValue = pinAnnotation->getValue(gs::MetaNames::PRETTY_NAME);
     if (propPrettyNameValue != nullptr) {
@@ -105,11 +105,11 @@ std::string TypeClass::GetPinPrettyName(uint8_t pinIndex) const {
     }
 }
 
-TypeId TypeClass::GetPinTypeId(uint8_t pinIndex) const noexcept {
+TypeId Class::GetPinTypeId(uint8_t pinIndex) const noexcept {
     return m_typeIds[pinIndex];
 }
 
-void* TypeClass::NewInstance() {
+void* Class::NewInstance() {
     void* instance = m_metaClass->createInstance();
     if (m_defaults == nullptr) {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
@@ -121,29 +121,29 @@ void* TypeClass::NewInstance() {
     return instance;
 }
 
-void TypeClass::DeleteInstance(void* instance) {
+void Class::DeleteInstance(void* instance) {
     if (instance != nullptr) {
         m_metaClass->destroyInstance(instance);
     }
 }
 
-cpgf::GVariant TypeClass::GetValue(uint8_t pinIndex, const void* instance) const {
+cpgf::GVariant Class::GetValue(uint8_t pinIndex, const void* instance) const {
     return m_props[pinIndex]->get(instance);
 }
 
-void TypeClass::SetValue(uint8_t pinIndex, void* instance, const cpgf::GVariant& value) const {
+void Class::SetValue(uint8_t pinIndex, void* instance, const cpgf::GVariant& value) const {
     m_props[pinIndex]->set(instance, value);
 }
 
-const cpgf::GVariant& TypeClass::GetDefaultValue(uint8_t pinIndex) const {
+const cpgf::GVariant& Class::GetDefaultValue(uint8_t pinIndex) const {
     return m_defaults[pinIndex];
 }
 
-void TypeClass::ResetToDefault(uint8_t pinIndex, void* instance) const {
+void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
     m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
 }
 
-void TypeClass::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
+void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
     if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
         throw EngineError("double create");
     }

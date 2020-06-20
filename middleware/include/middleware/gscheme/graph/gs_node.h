@@ -25,7 +25,7 @@ struct Pin : Fixed {
 };
 
 class IDraw;
-class TypeClass;
+class Class;
 class Node : Fixed {
     enum class ChangeState : uint8_t {
         NotChanged = 0,
@@ -40,7 +40,7 @@ public:
     Node& operator=(Node&& other) noexcept;
 
     void Init(uint16_t id) noexcept;
-    void Create(TypeClass* typeClass);
+    void Create(Class* cls);
     void Reset(uint16_t nextIndex);
 
 public:
@@ -126,7 +126,7 @@ private:
     uint16_t m_nextIndex = 0;
 
     Pin* m_pins = nullptr;
-    TypeClass* m_typeClass = nullptr;
+    Class* m_class = nullptr;
     void* m_instance = nullptr;
 };
 

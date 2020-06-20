@@ -14,11 +14,11 @@ namespace gs {
 
 class Node;
 class IDraw;
-class TypeStorage;
+class ClassStorage;
 class Graph : Fixed {
 public:
     Graph() = delete;
-    Graph(const std::shared_ptr<TypeStorage>& typeStorage, uint16_t initialNodeCount = 16);
+    Graph(const std::shared_ptr<ClassStorage>& classStorage, uint16_t initialNodeCount = 16);
     ~Graph();
 
     void UpdateState();
@@ -34,7 +34,7 @@ public:
     void SetInputValue(uint32_t pinId, const cpgf::GVariant& value);
     void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value);
 
-    uint16_t AddNode(uint16_t typeClassIndex);
+    uint16_t AddNode(uint16_t classIndex);
     uint16_t AddNode(std::string_view name);
 
     bool TestRemoveNode(uint16_t nodeId) const noexcept;
@@ -66,7 +66,7 @@ private:
     uint16_t m_firstCalcIndex = 0;
     Node* m_nodes = nullptr;
     uint16_t* m_indeciesForOrder = nullptr;
-    std::shared_ptr<TypeStorage> m_typeStorage;
+    std::shared_ptr<ClassStorage> m_classStorage;
 };
 
 }

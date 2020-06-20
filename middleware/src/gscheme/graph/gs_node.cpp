@@ -4,8 +4,8 @@
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"
+#include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/graph/gs_limits.h"
-#include "middleware/gscheme/graph/gs_type_class.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
@@ -27,11 +27,11 @@ Node& Node::operator=(Node&& other) noexcept {
     m_order = other.m_order;
     m_nextIndex = other.m_nextIndex;
     m_pins = other.m_pins;
-    m_typeClass = other.m_typeClass;
+    m_class = other.m_class;
     m_instance = other.m_instance;
 
     other.m_pins = nullptr;
-    other.m_typeClass = nullptr;
+    other.m_class = nullptr;
     other.m_instance = nullptr;
 
     return *this;
@@ -43,13 +43,13 @@ void Node::Init(uint16_t id) noexcept {
     m_nextIndex = id;
 }
 
-void Node::Create(TypeClass* typeClass) {
-    m_typeClass = typeClass;
-    m_instance = typeClass->NewInstance();
+void Node::Create(Class* cls) {
+    m_class = cls;
+    m_instance = cls->NewInstance();
 
-    m_countEmbeddedPins = m_typeClass->EmbeddedPinsCount();
-    m_countInputPins = m_typeClass->InputPinsCount();
-    m_countOutputPins = m_typeClass->OutputPinsCount();
+    m_countEmbeddedPins = m_class->EmbeddedPinsCount();
+    m_countInputPins = m_class->InputPinsCount();
+    m_countOutputPins = m_class->OutputPinsCount();
     m_changeState = ChangeState::NotChanged;
     m_pins = new Pin[m_countEmbeddedPins + m_countInputPins + m_countOutputPins];
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
@@ -70,7 +70,7 @@ void Node::Create(TypeClass* typeClass) {
     for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].linksCount = 0;
-        m_pins[i].cachedValue = m_typeClass->GetValue(i, m_instance);
+        m_pins[i].cachedValue = m_class->GetValue(i, m_instance);
     }
 }
 
@@ -78,11 +78,11 @@ void Node::Reset(uint16_t nextIndex) {
     m_nextIndex = nextIndex;
 
     if (m_instance != nullptr) {
-        m_typeClass->DeleteInstance(m_instance);
+        m_class->DeleteInstance(m_instance);
         m_instance = nullptr;
     }
 
-    m_typeClass = nullptr;
+    m_class = nullptr;
     if (m_pins != nullptr) {
         delete[] m_pins;
         m_pins = nullptr;
@@ -248,7 +248,7 @@ uint16_t Node::UpdateState(Node* nodes) {
             uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinID);
             if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
                 isChanged = true;
-                m_typeClass->SetValue(inputPinIndex, m_instance, nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinID)));
+                m_class->SetValue(inputPinIndex, m_instance, nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinID)));
             }
         }
     }
@@ -256,7 +256,7 @@ uint16_t Node::UpdateState(Node* nodes) {
     if (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs)) {
         for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
             isChanged = true;
-            m_pins[outputPinIndex].cachedValue = m_typeClass->GetValue(outputPinIndex, m_instance);
+            m_pins[outputPinIndex].cachedValue = m_class->GetValue(outputPinIndex, m_instance);
         }
     }
 
@@ -271,12 +271,12 @@ const cpgf::GVariant& Node::GetValue(uint8_t pinIndex) const {
 
 void Node::SetValue(uint8_t pinIndex, const cpgf::GVariant& value) {
     m_changeState = ChangeState::NeedUpdateOutputs;
-    m_typeClass->SetValue(pinIndex, m_instance, value);
+    m_class->SetValue(pinIndex, m_instance, value);
 }
 
 void Node::ResetToDefault(uint8_t pinIndex) {
     m_changeState = ChangeState::NeedUpdateOutputs;
-    m_typeClass->ResetToDefault(pinIndex, m_instance);
+    m_class->ResetToDefault(pinIndex, m_instance);
 }
 
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
@@ -308,12 +308,12 @@ void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
 
 
 void Node::DrawGraph(IDraw* drawer) {
-    drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_typeClass->GetPrettyName());
+    drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_class->GetPrettyName());
 
     if (InputPinsCount() != 0) {
         drawer->OnStartDrawInputPins();
         for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), true, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), true, IsConnectedPin(i), m_class->GetPinPrettyName(i));
         }
         drawer->OnFinishDrawInputPins();
     }
@@ -321,7 +321,7 @@ void Node::DrawGraph(IDraw* drawer) {
     if (OutputPinsCount() != 0) {
         drawer->OnStartDrawOutputPins();
         for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), false, IsConnectedPin(i), m_typeClass->GetPinPrettyName(i));
+            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), false, IsConnectedPin(i), m_class->GetPinPrettyName(i));
         }
         drawer->OnFinishDrawOutputPins();
     }
@@ -330,11 +330,11 @@ void Node::DrawGraph(IDraw* drawer) {
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {
-    drawer->OnDrawEditingHeader(m_typeClass->GetPrettyName());
+    drawer->OnDrawEditingHeader(m_class->GetPrettyName());
     // all embedded and input pins
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        auto value = m_typeClass->GetValue(i, m_instance);
-        auto result = drawer->OnDrawEditingPin(m_typeClass->GetPinPrettyName(i), IsConnectedPin(i), m_typeClass->GetPinTypeId(i), value);
+        auto value = m_class->GetValue(i, m_instance);
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), IsConnectedPin(i), m_class->GetPinTypeId(i), value);
         if (result == IDraw::EditResult::Changed) {
             SetValue(i, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
