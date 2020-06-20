@@ -20,6 +20,7 @@ function(set_common_project_properties TARGET)
             -Woverloaded-virtual
 
             # -ftime-report
+            # -ftime-trace
     )
 
     set_target_properties(${TARGET} PROPERTIES
