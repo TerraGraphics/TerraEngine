@@ -37,10 +37,8 @@ void TypeClass::Create(const cpgf::GMetaClass* metaClass) {
     m_props = new const cpgf::GMetaProperty*[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
-        const cpgf::GMetaAnnotation* pinAnnotation = prop->getAnnotation(gs::MetaNames::PIN);
-        const cpgf::GAnnotationValue* propPinTypeValue = pinAnnotation->getValue(gs::MetaNames::PIN_TYPE);
-        gs::PinTypes propPinType = propPinTypeValue->toObject<gs::PinTypes>();
-        switch (propPinType) {
+        auto pinType = prop->getAnnotation(gs::MetaNames::PIN)->getValue(gs::MetaNames::PIN_TYPE)->toObject<gs::PinTypes>();
+        switch (pinType) {
         case gs::PinTypes::EMBEDDED:
             ++m_countEmbeddedPins;
             break;
@@ -60,21 +58,19 @@ void TypeClass::Create(const cpgf::GMetaClass* metaClass) {
     m_typeIds = new TypeId[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
-        const cpgf::GMetaAnnotation* pinAnnotation = prop->getAnnotation(gs::MetaNames::PIN);
-        const cpgf::GAnnotationValue* propPinTypeValue = pinAnnotation->getValue(gs::MetaNames::PIN_TYPE);
-        gs::PinTypes propPinType = propPinTypeValue->toObject<gs::PinTypes>();
-        const auto& typeInfo = prop->getItemType().getBaseType().getStdTypeInfo();
-        switch (propPinType) {
+        TypeId typeId = GetTypeId(prop->getItemType().getBaseType().getStdTypeInfo());
+        auto pinType = prop->getAnnotation(gs::MetaNames::PIN)->getValue(gs::MetaNames::PIN_TYPE)->toObject<gs::PinTypes>();
+        switch (pinType) {
         case gs::PinTypes::EMBEDDED:
-            m_typeIds[embeddedIndex] = GetTypeId(typeInfo);
+            m_typeIds[embeddedIndex] = typeId;
             m_props[embeddedIndex++] = prop;
             break;
         case gs::PinTypes::INPUT:
-            m_typeIds[inputIndex] = GetTypeId(typeInfo);
+            m_typeIds[inputIndex] = typeId;
             m_props[inputIndex++] = prop;
             break;
         case gs::PinTypes::OUTPUT:
-            m_typeIds[outputIndex] = GetTypeId(typeInfo);
+            m_typeIds[outputIndex] = typeId;
             m_props[outputIndex++] = prop;
             break;
         }

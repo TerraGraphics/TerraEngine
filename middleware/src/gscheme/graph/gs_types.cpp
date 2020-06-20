@@ -81,17 +81,7 @@ bool IsValidInputPinType(const std::type_info& typeInfo) {
 }
 
 bool IsValidOutputPinType(const std::type_info& typeInfo) {
-    auto typeId = GetTypeId(typeInfo);
-
-    return (
-        (typeId == TypeId::Float) ||
-        (typeId == TypeId::Vector2f) ||
-        (typeId == TypeId::Vector3f) ||
-        (typeId == TypeId::Vector4f) ||
-        (typeId == TypeId::Generator2D) ||
-        (typeId == TypeId::Generator3D) ||
-        (typeId == TypeId::UniversalType)
-    );
+    return IsValidInputPinType(typeInfo);
 }
 
 }
