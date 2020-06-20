@@ -27,7 +27,7 @@ class ConvertStorage;
 class TypeAdd : Fixed {
 public:
     TypeAdd() = delete;
-    TypeAdd(ConvertStorage* convertStorage);
+    TypeAdd(const ConvertStorage* convertStorage);
     ~TypeAdd() = default;
 
     TypeId Result() const;

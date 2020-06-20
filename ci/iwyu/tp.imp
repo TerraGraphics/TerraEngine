@@ -101,6 +101,7 @@
     { include: ['"cpgf/gmetaapi.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetapolicy.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/gmetamethod.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetaproperty.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetaannotation.h"', public, '"cpgf/metaclass.h"', public] },
 

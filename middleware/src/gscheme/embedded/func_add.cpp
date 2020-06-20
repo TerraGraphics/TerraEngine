@@ -78,7 +78,7 @@ UniversalType FuncAdd::Result() const {
     }, m_a, m_b);
 }
 
-TypeAdd::TypeAdd(ConvertStorage* convertStorage)
+TypeAdd::TypeAdd(const ConvertStorage* convertStorage)
     : m_convertStorage(convertStorage) {
 
 }

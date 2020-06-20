@@ -69,16 +69,16 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         ::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent>>
         ::define("TypeAdd")
             ._annotation(MetaNames::TYPE_CLASS)._element(MetaNames::IMPL_CLASS, "Add")
-        ._constructor<void * (ConvertStorage*)>()
+        ._constructor<void * (const ConvertStorage*)>()
         ._property("Result", &TypeAdd::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)
         ._property("A", &TypeAdd::GetA, &TypeAdd::SetA)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)
         ._property("B", &TypeAdd::GetB, &TypeAdd::SetB)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)
-        ._method("IsValid", &TypeAdd::IsValid)
-        ._method("Apply", &TypeAdd::Apply)
-        ._method("Reset", &TypeAdd::Reset)
+        ._method(MetaNames::METHOD_IS_VALID, &TypeAdd::IsValid)
+        ._method(MetaNames::METHOD_APPLY, &TypeAdd::Apply)
+        ._method(MetaNames::METHOD_RESET, &TypeAdd::Reset)
     ;
 
     GDefineMetaClass<FuncSum>
