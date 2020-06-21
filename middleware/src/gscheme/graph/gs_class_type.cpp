@@ -72,10 +72,6 @@ void ClassType::Create(const cpgf::GMetaClass* metaClass, const ConvertStorage* 
     }
 }
 
-std::string_view ClassType::GetName() const {
-    return m_metaClass->getName();
-}
-
 std::string_view ClassType::GetImplName() const {
     return m_metaClass->getAnnotation(gs::MetaNames::TYPE_CLASS)->getValue(gs::MetaNames::IMPL_CLASS)->toString();
 }
@@ -185,7 +181,7 @@ void ClassType::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
                 clsName, propName);
         }
         gs::PinTypes propPinType = cpgf::fromVariant<gs::PinTypes>(*propPinTypeVariant);
-        if ((propPinType != gs::PinTypes::EMBEDDED) && (propPinType != gs::PinTypes::INPUT) && (propPinType == gs::PinTypes::OUTPUT)) {
+        if ((propPinType != gs::PinTypes::EMBEDDED) && (propPinType != gs::PinTypes::INPUT) && (propPinType != gs::PinTypes::OUTPUT)) {
             throw EngineError(
                 "invalid metaClass (name = '{}'), has property (name = {}) with invalid value for annotation PIN_TYPE = {}",
                 clsName, propName, static_cast<int>(propPinType));

@@ -22,7 +22,6 @@ public:
 
     void Create(const cpgf::GMetaClass* metaClass, const ConvertStorage* convertStorage);
 
-    std::string_view GetName() const;
     std::string_view GetImplName() const;
     std::string_view GetPinName(uint8_t pinIndex) const;
 
