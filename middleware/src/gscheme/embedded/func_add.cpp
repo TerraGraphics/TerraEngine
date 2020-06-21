@@ -7,6 +7,7 @@
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_convert.h"
+#include "middleware/gscheme/graph/gs_convert_storage.h"
 
 
 namespace gs {
@@ -77,12 +78,28 @@ UniversalType FuncAdd::Result() const {
     }, m_a, m_b);
 }
 
-void FuncAdd::SetA(const UniversalType v) {
-    m_a = v;
+TypeAdd::TypeAdd(ConvertStorage* convertStorage)
+    : m_convertStorage(convertStorage) {
+
 }
 
-void FuncAdd::SetB(const UniversalType v) {
-    m_b = v;
+TypeId TypeAdd::Result() const {
+    return MaxTypeId(m_a, m_b);
+}
+
+bool TypeAdd::IsValid() {
+    auto maxId = MaxTypeId(m_a, m_b);
+    return m_convertStorage->CanConvert((maxId != m_a) ? m_a : m_b, maxId);
+}
+
+void TypeAdd::Apply() {
+    m_originA = m_a;
+    m_originB = m_b;
+}
+
+void TypeAdd::Reset() {
+    m_a = m_originA;
+    m_b = m_originB;
 }
 
 }

@@ -5,6 +5,7 @@
 #include "middleware/gscheme/embedded/func_sum.h"
 #include "middleware/gscheme/embedded/func_add.h"
 #include "middleware/gscheme/embedded/func_constant.h"
+#include "middleware/gscheme/graph/gs_convert_storage.h"
 
 
 
@@ -62,6 +63,22 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::PRETTY_NAME, "A")
         ._property("B", &FuncAdd::GetB, &FuncAdd::SetB)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::PRETTY_NAME, "B")
+    ;
+
+    GDefineMetaClass<TypeAdd>
+        ::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent>>
+        ::define("TypeAdd")
+            ._annotation(MetaNames::TYPE_CLASS)._element(MetaNames::IMPL_CLASS, "Add")
+        ._constructor<void * (ConvertStorage*)>()
+        ._property("Result", &TypeAdd::Result, 0)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)
+        ._property("A", &TypeAdd::GetA, &TypeAdd::SetA)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)
+        ._property("B", &TypeAdd::GetB, &TypeAdd::SetB)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)
+        ._method("IsValid", &TypeAdd::IsValid)
+        ._method("Apply", &TypeAdd::Apply)
+        ._method("Reset", &TypeAdd::Reset)
     ;
 
     GDefineMetaClass<FuncSum>

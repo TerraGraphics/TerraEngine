@@ -12,7 +12,7 @@ public:
     ConvertStorage();
     ~ConvertStorage();
 
-    bool CanConvert(TypeId from, TypeId to);
+    bool CanConvert(TypeId from, TypeId to) const;
 
 private:
     struct Impl;

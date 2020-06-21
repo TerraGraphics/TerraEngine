@@ -1,5 +1,6 @@
 #include "middleware/gscheme/graph/gs_convert_storage.h"
 
+#include <cstdint>
 #include <variant>
 #include <functional>
 #include <unordered_map>
@@ -67,7 +68,7 @@ ConvertStorage::~ConvertStorage() {
 
 }
 
-bool ConvertStorage::CanConvert(TypeId from, TypeId to) {
+bool ConvertStorage::CanConvert(TypeId from, TypeId to) const {
     return (impl->m_convertFuncs.find(KeyId(from, to)) != impl->m_convertFuncs.cend());
 }
 
