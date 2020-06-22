@@ -16,12 +16,13 @@ namespace cpgf {
 
 namespace gs {
 
+class ClassType;
 class Class : Fixed {
 public:
     Class() = default;
     ~Class();
 
-    void Create(const cpgf::GMetaClass* metaClass);
+    void Create(const cpgf::GMetaClass* metaClass, ClassType* classType);
 
     // unique class name
     std::string_view GetName() const;
@@ -49,7 +50,7 @@ public:
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
 private:
-    void CheckMetaClass(const cpgf::GMetaClass* metaClass) const;
+    void CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classType) const;
 
 private:
     uint8_t m_countEmbeddedPins = 0;

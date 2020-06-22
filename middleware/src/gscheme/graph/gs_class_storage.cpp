@@ -1,5 +1,6 @@
 #include "middleware/gscheme/graph/gs_class_storage.h"
 
+#include <string>
 #include <utility>
 #include <cstddef>
 #include <unordered_map>
@@ -60,7 +61,12 @@ ClassStorage::Impl::Impl() {
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
-            m_classes[index].Create(metaClass);
+            auto it = classTypesIndex.find(std::string_view(metaClass->getName()));
+            if (it == classTypesIndex.cend()) {
+                m_classes[index].Create(metaClass, nullptr);
+            } else {
+                m_classes[index].Create(metaClass, &m_classTypes[it->second]);
+            }
             m_classesIndex[m_classes[index].GetName()] = index;
             ++index;
         }

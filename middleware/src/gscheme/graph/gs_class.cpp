@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <typeinfo>
+#include <typeindex>
 
 #include "cpgf/metaclass.h"
 #include "core/common/meta.h"
@@ -27,9 +28,9 @@ Class::~Class() {
     }
 }
 
-void Class::Create(const cpgf::GMetaClass* metaClass) {
+void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType) {
     try {
-        CheckMetaClass(metaClass);
+        CheckMetaClass(metaClass, classType);
     } catch(const std::exception& e) {
         throw EngineError("gs::Class::Create: {}", e.what());
     }
@@ -143,7 +144,7 @@ void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
     m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
 }
 
-void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
+void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classType) const {
     if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
         throw EngineError("double create");
     }
@@ -172,6 +173,8 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
             clsName, MAX_PINS_COUNT, metaClass->getPropertyCount());
     }
 
+    bool universalTypeExists = false;
+    auto universalIndex = std::type_index(typeid(UniversalType));
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
         if (prop == nullptr) {
@@ -234,6 +237,16 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
                 "invalid metaClass (name = '{}'), has property (name = {}) with unsupported type = '{}' for this pin type",
                 clsName, propName, meta::DemangleTypeName(typeInfo.name()));
         }
+
+        universalTypeExists |= (std::type_index(typeInfo) == universalIndex);
+    }
+
+    if (universalTypeExists && (classType == nullptr)) {
+        throw EngineError("invalid metaClass (name = '{}'), no class type found for it", clsName);
+    }
+
+    if ((!universalTypeExists) && (classType != nullptr)) {
+        throw EngineError("invalid metaClass (name = '{}'), class types is found, if there are no inversion types.", clsName);
     }
 }
 
