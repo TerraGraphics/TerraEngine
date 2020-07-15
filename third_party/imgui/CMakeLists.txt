@@ -1,35 +1,22 @@
-cmake_minimum_required(VERSION 2.8.11)
-project(imgui CXX)
+cmake_minimum_required(VERSION 3.10)
+project(imgui LANGUAGES CXX)
 
-include(conanbuildinfo.cmake)
-conan_basic_setup()
+file(GLOB SOURCE_FILES "${PROJECT_SOURCE_DIR}/imgui/*.cpp")
+file(GLOB HEADER_FILES "${PROJECT_SOURCE_DIR}/imgui/*.h")
 
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
-if (WIN32 AND MSVC AND BUILD_SHARED_LIBS)
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif(WIN32 AND MSVC AND BUILD_SHARED_LIBS)
-
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
-set(MISC_DIR ${SOURCE_DIR}/misc)
-set(EXTRA_FONTS_DIR ${MISC_DIR}/fonts)
-
-file(GLOB SOURCE_FILES ${SOURCE_DIR}/*.cpp)
-file(GLOB HEADER_FILES ${SOURCE_DIR}/*.h)
-
-set(BINARY_TO_COMPRESSED_BIN binary_to_compressed_c)
-
-add_executable(${BINARY_TO_COMPRESSED_BIN} ${EXTRA_FONTS_DIR}/binary_to_compressed_c.cpp)
-
-add_library(${PROJECT_NAME} ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${CONAN_LIBS})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${PROJECT_SOURCE_DIR}/imgui
+)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
 
 install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install(TARGETS ${BINARY_TO_COMPRESSED_BIN}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
 install(FILES ${HEADER_FILES}
         DESTINATION ${CMAKE_INSTALL_PREFIX}/include
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
