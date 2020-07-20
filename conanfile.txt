@@ -9,7 +9,7 @@ fastnoise/0.4.faba444@terragraphics/stable
 boost_preprocessor/1.69.0@bincrafters/stable
 imgui/1.77.docking.3d4af15@terragraphics/wip
 imgui_node_editor/0.9.cf3a1c3@terragraphics/stable
-DiligentGraphics/2.4.37e6c04.c1d83d1@terragraphics/wip
+DiligentGraphics/2.4.0c2a284.54a073b@terragraphics/wip
 
 [generators]
 cmake

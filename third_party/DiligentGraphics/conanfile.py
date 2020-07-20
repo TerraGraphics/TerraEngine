@@ -4,9 +4,11 @@ from conans import ConanFile, CMake, tools
 
 class DiligentGraphics(ConanFile):
     name = "DiligentGraphics"
-    version = "2.4.37e6c04.c1d83d1"
+    commit_core_sha = "0c2a284"
+    commit_tools_sha = "54a073b"
+    version = f"2.4.{commit_core_sha}.{commit_tools_sha}"
     license = "Apache License 2.0"
-    url = "https://github.com/DiligentGraphics/DiligentGraphics"
+    url = "https://github.com/DiligentGraphics"
     description = " A modern cross-platform low-level graphics library and rendering framework"
     topics = ("gamedev", "graphics-engine", "renderer", "rendering", "graphics-library", "3d-engine")
     settings = "os", "compiler", "build_type", "arch"
@@ -22,17 +24,15 @@ class DiligentGraphics(ConanFile):
     exports_sources = "DiligentGraphics/*"
 
     def source(self):
-        core_version = "37e6c04"
-        self.run("git clone --recursive https://github.com/DiligentGraphics/DiligentCore.git DiligentGraphics/DiligentCore")
+        self.run(f"git clone --recursive {self.url}/DiligentCore.git DiligentGraphics/DiligentCore")
         with tools.chdir("DiligentGraphics/DiligentCore"):
-            self.run("git reset --hard %s" % core_version)
-            self.run('echo "#!/bin/bash" > ./BuildTools/FormatValidation/validate_format_linux.sh')
+            self.run(f"git reset --hard {self.commit_core_sha}")
+            self.run("echo '#!/bin/bash' > ./BuildTools/FormatValidation/validate_format_linux.sh")
 
-        tools_version = "c1d83d1"
-        self.run("git clone --recursive https://github.com/DiligentGraphics/DiligentTools.git DiligentGraphics/DiligentTools")
+        self.run(f"git clone --recursive {self.url}/DiligentTools.git DiligentGraphics/DiligentTools")
         with tools.chdir("DiligentGraphics/DiligentTools"):
-            self.run("git reset --hard %s" % tools_version)
-            self.run('echo "#!/bin/bash" > ./BuildTools/FormatValidation/validate_format_linux.sh')
+            self.run(f"git reset --hard {self.commit_tools_sha}")
+            self.run("echo '#!/bin/bash' > ./BuildTools/FormatValidation/validate_format_linux.sh")
 
     def _create_cmake(self):
         cmake = CMake(self)
@@ -51,5 +51,5 @@ class DiligentGraphics(ConanFile):
 
     def package_info(self):
         build_type = str(self.settings.build_type)
-        self.cpp_info.libdirs = [os.path.join('lib', 'DiligentCore', build_type), os.path.join('lib', 'DiligentTools', build_type)]
+        self.cpp_info.libdirs = [os.path.join("lib", "DiligentCore", build_type), os.path.join("lib", "DiligentTools", build_type)]
         self.cpp_info.libs = tools.collect_libs(self)
