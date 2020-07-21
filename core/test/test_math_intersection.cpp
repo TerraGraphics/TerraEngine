@@ -98,7 +98,7 @@ template<typename T> static T PointOnTorusOZ(const math::TorusT<T>& torus, const
 namespace {
 
 template <typename T> class MathIntersection : public ::testing::Test {};
-TYPED_TEST_SUITE(MathIntersection, double, float);
+TYPED_SUITE(MathIntersection, double, float);
 
 TYPED_TEST(MathIntersection, RayAndCylinderOX) {
     math::CylinderT<TypeParam> cylinder(1, 1, math::Axis::X);

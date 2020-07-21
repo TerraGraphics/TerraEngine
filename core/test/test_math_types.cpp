@@ -42,7 +42,7 @@ public:
     std::mt19937_64 m_generator;
 };
 
-TYPED_TEST_SUITE(MathTypes, double, float);
+TYPED_SUITE(MathTypes, double, float);
 
 
 TYPED_TEST(MathTypes, PlaneByPointAndNormal) {

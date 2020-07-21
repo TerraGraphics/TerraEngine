@@ -71,7 +71,7 @@ template<typename T> static T Quartic(T a, T b, T c, T d, T e, T result) {
 namespace {
 
 template <typename T> class MathEquation : public ::testing::Test {};
-TYPED_TEST_SUITE(MathEquation, double, float);
+TYPED_SUITE(MathEquation, double, float);
 
 
 TYPED_TEST(MathEquation, SolveLinear) {

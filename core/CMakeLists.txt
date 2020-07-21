@@ -30,7 +30,7 @@ target_include_directories(${PROJECT_TEST_NAME}
         ${CMAKE_SOURCE_DIR}/tp
         ${CMAKE_SOURCE_DIR}/platforms/include
 )
-target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})
+target_link_libraries(${PROJECT_TEST_NAME} PRIVATE pthread ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})
 if(${IWYU_ENABLE})
     set_property(TARGET ${PROJECT_TEST_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_OPTIONS})
 endif()
