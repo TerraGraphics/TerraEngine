@@ -1,11 +1,10 @@
-import os
 from conans import ConanFile, CMake, tools
 
 
 class ImGui(ConanFile):
     name = "imgui"
-    commit_sha = "3d4af15"
-    version = f"1.77.docking.{commit_sha}"
+    commit_sha = "05bc204"
+    version = f"1.78.docking.{commit_sha}"
     license = "MIT"
     url = "https://github.com/ocornut/imgui"
     description = "Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies"
