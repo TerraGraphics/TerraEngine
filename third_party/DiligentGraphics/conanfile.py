@@ -4,8 +4,8 @@ from conans import ConanFile, CMake, tools
 
 class DiligentGraphics(ConanFile):
     name = "DiligentGraphics"
-    commit_core_sha = "0c2a284"
-    commit_tools_sha = "54a073b"
+    commit_core_sha = "cfaf74c"
+    commit_tools_sha = "6b7ae76"
     version = f"2.4.{commit_core_sha}.{commit_tools_sha}"
     license = "Apache License 2.0"
     url = "https://github.com/DiligentGraphics"
@@ -51,5 +51,6 @@ class DiligentGraphics(ConanFile):
 
     def package_info(self):
         build_type = str(self.settings.build_type)
-        self.cpp_info.libdirs = [os.path.join("lib", "DiligentCore", build_type), os.path.join("lib", "DiligentTools", build_type)]
+        self.cpp_info.libdirs = [os.path.join("lib", "DiligentCore", build_type),
+                                 os.path.join("lib", "DiligentTools", build_type)]
         self.cpp_info.libs = tools.collect_libs(self)
