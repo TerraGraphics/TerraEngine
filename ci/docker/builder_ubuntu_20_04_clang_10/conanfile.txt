@@ -7,9 +7,9 @@ cpgf/1.6.1@terragraphics/stable
 libucl/0.8.1@terragraphics/stable
 fastnoise/0.4.faba444@terragraphics/stable
 boost_preprocessor/1.69.0@bincrafters/stable
-imgui/1.77.docking.3d4af15@terragraphics/wip
-imgui_node_editor/0.9.cf3a1c3@terragraphics/stable
-DiligentGraphics/2.4.0c2a284.54a073b@terragraphics/wip
+imgui/1.78.docking.05bc204@terragraphics/wip
+imgui_node_editor/0.9.687a72f@terragraphics/wip
+DiligentGraphics/2.4.cfaf74c.6b7ae76@terragraphics/wip
 
 [generators]
 cmake
