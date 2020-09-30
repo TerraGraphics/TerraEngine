@@ -351,7 +351,7 @@ PipelineStatePtr MaterialBuilder::Impl::Create(uint64_t mask, uint16_t targetsId
     auto shaders = m_shaderBuilder->Build(src);
 
     dg::PipelineStateDesc desc;
-    desc.IsComputePipeline = false;
+    desc.Name = "material_builder";
 
     gpDesc.pVS = shaders.vs;
     gpDesc.pPS = shaders.ps;

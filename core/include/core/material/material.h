@@ -42,5 +42,5 @@ protected:
 
 private:
     struct Impl;
-    Pimpl<Impl, 376, 8> impl;
+    Pimpl<Impl, 400, 8> impl;
 };

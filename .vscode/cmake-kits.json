@@ -1,6 +1,6 @@
 [
     {
-      "name": "Clang 10.0.0",
+      "name": "Clang current",
       "compilers": {
         "C": "/usr/bin/clang",
         "CC": "/usr/bin/clang",
@@ -8,7 +8,7 @@
       }
     },
     {
-      "name": "GCC",
+      "name": "GCC current",
       "compilers": {
         "C": "/usr/bin/gcc",
         "CC": "/usr/bin/gcc",

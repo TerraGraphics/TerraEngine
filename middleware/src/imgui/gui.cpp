@@ -499,7 +499,6 @@ void Gui::CreateGraphics() {
 
     dg::PipelineStateDesc desc;
     desc.Name = "imgui";
-    desc.IsComputePipeline = false;
 
     auto& gp = desc.GraphicsPipeline;
     gp.NumRenderTargets = 1;
