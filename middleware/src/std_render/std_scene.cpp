@@ -125,7 +125,7 @@ void StdScene::Update(uint32_t width, uint32_t height) {
     auto needBufferSize = static_cast<uint32_t>(nodeList.size()) * itemSize;
     if (!m_transformBuffer || (m_transformBufferBufferSize < needBufferSize)) {
         m_transformBufferBufferSize = (static_cast<uint32_t>(needBufferSize >> uint32_t(16)) + uint32_t(1)) << uint32_t(16);
-        m_transformBuffer = std::make_shared<WriteableVertexBuffer>(device, m_transformBufferBufferSize, dg::USAGE_STAGING, "transform vb");
+        m_transformBuffer = std::make_shared<WriteableVertexBuffer>(device, m_transformBufferBufferSize, dg::USAGE_DYNAMIC, "transform vb");
     }
 
     uint8_t* data = m_transformBuffer->Map<uint8_t>(context);
