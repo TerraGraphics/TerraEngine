@@ -6,9 +6,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include <DiligentCore/Graphics/GraphicsEngine/interface/InputLayout.h>
-
 #include "fmt/fmt.h"
+#include "dg/input_layout.h"
 #include "core/common/hash.h"
 #include "dg/graphics_types.h"
 #include "core/common/exception.h"
