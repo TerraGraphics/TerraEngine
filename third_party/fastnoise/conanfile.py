@@ -1,25 +1,24 @@
-import os
 from conans import ConanFile, CMake, tools
 
 
 class FastNoise(ConanFile):
     name = "fastnoise"
-    version = "0.4.faba444"
-    license = "MIT License"
+    commit_sha = "faba444"
+    version = f"0.4.{commit_sha}"
+    license = "MIT"
     url = "https://github.com/Auburns/FastNoise"
     description = "coherent noise-generating library for C++"
     topics = ("noise")
-    settings = "os", "compiler", "build_type", "arch"
-    options = { }
-    default_options = { }
+    settings = "os", "arch", "compiler", "build_type"
+    options: dict = {}
+    default_options: dict = {}
     generators = "cmake"
     exports_sources = "CMakeLists.txt"
 
     def source(self):
-        self.run("git clone %s" % FastNoise.url)
-        commit_version = "faba444"
-        with tools.chdir("FastNoise"):
-            self.run("git reset --hard %s" % commit_version)
+        self.run(f"git clone {self.url} repo")
+        with tools.chdir("repo"):
+            self.run(f"git reset --hard {self.commit_sha}")
 
     def _create_cmake(self):
         cmake = CMake(self)
