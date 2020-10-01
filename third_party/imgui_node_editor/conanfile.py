@@ -5,7 +5,7 @@ class ImguiNodeEditor(ConanFile):
     name = "imgui_node_editor"
     commit_sha = "687a72f"
     version = f"0.9.{commit_sha}"
-    license = "MIT License"
+    license = "MIT"
     url = "https://github.com/thedmd/imgui-node-editor"
     description = "Node Editor using ImGui "
     topics = ("node-editor")
@@ -17,8 +17,8 @@ class ImguiNodeEditor(ConanFile):
     imgui = "imgui/1.78.docking.05bc204@terragraphics/wip"
 
     def source(self):
-        self.run(f"git clone {self.url}")
-        with tools.chdir("imgui-node-editor"):
+        self.run(f"git clone {self.url} repo")
+        with tools.chdir("repo"):
             self.run(f"git reset --hard {self.commit_sha}")
 
     def configure(self):
