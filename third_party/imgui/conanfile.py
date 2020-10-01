@@ -10,11 +10,11 @@ class ImGui(ConanFile):
     description = "Bloat-free Immediate Mode Graphical User interface for C++ with minimal dependencies"
     topics = ("gamedev", "imgui", "gui", "graphical")
     settings = "os", "arch", "compiler", "build_type"
-    options = {
+    options: dict = {
         "shared": [True, False],
         "fPIC": [True, False],
     }
-    default_options = {
+    default_options: dict = {
         "shared": False,
         "fPIC": True
     }
@@ -22,8 +22,8 @@ class ImGui(ConanFile):
     exports_sources = "CMakeLists.txt"
 
     def source(self):
-        self.run(f"git clone {self.url}")
-        with tools.chdir("imgui"):
+        self.run(f"git clone {self.url} repo")
+        with tools.chdir("repo"):
             self.run(f"git reset --hard {self.commit_sha}")
 
     def _create_cmake(self):
