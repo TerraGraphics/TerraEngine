@@ -1,38 +1,35 @@
 import os
-from conans import tools, ConanFile, AutoToolsBuildEnvironment
+from conans import ConanFile, CMake, tools
 
 
-class CpgfConan(ConanFile):
+class Cpgf(ConanFile):
     name = "cpgf"
     version = "1.6.1"
     license = "Apache License 2.0"
     url = "https://github.com/cpgf/cpgf"
     description = "cpgf library "
     topics = ("reflection")
-    settings = "os", "compiler", "build_type", "arch"
-    options = {
-        "platform": ["mingw", "linux", "vc05", "vc08", "vc10", "cb_mingw", "cb_nmake", "cb_linux", "xcode"],
-    }
-    default_options = {
-        "platform": "linux",
-    }
-    generators = "cmake"
+    settings = "os", "arch", "compiler", "build_type"
+    options: dict = {}
+    default_options: dict = {}
+    generators = "cmake", "cmake_find_package"
 
     def source(self):
-        zip_name = "v%s.zip" % self.version
-        tools.download("{}/archive/{}".format(self.url, zip_name), zip_name, verify=False)
-        tools.unzip(zip_name)
-        os.unlink(zip_name)
+        tools.download(f"{self.url}/archive/v{self.version}.tar.gz", "src.tar.gz")
+        tools.untargz("src.tar.gz")
+
+    def _create_cmake(self):
+        cmake = CMake(self)
+        cmake.configure(source_folder=os.path.join(f"{self.name}-{self.version}", "build"))
+        return cmake
 
     def build(self):
-        dir_name = os.path.join("{}-{}".format(self.name, self.version), "build")
-        with tools.chdir(dir_name):
-            autotools = AutoToolsBuildEnvironment(self)
-            autotools.make([str(self.options.platform), "TARGET=lib"])
+        cmake = self._create_cmake()
+        cmake.build()
 
     def package(self):
         self.copy("*.a", dst="lib", keep_path=False)
-        self.copy("*.h*", dst="include", src=os.path.join("{}-{}".format(self.name, self.version), "include"))
+        self.copy("*.h*", dst="include", src=os.path.join(f"{self.name}-{self.version}", "include"))
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
