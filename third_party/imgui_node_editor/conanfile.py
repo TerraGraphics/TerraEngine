@@ -9,7 +9,7 @@ class ImguiNodeEditor(ConanFile):
     url = "https://github.com/thedmd/imgui-node-editor"
     description = "Node Editor using ImGui "
     topics = ("node-editor")
-    settings = "os", "compiler", "build_type", "arch"
+    settings = "os", "arch", "compiler", "build_type"
     options: dict = {}
     default_options: dict = {}
     generators = "cmake"

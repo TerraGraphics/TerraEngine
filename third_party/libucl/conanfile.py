@@ -1,7 +1,5 @@
 import os
-import tempfile
-from conans.tools import get_env
-from conans import ConanFile, CMake, AutoToolsBuildEnvironment, tools
+from conans import ConanFile, CMake, tools
 
 
 class Libucl(ConanFile):
@@ -11,37 +9,31 @@ class Libucl(ConanFile):
     url = "https://github.com/vstakhov/libucl"
     description = "Universal configuration library parser"
     topics = ("config")
-    settings = "os", "compiler", "build_type", "arch"
-    options = {
+    settings = "os", "arch", "compiler", "build_type"
+    options: dict = {
         "shared": [True, False],
     }
-    default_options = {
+    default_options: dict = {
         "shared": False,
     }
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package"
 
     def source(self):
-        filename = "{}.tar.gz".format(self.version)
-        url = "https://github.com/vstakhov/libucl/archive/{}.tar.gz".format(self.version)
-        dlfilepath = os.path.join(tempfile.gettempdir(), filename)
-        if os.path.exists(dlfilepath) and not get_env("LIBUCL_DOWNLOAD", False):
-            self.output.info("Skipping download. Using cached {}".format(dlfilepath))
-        else:
-            self.output.info("Downloading {} from {}".format(self.name, url))
-            tools.download(url, dlfilepath)
-        tools.untargz(dlfilepath)
+        tools.download(f"{self.url}/archive/{self.version}.tar.gz", "src.tar.gz")
+        tools.untargz("src.tar.gz")
+
+    def _create_cmake(self):
+        cmake = CMake(self)
+        cmake.configure(source_folder=f"{self.name}-{self.version}")
+        return cmake
 
     def build(self):
-        dir_name = "libucl-{}".format(self.version)
-        with tools.chdir(dir_name):
-            self.run("bash autogen.sh")
-            autotools = AutoToolsBuildEnvironment(self)
-            autotools.configure()
-            autotools.make()
+        cmake = self._create_cmake()
+        cmake.build()
 
     def package(self):
-        self.copy("*.a", dst="lib/", keep_path=False)
-        self.copy("*.h", dst="include", src="libucl-{}/include".format(self.version))
+        self.copy("*.a", dst="lib", keep_path=False)
+        self.copy("*.h*", dst="include", src=os.path.join(f"{self.name}-{self.version}", "include"))
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
