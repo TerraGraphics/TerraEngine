@@ -3,7 +3,7 @@ from conans import ConanFile, CMake, tools
 
 
 class DiligentGraphics(ConanFile):
-    name = "DiligentGraphics"
+    name = "diligent_graphics"
     commit_core_sha = "cfaf74c"
     commit_tools_sha = "6b7ae76"
     version = f"2.4.{commit_core_sha}.{commit_tools_sha}"
@@ -11,16 +11,16 @@ class DiligentGraphics(ConanFile):
     url = "https://github.com/DiligentGraphics"
     description = " A modern cross-platform low-level graphics library and rendering framework"
     topics = ("gamedev", "graphics-engine", "renderer", "rendering", "graphics-library", "3d-engine")
-    settings = "os", "compiler", "build_type", "arch"
-    options = {
+    settings = "os", "arch", "compiler", "build_type"
+    options: dict = {
         "shared": [True, False],
         "development": [True, False],
     }
-    default_options = {
+    default_options: dict = {
         "shared": False,
         "development": False,
     }
-    generators = "cmake"
+    generators = "cmake", "cmake_find_package"
     exports_sources = "DiligentGraphics/*"
 
     def source(self):
