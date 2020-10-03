@@ -8,12 +8,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/tp
-        ${CMAKE_SOURCE_DIR}/platforms/include
-        ${CMAKE_SOURCE_DIR}/core/include
-        ${CMAKE_SOURCE_DIR}/middleware/include
-        ${CMAKE_SOURCE_DIR}/materials/std
         ${PROJECT_SOURCE_DIR}/src
 )
-target_link_libraries(${PROJECT_NAME} PRIVATE pthread middleware ${CONAN_PKG_LIBS_IMGUI} ${CONAN_PKG_LIBS_IMGUI_NODE_EDITOR})
+target_link_libraries(${PROJECT_NAME} PUBLIC middleware PRIVATE pthread ${CONAN_PKG_LIBS_IMGUI} ${CONAN_PKG_LIBS_IMGUI_NODE_EDITOR})
 set_common_project_properties(${PROJECT_NAME} middleware.imp)

@@ -28,7 +28,6 @@ include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
 set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR};${CMAKE_MODULE_PATH}")
 conan_cmake_run(CONANFILE conanfile.txt
-    BASIC_SETUP CMAKE_TARGETS
     BUILD_TYPE "Release"
     BUILD missing
     OPTIONS DiligentGraphics:development=False

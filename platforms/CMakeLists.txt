@@ -35,9 +35,9 @@ list(APPEND LIBS DiligentTools DiligentCore)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME}
     PUBLIC
+        ${CMAKE_SOURCE_DIR}/tp
         ${PROJECT_SOURCE_DIR}/include
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/tp
         ${PROJECT_SOURCE_DIR}/src
 )
 
