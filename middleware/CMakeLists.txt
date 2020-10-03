@@ -15,11 +15,7 @@ target_include_directories(${PROJECT_NAME}
         ${PROJECT_SOURCE_DIR}/src
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE core ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI} ${CONAN_PKG_LIBS_FASTNOISE} ${CONAN_PKG_LIBS_CPGF})
-if(${IWYU_ENABLE})
-    set(IWYU_OPTIONS ${IWYU_PATH} -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/ci/iwyu/middleware.imp)
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_OPTIONS})
-endif()
-set_common_project_properties(${PROJECT_NAME})
+set_common_project_properties(${PROJECT_NAME} middleware.imp)
 
 
 file(GLOB_RECURSE SOURCE_TEST_FILES "${PROJECT_SOURCE_DIR}/test/*.cpp")
@@ -34,7 +30,4 @@ target_include_directories(${PROJECT_TEST_NAME}
         ${CMAKE_SOURCE_DIR}/core/include
 )
 target_link_libraries(${PROJECT_TEST_NAME} PRIVATE pthread ${PROJECT_NAME} ${CONAN_PKG_LIBS_GTEST})
-if(${IWYU_ENABLE})
-    set_property(TARGET ${PROJECT_TEST_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_OPTIONS})
-endif()
-set_common_project_properties(${PROJECT_TEST_NAME})
+set_common_project_properties(${PROJECT_TEST_NAME} middleware.imp)
