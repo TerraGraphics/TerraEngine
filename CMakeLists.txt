@@ -26,6 +26,7 @@ endif()
 
 include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
+set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR};${CMAKE_MODULE_PATH}")
 conan_cmake_run(CONANFILE conanfile.txt
     BASIC_SETUP CMAKE_TARGETS
     BUILD_TYPE "Release"
@@ -46,6 +47,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+find_package(fmt REQUIRED)
+find_package(cpgf REQUIRED)
+find_package(GTest REQUIRED)
+find_package(imgui REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(libucl REQUIRED)
+find_package(fastnoise REQUIRED)
+find_package(imgui_node_editor REQUIRED)
+find_package(diligent_graphics REQUIRED)
+find_package(boost_preprocessor REQUIRED)
 
 add_subdirectory(platforms)
 add_subdirectory(core)
