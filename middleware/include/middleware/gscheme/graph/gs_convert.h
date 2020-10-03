@@ -85,6 +85,7 @@ template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T
 template <typename T>
     using ToGenerator3DT = decltype(ToGenerator3D<T>);
 
+// Works only for basic types, not including UniversalType
 template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat<To> || IsVector<To> || IsGenerator2D<To> || IsGenerator3D<To>>>
     To ConvertTo(const From value) {
     if constexpr (IsFloat<To>) {
@@ -102,6 +103,7 @@ template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat
     }
 }
 
+// Works only for basic types, not including UniversalType
 template <typename To, typename From>
     constexpr bool IsCanConvert() {
         if constexpr (IsFloat<To>) {
@@ -121,6 +123,7 @@ template <typename To, typename From>
         }
     }
 
+// Works only for basic types, not including UniversalType
 template <typename To, typename From>
     inline constexpr bool CanConvert = IsCanConvert<To, From>();
 
