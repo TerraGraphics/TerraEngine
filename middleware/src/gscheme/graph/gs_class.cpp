@@ -10,11 +10,12 @@
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
+#include "middleware/gscheme/graph/gs_class_type.h"
 
 
 namespace gs {
 
-static_assert(sizeof(Class) == 40, "sizeof(Class) == 40 bytes");
+static_assert(sizeof(Class) == 48, "sizeof(Class) == 48 bytes");
 
 Class::~Class() {
     if (m_typeIds != nullptr) {
@@ -26,6 +27,8 @@ Class::~Class() {
     if (m_defaults != nullptr) {
         delete[] m_defaults;
     }
+    m_metaClass = nullptr;
+    m_classType = nullptr;
 }
 
 void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType) {
@@ -56,6 +59,7 @@ void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType) {
     uint8_t inputIndex = embeddedIndex + m_countEmbeddedPins;
     uint8_t outputIndex = inputIndex + m_countInputPins;
     m_metaClass = metaClass;
+    m_classType = classType;
     m_typeIds = new TypeId[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
@@ -110,8 +114,8 @@ TypeId Class::GetPinTypeId(uint8_t pinIndex) const noexcept {
     return m_typeIds[pinIndex];
 }
 
-void* Class::NewInstance() {
-    void* instance = m_metaClass->createInstance();
+void Class::NewInstance(void*& instance, void*& instanceType) {
+    instance = m_metaClass->createInstance();
     if (m_defaults == nullptr) {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
@@ -119,12 +123,19 @@ void* Class::NewInstance() {
         }
     }
 
-    return instance;
+    if (m_classType != nullptr) {
+        instanceType = m_classType->NewInstance();
+    } else {
+        instanceType = nullptr;
+    }
 }
 
-void Class::DeleteInstance(void* instance) {
+void Class::DeleteInstance(void* instance, void* instanceType) {
     if (instance != nullptr) {
         m_metaClass->destroyInstance(instance);
+    }
+    if (m_classType != nullptr) {
+        m_classType->DeleteInstance(instanceType);
     }
 }
 

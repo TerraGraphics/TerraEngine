@@ -18,12 +18,14 @@ static_assert(sizeof(ClassType) == 40, "sizeof(ClassType) == 40 bytes");
 
 
 ClassType::~ClassType() {
+    m_convertStorage = nullptr;
     if (m_props != nullptr) {
         delete[] m_props;
     }
     if (m_defaults != nullptr) {
         delete[] m_defaults;
     }
+    m_metaClass = nullptr;
 }
 
 void ClassType::Create(const cpgf::GMetaClass* metaClass, const ConvertStorage* convertStorage) {

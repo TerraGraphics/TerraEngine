@@ -12,7 +12,7 @@
 namespace gs {
 
 static_assert(sizeof(Pin) == 28, "sizeof(Pin) == 28 bytes");
-static_assert(sizeof(Node) == 40, "sizeof(Node) == 40 bytes");
+static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
 Node::Node(Node&& other) noexcept {
     *this = std::move(other);
@@ -29,10 +29,12 @@ Node& Node::operator=(Node&& other) noexcept {
     m_pins = other.m_pins;
     m_class = other.m_class;
     m_instance = other.m_instance;
+    m_instanceType = other.m_instanceType;
 
     other.m_pins = nullptr;
     other.m_class = nullptr;
     other.m_instance = nullptr;
+    other.m_instanceType = nullptr;
 
     return *this;
 }
@@ -45,7 +47,7 @@ void Node::Init(uint16_t id) noexcept {
 
 void Node::Create(Class* cls) {
     m_class = cls;
-    m_instance = cls->NewInstance();
+    cls->NewInstance(m_instance, m_instanceType);
 
     m_countEmbeddedPins = m_class->EmbeddedPinsCount();
     m_countInputPins = m_class->InputPinsCount();
@@ -78,8 +80,9 @@ void Node::Reset(uint16_t nextIndex) {
     m_nextIndex = nextIndex;
 
     if (m_instance != nullptr) {
-        m_class->DeleteInstance(m_instance);
+        m_class->DeleteInstance(m_instance, m_instanceType);
         m_instance = nullptr;
+        m_instanceType = nullptr;
     }
 
     m_class = nullptr;

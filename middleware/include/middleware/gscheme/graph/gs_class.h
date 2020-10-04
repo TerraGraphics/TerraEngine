@@ -40,8 +40,8 @@ public:
 
     TypeId GetPinTypeId(uint8_t pinIndex) const noexcept;
 
-    void* NewInstance();
-    void DeleteInstance(void* instance);
+    void NewInstance(void*& instance, void*& instanceType);
+    void DeleteInstance(void* instance, void* instanceType);
 
     cpgf::GVariant GetValue(uint8_t pinIndex, const void* instance) const;
     void SetValue(uint8_t pinIndex, void* instance, const cpgf::GVariant& value) const;
@@ -60,6 +60,7 @@ private:
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
+    ClassType* m_classType = nullptr;
 };
 
 }
