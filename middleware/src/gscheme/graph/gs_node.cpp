@@ -11,7 +11,7 @@
 
 namespace gs {
 
-static_assert(sizeof(Pin) == 28, "sizeof(Pin) == 28 bytes");
+static_assert(sizeof(Pin) == 32, "sizeof(Pin) == 32 bytes");
 static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
 Node::Node(Node&& other) noexcept {
@@ -73,6 +73,14 @@ void Node::Create(Class* cls) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].linksCount = 0;
         m_pins[i].cachedValue = m_class->GetValue(i, m_instance);
+    }
+
+    constexpr const uint32_t isUniversalTypeFlag = 4;
+    for(uint8_t i=AllPinsBeginIndex(); i!=AllPinsEndIndex(); ++i) {
+        m_pins[i].typeId = m_class->GetInitialPinTypeId(i);
+        if (m_pins[i].typeId == TypeId::UniversalType) {
+            m_pins[i].id |= isUniversalTypeFlag;
+        }
     }
 }
 

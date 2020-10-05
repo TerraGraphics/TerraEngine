@@ -4,6 +4,7 @@
 
 #include "cpgf/variant.h"
 #include "core/common/ctor.h"
+#include "middleware/gscheme/graph/gs_types_decl.h"
 
 
 namespace gs {
@@ -19,6 +20,8 @@ struct Pin : Fixed {
         // for output pin
         uint32_t linksCount;
     };
+
+    TypeId typeId = TypeId::Unknown;
 
     // cachedValue for output pin
     cpgf::GVariant cachedValue = cpgf::GVariant();
@@ -76,6 +79,9 @@ public:
     const Pin* OutputPinsBegin() const noexcept { return &m_pins[OutputPinsBeginIndex()]; }
     const Pin* OutputPinsEnd() const noexcept { return &m_pins[OutputPinsBeginIndex()] + OutputPinsCount(); }
     void CheckIsValidOutputPinId(uint32_t pinId) const;
+
+    uint8_t AllPinsBeginIndex() const noexcept { return 0; }
+    uint8_t AllPinsEndIndex() const noexcept { return static_cast<uint8_t>(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); }
 
 public:
     void ResetOrder() noexcept;

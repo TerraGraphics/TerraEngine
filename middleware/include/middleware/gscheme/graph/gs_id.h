@@ -8,7 +8,8 @@
     uint8_t pinIndex - index in Node::m_pins
     bool isInput - input or output pin
     bool isEmbedded - formally input pin, without the ability to connect a link to it, if this bit is set, the isInput bit is not parsed
-    uint32_t pinID = nodeID << 16 | pinIndex << 8 | isEmbedded << 1 | isInput
+    bool isUniversalType - pin type is gs::UniversalType
+    uint32_t pinID = nodeID << 16 | pinIndex << 8 | isUniversalType << 2 | isEmbedded << 1 | isInput
     uint64_t linkID = srcPinID << 32 | dstPinID == outputPinID << 32 | inputPinID
 */
 
@@ -24,6 +25,10 @@ inline uint16_t NodeIndexFromPinId(uint32_t pinId) {
 
 inline uint8_t PinIndexFromPinId(uint32_t pinId) {
     return static_cast<uint8_t>((pinId >> uint32_t(8)) & uint32_t(0xFF));
+}
+
+inline bool IsUniversalTypeFromPinId(uint32_t pinId) {
+    return ((pinId >> uint32_t(2)) & uint32_t(1));
 }
 
 inline bool IsEmbeddedFromPinId(uint32_t pinId) {
