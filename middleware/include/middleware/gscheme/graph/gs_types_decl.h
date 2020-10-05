@@ -19,16 +19,16 @@ enum class TypeId : uint8_t {
     Vector2f = 11,
     Vector3f = 12,
     Vector4f = 13,
-    Generator2D = 14,
-    Generator3D = 15,
+    Generator2d = 14,
+    Generator3d = 15,
     String = 16,
     UniversalType = 128,
     UniversalFloat = UniversalType + Float,
     UniversalVector2f = UniversalType + Vector2f,
     UniversalVector3f = UniversalType + Vector3f,
     UniversalVector4f = UniversalType + Vector4f,
-    UniversalGenerator2D = UniversalType + Generator2D,
-    UniversalGenerator3D = UniversalType + Generator3D,
+    UniversalGenerator2d = UniversalType + Generator2d,
+    UniversalGenerator3d = UniversalType + Generator3d,
 };
 
 }

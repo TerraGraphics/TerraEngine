@@ -11,7 +11,7 @@
 #include "cpgf/metaclass.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_types.h"
-#include "middleware/gscheme/graph/gs_convert.h"
+#include "middleware/gscheme/graph/gs_types_convert.h"
 
 
 #define CONVERT_FUNC(R, L) AddConvertFunc<BOOST_PP_TUPLE_ELEM(2, 1, L), BOOST_PP_TUPLE_ELEM(2, 0, L)>();

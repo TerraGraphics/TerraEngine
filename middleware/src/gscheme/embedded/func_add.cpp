@@ -6,7 +6,7 @@
 #include "eigen/core.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
-#include "middleware/gscheme/graph/gs_convert.h"
+#include "middleware/gscheme/graph/gs_types_convert.h"
 #include "middleware/gscheme/graph/gs_convert_storage.h"
 
 
@@ -15,34 +15,34 @@ namespace gs {
 namespace {
 
 template<typename T>
-    static math::Generator2D TSumGenerator2D(const math::Generator2D& generator, const T& value) {
+    static math::Generator2d TSumGenerator2d(const math::Generator2d& generator, const T& value) {
         if constexpr (IsFloat<T>) {
-            return math::Generator2D([generator, value](double x, double y) -> double {
+            return math::Generator2d([generator, value](double x, double y) -> double {
                 return (generator(x, y) + value);
             });
         } else if constexpr (IsVector<T>) {
-            return math::Generator2D([generator, v = value[0]](double x, double y) -> double {
+            return math::Generator2d([generator, v = value[0]](double x, double y) -> double {
                 return (generator(x, y) + v);
             });
-        } else if constexpr (IsGenerator2D<T>) {
-            return math::Generator2D([generator, value](double x, double y) -> double {
+        } else if constexpr (IsGenerator2d<T>) {
+            return math::Generator2d([generator, value](double x, double y) -> double {
                 return (generator(x, y) + value(x, y));
             });
         }
     }
 
 template<typename T>
-    static math::Generator3D TSumGenerator3D(const math::Generator3D& generator, const T& value) {
+    static math::Generator3d TSumGenerator3d(const math::Generator3d& generator, const T& value) {
         if constexpr (IsFloat<T>) {
-            return math::Generator3D([generator, value](double x, double y, double z) -> double {
+            return math::Generator3d([generator, value](double x, double y, double z) -> double {
                 return (generator(x, y, z) + value);
             });
         } else if constexpr (IsVector<T>) {
-            return math::Generator3D([generator, v = value[0]](double x, double y, double z) -> double {
+            return math::Generator3d([generator, v = value[0]](double x, double y, double z) -> double {
                 return (generator(x, y, z) + v);
             });
-        } else if constexpr (IsGenerator3D<T>) {
-            return math::Generator3D([generator, value](double x, double y, double z) -> double {
+        } else if constexpr (IsGenerator3d<T>) {
+            return math::Generator3d([generator, value](double x, double y, double z) -> double {
                 return (generator(x, y, z) + value(x, y, z));
             });
         }
@@ -52,10 +52,10 @@ template<typename TMin, typename TMax>
     static TMax TSumMinMax(const TMin& valMin, const TMax& valMax) {
         if constexpr (!CanConvert<TMax, TMin>) {
             throw EngineError("gs::FuncAdd::Result: types are not compatible");
-        } else if constexpr (IsGenerator2D<TMax>) {
-            return TSumGenerator2D(valMax, valMin);
-        } else if constexpr (IsGenerator3D<TMax>) {
-            return TSumGenerator3D(valMax, valMin);
+        } else if constexpr (IsGenerator2d<TMax>) {
+            return TSumGenerator2d(valMax, valMin);
+        } else if constexpr (IsGenerator3d<TMax>) {
+            return TSumGenerator3d(valMax, valMin);
         } else if constexpr (std::is_same_v<TMin, TMax>) {
             return TMax(valMin + valMax);
         } else {

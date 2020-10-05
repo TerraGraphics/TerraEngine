@@ -39,8 +39,8 @@ private:
     Functor m_functor = [](T, T) { return 0.f; };
 };
 
-using Generator2F = Generator2<float>;
-using Generator2D = Generator2<double>;
+using Generator2f = Generator2<float>;
+using Generator2d = Generator2<double>;
 
 template <typename T, typename Enable = GeneratorEnabledType<T>>
     class Generator3 {
@@ -70,7 +70,7 @@ private:
     Functor m_functor = [](T, T, T) { return 0.f; };
 };
 
-using Generator3F = Generator3<float>;
-using Generator3D = Generator3<double>;
+using Generator3f = Generator3<float>;
+using Generator3d = Generator3<double>;
 
 }

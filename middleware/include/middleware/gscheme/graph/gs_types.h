@@ -12,7 +12,7 @@
 
 
 #define UNIVERSAL_TYPES \
-    (float, (Eigen::Vector2f, (Eigen::Vector3f, (Eigen::Vector4f, (math::Generator2D, (math::Generator3D, BOOST_PP_NIL))))))
+    (float, (Eigen::Vector2f, (Eigen::Vector3f, (Eigen::Vector4f, (math::Generator2d, (math::Generator3d, BOOST_PP_NIL))))))
 
 namespace gs {
 
@@ -21,7 +21,7 @@ constexpr inline TypeId ToUniversalTypeId(TypeId id) {
     return static_cast<TypeId>(static_cast<uint8_t>(id) | static_cast<uint8_t>(TypeId::UniversalType));
 }
 
-using UniversalType = std::variant<float, Eigen::Vector2f, Eigen::Vector3f, Eigen::Vector4f, math::Generator2D, math::Generator3D>;
+using UniversalType = std::variant<float, Eigen::Vector2f, Eigen::Vector3f, Eigen::Vector4f, math::Generator2d, math::Generator3d>;
 
 template <typename T> inline constexpr bool IsInt8 = std::is_same_v<T, int8_t>;
 template <typename T> inline constexpr bool IsUint8 = std::is_same_v<T, uint8_t>;
@@ -36,13 +36,13 @@ template <typename T> inline constexpr bool IsDouble = std::is_same_v<T, double>
 template <typename T> inline constexpr bool IsVector2f = std::is_same_v<T, Eigen::Vector2f>;
 template <typename T> inline constexpr bool IsVector3f = std::is_same_v<T, Eigen::Vector3f>;
 template <typename T> inline constexpr bool IsVector4f = std::is_same_v<T, Eigen::Vector4f>;
-template <typename T> inline constexpr bool IsGenerator2D = std::is_same_v<T, math::Generator2D>;
-template <typename T> inline constexpr bool IsGenerator3D = std::is_same_v<T, math::Generator3D>;
+template <typename T> inline constexpr bool IsGenerator2d = std::is_same_v<T, math::Generator2d>;
+template <typename T> inline constexpr bool IsGenerator3d = std::is_same_v<T, math::Generator3d>;
 template <typename T> inline constexpr bool IsString = std::is_same_v<T, std::string>;
 template <typename T> inline constexpr bool IsUniversalType = std::is_same_v<T, UniversalType>;
 
 template <typename T> inline constexpr bool IsVector = IsVector2f<T> || IsVector3f<T> || IsVector4f<T>;
-template <typename T> inline constexpr bool IsGenerator = IsGenerator2D<T> || IsGenerator3D<T>;
+template <typename T> inline constexpr bool IsGenerator = IsGenerator2d<T> || IsGenerator3d<T>;
 template <typename T> inline constexpr bool IsUniversalTypeCompatible = IsFloat<T> || IsVector<T> || IsGenerator<T> || IsUniversalType<T>;
 template <typename T> inline constexpr bool IsGsType = IsInt8<T> || IsUint8<T> || IsInt16<T> || IsUint16<T> || IsInt32<T> || IsUint32<T> ||
     IsInt64<T> || IsUint64<T> || IsDouble<T> || IsString<T> || IsUniversalTypeCompatible<T>;
@@ -78,10 +78,10 @@ template<typename T, typename Enable = std::enable_if_t<IsGsType<T>>>
         return TypeId::Vector3f;
     } else if constexpr (IsVector4f<T>) {
         return TypeId::Vector4f;
-    } else if constexpr (IsGenerator2D<T>) {
-        return TypeId::Generator2D;
-    } else if constexpr (IsGenerator3D<T>) {
-        return TypeId::Generator3D;
+    } else if constexpr (IsGenerator2d<T>) {
+        return TypeId::Generator2d;
+    } else if constexpr (IsGenerator3d<T>) {
+        return TypeId::Generator3d;
     } else if constexpr (IsUniversalType<T>) {
         return TypeId::UniversalType;
     }

@@ -17,11 +17,11 @@ TEST(GSConvertStorage, ToUint64) {
     ASSERT_CONVERT_FALSE(Uint64, Uint64);
     ASSERT_CONVERT_FALSE(Float, Uint64);
     ASSERT_CONVERT_FALSE(Vector2f, Uint64);
-    ASSERT_CONVERT_FALSE(Generator2D, Uint64);
+    ASSERT_CONVERT_FALSE(Generator2d, Uint64);
 
     ASSERT_CONVERT_FALSE(UniversalFloat, Uint64);
     ASSERT_CONVERT_FALSE(UniversalVector2f, Uint64);
-    ASSERT_CONVERT_FALSE(UniversalGenerator2D, Uint64);
+    ASSERT_CONVERT_FALSE(UniversalGenerator2d, Uint64);
 
     ASSERT_CONVERT_FALSE(UniversalType, Uint64);
 }
@@ -32,11 +32,11 @@ TEST(GSConvertStorage, ToFloat) {
     ASSERT_CONVERT_FALSE(Uint8, Float);
     ASSERT_CONVERT_TRUE(Float, Float);
     ASSERT_CONVERT_TRUE(Vector2f, Float);
-    ASSERT_CONVERT_FALSE(Generator2D, Float);
+    ASSERT_CONVERT_FALSE(Generator2d, Float);
 
     ASSERT_CONVERT_TRUE(UniversalFloat, Float);
     ASSERT_CONVERT_TRUE(UniversalVector2f, Float);
-    ASSERT_CONVERT_FALSE(UniversalGenerator2D, Float);
+    ASSERT_CONVERT_FALSE(UniversalGenerator2d, Float);
 
     ASSERT_CONVERT_FALSE(UniversalType, Float);
 }
@@ -48,31 +48,31 @@ TEST(GSConvertStorage, ToVector3f) {
     ASSERT_CONVERT_TRUE(Float, Vector3f);
     ASSERT_CONVERT_FALSE(Vector2f, Vector3f);
     ASSERT_CONVERT_TRUE(Vector3f, Vector3f);
-    ASSERT_CONVERT_FALSE(Generator2D, Vector3f);
+    ASSERT_CONVERT_FALSE(Generator2d, Vector3f);
 
     ASSERT_CONVERT_TRUE(UniversalFloat, Vector3f);
     ASSERT_CONVERT_FALSE(UniversalVector2f, Vector3f);
     ASSERT_CONVERT_TRUE(UniversalVector3f, Vector3f);
-    ASSERT_CONVERT_FALSE(UniversalGenerator2D, Vector3f);
+    ASSERT_CONVERT_FALSE(UniversalGenerator2d, Vector3f);
 
     ASSERT_CONVERT_FALSE(UniversalType, Vector3f);
 }
 
-TEST(GSConvertStorage, ToGenerator3D) {
+TEST(GSConvertStorage, ToGenerator3d) {
     gs::ConvertStorage storage;
 
-    ASSERT_CONVERT_FALSE(Int32, Generator3D);
-    ASSERT_CONVERT_TRUE(Float, Generator3D);
-    ASSERT_CONVERT_TRUE(Vector4f, Generator3D);
-    ASSERT_CONVERT_FALSE(Generator2D, Generator3D);
-    ASSERT_CONVERT_TRUE(Generator3D, Generator3D);
+    ASSERT_CONVERT_FALSE(Int32, Generator3d);
+    ASSERT_CONVERT_TRUE(Float, Generator3d);
+    ASSERT_CONVERT_TRUE(Vector4f, Generator3d);
+    ASSERT_CONVERT_FALSE(Generator2d, Generator3d);
+    ASSERT_CONVERT_TRUE(Generator3d, Generator3d);
 
-    ASSERT_CONVERT_TRUE(UniversalFloat, Generator3D);
-    ASSERT_CONVERT_TRUE(UniversalVector4f, Generator3D);
-    ASSERT_CONVERT_FALSE(UniversalGenerator2D, Generator3D);
-    ASSERT_CONVERT_TRUE(UniversalGenerator3D, Generator3D);
+    ASSERT_CONVERT_TRUE(UniversalFloat, Generator3d);
+    ASSERT_CONVERT_TRUE(UniversalVector4f, Generator3d);
+    ASSERT_CONVERT_FALSE(UniversalGenerator2d, Generator3d);
+    ASSERT_CONVERT_TRUE(UniversalGenerator3d, Generator3d);
 
-    ASSERT_CONVERT_FALSE(UniversalType, Generator3D);
+    ASSERT_CONVERT_FALSE(UniversalType, Generator3d);
 }
 
 TEST(GSConvertStorage, ToUniversalType) {
@@ -81,11 +81,11 @@ TEST(GSConvertStorage, ToUniversalType) {
     ASSERT_CONVERT_FALSE(Int64, UniversalType);
     ASSERT_CONVERT_TRUE(Float, UniversalType);
     ASSERT_CONVERT_TRUE(Vector4f, UniversalType);
-    ASSERT_CONVERT_TRUE(Generator2D, UniversalType);
+    ASSERT_CONVERT_TRUE(Generator2d, UniversalType);
 
     ASSERT_CONVERT_FALSE(UniversalFloat, UniversalType);
     ASSERT_CONVERT_FALSE(UniversalVector4f, UniversalType);
-    ASSERT_CONVERT_FALSE(UniversalGenerator2D, UniversalType);
+    ASSERT_CONVERT_FALSE(UniversalGenerator2d, UniversalType);
 
     ASSERT_CONVERT_TRUE(UniversalType, UniversalType);
 }
