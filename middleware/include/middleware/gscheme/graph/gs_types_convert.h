@@ -10,7 +10,7 @@
 namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T>>>
-    float ToFloat(const T value) {
+    float ToFloat(const T& value) {
     if constexpr (IsFloat<T>) {
         return value;
     } else if constexpr (IsVector<T>) {
@@ -22,7 +22,7 @@ template <typename T>
     using ToFloatT = decltype(ToFloat<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T>>>
-    Eigen::Vector2f ToVector2f(const T value) {
+    Eigen::Vector2f ToVector2f(const T& value) {
     if constexpr (IsFloat<T>) {
         return Eigen::Vector2f(value, value);
     } else if constexpr (IsVector2f<T>) {
@@ -36,7 +36,7 @@ template <typename T>
     using ToVector2fT = decltype(ToVector2f<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector3f<T> || IsVector4f<T>>>
-    Eigen::Vector3f ToVector3f(const T value) {
+    Eigen::Vector3f ToVector3f(const T& value) {
     if constexpr (IsFloat<T>) {
         return Eigen::Vector3f(value, value, value);
     } else if constexpr (IsVector3f<T>) {
@@ -50,7 +50,7 @@ template <typename T>
     using ToVector3fT = decltype(ToVector3f<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector4f<T>>>
-    Eigen::Vector4f ToVector4f(const T value) {
+    Eigen::Vector4f ToVector4f(const T& value) {
     if constexpr (IsFloat<T>) {
         return Eigen::Vector4f(value, value, value, value);
     } else if constexpr (IsVector4f<T>) {
@@ -62,7 +62,7 @@ template <typename T>
     using ToVector4fT = decltype(ToVector4f<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T> || IsGenerator2d<T>>>
-    math::Generator2d ToGenerator2d(const T value) {
+    math::Generator2d ToGenerator2d(const T& value) {
     if constexpr (IsGenerator2d<T>) {
         return value;
     } else if constexpr (IsFloat<T> || IsVector<T>) {
@@ -74,7 +74,7 @@ template <typename T>
     using ToGenerator2dT = decltype(ToGenerator2d<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T> || IsGenerator3d<T>>>
-    math::Generator3d ToGenerator3d(const T value) {
+    math::Generator3d ToGenerator3d(const T& value) {
     if constexpr (IsGenerator3d<T>) {
         return value;
     } else if constexpr (IsFloat<T> || IsVector<T>) {
@@ -87,7 +87,7 @@ template <typename T>
 
 // Works only for basic types, not including UniversalType
 template <typename To, typename From, typename Enable = std::enable_if_t<IsFloat<To> || IsVector<To> || IsGenerator2d<To> || IsGenerator3d<To>>>
-    To ConvertTo(const From value) {
+    To ConvertTo(const From& value) {
     if constexpr (IsFloat<To>) {
         return ToFloat(value);
     } else if constexpr (IsVector2f<To>) {

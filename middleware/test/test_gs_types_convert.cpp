@@ -1,4 +1,5 @@
 #include <string>
+#include <cstdint>
 
 #include "test/test.h"
 #include "eigen/core.h"
@@ -30,6 +31,9 @@ TEST(GSConvert, ToFloat) {
     ASSERT_CONVERT_TRUE(Eigen::Vector2f, float);
     ASSERT_CONVERT_FALSE(math::Generator2d, float);
     ASSERT_CONVERT_FALSE(gs::UniversalType, float);
+
+    ASSERT_FLOAT_EQ(1.f, gs::ConvertTo<float>(1.f));
+    ASSERT_FLOAT_EQ(2.f, gs::ConvertTo<float>(Eigen::Vector2f(2.f, 3.f)));
 }
 
 TEST(GSConvert, ToVector3f) {
@@ -39,6 +43,9 @@ TEST(GSConvert, ToVector3f) {
     ASSERT_CONVERT_TRUE(Eigen::Vector3f, Eigen::Vector3f);
     ASSERT_CONVERT_FALSE(math::Generator2d, Eigen::Vector3f);
     ASSERT_CONVERT_FALSE(gs::UniversalType, Eigen::Vector3f);
+
+    ASSERT_EQ(Eigen::Vector3f(1.f, 1.f, 1.f), gs::ConvertTo<Eigen::Vector3f>(1.f));
+    ASSERT_EQ(Eigen::Vector3f(1.f, 2.f, 3.f), gs::ConvertTo<Eigen::Vector3f>(Eigen::Vector3f(1.f, 2.f, 3.f)));
 }
 
 TEST(GSConvert, ToGenerator3d) {
@@ -48,6 +55,8 @@ TEST(GSConvert, ToGenerator3d) {
     ASSERT_CONVERT_FALSE(math::Generator2d, math::Generator3d);
     ASSERT_CONVERT_TRUE(math::Generator3d, math::Generator3d);
     ASSERT_CONVERT_FALSE(gs::UniversalType, math::Generator3d);
+
+    EXPECT_DOUBLE_EQ(1., gs::ConvertTo<math::Generator3d>(1.f)(1.1, 2.2, 3.3));
 }
 
 TEST(GSConvert, ToUniversalType) {

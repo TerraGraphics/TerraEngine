@@ -12,7 +12,7 @@
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_class_type.h"
-#include "middleware/gscheme/graph/gs_convert_storage.h"
+#include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
 namespace gs {
@@ -24,7 +24,7 @@ struct ClassStorage::Impl {
     uint16_t m_countClasses = 0;
     Class* m_classes;
     ClassType* m_classTypes;
-    ConvertStorage m_convertStorage;
+    TypesConvertStorage m_typesConvertStorage;
     std::unordered_map<std::string_view, uint16_t> m_classesIndex;
 };
 
@@ -50,7 +50,7 @@ ClassStorage::Impl::Impl() {
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::TYPE_CLASS) != nullptr)) {
-            m_classTypes[index].Create(metaClass, &m_convertStorage);
+            m_classTypes[index].Create(metaClass, &m_typesConvertStorage);
             classTypesIndex[m_classTypes[index].GetImplName()] = index;
             ++index;
         }

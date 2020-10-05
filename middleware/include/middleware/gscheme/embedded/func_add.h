@@ -23,11 +23,11 @@ private:
     UniversalType m_b = 0.f;
 };
 
-class ConvertStorage;
+class TypesConvertStorage;
 class TypeAdd : Fixed {
 public:
     TypeAdd() = delete;
-    TypeAdd(const ConvertStorage* convertStorage);
+    TypeAdd(const TypesConvertStorage* typesConvertStorage);
     ~TypeAdd() = default;
 
     TypeId Result() const;
@@ -46,7 +46,7 @@ private:
     TypeId m_originA = TypeId::Float;
     TypeId m_b = TypeId::Float;
     TypeId m_originB = TypeId::Float;
-    const ConvertStorage* m_convertStorage;
+    const TypesConvertStorage* m_typesConvertStorage;
 };
 
 }

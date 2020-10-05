@@ -5,7 +5,7 @@
 #include "middleware/gscheme/embedded/func_sum.h"
 #include "middleware/gscheme/embedded/func_add.h"
 #include "middleware/gscheme/embedded/func_constant.h"
-#include "middleware/gscheme/graph/gs_convert_storage.h"
+#include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
 
@@ -69,7 +69,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         ::Policy<MakePolicy<GMetaRuleDefaultConstructorAbsent>>
         ::define("TypeAdd")
             ._annotation(MetaNames::TYPE_CLASS)._element(MetaNames::IMPL_CLASS, "Add")
-        ._constructor<void * (const ConvertStorage*)>()
+        ._constructor<void * (const TypesConvertStorage*)>()
         ._property("Result", &TypeAdd::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)
         ._property("A", &TypeAdd::GetA, &TypeAdd::SetA)

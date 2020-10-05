@@ -3,6 +3,7 @@
 #include "core/common/ctor.h"
 #include "core/common/pimpl.h"
 #include "middleware/gscheme/graph/gs_types_decl.h"
+#include "middleware/gscheme/graph/gs_types_convert_func.h"
 
 
 namespace gs {
@@ -10,12 +11,14 @@ namespace gs {
 // Basic types -> Basic types
 // Basic types -> UniversalType
 // ToUniversalTypeId(Basic) types -> Basic types
-class ConvertStorage : Fixed {
+// UniversalType -> UniversalType
+class TypesConvertStorage : Fixed {
 public:
-    ConvertStorage();
-    ~ConvertStorage();
+    TypesConvertStorage();
+    ~TypesConvertStorage();
 
     bool CanConvert(TypeId from, TypeId to) const;
+    ConvertFunc GetConvertFunc(TypeId from, TypeId to) const;
 
 private:
     struct Impl;

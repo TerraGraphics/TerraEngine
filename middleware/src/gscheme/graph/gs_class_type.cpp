@@ -18,7 +18,7 @@ static_assert(sizeof(ClassType) == 40, "sizeof(ClassType) == 40 bytes");
 
 
 ClassType::~ClassType() {
-    m_convertStorage = nullptr;
+    m_typesConvertStorage = nullptr;
     if (m_props != nullptr) {
         delete[] m_props;
     }
@@ -28,7 +28,7 @@ ClassType::~ClassType() {
     m_metaClass = nullptr;
 }
 
-void ClassType::Create(const cpgf::GMetaClass* metaClass, const ConvertStorage* convertStorage) {
+void ClassType::Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage* typesConvertStorage) {
     try {
         CheckMetaClass(metaClass);
     } catch(const std::exception& e) {
@@ -55,7 +55,7 @@ void ClassType::Create(const cpgf::GMetaClass* metaClass, const ConvertStorage* 
     uint8_t embeddedIndex = 0;
     uint8_t inputIndex = embeddedIndex + m_countEmbeddedPins;
     uint8_t outputIndex = inputIndex + m_countInputPins;
-    m_convertStorage = convertStorage;
+    m_typesConvertStorage = typesConvertStorage;
     m_metaClass = metaClass;
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
@@ -83,7 +83,7 @@ std::string_view ClassType::GetPinName(uint8_t pinIndex) const {
 }
 
 void* ClassType::NewInstance() {
-    void* instance = m_metaClass->getConstructorAt(0)->invoke(m_convertStorage);
+    void* instance = m_metaClass->getConstructorAt(0)->invoke(m_typesConvertStorage);
     if (m_defaults == nullptr) {
         m_defaults = new TypeId[m_countEmbeddedPins + m_countInputPins];
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {

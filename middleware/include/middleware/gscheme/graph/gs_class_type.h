@@ -14,13 +14,13 @@ namespace cpgf {
 
 namespace gs {
 
-class ConvertStorage;
+class TypesConvertStorage;
 class ClassType : Fixed {
 public:
     ClassType() = default;
     ~ClassType();
 
-    void Create(const cpgf::GMetaClass* metaClass, const ConvertStorage* convertStorage);
+    void Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage* typesConvertStorage);
 
     std::string_view GetImplName() const;
     std::string_view GetPinName(uint8_t pinIndex) const;
@@ -45,7 +45,7 @@ private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
-    const ConvertStorage* m_convertStorage;
+    const TypesConvertStorage* m_typesConvertStorage;
     const cpgf::GMetaProperty** m_props = nullptr;
     TypeId* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
