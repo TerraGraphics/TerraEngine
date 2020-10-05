@@ -151,7 +151,7 @@ TEST(GSTypesConvertStorage, ToUniversalType) {
     ASSERT_CONVERT_FALSE(UniversalVector4f, UniversalType);
     ASSERT_CONVERT_FALSE(UniversalGenerator2d, UniversalType);
 
-    ASSERT_CONVERT_TRUE(UniversalType, UniversalType);
+    ASSERT_CONVERT_FALSE(UniversalType, UniversalType);
 
     ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Int64, gs::TypeId::UniversalType));
 
@@ -167,10 +167,6 @@ TEST(GSTypesConvertStorage, ToUniversalType) {
     auto generator2dToUniversalType = storage.GetConvertFunc(gs::TypeId::Generator2d, gs::TypeId::UniversalType);
     ASSERT_DOUBLE_EQ(2.,
         std::get<math::Generator2d>(cpgf::fromVariant<gs::UniversalType>(generator2dToUniversalType(generatorValue)))(1.1, 2.2));
-
-    auto universalTypeToUniversalType = storage.GetConvertFunc(gs::TypeId::UniversalType, gs::TypeId::UniversalType);
-    ASSERT_FLOAT_EQ(3.f,
-        std::get<float>(cpgf::fromVariant<gs::UniversalType>(universalTypeToUniversalType(gs::UniversalType(3.f)))));
 }
 
 }

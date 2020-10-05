@@ -39,10 +39,6 @@ struct TypesConvertStorage::Impl {
 TypesConvertStorage::Impl::Impl() {
     BOOST_PP_LIST_FOR_EACH_PRODUCT(CONVERT_FUNC, 2, (UNIVERSAL_TYPES, UNIVERSAL_TYPES));
     BOOST_PP_LIST_FOR_EACH(CONVERT_FUNC_TO_UNIVERSAL, _, UNIVERSAL_TYPES);
-
-    m_convertFuncs[KeyId(TypeId::UniversalType, TypeId::UniversalType)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
-        return cpgf::createVariant<UniversalType>(cpgf::fromVariant<UniversalType>(value), true);
-    };
 }
 
 template <typename To, typename From> void TypesConvertStorage::Impl::AddConvertFunc() {
