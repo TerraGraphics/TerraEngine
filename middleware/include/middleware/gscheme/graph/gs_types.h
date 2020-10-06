@@ -20,6 +20,12 @@ TypeId MaxTypeId(TypeId a, TypeId b);
 constexpr inline TypeId ToUniversalTypeId(TypeId id) {
     return static_cast<TypeId>(static_cast<uint8_t>(id) | static_cast<uint8_t>(TypeId::UniversalType));
 }
+constexpr inline TypeId ToBaseTypeId(TypeId id) {
+    return static_cast<TypeId>(static_cast<uint8_t>(id) & ~static_cast<uint8_t>(TypeId::UniversalType));
+}
+constexpr inline bool IsConcreteUniversalType(TypeId id) {
+    return (((static_cast<uint8_t>(id) | static_cast<uint8_t>(TypeId::UniversalType)) != 0) && (id != TypeId::UniversalType));
+}
 
 using UniversalType = std::variant<float, Eigen::Vector2f, Eigen::Vector3f, Eigen::Vector4f, math::Generator2d, math::Generator3d>;
 

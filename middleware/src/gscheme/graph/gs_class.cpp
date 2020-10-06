@@ -18,8 +18,8 @@ namespace gs {
 static_assert(sizeof(Class) == 48, "sizeof(Class) == 48 bytes");
 
 Class::~Class() {
-    if (m_initialTypeId != nullptr) {
-        delete[] m_initialTypeId;
+    if (m_declTypeIds != nullptr) {
+        delete[] m_declTypeIds;
     }
     if (m_props != nullptr) {
         delete[] m_props;
@@ -60,22 +60,22 @@ void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType) {
     uint8_t outputIndex = inputIndex + m_countInputPins;
     m_metaClass = metaClass;
     m_classType = classType;
-    m_initialTypeId = new TypeId[metaClass->getPropertyCount()];
+    m_declTypeIds = new TypeId[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
         TypeId typeId = GetTypeId(prop->getItemType().getBaseType().getStdTypeInfo());
         auto pinType = prop->getAnnotation(gs::MetaNames::PIN)->getValue(gs::MetaNames::PIN_TYPE)->toObject<gs::PinTypes>();
         switch (pinType) {
         case gs::PinTypes::EMBEDDED:
-            m_initialTypeId[embeddedIndex] = typeId;
+            m_declTypeIds[embeddedIndex] = typeId;
             m_props[embeddedIndex++] = prop;
             break;
         case gs::PinTypes::INPUT:
-            m_initialTypeId[inputIndex] = typeId;
+            m_declTypeIds[inputIndex] = typeId;
             m_props[inputIndex++] = prop;
             break;
         case gs::PinTypes::OUTPUT:
-            m_initialTypeId[outputIndex] = typeId;
+            m_declTypeIds[outputIndex] = typeId;
             m_props[outputIndex++] = prop;
             break;
         }
@@ -110,8 +110,50 @@ std::string Class::GetPinPrettyName(uint8_t pinIndex) const {
     }
 }
 
-TypeId Class::GetInitialPinTypeId(uint8_t pinIndex) const noexcept {
-    return m_initialTypeId[pinIndex];
+TypeId Class::GetDeclPinTypeId(uint8_t pinIndex) const noexcept {
+    return m_declTypeIds[pinIndex];
+}
+
+void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId) {
+    try {
+        if (m_classType == nullptr) {
+            throw EngineError("class does not contain universal types");
+        }
+        if (pinIndex >= (m_countEmbeddedPins + m_countInputPins)) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for input and embedded pins", pinIndex);
+        }
+        if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
+        }
+        if (!IsConcreteUniversalType(typeId)) {
+            throw EngineError("typeId = {} - invalid, operation is only available for concrete universal types", typeId);
+        }
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Class::SetConcreteUniversalPinType (class name = '{}'): {}", GetName(), e.what());
+    }
+
+    m_classType->SetType(pinIndex, instanceType, typeId);
+}
+
+TypeId Class::GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType) {
+    try {
+        if (m_classType == nullptr) {
+            throw EngineError("class does not contain universal types");
+        }
+
+        uint8_t minIndex = m_countEmbeddedPins + m_countInputPins;
+        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins + m_countOutputPins;
+        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for output pins", pinIndex);
+        }
+        if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
+        }
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Class::GetConcreteUniversalPinType (class name = '{}'): {}", GetName(), e.what());
+    }
+
+    return m_classType->GetType(pinIndex, instanceType);
 }
 
 void Class::NewInstance(void*& instance, void*& instanceType) {

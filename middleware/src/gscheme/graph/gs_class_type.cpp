@@ -8,6 +8,7 @@
 #include "cpgf/metaclass.h"
 #include "core/common/meta.h"
 #include "core/common/exception.h"
+#include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 
@@ -103,11 +104,11 @@ void ClassType::DeleteInstance(void* instance) {
 }
 
 TypeId ClassType::GetType(uint8_t pinIndex, const void* instance) const {
-    return cpgf::fromVariant<TypeId>(m_props[pinIndex]->get(instance));
+    return ToUniversalTypeId(cpgf::fromVariant<TypeId>(m_props[pinIndex]->get(instance)));
 }
 
 void ClassType::SetType(uint8_t pinIndex, void* instance, TypeId value) const {
-    m_props[pinIndex]->set(instance, value);
+    m_props[pinIndex]->set(instance, ToBaseTypeId(value));
 }
 
 TypeId ClassType::GetDefaultType(uint8_t pinIndex) const {
@@ -115,7 +116,7 @@ TypeId ClassType::GetDefaultType(uint8_t pinIndex) const {
 }
 
 void ClassType::ResetToDefault(uint8_t pinIndex, void* instance) const {
-    m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
+    SetType(pinIndex, instance, m_defaults[pinIndex]);
 }
 
 bool ClassType::CheckIsValid(void* instance) const {

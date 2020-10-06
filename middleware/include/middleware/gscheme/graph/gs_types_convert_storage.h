@@ -8,9 +8,9 @@
 
 namespace gs {
 
-// Basic types -> Basic types
-// Basic types -> UniversalType
-// ToUniversalTypeId(Basic) types -> Basic types
+// Basic type -> Basic type
+// Basic type -> Universal type
+// Concrete universal type -> Basic type
 class TypesConvertStorage : Fixed {
 public:
     TypesConvertStorage();

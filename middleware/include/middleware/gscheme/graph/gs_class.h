@@ -38,7 +38,11 @@ public:
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
-    TypeId GetInitialPinTypeId(uint8_t pinIndex) const noexcept;
+    TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
+    // valid only for input and embedded pins with decl type = UniversalType, typeId should bу concrete universal type
+    void SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId);
+    // valid only for output pins with decl type = UniversalType
+    TypeId GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType);
 
     void NewInstance(void*& instance, void*& instanceType);
     void DeleteInstance(void* instance, void* instanceType);
@@ -56,7 +60,7 @@ private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
-    TypeId* m_initialTypeId = nullptr;
+    TypeId* m_declTypeIds = nullptr;
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
