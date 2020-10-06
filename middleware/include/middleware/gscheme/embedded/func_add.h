@@ -38,14 +38,10 @@ public:
     void SetB(const TypeId v) { m_b = v; }
 
     bool IsValid();
-    void Apply();
-    void Reset();
 
 private:
     TypeId m_a = TypeId::Float;
-    TypeId m_originA = TypeId::Float;
     TypeId m_b = TypeId::Float;
-    TypeId m_originB = TypeId::Float;
     const TypesConvertStorage* m_typesConvertStorage;
 };
 

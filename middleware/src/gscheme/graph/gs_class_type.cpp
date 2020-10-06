@@ -213,30 +213,6 @@ void ClassType::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
             clsName, MetaNames::METHOD_IS_VALID, meta::DemangleTypeName(mIsValid->getResultType().getBaseType().getStdTypeInfo().name()));
     }
 
-    const cpgf::GMetaMethod* mApply = metaClass->getMethod(MetaNames::METHOD_APPLY);
-    if (mApply == nullptr) {
-        throw EngineError("invalid metaClass (name = '{}'), does not have method {}", clsName, MetaNames::METHOD_APPLY);
-    }
-    if (mApply->getParamCount() != 0) {
-        throw EngineError("invalid metaClass (name = '{}'), has method {} with invalid count params = {}, need 0",
-            clsName, MetaNames::METHOD_APPLY, mApply->getParamCount());
-    }
-    if (mApply->hasResult()) {
-        throw EngineError("invalid metaClass (name = '{}'), has method {} with result", clsName, MetaNames::METHOD_APPLY);
-    }
-
-    const cpgf::GMetaMethod* mReset = metaClass->getMethod(MetaNames::METHOD_RESET);
-    if (mReset == nullptr) {
-        throw EngineError("invalid metaClass (name = '{}'), does not have method {}", clsName, MetaNames::METHOD_RESET);
-    }
-    if (mReset->getParamCount() != 0) {
-        throw EngineError("invalid metaClass (name = '{}'), has method {} with invalid count params = {}, need 0",
-            clsName, MetaNames::METHOD_RESET, mReset->getParamCount());
-    }
-    if (mReset->hasResult()) {
-        throw EngineError("invalid metaClass (name = '{}'), has method {} with result", clsName, MetaNames::METHOD_RESET);
-    }
-
     if (metaClass->getConstructorCount() != 1) {
         throw EngineError("invalid metaClass (name = '{}'), has {} constructors, 1 is required", clsName, metaClass->getConstructorCount());
     }

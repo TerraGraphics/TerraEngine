@@ -77,8 +77,6 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         ._property("B", &TypeAdd::GetB, &TypeAdd::SetB)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)
         ._method(MetaNames::METHOD_IS_VALID, &TypeAdd::IsValid)
-        ._method(MetaNames::METHOD_APPLY, &TypeAdd::Apply)
-        ._method(MetaNames::METHOD_RESET, &TypeAdd::Reset)
     ;
 
     GDefineMetaClass<FuncSum>

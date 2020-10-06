@@ -92,14 +92,4 @@ bool TypeAdd::IsValid() {
     return m_typesConvertStorage->CanConvert((maxId != m_a) ? m_a : m_b, maxId);
 }
 
-void TypeAdd::Apply() {
-    m_originA = m_a;
-    m_originB = m_b;
-}
-
-void TypeAdd::Reset() {
-    m_a = m_originA;
-    m_b = m_originB;
-}
-
 }
