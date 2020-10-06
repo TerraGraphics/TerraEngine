@@ -57,6 +57,10 @@ template <typename From> void TypesConvertStorage::Impl::AddConvertFuncToUnivers
     m_convertFuncs[KeyId(GetTypeId<From>(), TypeId::UniversalType)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
         return cpgf::createVariant<UniversalType>(UniversalType(cpgf::fromVariant<From>(value)), true);
     };
+
+    m_convertFuncs[KeyId(ToUniversalTypeId(GetTypeId<From>()), TypeId::UniversalType)] = [](const cpgf::GVariant& value) -> cpgf::GVariant {
+        return cpgf::createVariant<UniversalType>(cpgf::fromVariant<UniversalType>(value), true);
+    };
 }
 
 TypesConvertStorage::TypesConvertStorage() {
