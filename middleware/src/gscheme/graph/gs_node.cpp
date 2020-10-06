@@ -11,7 +11,7 @@
 
 namespace gs {
 
-static_assert(sizeof(Pin) == 32, "sizeof(Pin) == 32 bytes");
+static_assert(sizeof(Pin) == 40, "sizeof(Pin) == 40 bytes");
 static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
 Node::Node(Node&& other) noexcept {
@@ -23,6 +23,7 @@ Node& Node::operator=(Node&& other) noexcept {
     m_countEmbeddedPins = other.m_countEmbeddedPins;
     m_countInputPins = other.m_countInputPins;
     m_countOutputPins = other.m_countOutputPins;
+    m_isValid = other.m_isValid;
     m_changeState = other.m_changeState;
     m_order = other.m_order;
     m_nextIndex = other.m_nextIndex;
@@ -52,6 +53,7 @@ void Node::Create(Class* cls) {
     m_countEmbeddedPins = m_class->EmbeddedPinsCount();
     m_countInputPins = m_class->InputPinsCount();
     m_countOutputPins = m_class->OutputPinsCount();
+    m_isValid = true;
     m_changeState = ChangeState::NotChanged;
     m_pins = new Pin[m_countEmbeddedPins + m_countInputPins + m_countOutputPins];
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
@@ -77,7 +79,8 @@ void Node::Create(Class* cls) {
 
     constexpr const uint32_t isUniversalTypeFlag = 4;
     for(uint8_t i=AllPinsBeginIndex(); i!=AllPinsEndIndex(); ++i) {
-        m_pins[i].typeId = m_class->GetInitialPinTypeId(i);
+        m_pins[i].convertFunc = nullptr;
+        m_pins[i].typeId = m_class->GetDeclPinTypeId(i);
         if (m_pins[i].typeId == TypeId::UniversalType) {
             m_pins[i].id |= isUniversalTypeFlag;
         }
@@ -210,8 +213,8 @@ uint16_t Node::GetOrderNumber(Node* nodes) noexcept {
     if (m_order == INVALID_ORDER_VALUE) {
         m_order = 0;
         for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-            if (m_pins[i].attachedPinID != 0) {
-                uint16_t nodeIndex = NodeIndexFromPinId(m_pins[i].attachedPinID);
+            if (GetAttachedPinId(i) != 0) {
+                uint16_t nodeIndex = NodeIndexFromPinId(GetAttachedPinId(i));
                 uint16_t order = nodes[nodeIndex].GetOrderNumber(nodes) + 1;
                 if (order > m_order) {
                     m_order = order;
@@ -237,8 +240,8 @@ bool Node::CheckAcyclicity(Node* nodes, uint16_t dstNodeId) noexcept {
     }
 
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        if (m_pins[i].attachedPinID != 0) {
-            if (!nodes[NodeIndexFromPinId(m_pins[i].attachedPinID)].CheckAcyclicity(nodes, dstNodeId)) {
+        if (GetAttachedPinId(i) != 0) {
+            if (!nodes[NodeIndexFromPinId(GetAttachedPinId(i))].CheckAcyclicity(nodes, dstNodeId)) {
                 return false;
             }
         }
@@ -254,12 +257,12 @@ void Node::ResetChangeState() noexcept {
 uint16_t Node::UpdateState(Node* nodes) {
     bool isChanged = false;
     for (uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
-        uint32_t attachedPinID = m_pins[inputPinIndex].attachedPinID;
-        if (attachedPinID != 0) {
-            uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinID);
+        uint32_t attachedPinId = GetAttachedPinId(inputPinIndex);
+        if (attachedPinId != 0) {
+            uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
             if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
                 isChanged = true;
-                m_class->SetValue(inputPinIndex, m_instance, nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinID)));
+                m_class->SetValue(inputPinIndex, m_instance, nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId)));
             }
         }
     }
@@ -302,7 +305,7 @@ void Node::DetachFromInputPin(uint8_t inputPinIndex) {
 
 void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        if (NodeIdFromPinId(m_pins[i].attachedPinID) == attachedNodeID) {
+        if (NodeIdFromPinId(GetAttachedPinId(i)) == attachedNodeID) {
             ResetToDefault(i);
             m_pins[i].attachedPinID = 0;
         }

@@ -5,6 +5,7 @@
 #include "cpgf/variant.h"
 #include "core/common/ctor.h"
 #include "middleware/gscheme/graph/gs_types_decl.h"
+#include "middleware/gscheme/graph/gs_types_convert_func.h"
 
 
 namespace gs {
@@ -21,6 +22,11 @@ struct Pin : Fixed {
         uint32_t linksCount;
     };
 
+    // convert attached type to decl type
+    ConvertFunc convertFunc = nullptr;
+
+    // for output pins: real type
+    // for others pins: attached type
     TypeId typeId = TypeId::Unknown;
 
     // cachedValue for output pin
@@ -121,6 +127,7 @@ private:
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
 
+    bool m_isValid = true;
     ChangeState m_changeState = ChangeState::NotChanged;
 
     union {
