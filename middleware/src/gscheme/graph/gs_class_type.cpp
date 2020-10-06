@@ -14,18 +14,19 @@
 
 namespace gs {
 
-static_assert(sizeof(ClassType) == 40, "sizeof(ClassType) == 40 bytes");
+static_assert(sizeof(ClassType) == 48, "sizeof(ClassType) == 48 bytes");
 
 
 ClassType::~ClassType() {
-    m_typesConvertStorage = nullptr;
-    if (m_props != nullptr) {
-        delete[] m_props;
-    }
     if (m_defaults != nullptr) {
         delete[] m_defaults;
     }
+    if (m_props != nullptr) {
+        delete[] m_props;
+    }
     m_metaClass = nullptr;
+    m_methodIsValid = nullptr;
+    m_typesConvertStorage = nullptr;
 }
 
 void ClassType::Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage* typesConvertStorage) {
@@ -57,6 +58,7 @@ void ClassType::Create(const cpgf::GMetaClass* metaClass, const TypesConvertStor
     uint8_t outputIndex = inputIndex + m_countInputPins;
     m_typesConvertStorage = typesConvertStorage;
     m_metaClass = metaClass;
+    m_methodIsValid = metaClass->getMethod(MetaNames::METHOD_IS_VALID);
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
         auto pinType = prop->getAnnotation(gs::MetaNames::PIN)->getValue(gs::MetaNames::PIN_TYPE)->toObject<gs::PinTypes>();
@@ -114,6 +116,10 @@ TypeId ClassType::GetDefaultType(uint8_t pinIndex) const {
 
 void ClassType::ResetToDefault(uint8_t pinIndex, void* instance) const {
     m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
+}
+
+bool ClassType::CheckIsValid(void* instance) const {
+    return cpgf::fromVariant<bool>(m_methodIsValid->invoke(instance));
 }
 
 void ClassType::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {

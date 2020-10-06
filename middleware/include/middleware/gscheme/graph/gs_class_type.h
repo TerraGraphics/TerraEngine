@@ -9,6 +9,7 @@
 
 namespace cpgf {
     class GMetaClass;
+    class GMetaMethod;
     class GMetaProperty;
 }
 
@@ -38,6 +39,8 @@ public:
     TypeId GetDefaultType(uint8_t pinIndex) const;
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
+    bool CheckIsValid(void* instance) const;
+
 private:
     void CheckMetaClass(const cpgf::GMetaClass* metaClass) const;
 
@@ -45,10 +48,11 @@ private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
-    const TypesConvertStorage* m_typesConvertStorage;
-    const cpgf::GMetaProperty** m_props = nullptr;
     TypeId* m_defaults = nullptr;
+    const cpgf::GMetaProperty** m_props = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
+    const cpgf::GMetaMethod* m_methodIsValid = nullptr;
+    const TypesConvertStorage* m_typesConvertStorage = nullptr;
 };
 
 }
