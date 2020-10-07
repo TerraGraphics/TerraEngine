@@ -11,11 +11,12 @@
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/graph/gs_class_type.h"
+#include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
 namespace gs {
 
-static_assert(sizeof(Class) == 48, "sizeof(Class) == 48 bytes");
+static_assert(sizeof(Class) == 56, "sizeof(Class) == 56 bytes");
 
 Class::~Class() {
     if (m_declTypeIds != nullptr) {
@@ -29,9 +30,10 @@ Class::~Class() {
     }
     m_metaClass = nullptr;
     m_classType = nullptr;
+    m_typesConvertStorage = nullptr;
 }
 
-void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType) {
+void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType, const TypesConvertStorage* typesConvertStorage) {
     try {
         CheckMetaClass(metaClass, classType);
     } catch(const std::exception& e) {
@@ -58,6 +60,7 @@ void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType) {
     uint8_t embeddedIndex = 0;
     uint8_t inputIndex = embeddedIndex + m_countEmbeddedPins;
     uint8_t outputIndex = inputIndex + m_countInputPins;
+    m_typesConvertStorage = typesConvertStorage;
     m_metaClass = metaClass;
     m_classType = classType;
     m_declTypeIds = new TypeId[metaClass->getPropertyCount()];
@@ -114,6 +117,14 @@ TypeId Class::GetDeclPinTypeId(uint8_t pinIndex) const noexcept {
     return m_declTypeIds[pinIndex];
 }
 
+ConvertFunc Class::GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
+    if (m_typesConvertStorage->CanConvert(GetDeclPinTypeId(pinIndex), typeId)) {
+        return m_typesConvertStorage->GetConvertFunc(GetDeclPinTypeId(pinIndex), typeId);
+    }
+
+    return nullptr;
+}
+
 void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId) {
     try {
         if (m_classType == nullptr) {
@@ -154,6 +165,18 @@ TypeId Class::GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType) 
     }
 
     return m_classType->GetType(pinIndex, instanceType);
+}
+
+bool Class::CheckIsClassTypeValid(void* instanceType) const {
+    try {
+        if (m_classType == nullptr) {
+            throw EngineError("class does not contain universal types");
+        }
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Class::CheckIsClassTypeValid (class name = '{}'): {}", GetName(), e.what());
+    }
+
+    return m_classType->CheckIsValid(instanceType);
 }
 
 void Class::NewInstance(void*& instance, void*& instanceType) {

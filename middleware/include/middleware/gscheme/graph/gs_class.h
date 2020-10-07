@@ -6,6 +6,7 @@
 
 #include "core/common/ctor.h"
 #include "middleware/gscheme/graph/gs_types_decl.h"
+#include "middleware/gscheme/graph/gs_types_convert_func.h"
 
 
 namespace cpgf {
@@ -17,12 +18,13 @@ namespace cpgf {
 namespace gs {
 
 class ClassType;
+class TypesConvertStorage;
 class Class : Fixed {
 public:
     Class() = default;
     ~Class();
 
-    void Create(const cpgf::GMetaClass* metaClass, ClassType* classType);
+    void Create(const cpgf::GMetaClass* metaClass, ClassType* classType, const TypesConvertStorage* typesConvertStorage);
 
     // unique class name
     std::string_view GetName() const;
@@ -39,10 +41,13 @@ public:
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
     TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
+    // will return false if convertation is not possible
+    ConvertFunc GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
     // valid only for input and embedded pins with decl type = UniversalType, typeId should bу concrete universal type
     void SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId);
     // valid only for output pins with decl type = UniversalType
     TypeId GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType);
+    bool CheckIsClassTypeValid(void* instanceType) const;
 
     void NewInstance(void*& instance, void*& instanceType);
     void DeleteInstance(void* instance, void* instanceType);
@@ -65,6 +70,7 @@ private:
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
     ClassType* m_classType = nullptr;
+    const TypesConvertStorage* m_typesConvertStorage = nullptr;
 };
 
 }

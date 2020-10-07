@@ -63,9 +63,9 @@ ClassStorage::Impl::Impl() {
         if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
             auto it = classTypesIndex.find(std::string_view(metaClass->getName()));
             if (it == classTypesIndex.cend()) {
-                m_classes[index].Create(metaClass, nullptr);
+                m_classes[index].Create(metaClass, nullptr, &m_typesConvertStorage);
             } else {
-                m_classes[index].Create(metaClass, &m_classTypes[it->second]);
+                m_classes[index].Create(metaClass, &m_classTypes[it->second], &m_typesConvertStorage);
             }
             m_classesIndex[m_classes[index].GetName()] = index;
             ++index;
