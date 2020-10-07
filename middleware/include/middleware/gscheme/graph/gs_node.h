@@ -58,8 +58,12 @@ public:
 
     // valid for input pins
     uint32_t GetAttachedPinId(uint8_t inputPinIndex) const noexcept { return m_pins[inputPinIndex].attachedPinID; }
+
     // works for all pins type
     bool IsConnectedPin(uint8_t pinIndex) const noexcept { return (m_pins[pinIndex].linksCount != 0); }
+
+    // works for all pins type
+    TypeId GetPinType(uint8_t pinIndex) const noexcept { return m_pins[pinIndex].typeId; }
 
 public:
     uint32_t GetEmbeddedPinId(uint8_t offset) const noexcept;
@@ -109,11 +113,14 @@ public:
     void ResetToDefault(uint8_t pinIndex);
 
 public:
-    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept;
+    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID, TypeId attachedPinType) noexcept;
     void DetachFromInputPin(uint8_t inputPinIndex);
     void DetachFromInputPinIfExists(uint16_t attachedNodeID);
     void IncLinkForOutputPin(uint8_t outputPinIndex) noexcept;
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
+
+private:
+    void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType) noexcept;
 
 public:
     void DrawGraph(IDraw* drawer);

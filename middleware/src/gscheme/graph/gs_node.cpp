@@ -4,6 +4,7 @@
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"
+#include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
@@ -56,18 +57,26 @@ void Node::Create(Class* cls) {
     m_isValid = true;
     m_changeState = ChangeState::NotChanged;
     m_pins = new Pin[m_countEmbeddedPins + m_countInputPins + m_countOutputPins];
+    constexpr const uint32_t isUniversalTypeFlag = 4;
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
 
     uint32_t typePin = 3; // embeded
     for(uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
+        m_pins[i].typeId = m_class->GetDeclPinTypeId(i);
+        m_pins[i].convertFunc = nullptr;
     }
 
     typePin = 1; // input
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
+        m_pins[i].typeId = m_class->GetDeclPinTypeId(i);
+        if (m_pins[i].typeId == TypeId::UniversalType) {
+            m_pins[i].id |= isUniversalTypeFlag;
+        }
+        m_pins[i].convertFunc = nullptr;
     }
 
     typePin = 0; // output
@@ -75,15 +84,14 @@ void Node::Create(Class* cls) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].linksCount = 0;
         m_pins[i].cachedValue = m_class->GetValue(i, m_instance);
-    }
-
-    constexpr const uint32_t isUniversalTypeFlag = 4;
-    for(uint8_t i=AllPinsBeginIndex(); i!=AllPinsEndIndex(); ++i) {
-        m_pins[i].convertFunc = nullptr;
-        m_pins[i].typeId = m_class->GetDeclPinTypeId(i);
-        if (m_pins[i].typeId == TypeId::UniversalType) {
+        auto declTypeId = m_class->GetDeclPinTypeId(i);
+        if (declTypeId == TypeId::UniversalType) {
             m_pins[i].id |= isUniversalTypeFlag;
+            m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
+        } else {
+            m_pins[i].typeId = declTypeId;
         }
+        m_pins[i].convertFunc = nullptr;
     }
 }
 
@@ -293,9 +301,10 @@ void Node::ResetToDefault(uint8_t pinIndex) {
     m_class->ResetToDefault(pinIndex, m_instance);
 }
 
-void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID) noexcept {
+void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID, TypeId attachedPinType) noexcept {
     m_changeState = ChangeState::NeedUpdateInputs;
     m_pins[inputPinIndex].attachedPinID = attachedPinID;
+    AttachToInputPinCalcType(inputPinIndex, attachedPinType);
 }
 
 void Node::DetachFromInputPin(uint8_t inputPinIndex) {
@@ -320,6 +329,43 @@ void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
     m_pins[outputPinIndex].linksCount--;
 }
 
+void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType) noexcept {
+    if (attachedPinType == GetPinType(inputPinIndex)) {
+        return;
+    }
+    m_pins[inputPinIndex].typeId = attachedPinType;
+
+    if (!IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
+        TypeId declTypeId = m_class->GetDeclPinTypeId(inputPinIndex);
+        if (declTypeId != attachedPinType) {
+            m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedPinType);
+            if (m_pins[inputPinIndex].convertFunc == nullptr) {
+                m_isValid = false;
+            }
+        }
+        return;
+    }
+
+    m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedPinType);
+    if (m_pins[inputPinIndex].convertFunc == nullptr) {
+        m_isValid = false;
+    }
+
+    m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedPinType));
+    if (!m_class->CheckIsClassTypeValid(m_instanceType)) {
+        m_isValid = false;
+    }
+
+    if (!m_isValid) {
+        return;
+    }
+
+    for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
+        if (IsUniversalTypeFromPinId(m_pins[i].id)) {
+            m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
+        }
+    }
+}
 
 void Node::DrawGraph(IDraw* drawer) {
     drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_class->GetPrettyName());

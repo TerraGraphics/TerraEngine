@@ -127,7 +127,7 @@ void Graph::SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const c
         throw EngineError("gs::Graph::SetEmbeddedValue: wrong nodeId, {}", e.what());
     }
 
-    return SetEmbeddedValue(m_nodes[nodeId - 1].GetEmbeddedPinId(embeddedPinOffset), value);
+    SetEmbeddedValue(m_nodes[nodeId - 1].GetEmbeddedPinId(embeddedPinOffset), value);
 }
 
 void Graph::SetInputValue(uint32_t pinId, const cpgf::GVariant& value) {
@@ -152,7 +152,7 @@ void Graph::SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::G
         throw EngineError("gs::Graph::SetInputValue: wrong nodeId, {}", e.what());
     }
 
-    return SetInputValue(m_nodes[nodeId - 1].GetInputPinId(inputPinOffset), value);
+    SetInputValue(m_nodes[nodeId - 1].GetInputPinId(inputPinOffset), value);
 }
 
 uint16_t Graph::AddNode(uint16_t classIndex) {
@@ -279,12 +279,12 @@ uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
     uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
 
-    uint32_t attachedPinId = m_nodes[NodeIndexFromPinId(dstPinId)].GetAttachedPinId(PinIndexFromPinId(dstPinId));
+    uint32_t attachedPinId = m_nodes[dstNodeIndex].GetAttachedPinId(dstPinIndex);
     if (attachedPinId != 0) {
         RemoveLink(LinkId(attachedPinId, dstPinId));
     }
 
-    m_nodes[dstNodeIndex].AttachToInputPin(dstPinIndex, srcPinId);
+    m_nodes[dstNodeIndex].AttachToInputPin(dstPinIndex, srcPinId, m_nodes[srcNodeIndex].GetPinType(srcPinIndex));
     m_nodes[srcNodeIndex].IncLinkForOutputPin(srcPinIndex);
 
     SortNodesByDependency();
