@@ -331,6 +331,16 @@ void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
     m_pins[outputPinIndex].linksCount--;
 }
 
+void Node::RecalcOutputTypes() {
+    if (m_isValid) {
+        for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
+            if (IsUniversalTypeFromPinId(m_pins[i].id)) {
+                m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
+            }
+        }
+    }
+}
+
 void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType) {
     if (attachedPinType == GetPinType(inputPinIndex)) {
         return;
@@ -358,13 +368,7 @@ void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinTyp
         m_isValid = false;
     }
 
-    if (m_isValid) {
-        for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-            if (IsUniversalTypeFromPinId(m_pins[i].id)) {
-                m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
-            }
-        }
-    }
+    RecalcOutputTypes();
 }
 
 void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
@@ -386,13 +390,7 @@ void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
             m_isValid = false;
         }
 
-        if (m_isValid) {
-            for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-                if (IsUniversalTypeFromPinId(m_pins[i].id)) {
-                    m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
-                }
-            }
-        }
+        RecalcOutputTypes();
     }
 }
 

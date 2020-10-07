@@ -38,11 +38,8 @@ void DebugWindowEventsHandler::OnKeyEvent(KeyAction action, Key key, uint8_t mod
         strModifiers += delimiter + ToString(KeyModifier::Super);
         delimiter = "+";
     }
-    if (!strModifiers.empty()) {
-        strModifiers += "+";
-    }
 
-    std::cout << ToString(action) << " " << strModifiers << ToString(key) << std::endl;
+    std::cout << ToString(action) << " " << strModifiers << delimiter << ToString(key) << std::endl;
 }
 
 void DebugWindowEventsHandler::OnInputEvent(const std::wstring& s) {

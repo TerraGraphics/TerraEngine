@@ -127,17 +127,7 @@ ConvertFunc Class::GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) con
 
 void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId) {
     try {
-        if (m_classType == nullptr) {
-            throw EngineError("class does not contain universal types");
-        }
-        uint8_t minIndex = m_countEmbeddedPins;
-        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins;
-        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for input pins", pinIndex);
-        }
-        if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
-        }
+        CheckIsValidUniversalPinIndex(pinIndex, true);
         if (!IsConcreteUniversalType(typeId)) {
             throw EngineError("typeId = {} - invalid, operation is only available for concrete universal types", typeId);
         }
@@ -150,17 +140,7 @@ void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, Ty
 
 void Class::ResetUniversalPinTypeToDefault(uint8_t pinIndex, void* instanceType) {
     try {
-        if (m_classType == nullptr) {
-            throw EngineError("class does not contain universal types");
-        }
-        uint8_t minIndex = m_countEmbeddedPins;
-        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins;
-        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for input pins", pinIndex);
-        }
-        if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
-        }
+        CheckIsValidUniversalPinIndex(pinIndex, true);
     } catch(const EngineError& e) {
         throw EngineError("gs::Class::ResetUniversalPinTypeToDefault (class name = '{}'): {}", GetName(), e.what());
     }
@@ -170,18 +150,7 @@ void Class::ResetUniversalPinTypeToDefault(uint8_t pinIndex, void* instanceType)
 
 TypeId Class::GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType) {
     try {
-        if (m_classType == nullptr) {
-            throw EngineError("class does not contain universal types");
-        }
-
-        uint8_t minIndex = m_countEmbeddedPins + m_countInputPins;
-        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins + m_countOutputPins;
-        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for output pins", pinIndex);
-        }
-        if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
-        }
+        CheckIsValidUniversalPinIndex(pinIndex, false);
     } catch(const EngineError& e) {
         throw EngineError("gs::Class::GetConcreteUniversalPinType (class name = '{}'): {}", GetName(), e.what());
     }
@@ -240,6 +209,28 @@ const cpgf::GVariant& Class::GetDefaultValue(uint8_t pinIndex) const {
 
 void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
     m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
+}
+
+void Class::CheckIsValidUniversalPinIndex(uint8_t pinIndex, bool inputPinNeed) {
+    if (m_classType == nullptr) {
+        throw EngineError("class does not contain universal types");
+    }
+    if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
+        throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
+    }
+    if (inputPinNeed) {
+        uint8_t minIndex = m_countEmbeddedPins;
+        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins;
+        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for input pins", pinIndex);
+        }
+    } else {
+        uint8_t minIndex = m_countEmbeddedPins + m_countInputPins;
+        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins + m_countOutputPins;
+        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for output pins", pinIndex);
+        }
+    }
 }
 
 void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classType) const {

@@ -120,6 +120,7 @@ public:
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
 private:
+    void RecalcOutputTypes();
     void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType);
     void DetachFromInputPinCalcType(uint8_t inputPinIndex);
 

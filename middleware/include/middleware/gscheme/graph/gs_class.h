@@ -62,6 +62,7 @@ public:
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
 private:
+    void CheckIsValidUniversalPinIndex(uint8_t pinIndex, bool inputPinNeed);
     void CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classType) const;
 
 private:
