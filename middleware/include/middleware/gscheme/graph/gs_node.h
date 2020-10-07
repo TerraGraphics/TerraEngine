@@ -113,14 +113,15 @@ public:
     void ResetToDefault(uint8_t pinIndex);
 
 public:
-    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID, TypeId attachedPinType) noexcept;
+    void AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID, TypeId attachedPinType);
     void DetachFromInputPin(uint8_t inputPinIndex);
     void DetachFromInputPinIfExists(uint16_t attachedNodeID);
     void IncLinkForOutputPin(uint8_t outputPinIndex) noexcept;
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
 private:
-    void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType) noexcept;
+    void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType);
+    void DetachFromInputPinCalcType(uint8_t inputPinIndex);
 
 public:
     void DrawGraph(IDraw* drawer);

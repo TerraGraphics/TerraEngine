@@ -130,8 +130,10 @@ void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, Ty
         if (m_classType == nullptr) {
             throw EngineError("class does not contain universal types");
         }
-        if (pinIndex >= (m_countEmbeddedPins + m_countInputPins)) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for input and embedded pins", pinIndex);
+        uint8_t minIndex = m_countEmbeddedPins;
+        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins;
+        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for input pins", pinIndex);
         }
         if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
             throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
@@ -144,6 +146,26 @@ void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, Ty
     }
 
     m_classType->SetType(pinIndex, instanceType, typeId);
+}
+
+void Class::ResetUniversalPinTypeToDefault(uint8_t pinIndex, void* instanceType) {
+    try {
+        if (m_classType == nullptr) {
+            throw EngineError("class does not contain universal types");
+        }
+        uint8_t minIndex = m_countEmbeddedPins;
+        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins;
+        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for input pins", pinIndex);
+        }
+        if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
+            throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
+        }
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Class::ResetUniversalPinTypeToDefault (class name = '{}'): {}", GetName(), e.what());
+    }
+
+    m_classType->ResetToDefault(pinIndex, instanceType);
 }
 
 TypeId Class::GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType) {

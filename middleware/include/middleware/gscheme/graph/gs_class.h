@@ -43,10 +43,13 @@ public:
     TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
     // will return false if convertation is not possible
     ConvertFunc GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
-    // valid only for input and embedded pins with decl type = UniversalType, typeId should bу concrete universal type
+    // valid only for input pins with decl type = UniversalType, typeId should bу concrete universal type
     void SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId);
+    // valid only for input pins with decl type = UniversalType
+    void ResetUniversalPinTypeToDefault(uint8_t pinIndex, void* instanceType);
     // valid only for output pins with decl type = UniversalType
     TypeId GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType);
+
     bool CheckIsClassTypeValid(void* instanceType) const;
 
     void NewInstance(void*& instance, void*& instanceType);
