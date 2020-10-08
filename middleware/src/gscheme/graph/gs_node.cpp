@@ -269,12 +269,17 @@ void Node::ResetChangeState() noexcept {
 uint16_t Node::UpdateState(Node* nodes) {
     bool isChanged = false;
     for (uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
-        uint32_t attachedPinId = GetAttachedPinId(inputPinIndex);
+        const uint32_t attachedPinId = GetAttachedPinId(inputPinIndex);
         if (attachedPinId != 0) {
-            uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
+            const uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
             if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
                 isChanged = true;
-                m_class->SetValue(inputPinIndex, m_instance, nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId)));
+                const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
+                if (m_pins[inputPinIndex].convertFunc != nullptr) {
+                    m_class->SetValue(inputPinIndex, m_instance, m_pins[inputPinIndex].convertFunc(value));
+                } else {
+                    m_class->SetValue(inputPinIndex, m_instance, value);
+                }
             }
         }
     }
