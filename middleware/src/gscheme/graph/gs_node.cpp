@@ -111,6 +111,10 @@ void Node::Reset(uint16_t nextIndex) {
     }
 }
 
+bool Node::CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
+    return m_class->CanConvertToDeclType(pinIndex, typeId);
+}
+
 uint32_t Node::GetEmbeddedPinId(uint8_t offset) const noexcept {
     if (offset >= EmbeddedPinsCount()) {
         return 0;

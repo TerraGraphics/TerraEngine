@@ -453,8 +453,8 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
         throw EngineError("wrong srcPinId = {} and dstPinId = {}, it cannot be equivalent", srcPinId, dstPinId);
     }
 
-    uint16_t srcNodeId = NodeIdFromPinId(srcPinId);
-    uint16_t dstNodeId = NodeIdFromPinId(dstPinId);
+    const uint16_t srcNodeId = NodeIdFromPinId(srcPinId);
+    const uint16_t dstNodeId = NodeIdFromPinId(dstPinId);
     if (srcNodeId == dstNodeId) {
         throw EngineError(
             "wrong srcPinId = {} and dstPinId = {}, node ids (srcNodeId = {} and dstPinId = {}) cannot be equivalent",
@@ -470,10 +470,17 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
                 "wrong link from srcPinId = {} to dstPinId = {}, graph after add this link is not acyclic", srcPinId, dstPinId);
     }
 
-    uint32_t attachedPinId = m_nodes[dstNodeId - 1].GetAttachedPinId(PinIndexFromPinId(dstPinId));
+    const uint8_t srcPinIndex = PinIndexFromPinId(srcPinId);
+    const uint8_t dstPinIndex = PinIndexFromPinId(dstPinId);
+    const uint32_t attachedPinId = m_nodes[dstNodeId - 1].GetAttachedPinId(dstPinIndex);
     if (attachedPinId == srcPinId) {
         throw EngineError(
             "wrong link from srcPinId = {} to dstPinId = {}, link already exist", srcPinId, dstPinId);
+    }
+
+    if (!m_nodes[dstNodeId - 1].CanConvertToDeclType(dstPinIndex, m_nodes[srcNodeId - 1].GetPinType(srcPinIndex))) {
+        throw EngineError(
+            "wrong link from srcPinId = {} to dstPinId = {}, types are not compatible", srcPinId, dstPinId);
     }
 
     if (attachedPinId != 0) {

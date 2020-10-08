@@ -41,7 +41,8 @@ public:
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
     TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
-    // will return false if convertation is not possible
+    bool CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
+    // will return nullptr if convertation is not possible
     ConvertFunc GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
     // valid only for input pins with decl type = UniversalType, typeId should bу concrete universal type
     void SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId);

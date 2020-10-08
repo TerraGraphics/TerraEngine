@@ -65,6 +65,9 @@ public:
     // works for all pins type
     TypeId GetPinType(uint8_t pinIndex) const noexcept { return m_pins[pinIndex].typeId; }
 
+    // valid for input pins
+    bool CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
+
 public:
     uint32_t GetEmbeddedPinId(uint8_t offset) const noexcept;
     bool IsEmbeddedPinIndex(uint8_t index) const noexcept { return ((EmbeddedPinsBeginIndex() >= index) && (index < EmbeddedPinsEndIndex())); }
