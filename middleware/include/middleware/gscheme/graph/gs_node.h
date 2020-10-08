@@ -109,6 +109,8 @@ public:
     void ResetChangeState() noexcept;
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
+    // return next node index for update
+    uint16_t UpdateTypes(Node* nodes);
 
 public:
     const cpgf::GVariant& GetValue(uint8_t pinIndex) const;

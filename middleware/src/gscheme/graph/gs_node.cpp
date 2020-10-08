@@ -287,6 +287,57 @@ uint16_t Node::UpdateState(Node* nodes) {
     return m_nextIndex;
 }
 
+uint16_t Node::UpdateTypes(Node* nodes) {
+    m_isValid = true;
+    bool isExistsUniversalTypes = false;
+    for(uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
+        const uint32_t attachedPinID = GetAttachedPinId(inputPinIndex);
+        if (attachedPinID == 0) {
+            continue;
+        }
+
+        const TypeId typeId = GetPinType(inputPinIndex);
+        const TypeId declTypeId = m_class->GetDeclPinTypeId(inputPinIndex);
+        const TypeId attachedTypeId = nodes[NodeIndexFromPinId(attachedPinID)].GetPinType(inputPinIndex);
+        if (attachedTypeId == typeId) {
+            if ((m_pins[inputPinIndex].convertFunc == nullptr) && (declTypeId != typeId)) {
+                m_isValid = false;
+            }
+
+            continue;
+        }
+
+        m_pins[inputPinIndex].typeId = attachedTypeId;
+        if (!IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
+            if (declTypeId != attachedTypeId) {
+                m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedTypeId);
+                if (m_pins[inputPinIndex].convertFunc == nullptr) {
+                    m_isValid = false;
+                }
+            }
+            continue;
+        }
+
+        isExistsUniversalTypes = true;
+        m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedTypeId);
+        if (m_pins[inputPinIndex].convertFunc == nullptr) {
+            m_isValid = false;
+        }
+
+        m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedTypeId));
+    }
+
+    if (isExistsUniversalTypes) {
+        if (!m_class->CheckIsClassTypeValid(m_instanceType)) {
+            m_isValid = false;
+        }
+
+        RecalcOutputTypes();
+    }
+
+    return m_nextIndex;
+}
+
 const cpgf::GVariant& Node::GetValue(uint8_t pinIndex) const {
     return m_pins[pinIndex].cachedValue;
 }
