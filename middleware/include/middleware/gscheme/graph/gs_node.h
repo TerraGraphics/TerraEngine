@@ -67,6 +67,7 @@ public:
 
 public:
     uint32_t GetEmbeddedPinId(uint8_t offset) const noexcept;
+    bool IsEmbeddedPinIndex(uint8_t index) const noexcept { return ((EmbeddedPinsBeginIndex() >= index) && (index < EmbeddedPinsEndIndex())); }
     uint8_t EmbeddedPinsCount() const noexcept { return m_countEmbeddedPins; }
     uint8_t EmbeddedPinsBeginIndex() const noexcept { return 0; }
     uint8_t EmbeddedPinsEndIndex() const noexcept { return m_countEmbeddedPins; }
@@ -75,6 +76,7 @@ public:
     void CheckIsValidEmbeddedPinId(uint32_t pinId) const;
 
     uint32_t GetInputPinId(uint8_t offset) const noexcept;
+    bool IsInputPinIndex(uint8_t index) const noexcept { return ((InputPinsBeginIndex() >= index) && (index < InputPinsEndIndex())); }
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t InputPinsBeginIndex() const noexcept { return m_countEmbeddedPins; }
     uint8_t InputPinsEndIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
@@ -83,6 +85,7 @@ public:
     void CheckIsValidInputPinId(uint32_t pinId) const;
 
     uint32_t GetOutputPinId(uint8_t offset) const noexcept;
+    bool IsOutputPinIndex(uint8_t index) const noexcept { return ((OutputPinsBeginIndex() >= index) && (index < OutputPinsEndIndex())); }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
     uint8_t OutputPinsBeginIndex() const noexcept { return m_countEmbeddedPins + m_countInputPins; }
     uint8_t OutputPinsEndIndex() const noexcept { return static_cast<uint8_t>(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); }

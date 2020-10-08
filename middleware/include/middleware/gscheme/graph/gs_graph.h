@@ -4,12 +4,12 @@
 #include <cstdint>
 #include <string_view>
 
+#include "cpgf/variant.h"
 #include "core/common/ctor.h"
+#include "middleware/gscheme/graph/gs_types.h"
+#include "middleware/gscheme/graph/gs_types_decl.h"
 
 
-namespace cpgf {
-    class GVariant;
-}
 namespace gs {
 
 class Node;
@@ -29,10 +29,23 @@ public:
 
     const cpgf::GVariant& GetOutputValue(uint32_t pinId) const;
     const cpgf::GVariant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
-    void SetEmbeddedValue(uint32_t pinId, const cpgf::GVariant& value);
-    void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value);
-    void SetInputValue(uint32_t pinId, const cpgf::GVariant& value);
-    void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value);
+
+    template<typename T, typename Enable = std::enable_if_t<IsEmbedded<T>>>
+        void SetEmbeddedValue(uint32_t pinId, const T& value) {
+            SetEmbeddedValueImpl(pinId, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+        }
+    template<typename T, typename Enable = std::enable_if_t<IsEmbedded<T>>>
+        void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const T& value) {
+            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+        }
+    template<typename T, typename Enable = std::enable_if_t<IsInput<T>>>
+        void SetInputValue(uint32_t pinId, const T& value) {
+            SetInputValueImpl(pinId, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+        }
+    template<typename T, typename Enable = std::enable_if_t<IsInput<T>>>
+        void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const T& value) {
+            SetInputValueImpl(nodeId, inputPinOffset, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+        }
 
     uint16_t AddNode(uint16_t classIndex);
     uint16_t AddNode(std::string_view name);
@@ -48,6 +61,11 @@ public:
     void RemoveLink(uint64_t linkId);
 
 private:
+    void SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId);
+    void SetEmbeddedValueImpl(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value, TypeId typeId);
+    void SetInputValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId);
+    void SetInputValueImpl(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value, TypeId typeId);
+
     void SortNodesByDependency();
 
     void CheckIsValidNodeId(uint16_t nodeId) const;
