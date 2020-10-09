@@ -274,11 +274,13 @@ uint16_t Node::UpdateState(Node* nodes) {
             const uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
             if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
                 isChanged = true;
-                const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
-                if (m_pins[inputPinIndex].convertFunc != nullptr) {
-                    m_class->SetValue(inputPinIndex, m_instance, m_pins[inputPinIndex].convertFunc(value));
-                } else {
-                    m_class->SetValue(inputPinIndex, m_instance, value);
+                if (m_isValid) {
+                    const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
+                    if (m_pins[inputPinIndex].convertFunc != nullptr) {
+                        m_class->SetValue(inputPinIndex, m_instance, m_pins[inputPinIndex].convertFunc(value));
+                    } else {
+                        m_class->SetValue(inputPinIndex, m_instance, value);
+                    }
                 }
             }
         }

@@ -54,6 +54,7 @@ public:
     void RemoveNode(uint16_t nodeId);
 
     bool TestAddLink(uint32_t srcPinId, uint32_t dstPinId) const noexcept;
+    bool TestAddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t dstNodeId, uint8_t inputPinOffset) const noexcept;
     uint64_t AddLink(uint32_t srcPinId, uint32_t dstPinId);
     uint64_t AddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t dstNodeId, uint8_t inputPinOffset);
 

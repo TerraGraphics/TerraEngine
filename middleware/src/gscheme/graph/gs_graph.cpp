@@ -222,6 +222,19 @@ bool Graph::TestAddLink(uint32_t srcPinId, uint32_t dstPinId) const noexcept {
     }
 }
 
+bool Graph::TestAddLink(uint16_t srcNodeId, uint8_t outputPinOffset, uint16_t dstNodeId, uint8_t inputPinOffset) const noexcept {
+    try {
+        CheckIsValidNodeId(srcNodeId);
+        CheckIsValidNodeId(dstNodeId);
+    } catch(const EngineError& e) {
+        return false;
+    }
+
+    uint32_t srcPinId = m_nodes[srcNodeId - 1].GetOutputPinId(outputPinOffset);
+    uint32_t dstPinId = m_nodes[dstNodeId - 1].GetInputPinId(inputPinOffset);
+    return TestAddLink(srcPinId, dstPinId);
+}
+
 uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     try {
         CheckAddLink(srcPinId, dstPinId);

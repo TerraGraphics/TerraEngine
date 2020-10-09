@@ -118,12 +118,12 @@ TypeId Class::GetDeclPinTypeId(uint8_t pinIndex) const noexcept {
 }
 
 bool Class::CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
-    return m_typesConvertStorage->CanConvert(GetDeclPinTypeId(pinIndex), typeId);
+    return m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex));
 }
 
 ConvertFunc Class::GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
-    if (m_typesConvertStorage->CanConvert(GetDeclPinTypeId(pinIndex), typeId)) {
-        return m_typesConvertStorage->GetConvertFunc(GetDeclPinTypeId(pinIndex), typeId);
+    if (m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex))) {
+        return m_typesConvertStorage->GetConvertFunc(typeId, GetDeclPinTypeId(pinIndex));
     }
 
     return nullptr;
