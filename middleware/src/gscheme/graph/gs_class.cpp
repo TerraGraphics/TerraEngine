@@ -19,8 +19,8 @@ namespace gs {
 static_assert(sizeof(Class) == 56, "sizeof(Class) == 56 bytes");
 
 Class::~Class() {
-    if (m_declTypeIds != nullptr) {
-        delete[] m_declTypeIds;
+    if (m_defaultTypeIds != nullptr) {
+        delete[] m_defaultTypeIds;
     }
     if (m_props != nullptr) {
         delete[] m_props;
@@ -63,22 +63,22 @@ void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType, cons
     m_typesConvertStorage = typesConvertStorage;
     m_metaClass = metaClass;
     m_classType = classType;
-    m_declTypeIds = new TypeId[metaClass->getPropertyCount()];
+    m_defaultTypeIds = new TypeId[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
         TypeId typeId = GetTypeId(prop->getItemType().getBaseType().getStdTypeInfo());
         auto pinType = prop->getAnnotation(gs::MetaNames::PIN)->getValue(gs::MetaNames::PIN_TYPE)->toObject<gs::PinTypes>();
         switch (pinType) {
         case gs::PinTypes::EMBEDDED:
-            m_declTypeIds[embeddedIndex] = typeId;
+            m_defaultTypeIds[embeddedIndex] = typeId;
             m_props[embeddedIndex++] = prop;
             break;
         case gs::PinTypes::INPUT:
-            m_declTypeIds[inputIndex] = typeId;
+            m_defaultTypeIds[inputIndex] = typeId;
             m_props[inputIndex++] = prop;
             break;
         case gs::PinTypes::OUTPUT:
-            m_declTypeIds[outputIndex] = typeId;
+            m_defaultTypeIds[outputIndex] = typeId;
             m_props[outputIndex++] = prop;
             break;
         }
@@ -113,17 +113,17 @@ std::string Class::GetPinPrettyName(uint8_t pinIndex) const {
     }
 }
 
-TypeId Class::GetDeclPinTypeId(uint8_t pinIndex) const noexcept {
-    return m_declTypeIds[pinIndex];
+TypeId Class::GetDefaultPinTypeId(uint8_t pinIndex) const noexcept {
+    return m_defaultTypeIds[pinIndex];
 }
 
-bool Class::CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
-    return m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex));
+bool Class::CanConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const {
+    return m_typesConvertStorage->CanConvert(typeId, GetDefaultPinTypeId(pinIndex));
 }
 
-ConvertFunc Class::GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
-    if (m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex))) {
-        return m_typesConvertStorage->GetConvertFunc(typeId, GetDeclPinTypeId(pinIndex));
+ConvertFunc Class::GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const {
+    if (m_typesConvertStorage->CanConvert(typeId, GetDefaultPinTypeId(pinIndex))) {
+        return m_typesConvertStorage->GetConvertFunc(typeId, GetDefaultPinTypeId(pinIndex));
     }
 
     return nullptr;
@@ -176,18 +176,24 @@ bool Class::CheckIsClassTypeValid(void* instanceType) const {
 
 void Class::NewInstance(void*& instance, void*& instanceType) {
     instance = m_metaClass->createInstance();
+    if (m_classType != nullptr) {
+        instanceType = m_classType->NewInstance();
+    } else {
+        instanceType = nullptr;
+    }
+
     if (m_defaults == nullptr) {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
             // inside the value is completely copied
             m_defaults[i] = m_props[i]->get(instance);
         }
-    }
 
-    if (m_classType != nullptr) {
-        instanceType = m_classType->NewInstance();
-    } else {
-        instanceType = nullptr;
+        for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); ++i) {
+            if (m_defaultTypeIds[i] == TypeId::UniversalType) {
+                m_defaultTypeIds[i] = m_classType->GetDefaultType(i);
+            }
+        }
     }
 }
 
@@ -221,8 +227,8 @@ void Class::CheckIsValidUniversalPinIndex(uint8_t pinIndex, bool inputPinNeed) {
     if (m_classType == nullptr) {
         throw EngineError("class does not contain universal types");
     }
-    if (GetDeclPinTypeId(pinIndex) != TypeId::UniversalType) {
-        throw EngineError("pinIndex = {} - invalid, operation is only available for pins with type = UniversalType", pinIndex);
+    if (!HasUniversalBit(GetDefaultPinTypeId(pinIndex))) {
+        throw EngineError("pinIndex = {} - invalid, operation is only available for pins with universal type", pinIndex);
     }
     if (inputPinNeed) {
         uint8_t minIndex = m_countEmbeddedPins;

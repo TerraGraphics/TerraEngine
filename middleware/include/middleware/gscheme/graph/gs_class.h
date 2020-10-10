@@ -40,15 +40,15 @@ public:
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
-    TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
-    bool CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
+    TypeId GetDefaultPinTypeId(uint8_t pinIndex) const noexcept;
+    bool CanConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
     // will return nullptr if convertation is not possible
-    ConvertFunc GetFuncConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
-    // valid only for input pins with decl type = UniversalType, typeId should bу concrete universal type
+    ConvertFunc GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
+    // valid only for input pins universal default type, typeId should bу concrete universal type
     void SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId);
-    // valid only for input pins with decl type = UniversalType
+    // valid only for input pins with universal default type
     void ResetUniversalPinTypeToDefault(uint8_t pinIndex, void* instanceType);
-    // valid only for output pins with decl type = UniversalType
+    // valid only for output pins with universal default type
     TypeId GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType);
 
     bool CheckIsClassTypeValid(void* instanceType) const;
@@ -70,7 +70,7 @@ private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
-    TypeId* m_declTypeIds = nullptr;
+    TypeId* m_defaultTypeIds = nullptr;
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
