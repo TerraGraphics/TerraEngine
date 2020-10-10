@@ -179,6 +179,7 @@ void Class::NewInstance(void*& instance, void*& instanceType) {
     if (m_defaults == nullptr) {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
+            // inside the value is completely copied
             m_defaults[i] = m_props[i]->get(instance);
         }
     }
@@ -200,6 +201,7 @@ void Class::DeleteInstance(void* instance, void* instanceType) {
 }
 
 cpgf::GVariant Class::GetValue(uint8_t pinIndex, const void* instance) const {
+    // inside the value is completely copied
     return m_props[pinIndex]->get(instance);
 }
 

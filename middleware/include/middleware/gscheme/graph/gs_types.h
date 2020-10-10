@@ -52,12 +52,10 @@ template <typename T> inline constexpr bool IsStd = IsInt8<T> || IsUint8<T> || I
     IsInt32<T> || IsUint32<T> || IsInt64<T> || IsUint64<T> || IsFloat<T> || IsDouble<T> || IsString<T>;
 template <typename T> inline constexpr bool IsVector = IsVector2f<T> || IsVector3f<T> || IsVector4f<T>;
 template <typename T> inline constexpr bool IsGenerator = IsGenerator2d<T> || IsGenerator3d<T>;
-template <typename T> inline constexpr bool IsUniversalTypeCompatible = IsFloat<T> || IsVector<T> || IsGenerator<T> || IsUniversalType<T>;
-template <typename T> inline constexpr bool IsGsType = IsInt8<T> || IsUint8<T> || IsInt16<T> || IsUint16<T> || IsInt32<T> || IsUint32<T> ||
-    IsInt64<T> || IsUint64<T> || IsDouble<T> || IsString<T> || IsUniversalTypeCompatible<T>;
+template <typename T> inline constexpr bool IsGsType = IsStd<T> || IsVector<T> || IsGenerator<T> || IsUniversalType<T>;
 
 template <typename T> inline constexpr bool IsEmbedded = IsStd<T> || IsVector<T>;
-template <typename T> inline constexpr bool IsInput = IsUniversalTypeCompatible<T>;
+template <typename T> inline constexpr bool IsInput = IsFloat<T> || IsVector<T> || IsGenerator<T>;
 
 template<typename T, typename Enable = std::enable_if_t<IsGsType<T>>>
     constexpr TypeId GetTypeId() {
