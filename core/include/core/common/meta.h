@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <variant>
 #include <typeinfo>
 #include <type_traits>
 
@@ -42,5 +43,28 @@ template <typename T>
 
 template <typename T>
   inline constexpr bool IsArrayLikeV = IsArrayLike<T>::value;
+
+template <typename ...>
+    struct IsVariant : std::false_type {};
+
+template<typename ...T>
+    struct IsVariant<std::variant<T...>> : std::true_type {};
+
+template <typename T>
+  inline constexpr bool IsVariantV = IsVariant<T>::value;
+
+template <typename Function>
+    struct MemberFuncReturnType;
+
+template <typename R, class Class>
+    struct MemberFuncReturnType<R (Class::*)(void)> {
+        using type = std::remove_cvref_t<R>;
+    };
+
+template<auto... Args>
+    struct IsSorted : std::true_type {};
+
+template<auto A, auto B, auto... Args>
+    struct IsSorted<A, B, Args...> : std::integral_constant<bool, ((A < B) && IsSorted<B, Args...>::value)> {};
 
 }
