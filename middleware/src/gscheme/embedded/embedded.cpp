@@ -2,7 +2,6 @@
 
 #include "cpgf/metadefine.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
-#include "middleware/gscheme/embedded/func_sum.h"
 #include "middleware/gscheme/embedded/func_add.h"
 #include "middleware/gscheme/embedded/func_constant.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
@@ -77,17 +76,5 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         ._property("B", &TypeAdd::GetB, &TypeAdd::SetB)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)
         ._method(MetaNames::METHOD_IS_VALID, &TypeAdd::IsValid)
-    ;
-
-    GDefineMetaClass<FuncSum>
-        ::define("Sum")
-            ._annotation(MetaNames::CLASS)._element(MetaNames::PRETTY_NAME, "Sum")
-        ._constructor<void * ()>()
-        ._property("Result", &FuncSum::Result, 0)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::PRETTY_NAME, "Result")
-        ._property("A", &FuncSum::GetA, &FuncSum::SetA)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::PRETTY_NAME, "A")
-        ._property("B", &FuncSum::GetB, &FuncSum::SetB)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::PRETTY_NAME, "B")
     ;
 }

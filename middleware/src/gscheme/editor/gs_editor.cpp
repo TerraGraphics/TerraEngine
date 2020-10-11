@@ -41,7 +41,7 @@ Editor::~Editor() {
 void Editor::Create() {
     m_config->SettingsFile = "";
     m_context = ne::CreateEditor(m_config);
-    m_graph->AddNode("Sum");
+    m_graph->AddNode("Add");
     m_graph->AddNode("Constant");
 }
 
