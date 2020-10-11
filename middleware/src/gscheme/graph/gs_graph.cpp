@@ -322,7 +322,7 @@ void Graph::SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, Ty
     const TypeId pinType = m_nodes[nodeIndex].GetPinType(pinIndex);
     if (pinType != typeId) {
         throw EngineError(
-            "gs::Graph::SetEmbeddedValue: wrong value type = {}, it is not the same as the declared type = {}", typeId, pinType);
+            "gs::Graph::SetEmbeddedValue: wrong value type = {}, it is not the same as the default type = {}", typeId, pinType);
     }
 
     m_nodes[nodeIndex].SetValue(pinIndex, value);
@@ -351,9 +351,9 @@ void Graph::SetInputValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeI
     if (m_nodes[nodeIndex].IsConnectedPin(pinIndex)) {
         throw EngineError("gs::Graph::SetInputValue: wrong pinId = {}, pin is connected", pinId);
     }
-    if (pinType != typeId) {
+    if (ToBaseTypeId(pinType) != typeId) {
         throw EngineError(
-            "gs::Graph::SetInputValue: wrong value type = {}, it is not the same as the declared type = {}", typeId, pinType);
+            "gs::Graph::SetInputValue: wrong value type = {}, it is not the same as the default type = {}", typeId, pinType);
     }
 
     m_nodes[nodeIndex].SetValue(pinIndex, value);
