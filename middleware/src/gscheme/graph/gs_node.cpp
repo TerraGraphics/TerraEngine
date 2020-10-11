@@ -480,10 +480,29 @@ void Node::DrawGraph(IDraw* drawer) {
 
 void Node::DrawNodeProperty(IDraw* drawer) {
     drawer->OnDrawEditingHeader(m_class->GetPrettyName());
-    // all embedded and input pins
-    for (uint8_t i=EmbeddedPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+
+    for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         auto value = m_class->GetValue(i, m_instance);
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), IsConnectedPin(i), m_class->GetPinTypeId(i), value);
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), false, GetPinType(i), value);
+        if (result == IDraw::EditResult::Changed) {
+            SetValue(i, value);
+        } else if (result == IDraw::EditResult::ResetToDefault) {
+            ResetToDefault(i);
+        }
+    }
+    for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        cpgf::GVariant value = m_class->GetValue(i, m_instance);
+        if (IsUniversalTypeFromPinId(m_pins[i].id)) {
+            value = std::visit([](auto&& v) -> auto {
+                return cpgf::copyVariantFromCopyable(v);
+            }, cpgf::fromVariant<UniversalType>(value));
+        }
+
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), IsConnectedPin(i), ToBaseTypeId(GetPinType(i)), value);
+        if ((result != IDraw::EditResult::NotChanged) && IsConnectedPin(i)) {
+            throw EngineError("gs::Node::DrawNodeProperty: trying to change the connected pin (pinId = {})", m_pins[i].id);
+        }
+
         if (result == IDraw::EditResult::Changed) {
             SetValue(i, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
