@@ -113,17 +113,25 @@ std::string Class::GetPinPrettyName(uint8_t pinIndex) const {
     }
 }
 
+TypeId Class::GetDeclPinTypeId(uint8_t pinIndex) const noexcept {
+    if (HasUniversalBit(m_defaultTypeIds[pinIndex])) {
+        return TypeId::UniversalType;
+    }
+
+    return m_defaultTypeIds[pinIndex];
+}
+
 TypeId Class::GetDefaultPinTypeId(uint8_t pinIndex) const noexcept {
     return m_defaultTypeIds[pinIndex];
 }
 
 bool Class::CanConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const {
-    return m_typesConvertStorage->CanConvert(typeId, GetDefaultPinTypeId(pinIndex));
+    return m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex));
 }
 
 ConvertFunc Class::GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const {
-    if (m_typesConvertStorage->CanConvert(typeId, GetDefaultPinTypeId(pinIndex))) {
-        return m_typesConvertStorage->GetConvertFunc(typeId, GetDefaultPinTypeId(pinIndex));
+    if (m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex))) {
+        return m_typesConvertStorage->GetConvertFunc(typeId, GetDeclPinTypeId(pinIndex));
     }
 
     return nullptr;

@@ -108,11 +108,7 @@ void Node::Reset(uint16_t nextIndex) {
 }
 
 bool Node::CheckConvert(uint8_t inputPinIndex, TypeId attachedPinType) const {
-    if (IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
-        return true;
-    }
-
-    if (m_class->GetDefaultPinTypeId(inputPinIndex) == attachedPinType) {
+    if (!NeedConvertFunc(inputPinIndex, attachedPinType)) {
         return true;
     }
 
@@ -282,7 +278,7 @@ uint16_t Node::UpdateState(Node* nodes) {
                 const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
                 if (pin.convertFunc != nullptr) {
                     m_class->SetValue(inputPinIndex, m_instance, pin.convertFunc(value));
-                } else if (m_isValid || IsUniversalTypeFromPinId(pin.id) || (m_class->GetDefaultPinTypeId(inputPinIndex) == pin.typeId)) {
+                } else if (m_isValid || !NeedConvertFunc(inputPinIndex, pin.typeId)) {
                     m_class->SetValue(inputPinIndex, m_instance, value);
                 }
             }
@@ -312,11 +308,12 @@ uint16_t Node::UpdateTypes(Node* nodes) {
 
         Pin& pin = m_pins[inputPinIndex];
         const TypeId typeId = GetPinType(inputPinIndex);
-        const TypeId defaultTypeId = m_class->GetDefaultPinTypeId(inputPinIndex);
-        const bool isUniversalPinType = IsUniversalTypeFromPinId(pin.id);
         const TypeId attachedTypeId = nodes[NodeIndexFromPinId(attachedPinID)].GetPinType(inputPinIndex);
+        if (IsUniversalTypeFromPinId(pin.id)) {
+            isExistsUniversalTypes = true;
+        }
         if (attachedTypeId == typeId) {
-            if ((pin.convertFunc == nullptr) && !isUniversalPinType && (defaultTypeId != typeId)) {
+            if ((pin.convertFunc == nullptr) && NeedConvertFunc(inputPinIndex, attachedTypeId)) {
                 m_isValid = false;
             }
 
@@ -324,19 +321,16 @@ uint16_t Node::UpdateTypes(Node* nodes) {
         }
 
         pin.typeId = attachedTypeId;
-        if (!isUniversalPinType) {
-            if (defaultTypeId != attachedTypeId) {
-                pin.convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedTypeId);
-                if (pin.convertFunc == nullptr) {
-                    m_isValid = false;
-                }
+        if (NeedConvertFunc(inputPinIndex, attachedTypeId)) {
+            pin.convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedTypeId);
+            if (pin.convertFunc == nullptr) {
+                m_isValid = false;
             }
-            continue;
         }
 
-        isExistsUniversalTypes = true;
-        pin.convertFunc = nullptr;
-        m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedTypeId));
+        if (IsUniversalTypeFromPinId(pin.id)) {
+            m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedTypeId));
+        }
     }
 
     if (isExistsUniversalTypes) {
@@ -394,6 +388,15 @@ void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
     m_pins[outputPinIndex].linksCount--;
 }
 
+bool Node::NeedConvertFunc(uint8_t inputPinIndex, TypeId attachedPinType) const noexcept {
+    TypeId defaultTypeId = m_class->GetDefaultPinTypeId(inputPinIndex);
+    if (HasUniversalBit(defaultTypeId) && HasUniversalBit(attachedPinType)) {
+        return false;
+    }
+
+    return (defaultTypeId != attachedPinType);
+}
+
 void Node::RecalcOutputTypes() {
     if (m_isValid) {
         for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
@@ -409,24 +412,21 @@ void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinTyp
         return;
     }
     m_pins[inputPinIndex].typeId = attachedPinType;
-
-    if (!IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
-        if (m_class->GetDefaultPinTypeId(inputPinIndex) != attachedPinType) {
-            m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedPinType);
-            if (m_pins[inputPinIndex].convertFunc == nullptr) {
-                m_isValid = false;
-            }
+    if (NeedConvertFunc(inputPinIndex, attachedPinType)) {
+        m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedPinType);
+        if (m_pins[inputPinIndex].convertFunc == nullptr) {
+            m_isValid = false;
         }
-        return;
     }
 
-    m_pins[inputPinIndex].convertFunc = nullptr;
-    m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedPinType));
-    if (!m_class->CheckIsClassTypeValid(m_instanceType)) {
-        m_isValid = false;
-    }
+    if (IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
+        m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedPinType));
+        if (!m_class->CheckIsClassTypeValid(m_instanceType)) {
+            m_isValid = false;
+        }
 
-    RecalcOutputTypes();
+        RecalcOutputTypes();
+    }
 }
 
 void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
@@ -436,10 +436,7 @@ void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
     if (!m_isValid) {
         m_isValid = true;
         for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-            if ((GetAttachedPinId(i) != 0) &&
-                (m_pins[i].convertFunc == nullptr) &&
-                !IsUniversalTypeFromPinId(m_pins[i].id) &&
-                (m_class->GetDefaultPinTypeId(i) != GetPinType(i))) {
+            if ((GetAttachedPinId(i) != 0) && (m_pins[i].convertFunc == nullptr) && NeedConvertFunc(i, m_pins[i].typeId)) {
                 m_isValid = false;
                 break;
             }

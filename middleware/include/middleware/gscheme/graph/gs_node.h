@@ -128,6 +128,7 @@ public:
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
 private:
+    bool NeedConvertFunc(uint8_t inputPinIndex, TypeId attachedPinType) const noexcept;
     void RecalcOutputTypes();
     void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType);
     void DetachFromInputPinCalcType(uint8_t inputPinIndex);

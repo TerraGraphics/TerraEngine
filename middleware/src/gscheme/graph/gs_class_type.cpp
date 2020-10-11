@@ -88,8 +88,8 @@ std::string_view ClassType::GetPinName(uint8_t pinIndex) const {
 void* ClassType::NewInstance() {
     void* instance = m_metaClass->getConstructorAt(0)->invoke(m_typesConvertStorage);
     if (m_defaults == nullptr) {
-        m_defaults = new TypeId[m_countEmbeddedPins + m_countInputPins];
-        for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
+        m_defaults = new TypeId[m_countEmbeddedPins + m_countInputPins + m_countOutputPins];
+        for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); ++i) {
             m_defaults[i] = GetType(i, instance);
         }
     }

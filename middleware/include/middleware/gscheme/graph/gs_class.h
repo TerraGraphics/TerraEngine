@@ -41,6 +41,7 @@ public:
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
     TypeId GetDefaultPinTypeId(uint8_t pinIndex) const noexcept;
+    TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
     bool CanConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
     // will return nullptr if convertation is not possible
     ConvertFunc GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
