@@ -14,6 +14,13 @@
     ASSERT_FLOAT_EQ(expected, std::get<float>(cpgf::fromVariant<gs::UniversalType>(tmpFloatValue))); \
     } while(false)
 
+#define ASSERT_VARIANT_VECTOR2F(expected, actual) do { \
+    const auto& tmpVec2fValue = actual; \
+    ASSERT_FALSE(tmpVec2fValue.isEmpty()); \
+    ASSERT_TRUE(cpgf::canFromVariant<gs::UniversalType>(tmpVec2fValue)); \
+    ASSERT_EQ(expected, std::get<Eigen::Vector2f>(cpgf::fromVariant<gs::UniversalType>(tmpVec2fValue))); \
+    } while(false)
+
 namespace {
 
 class GSGraphSuite : public ::testing::Test {
@@ -164,6 +171,36 @@ TEST_F(GSGraphSuite, ChangeInputPins) {
     graph.RemoveLink(link1);
     graph.UpdateState();
     ASSERT_VARIANT_FLOAT(0.f, graph.GetOutputValue(nodeAddId, 0));
+}
+
+TEST_F(GSGraphSuite, HeterogeneousGraph) {
+    gs::Graph graph(m_classStorage, 16);
+
+    uint16_t constantId1 = graph.AddNode("Constant");
+    uint16_t constantId2 = graph.AddNode("Constant2");
+    uint16_t constantId3 = graph.AddNode("Constant3");
+    uint16_t addId = graph.AddNode("Add");
+
+    graph.AddLink(constantId1, 0, addId, 0);
+    graph.UpdateState();
+
+    graph.AddLink(constantId2, 0, addId, 1);
+    graph.UpdateState();
+
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(0, 0), graph.GetOutputValue(addId, 0));
+
+    graph.SetEmbeddedValue(constantId1, 0, 1.f);
+    graph.SetEmbeddedValue(constantId2, 0, Eigen::Vector2f(2.f, 2.f));
+    graph.UpdateState();
+
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 3.f), graph.GetOutputValue(addId, 0));
+
+    // Invalid link
+    graph.AddLink(constantId3, 0, addId, 0);
+    graph.UpdateState();
+
+    // value from cache
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 3.f), graph.GetOutputValue(addId, 0));
 }
 
 TEST_F(GSGraphSuite, SetInvalidTypeForInputPins) {
