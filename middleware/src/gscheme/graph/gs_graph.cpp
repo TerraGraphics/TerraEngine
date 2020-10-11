@@ -491,7 +491,7 @@ void Graph::CheckAddLink(uint32_t srcPinId, uint32_t dstPinId) const {
             "wrong link from srcPinId = {} to dstPinId = {}, link already exist", srcPinId, dstPinId);
     }
 
-    if (!m_nodes[dstNodeId - 1].CanConvertToDeclType(dstPinIndex, m_nodes[srcNodeId - 1].GetPinType(srcPinIndex))) {
+    if (!m_nodes[dstNodeId - 1].CheckConvert(dstPinIndex, m_nodes[srcNodeId - 1].GetPinType(srcPinIndex))) {
         throw EngineError(
             "wrong link from srcPinId = {} to dstPinId = {}, types are not compatible", srcPinId, dstPinId);
     }

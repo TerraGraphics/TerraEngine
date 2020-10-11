@@ -22,7 +22,7 @@ struct Pin : Fixed {
         uint32_t linksCount;
     };
 
-    // convert attached type to decl type
+    // convert attached type to pin type
     ConvertFunc convertFunc = nullptr;
 
     // for output pins: real type
@@ -66,7 +66,7 @@ public:
     TypeId GetPinType(uint8_t pinIndex) const noexcept { return m_pins[pinIndex].typeId; }
 
     // valid for input pins
-    bool CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const;
+    bool CheckConvert(uint8_t inputPinIndex, TypeId attachedPinType) const;
 
 public:
     uint32_t GetEmbeddedPinId(uint8_t offset) const noexcept;

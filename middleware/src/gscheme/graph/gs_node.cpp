@@ -60,23 +60,24 @@ void Node::Create(Class* cls) {
     constexpr const uint32_t isUniversalTypeFlag = 4;
     uint32_t baseID = static_cast<uint32_t>(m_id) << uint32_t(16);
 
+    for(uint8_t i=AllPinsBeginIndex(); i!=AllPinsEndIndex(); ++i) {
+        m_pins[i].typeId = m_class->GetDefaultPinTypeId(i);
+        m_pins[i].convertFunc = nullptr;
+    }
+
     uint32_t typePin = 3; // embeded
     for(uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
-        m_pins[i].typeId = m_class->GetDeclPinTypeId(i);
-        m_pins[i].convertFunc = nullptr;
     }
 
     typePin = 1; // input
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].attachedPinID = 0;
-        m_pins[i].typeId = m_class->GetDeclPinTypeId(i);
-        if (m_pins[i].typeId == TypeId::UniversalType) {
+        if (HasUniversalBit(m_pins[i].typeId)) {
             m_pins[i].id |= isUniversalTypeFlag;
         }
-        m_pins[i].convertFunc = nullptr;
     }
 
     typePin = 0; // output
@@ -84,14 +85,9 @@ void Node::Create(Class* cls) {
         m_pins[i].id = baseID | (static_cast<uint32_t>(i) << uint32_t(8)) | typePin;
         m_pins[i].linksCount = 0;
         m_pins[i].cachedValue = m_class->GetValue(i, m_instance);
-        auto declTypeId = m_class->GetDeclPinTypeId(i);
-        if (declTypeId == TypeId::UniversalType) {
+        if (HasUniversalBit(m_pins[i].typeId)) {
             m_pins[i].id |= isUniversalTypeFlag;
-            m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
-        } else {
-            m_pins[i].typeId = declTypeId;
         }
-        m_pins[i].convertFunc = nullptr;
     }
 }
 
@@ -111,8 +107,16 @@ void Node::Reset(uint16_t nextIndex) {
     }
 }
 
-bool Node::CanConvertToDeclType(uint8_t pinIndex, TypeId typeId) const {
-    return m_class->CanConvertToDeclType(pinIndex, typeId);
+bool Node::CheckConvert(uint8_t inputPinIndex, TypeId attachedPinType) const {
+    if (IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
+        return true;
+    }
+
+    if (m_class->GetDefaultPinTypeId(inputPinIndex) == attachedPinType) {
+        return true;
+    }
+
+    return m_class->CanConvertToDefaultType(inputPinIndex, attachedPinType);
 }
 
 uint32_t Node::GetEmbeddedPinId(uint8_t offset) const noexcept {
@@ -273,20 +277,19 @@ uint16_t Node::UpdateState(Node* nodes) {
         if (attachedPinId != 0) {
             const uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
             if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
-                isChanged = true;
-                if (m_isValid) {
-                    const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
-                    if (m_pins[inputPinIndex].convertFunc != nullptr) {
-                        m_class->SetValue(inputPinIndex, m_instance, m_pins[inputPinIndex].convertFunc(value));
-                    } else {
-                        m_class->SetValue(inputPinIndex, m_instance, value);
-                    }
+                isChanged = m_isValid;
+                Pin& pin = m_pins[inputPinIndex];
+                const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
+                if (pin.convertFunc != nullptr) {
+                    m_class->SetValue(inputPinIndex, m_instance, pin.convertFunc(value));
+                } else if (m_isValid || IsUniversalTypeFromPinId(pin.id) || (m_class->GetDefaultPinTypeId(inputPinIndex) == pin.typeId)) {
+                    m_class->SetValue(inputPinIndex, m_instance, value);
                 }
             }
         }
     }
 
-    if (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs)) {
+    if (m_isValid && (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs))) {
         for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
             isChanged = true;
             m_pins[outputPinIndex].cachedValue = m_class->GetValue(outputPinIndex, m_instance);
@@ -307,22 +310,24 @@ uint16_t Node::UpdateTypes(Node* nodes) {
             continue;
         }
 
+        Pin& pin = m_pins[inputPinIndex];
         const TypeId typeId = GetPinType(inputPinIndex);
-        const TypeId declTypeId = m_class->GetDeclPinTypeId(inputPinIndex);
+        const TypeId defaultTypeId = m_class->GetDefaultPinTypeId(inputPinIndex);
+        const bool isUniversalPinType = IsUniversalTypeFromPinId(pin.id);
         const TypeId attachedTypeId = nodes[NodeIndexFromPinId(attachedPinID)].GetPinType(inputPinIndex);
         if (attachedTypeId == typeId) {
-            if ((m_pins[inputPinIndex].convertFunc == nullptr) && (declTypeId != typeId)) {
+            if ((pin.convertFunc == nullptr) && !isUniversalPinType && (defaultTypeId != typeId)) {
                 m_isValid = false;
             }
 
             continue;
         }
 
-        m_pins[inputPinIndex].typeId = attachedTypeId;
-        if (!IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
-            if (declTypeId != attachedTypeId) {
-                m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedTypeId);
-                if (m_pins[inputPinIndex].convertFunc == nullptr) {
+        pin.typeId = attachedTypeId;
+        if (!isUniversalPinType) {
+            if (defaultTypeId != attachedTypeId) {
+                pin.convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedTypeId);
+                if (pin.convertFunc == nullptr) {
                     m_isValid = false;
                 }
             }
@@ -330,11 +335,7 @@ uint16_t Node::UpdateTypes(Node* nodes) {
         }
 
         isExistsUniversalTypes = true;
-        m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedTypeId);
-        if (m_pins[inputPinIndex].convertFunc == nullptr) {
-            m_isValid = false;
-        }
-
+        pin.convertFunc = nullptr;
         m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedTypeId));
     }
 
@@ -410,9 +411,8 @@ void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinTyp
     m_pins[inputPinIndex].typeId = attachedPinType;
 
     if (!IsUniversalTypeFromPinId(m_pins[inputPinIndex].id)) {
-        TypeId declTypeId = m_class->GetDeclPinTypeId(inputPinIndex);
-        if (declTypeId != attachedPinType) {
-            m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedPinType);
+        if (m_class->GetDefaultPinTypeId(inputPinIndex) != attachedPinType) {
+            m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedPinType);
             if (m_pins[inputPinIndex].convertFunc == nullptr) {
                 m_isValid = false;
             }
@@ -420,11 +420,7 @@ void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinTyp
         return;
     }
 
-    m_pins[inputPinIndex].convertFunc = m_class->GetFuncConvertToDeclType(inputPinIndex, attachedPinType);
-    if (m_pins[inputPinIndex].convertFunc == nullptr) {
-        m_isValid = false;
-    }
-
+    m_pins[inputPinIndex].convertFunc = nullptr;
     m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedPinType));
     if (!m_class->CheckIsClassTypeValid(m_instanceType)) {
         m_isValid = false;
@@ -434,12 +430,16 @@ void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinTyp
 }
 
 void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
-    m_pins[inputPinIndex].typeId = m_class->GetDeclPinTypeId(inputPinIndex);
+    m_pins[inputPinIndex].typeId = m_class->GetDefaultPinTypeId(inputPinIndex);
     m_pins[inputPinIndex].convertFunc = nullptr;
+
     if (!m_isValid) {
         m_isValid = true;
         for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-            if ((GetAttachedPinId(i) != 0) && (m_pins[i].convertFunc == nullptr) && (m_class->GetDeclPinTypeId(i) != GetPinType(i))) {
+            if ((GetAttachedPinId(i) != 0) &&
+                (m_pins[i].convertFunc == nullptr) &&
+                !IsUniversalTypeFromPinId(m_pins[i].id) &&
+                (m_class->GetDefaultPinTypeId(i) != GetPinType(i))) {
                 m_isValid = false;
                 break;
             }
