@@ -7,11 +7,11 @@
 #include "middleware/gscheme/graph/gs_class_storage.h"
 
 
-#define ASSERT_FLOAT(expected, actual) do { \
+#define ASSERT_VARIANT_FLOAT(expected, actual) do { \
     const auto& tmpFloatValue = actual; \
     ASSERT_FALSE(tmpFloatValue.isEmpty()); \
-    ASSERT_TRUE(cpgf::canFromVariant<float>(tmpFloatValue)); \
-    ASSERT_FLOAT_EQ(expected, cpgf::fromVariant<float>(tmpFloatValue)); \
+    ASSERT_TRUE(cpgf::canFromVariant<gs::UniversalType>(tmpFloatValue)); \
+    ASSERT_FLOAT_EQ(expected, std::get<float>(cpgf::fromVariant<gs::UniversalType>(tmpFloatValue))); \
     } while(false)
 
 namespace {
@@ -32,31 +32,48 @@ TEST_F(GSGraphSuite, DoubleRemoveNode) {
     gs::Graph graph(m_classStorage, 16);
 
     uint16_t nodeId = graph.AddNode("Constant");
+    ASSERT_EQ(1, graph.CountNodes());
+
+    ASSERT_TRUE(graph.TestRemoveNode(nodeId));
     graph.RemoveNode(nodeId);
     ASSERT_EQ(0, graph.CountNodes());
 
+    ASSERT_FALSE(graph.TestRemoveNode(nodeId));
     ASSERT_ANY_THROW(graph.RemoveNode(nodeId));
+    ASSERT_EQ(0, graph.CountNodes());
+
+    ASSERT_FALSE(graph.TestRemoveNode(10000));
     ASSERT_ANY_THROW(graph.RemoveNode(10000));
+    ASSERT_EQ(0, graph.CountNodes());
 }
 
 TEST_F(GSGraphSuite, DoubleAddLink) {
     gs::Graph graph(m_classStorage, 16);
 
     uint16_t constantId = graph.AddNode("Constant");
-    uint16_t sumId = graph.AddNode("Sum");
-    graph.AddLink(constantId, 0, sumId, 0);
-    ASSERT_ANY_THROW(graph.AddLink(constantId, 0, sumId, 0));
+    uint16_t addId = graph.AddNode("Add");
+
+    ASSERT_TRUE(graph.TestAddLink(constantId, 0, addId, 0));
+    graph.AddLink(constantId, 0, addId, 0);
+
+    ASSERT_FALSE(graph.TestAddLink(constantId, 0, addId, 0));
+    ASSERT_ANY_THROW(graph.AddLink(constantId, 0, addId, 0));
 }
 
 TEST_F(GSGraphSuite, DoubleRemoveLink) {
     gs::Graph graph(m_classStorage, 16);
 
     uint16_t constantId = graph.AddNode("Constant");
-    uint16_t sumId = graph.AddNode("Sum");
-    uint64_t linkId = graph.AddLink(constantId, 0, sumId, 0);
+    uint16_t addId = graph.AddNode("Add");
+    uint64_t linkId = graph.AddLink(constantId, 0, addId, 0);
 
+    ASSERT_TRUE(graph.TestRemoveLink(linkId));
     graph.RemoveLink(linkId);
+
+    ASSERT_FALSE(graph.TestRemoveLink(linkId));
     ASSERT_ANY_THROW(graph.RemoveLink(linkId));
+
+    ASSERT_FALSE(graph.TestRemoveLink(100000));
     ASSERT_ANY_THROW(graph.RemoveLink(100000));
 }
 
@@ -69,14 +86,16 @@ TEST_F(GSGraphSuite, ReplaceLink) {
     uint16_t constantId2 = graph.AddNode("Constant");
     graph.SetEmbeddedValue(constantId2, 0, 2.f);
 
-    uint16_t sumId = graph.AddNode("Sum");
-    graph.AddLink(constantId1, 0, sumId, 0);
+    uint16_t addId = graph.AddNode("Add");
+    ASSERT_TRUE(graph.TestAddLink(constantId1, 0, addId, 0));
+    graph.AddLink(constantId1, 0, addId, 0);
     graph.UpdateState();
-    ASSERT_FLOAT(1.f, graph.GetOutputValue(sumId, 0));
+    ASSERT_VARIANT_FLOAT(1.f, graph.GetOutputValue(addId, 0));
 
-    graph.AddLink(constantId2, 0, sumId, 0);
+    ASSERT_TRUE(graph.TestAddLink(constantId2, 0, addId, 0));
+    graph.AddLink(constantId2, 0, addId, 0);
     graph.UpdateState();
-    ASSERT_FLOAT(2.f, graph.GetOutputValue(sumId, 0));
+    ASSERT_VARIANT_FLOAT(2.f, graph.GetOutputValue(addId, 0));
 }
 
 TEST_F(GSGraphSuite, ChangeEmbeddedPins) {
@@ -85,11 +104,19 @@ TEST_F(GSGraphSuite, ChangeEmbeddedPins) {
     uint16_t nodeId = graph.AddNode("Constant");
 
     graph.UpdateState();
-    ASSERT_FLOAT(0, graph.GetOutputValue(nodeId, 0));
+    ASSERT_VARIANT_FLOAT(0, graph.GetOutputValue(nodeId, 0));
 
     graph.SetEmbeddedValue(nodeId, 0, 1.f);
     graph.UpdateState();
-    ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeId, 0));
+    ASSERT_VARIANT_FLOAT(1.f, graph.GetOutputValue(nodeId, 0));
+}
+
+TEST_F(GSGraphSuite, SetInvalidTypeForEmbeddedPins) {
+    gs::Graph graph(m_classStorage, 16);
+
+    uint16_t nodeId = graph.AddNode("Constant");
+    ASSERT_ANY_THROW(graph.SetEmbeddedValue(nodeId, 0, uint32_t(1)));
+    ASSERT_ANY_THROW(graph.SetEmbeddedValue(nodeId, 0, Eigen::Vector2f(1.f, 2.f)));
 }
 
 TEST_F(GSGraphSuite, ChangeInvalidEmbeddedPins) {
@@ -98,45 +125,53 @@ TEST_F(GSGraphSuite, ChangeInvalidEmbeddedPins) {
     uint16_t constantId = graph.AddNode("Constant");
     ASSERT_ANY_THROW(graph.SetEmbeddedValue(constantId, 10, 1.f));
 
-    uint16_t nodeSumId = graph.AddNode("Sum");
-    ASSERT_ANY_THROW(graph.SetEmbeddedValue(nodeSumId, 0, 1.f));
+    uint16_t nodeAddId = graph.AddNode("Add");
+    ASSERT_ANY_THROW(graph.SetEmbeddedValue(nodeAddId, 0, 1.f));
 }
 
 TEST_F(GSGraphSuite, ChangeInputPins) {
     gs::Graph graph(m_classStorage, 16);
 
-    uint16_t nodeSumId = graph.AddNode("Sum");
+    uint16_t nodeAddId = graph.AddNode("Add");
 
     graph.UpdateState();
-    ASSERT_FLOAT(0, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(0, graph.GetOutputValue(nodeAddId, 0));
 
-    graph.SetInputValue(nodeSumId, 0, 1.f);
+    graph.SetInputValue(nodeAddId, 0, 1.f);
     graph.UpdateState();
-    ASSERT_FLOAT(1.f, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(1.f, graph.GetOutputValue(nodeAddId, 0));
 
-    graph.SetInputValue(nodeSumId, 1, 2.f);
+    graph.SetInputValue(nodeAddId, 1, 2.f);
     graph.UpdateState();
-    ASSERT_FLOAT(3.f, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(3.f, graph.GetOutputValue(nodeAddId, 0));
 
     uint16_t nodeConstantId1 = graph.AddNode("Constant");
     graph.SetEmbeddedValue(nodeConstantId1, 0, 10.f);
-    uint64_t link1 = graph.AddLink(nodeConstantId1, 0, nodeSumId, 0);
+    uint64_t link1 = graph.AddLink(nodeConstantId1, 0, nodeAddId, 0);
     graph.UpdateState();
-    ASSERT_FLOAT(12.f, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(12.f, graph.GetOutputValue(nodeAddId, 0));
 
     uint16_t nodeConstantId2 = graph.AddNode("Constant");
     graph.SetEmbeddedValue(nodeConstantId2, 0, 20.f);
-    uint64_t link2 = graph.AddLink(nodeConstantId2, 0, nodeSumId, 1);
+    uint64_t link2 = graph.AddLink(nodeConstantId2, 0, nodeAddId, 1);
     graph.UpdateState();
-    ASSERT_FLOAT(30.f, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(30.f, graph.GetOutputValue(nodeAddId, 0));
 
     graph.RemoveLink(link2);
     graph.UpdateState();
-    ASSERT_FLOAT(10.f, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(10.f, graph.GetOutputValue(nodeAddId, 0));
 
     graph.RemoveLink(link1);
     graph.UpdateState();
-    ASSERT_FLOAT(0.f, graph.GetOutputValue(nodeSumId, 0));
+    ASSERT_VARIANT_FLOAT(0.f, graph.GetOutputValue(nodeAddId, 0));
+}
+
+TEST_F(GSGraphSuite, SetInvalidTypeForInputPins) {
+    gs::Graph graph(m_classStorage, 16);
+
+    uint16_t nodeAddId = graph.AddNode("Add");
+
+    ASSERT_ANY_THROW(graph.SetInputValue(nodeAddId, 0, Eigen::Vector2f(1.f, 2.f)));
 }
 
 TEST_F(GSGraphSuite, ChangeInvalidInputPins) {
@@ -145,8 +180,8 @@ TEST_F(GSGraphSuite, ChangeInvalidInputPins) {
     uint16_t constantId = graph.AddNode("Constant");
     ASSERT_ANY_THROW(graph.SetInputValue(constantId, 0, 1.f));
 
-    uint16_t nodeSumId = graph.AddNode("Sum");
-    ASSERT_ANY_THROW(graph.SetInputValue(nodeSumId, 10, 1.f));
+    uint16_t nodeAddId = graph.AddNode("Add");
+    ASSERT_ANY_THROW(graph.SetInputValue(nodeAddId, 10, 1.f));
 }
 
 TEST_F(GSGraphSuite, GetInvalidOutputPins) {
@@ -159,28 +194,28 @@ TEST_F(GSGraphSuite, GetInvalidOutputPins) {
 TEST_F(GSGraphSuite, AcyclicityForOneNode) {
     gs::Graph graph(m_classStorage, 16);
 
-    uint16_t nodeSumId1 = graph.AddNode("Sum");
-    ASSERT_ANY_THROW(graph.AddLink(nodeSumId1, 0, nodeSumId1, 0));
+    uint16_t nodeAddId1 = graph.AddNode("Add");
+    ASSERT_ANY_THROW(graph.AddLink(nodeAddId1, 0, nodeAddId1, 0));
 }
 
 TEST_F(GSGraphSuite, AcyclicityForTwoNodes) {
     gs::Graph graph(m_classStorage, 16);
 
-    uint16_t nodeSumId1 = graph.AddNode("Sum");
-    uint16_t nodeSumId2 = graph.AddNode("Sum");
-    graph.AddLink(nodeSumId2, 0, nodeSumId1, 0);
-    ASSERT_ANY_THROW(graph.AddLink(nodeSumId1, 0, nodeSumId2, 0));
+    uint16_t nodeAddId1 = graph.AddNode("Add");
+    uint16_t nodeAddId2 = graph.AddNode("Add");
+    graph.AddLink(nodeAddId2, 0, nodeAddId1, 0);
+    ASSERT_ANY_THROW(graph.AddLink(nodeAddId1, 0, nodeAddId2, 0));
 }
 
 TEST_F(GSGraphSuite, AcyclicityForThreeNodes) {
     gs::Graph graph(m_classStorage, 16);
 
-    uint16_t nodeSumId1 = graph.AddNode("Sum");
-    uint16_t nodeSumId2 = graph.AddNode("Sum");
-    uint16_t nodeSumId3 = graph.AddNode("Sum");
-    graph.AddLink(nodeSumId2, 0, nodeSumId3, 0);
-    graph.AddLink(nodeSumId3, 0, nodeSumId1, 0);
-    ASSERT_ANY_THROW(graph.AddLink(nodeSumId1, 0, nodeSumId2, 0));
+    uint16_t nodeAddId1 = graph.AddNode("Add");
+    uint16_t nodeAddId2 = graph.AddNode("Add");
+    uint16_t nodeAddId3 = graph.AddNode("Add");
+    graph.AddLink(nodeAddId2, 0, nodeAddId3, 0);
+    graph.AddLink(nodeAddId3, 0, nodeAddId1, 0);
+    ASSERT_ANY_THROW(graph.AddLink(nodeAddId1, 0, nodeAddId2, 0));
 }
 
 }
