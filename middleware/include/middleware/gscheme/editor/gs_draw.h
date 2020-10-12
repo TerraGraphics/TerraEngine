@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <cstdint>
 
 #include "dg/dg.h"
@@ -46,6 +47,13 @@ private:
     math::PointF m_headerMin;
     math::SizeF m_headerSize;
     bool m_existsInputPins;
+
+// cache data
+private:
+    // key = nodeIndex
+    std::vector<uint8_t> m_actualNodes;
+    // key = nodeIndex
+    std::vector<float> m_maxOutputPinNameWidthPerNode;
 
 // persistent data
 private:

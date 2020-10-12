@@ -423,6 +423,14 @@ void Text(std::string_view text) {
     ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
 }
 
+void Text(std::string_view text, float offsetX) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    window->DC.CursorPos.x += offsetX;
+    window->DC.CursorMaxPos.x = ImMax(window->DC.CursorMaxPos.x, window->DC.CursorPos.x);
+
+    ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
+}
+
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol, math::Color borderCol) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {

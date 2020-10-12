@@ -30,9 +30,18 @@ void Draw::OnStartDrawGraph() {
     ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
     ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
     ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
+
+    for (auto& it: m_actualNodes) {
+        it = 0;
+    }
 }
 
 void Draw::OnFinishDrawGraph() {
+    for (size_t i=0; i!=m_actualNodes.size(); ++i) {
+        if (m_actualNodes[i] == 0) {
+            m_maxOutputPinNameWidthPerNode[i] = 0.f;
+        }
+    }
     ne::PopStyleVar(3);
 }
 
@@ -41,6 +50,12 @@ void Draw::OnStartDrawNode(uintptr_t id, const std::string& prettyName) {
     ne::BeginNode(ne::NodeId(id));
     m_nodeId = id;
     m_existsInputPins = false;
+    auto nodeIndex = m_nodeId - 1;
+    if (nodeIndex >= m_actualNodes.size()) {
+        m_actualNodes.resize(nodeIndex + 1, false);
+        m_maxOutputPinNameWidthPerNode.resize(nodeIndex + 1, 0.f);
+    }
+    m_actualNodes[nodeIndex] = 1;
 
     // Header
     gui::BeginGroup();
@@ -119,9 +134,14 @@ void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, const std::st
             gui::Text(prettyName);
         gui::EndGroup();
     } else {
+        auto nodeIndex = m_nodeId - 1;
+        float nameWidth = ImGui::CalcTextSize(prettyName.c_str()).x;
+        float maxNameWidth = std::max(m_maxOutputPinNameWidthPerNode[nodeIndex], nameWidth);
+        m_maxOutputPinNameWidthPerNode[nodeIndex] = maxNameWidth;
+
         gui::BeginGroup();
             gui::Dummy(math::SizeF(0, 1.f));
-            gui::Text(prettyName);
+            gui::Text(prettyName, maxNameWidth - nameWidth);
         gui::EndGroup();
 
         gui::SameLine();
