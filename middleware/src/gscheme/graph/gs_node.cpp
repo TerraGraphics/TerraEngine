@@ -308,7 +308,7 @@ uint16_t Node::UpdateTypes(Node* nodes) {
 
         Pin& pin = m_pins[inputPinIndex];
         const TypeId typeId = GetPinType(inputPinIndex);
-        const TypeId attachedTypeId = nodes[NodeIndexFromPinId(attachedPinID)].GetPinType(inputPinIndex);
+        const TypeId attachedTypeId = nodes[NodeIndexFromPinId(attachedPinID)].GetPinType(PinIndexFromPinId(attachedPinID));
         if (IsUniversalTypeFromPinId(pin.id)) {
             isExistsUniversalTypes = true;
         }

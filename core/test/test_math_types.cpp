@@ -8,7 +8,7 @@
 
 template<typename T> static T PlaneAbsError() {
     if constexpr (std::is_same_v<T, double>) {
-        return 1.e-13;
+        return 1.e-12;
     }
 
     return 1.e-4f;

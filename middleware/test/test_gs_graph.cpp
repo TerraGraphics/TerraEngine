@@ -179,28 +179,41 @@ TEST_F(GSGraphSuite, HeterogeneousGraph) {
     uint16_t constantId1 = graph.AddNode("Constant");
     uint16_t constantId2 = graph.AddNode("Constant2");
     uint16_t constantId3 = graph.AddNode("Constant3");
-    uint16_t addId = graph.AddNode("Add");
+    uint16_t addId1 = graph.AddNode("Add");
+    uint16_t addId2 = graph.AddNode("Add");
 
-    graph.AddLink(constantId1, 0, addId, 0);
+    graph.AddLink(constantId1, 0, addId1, 0);
     graph.UpdateState();
 
-    graph.AddLink(constantId2, 0, addId, 1);
+    graph.AddLink(constantId2, 0, addId1, 1);
     graph.UpdateState();
 
-    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(0, 0), graph.GetOutputValue(addId, 0));
+    graph.AddLink(addId1, 0, addId2, 0);
+    graph.UpdateState();
+
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(0, 0), graph.GetOutputValue(addId1, 0));
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(0, 0), graph.GetOutputValue(addId2, 0));
 
     graph.SetEmbeddedValue(constantId1, 0, 1.f);
-    graph.SetEmbeddedValue(constantId2, 0, Eigen::Vector2f(2.f, 2.f));
+    graph.SetEmbeddedValue(constantId2, 0, Eigen::Vector2f(2.f, 3.f));
+    graph.SetEmbeddedValue(constantId3, 0, Eigen::Vector3f(4.f, 5.f, 6.f));
     graph.UpdateState();
 
-    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 3.f), graph.GetOutputValue(addId, 0));
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 4.f), graph.GetOutputValue(addId1, 0));
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 4.f), graph.GetOutputValue(addId2, 0));
 
     // Invalid link
-    graph.AddLink(constantId3, 0, addId, 0);
+    graph.AddLink(constantId3, 0, addId1, 0);
+    graph.UpdateState();
+
+    // Valid ling
+    graph.AddLink(constantId1, 0, addId2, 1);
     graph.UpdateState();
 
     // value from cache
-    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 3.f), graph.GetOutputValue(addId, 0));
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(3.f, 4.f), graph.GetOutputValue(addId1, 0));
+    // cache + value from new link
+    ASSERT_VARIANT_VECTOR2F(Eigen::Vector2f(4.f, 5.f), graph.GetOutputValue(addId2, 0));
 }
 
 TEST_F(GSGraphSuite, SetInvalidTypeForInputPins) {
