@@ -117,7 +117,7 @@ public:
 
 public:
     const cpgf::GVariant& GetValue(uint8_t pinIndex) const;
-    void SetValue(uint8_t pinIndex, const cpgf::GVariant& value);
+    void SetValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value);
     void ResetToDefault(uint8_t pinIndex);
 
 public:

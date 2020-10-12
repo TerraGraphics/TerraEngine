@@ -32,19 +32,19 @@ public:
 
     template<typename T, typename Enable = std::enable_if_t<IsEmbedded<T>>>
         void SetEmbeddedValue(uint32_t pinId, const T& value) {
-            SetEmbeddedValueImpl(pinId, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+            SetEmbeddedValueImpl(pinId, cpgf::copyVariantFromCopyable(value), GetTypeId<T>());
         }
     template<typename T, typename Enable = std::enable_if_t<IsEmbedded<T>>>
         void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const T& value) {
-            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::copyVariantFromCopyable(value), GetTypeId<T>());
         }
     template<typename T, typename Enable = std::enable_if_t<IsInput<T>>>
         void SetInputValue(uint32_t pinId, const T& value) {
-            SetInputValueImpl(pinId, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+            SetInputValueImpl(pinId, cpgf::copyVariantFromCopyable(value), GetTypeId<T>());
         }
     template<typename T, typename Enable = std::enable_if_t<IsInput<T>>>
         void SetInputValue(uint16_t nodeId, uint8_t inputPinOffset, const T& value) {
-            SetInputValueImpl(nodeId, inputPinOffset, cpgf::createVariant<T>(value, true), GetTypeId<T>());
+            SetInputValueImpl(nodeId, inputPinOffset, cpgf::copyVariantFromCopyable(value), GetTypeId<T>());
         }
 
     uint16_t AddNode(uint16_t classIndex);

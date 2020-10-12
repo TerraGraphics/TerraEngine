@@ -147,7 +147,7 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* 
         isChanded |= gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}");
 
         if (isChanded) {
-            value = tmp;
+            value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else if (typeId == TypeId::Vector2f) {
         if (!prettyName.empty()) {
@@ -159,7 +159,7 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* 
         isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
 
         if (isChanded) {
-            value = tmp;
+            value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else if (typeId == TypeId::Vector3f) {
         if (!prettyName.empty()) {
@@ -172,7 +172,7 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* 
         isChanded |= gui::InputScalar<float>("B", tmp[2], 0.0001f, "{:.4f}");
 
         if (isChanded) {
-            value = tmp;
+            value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else if (typeId == TypeId::Vector4f) {
         if (!prettyName.empty()) {
@@ -186,7 +186,7 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* 
         isChanded |= gui::InputScalar<float>("A", tmp[3], 0.0001f, "{:.4f}");
 
         if (isChanded) {
-            value = tmp;
+            value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else {
         throw EngineError("gs::Draw::OnDrawEditingPin: unknown value type (id = {})", typeId);

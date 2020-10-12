@@ -348,14 +348,35 @@ const cpgf::GVariant& Node::GetValue(uint8_t pinIndex) const {
     return m_pins[pinIndex].cachedValue;
 }
 
-void Node::SetValue(uint8_t pinIndex, const cpgf::GVariant& value) {
+void Node::SetValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value) {
+    if (IsConnectedPin(pinIndex)) {
+        throw EngineError("gs::Node::SetValue: trying to change the connected pin (pinId = {})", m_pins[pinIndex].id);
+    }
+
+    if (ToBaseTypeId(m_pins[pinIndex].typeId) != typeId) {
+        throw EngineError(
+            "gs::Node::SetValue: wrong value type = {}, it is not the same as the default type = {}", typeId, m_pins[pinIndex].typeId);
+    }
+    if (NeedConvertFunc(pinIndex, typeId)) {
+        auto convertFunc = m_class->GetFuncConvertToDefaultType(pinIndex, typeId);
+        if (convertFunc == nullptr) {
+            throw EngineError("gs::Node::SetValue: failed to get convert function (pinId = {}) from type {} to {}",
+                m_pins[pinIndex].id, typeId, m_pins[pinIndex].typeId);
+        }
+        m_class->SetValue(pinIndex, m_instance, convertFunc(value));
+    } else {
+        m_class->SetValue(pinIndex, m_instance, value);
+    }
     m_changeState = ChangeState::NeedUpdateOutputs;
-    m_class->SetValue(pinIndex, m_instance, value);
 }
 
 void Node::ResetToDefault(uint8_t pinIndex) {
-    m_changeState = ChangeState::NeedUpdateOutputs;
+    if (IsConnectedPin(pinIndex)) {
+        throw EngineError("gs::Node::ResetToDefault: trying to change the connected pin (pinId = {})", m_pins[pinIndex].id);
+    }
+
     m_class->ResetToDefault(pinIndex, m_instance);
+    m_changeState = ChangeState::NeedUpdateOutputs;
 }
 
 void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID, TypeId attachedPinType) {
@@ -365,16 +386,16 @@ void Node::AttachToInputPin(uint8_t inputPinIndex, uint32_t attachedPinID, TypeI
 }
 
 void Node::DetachFromInputPin(uint8_t inputPinIndex) {
-    ResetToDefault(inputPinIndex);
     m_pins[inputPinIndex].attachedPinID = 0;
+    ResetToDefault(inputPinIndex);
     DetachFromInputPinCalcType(inputPinIndex);
 }
 
 void Node::DetachFromInputPinIfExists(uint16_t attachedNodeID) {
     for(uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         if (NodeIdFromPinId(GetAttachedPinId(i)) == attachedNodeID) {
-            ResetToDefault(i);
             m_pins[i].attachedPinID = 0;
+            ResetToDefault(i);
             DetachFromInputPinCalcType(i);
         }
     }
@@ -480,9 +501,10 @@ void Node::DrawNodeProperty(IDraw* drawer) {
 
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         auto value = m_class->GetValue(i, m_instance);
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), false, GetPinType(i), value);
+        const TypeId drawTypeId = GetPinType(i);
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), false, drawTypeId, value);
         if (result == IDraw::EditResult::Changed) {
-            SetValue(i, value);
+            SetValue(i, drawTypeId, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
             ResetToDefault(i);
         }
@@ -495,13 +517,10 @@ void Node::DrawNodeProperty(IDraw* drawer) {
             }, cpgf::fromVariant<UniversalType>(value));
         }
 
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), IsConnectedPin(i), ToBaseTypeId(GetPinType(i)), value);
-        if ((result != IDraw::EditResult::NotChanged) && IsConnectedPin(i)) {
-            throw EngineError("gs::Node::DrawNodeProperty: trying to change the connected pin (pinId = {})", m_pins[i].id);
-        }
-
+        const TypeId drawTypeId = ToBaseTypeId(GetPinType(i));
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), IsConnectedPin(i), drawTypeId, value);
         if (result == IDraw::EditResult::Changed) {
-            SetValue(i, value);
+            SetValue(i, drawTypeId, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
             ResetToDefault(i);
         }

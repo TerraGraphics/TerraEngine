@@ -317,15 +317,7 @@ void Graph::SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, Ty
         throw EngineError("gs::Graph::SetEmbeddedValue: wrong pinId, {}", e.what());
     }
 
-    const uint8_t pinIndex = PinIndexFromPinId(pinId);
-    const uint16_t nodeIndex = NodeIndexFromPinId(pinId);
-    const TypeId pinType = m_nodes[nodeIndex].GetPinType(pinIndex);
-    if (pinType != typeId) {
-        throw EngineError(
-            "gs::Graph::SetEmbeddedValue: wrong value type = {}, it is not the same as the default type = {}", typeId, pinType);
-    }
-
-    m_nodes[nodeIndex].SetValue(pinIndex, value);
+    m_nodes[NodeIndexFromPinId(pinId)].SetValue(PinIndexFromPinId(pinId), typeId, value);
 }
 
 void Graph::SetEmbeddedValueImpl(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value, TypeId typeId) {
@@ -345,18 +337,7 @@ void Graph::SetInputValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeI
         throw EngineError("gs::Graph::SetInputValue: wrong pinId, {}", e.what());
     }
 
-    const uint8_t pinIndex = PinIndexFromPinId(pinId);
-    const uint16_t nodeIndex = NodeIndexFromPinId(pinId);
-    const TypeId pinType = m_nodes[nodeIndex].GetPinType(pinIndex);
-    if (m_nodes[nodeIndex].IsConnectedPin(pinIndex)) {
-        throw EngineError("gs::Graph::SetInputValue: wrong pinId = {}, pin is connected", pinId);
-    }
-    if (ToBaseTypeId(pinType) != typeId) {
-        throw EngineError(
-            "gs::Graph::SetInputValue: wrong value type = {}, it is not the same as the default type = {}", typeId, pinType);
-    }
-
-    m_nodes[nodeIndex].SetValue(pinIndex, value);
+    m_nodes[NodeIndexFromPinId(pinId)].SetValue(PinIndexFromPinId(pinId), typeId, value);
 }
 
 void Graph::SetInputValueImpl(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value, TypeId typeId) {
