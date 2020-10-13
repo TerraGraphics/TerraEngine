@@ -39,7 +39,7 @@ void Draw::OnStartDrawGraph() {
 void Draw::OnFinishDrawGraph() {
     for (size_t i=0; i!=m_actualNodes.size(); ++i) {
         if (m_actualNodes[i] == 0) {
-            m_maxOutputPinNameWidthPerNode[i] = 0.f;
+            m_maxOutputPinNameWidthPerNode[i] = 0;
         }
     }
     ne::PopStyleVar(3);
@@ -53,7 +53,7 @@ void Draw::OnStartDrawNode(uintptr_t id, const std::string& prettyName) {
     auto nodeIndex = m_nodeId - 1;
     if (nodeIndex >= m_actualNodes.size()) {
         m_actualNodes.resize(nodeIndex + 1, false);
-        m_maxOutputPinNameWidthPerNode.resize(nodeIndex + 1, 0.f);
+        m_maxOutputPinNameWidthPerNode.resize(nodeIndex + 1, 0);
     }
     m_actualNodes[nodeIndex] = 1;
 
@@ -119,31 +119,30 @@ void Draw::OnFinishDrawOutputPins() {
 }
 
 void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, const std::string& prettyName) {
+    const auto pinsSeparatorSize = uint32_t(10);
     const auto iconSize = math::Size(24, 24);
     const auto pinColor = math::Color(0, 255, 0, m_alpha);
     const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
+
+    const math::Size nameSize = gui::GetTextSize(prettyName);
+    const uint32_t nameOffsetH = (iconSize.h - nameSize.h + 1) / 2;
 
      if (isInput) {
         ne::BeginPin(ne::PinId(id), ne::PinKind::Input);
             gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
         ne::EndPin();
-
         gui::SameLine();
-        gui::BeginGroup();
-            gui::Dummy(math::SizeF(0, 1.f));
-            gui::Text(prettyName);
-        gui::EndGroup();
+        gui::Text(prettyName, math::Size(0, nameOffsetH), true);
     } else {
         auto nodeIndex = m_nodeId - 1;
-        float nameWidth = ImGui::CalcTextSize(prettyName.c_str()).x;
-        float maxNameWidth = std::max(m_maxOutputPinNameWidthPerNode[nodeIndex], nameWidth);
+        uint32_t maxNameWidth = std::max(m_maxOutputPinNameWidthPerNode[nodeIndex], nameSize.w);
         m_maxOutputPinNameWidthPerNode[nodeIndex] = maxNameWidth;
+        uint32_t nameOffsetW = maxNameWidth - nameSize.w;
+        if (m_existsInputPins) {
+            nameOffsetW += pinsSeparatorSize;
+        }
 
-        gui::BeginGroup();
-            gui::Dummy(math::SizeF(0, 1.f));
-            gui::Text(prettyName, maxNameWidth - nameWidth);
-        gui::EndGroup();
-
+        gui::Text(prettyName, math::Size(nameOffsetW, nameOffsetH), true);
         gui::SameLine();
         ne::BeginPin(ne::PinId(id), ne::PinKind::Output);
             gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
