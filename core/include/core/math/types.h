@@ -245,6 +245,7 @@ struct PointT {
 };
 
 using Point = PointT<uint32_t>;
+using PointU = PointT<uint32_t>;
 using PointI = PointT<int32_t>;
 using PointF = PointT<float>;
 using PointD = PointT<double>;
@@ -254,8 +255,9 @@ struct SizeT {
     SizeT() noexcept : w(0), h(0) {}
     SizeT(T w, T h) noexcept : w(w), h(h) {}
 
-    bool operator==(SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
-    bool operator!=(SizeT other) const noexcept { return (!operator==(other)); }
+    bool operator==(const SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
+    bool operator!=(const SizeT other) const noexcept { return (!operator==(other)); }
+    SizeT operator+(const SizeT other) const noexcept { return SizeT(w + other.w, h + other.h); }
 
 #pragma GCC diagnostic push
 #if defined(__clang__)
@@ -275,18 +277,44 @@ struct SizeT {
 };
 
 using Size = SizeT<uint32_t>;
+using SizeU = SizeT<uint32_t>;
+using SizeI = SizeT<int32_t>;
 using SizeF = SizeT<float>;
+using SizeD = SizeT<double>;
+
+template <typename T>
+struct RectOffsetT {
+    RectOffsetT() = default;
+    RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
+
+    T Horizontal() const noexcept { return left + right; }
+    T Vertical() const noexcept { return top + bottom; }
+    SizeT<T> Size() const noexcept { return SizeT<T>(Horizontal(), Vertical()); }
+
+    T left = 0;
+    T right = 0;
+    T top = 0;
+    T bottom = 0;
+};
+
+using RectOffset = RectOffsetT<uint32_t>;
+using RectOffsetU = RectOffsetT<uint32_t>;
+using RectOffsetI = RectOffsetT<int32_t>;
+using RectOffsetF = RectOffsetT<float>;
+using RectOffsetD = RectOffsetT<double>;
 
 template <typename T>
 struct RectT {
     RectT() = default;
-    RectT(const PointT<T>& posMin, const PointT<T>& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
     RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
+    RectT(const PointT<T> pos, const SizeT<T> size) noexcept : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
+    RectT(const PointT<T> posMin, const PointT<T> posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
 
-    bool operator==(RectT other) const noexcept {
+    bool operator==(const RectT other) const noexcept {
         return (IsEqual(x, other.x) && IsEqual(y, other.y) && IsEqual(w, other.w) && IsEqual(h, other.h));
     }
-    bool operator!=(RectT other) const noexcept { return (!operator==(other)); }
+    bool operator!=(const RectT other) const noexcept { return (!operator==(other)); }
+    RectT operator-(const RectOffsetT<T> other) const noexcept { return RectT(x + other.left, y + other.top, w - other.right, h - other.bottom); }
 
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }
@@ -342,6 +370,7 @@ struct RectT {
 };
 
 using Rect = RectT<uint32_t>;
+using RectU= RectT<uint32_t>;
 using RectI = RectT<int32_t>;
 using RectF = RectT<float>;
 using RectD = RectT<double>;
@@ -438,3 +467,21 @@ template<typename T> struct TorusT {
 using Torus = TorusT<double>;
 
 } // namespace math
+
+namespace std {
+
+template<typename T>
+math::SizeT<T> min(math::SizeT<T> first, math::SizeT<T> second) {
+    return math::SizeT<T>(
+        std::min(first.w, second.w),
+        std::min(first.h, second.h));
+}
+
+template<typename T>
+math::SizeT<T> max(math::SizeT<T> first, math::SizeT<T> second) {
+    return math::SizeT<T>(
+        std::max(first.w, second.w),
+        std::max(first.h, second.h));
+}
+
+} // namespace std
