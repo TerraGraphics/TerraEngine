@@ -403,10 +403,6 @@ void EndGroup() {
     ImGui::EndGroup();
 }
 
-void SameLine(float offsetFromStartX, float spacing) {
-    ImGui::SameLine(offsetFromStartX, spacing);
-}
-
 void Dummy(math::SizeF size) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
@@ -419,28 +415,8 @@ void Dummy(math::SizeF size) {
     ImGui::ItemAdd(bb, 0);
 }
 
-math::Size GetTextSize(std::string_view text) {
-    return ToSizeU(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, -1.f));
-}
-
 void Text(std::string_view text) {
     ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
-}
-
-void Text(std::string_view text, math::Size offset, bool localOffset) {
-    if (localOffset) {
-        ImGui::BeginGroup();
-    }
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-
-    window->DC.CursorPos += ToImGui(offset);
-    window->DC.CursorMaxPos.x = ImMax(window->DC.CursorMaxPos.x, window->DC.CursorPos.x);
-    window->DC.CursorMaxPos.y = ImMax(window->DC.CursorMaxPos.y, window->DC.CursorPos.y);
-
-    ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
-    if (localOffset) {
-        ImGui::EndGroup();
-    }
 }
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol, math::Color borderCol) {
