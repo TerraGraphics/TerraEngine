@@ -53,7 +53,7 @@ private:
     // key = nodeIndex
     std::vector<uint8_t> m_actualNodes;
     // key = nodeIndex
-    std::vector<uint32_t> m_maxOutputPinNameWidthPerNode;
+    std::vector<float> m_maxOutputPinNameWidthPerNode;
 
 // persistent data
 private:

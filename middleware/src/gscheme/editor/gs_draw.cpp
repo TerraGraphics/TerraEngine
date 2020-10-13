@@ -7,6 +7,7 @@
 #include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
 #include "core/common/exception.h"
+#include "middleware/imgui/label.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
 
@@ -119,30 +120,28 @@ void Draw::OnFinishDrawOutputPins() {
 }
 
 void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, const std::string& prettyName) {
-    const auto pinsSeparatorSize = uint32_t(10);
     const auto iconSize = math::Size(24, 24);
     const auto pinColor = math::Color(0, 255, 0, m_alpha);
     const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
-
-    const math::Size nameSize = gui::GetTextSize(prettyName);
-    const uint32_t nameOffsetH = (iconSize.h - nameSize.h + 1) / 2;
+    gui::LabelStyle inputLabelStyle;
+    inputLabelStyle.horisontalAlign = gui::HorisontalAlign::Left;
+    inputLabelStyle.verticalAlign = gui::VerticalAlign::Center;
+    gui::LabelStyle outputLabelStyle;
+    outputLabelStyle.horisontalAlign = gui::HorisontalAlign::Right;
+    outputLabelStyle.verticalAlign = gui::VerticalAlign::Center;
+    outputLabelStyle.padding.left = m_existsInputPins ? 10.f : 0;
+    math::SizeF minSize(0, static_cast<float>(iconSize.h));
 
      if (isInput) {
         ne::BeginPin(ne::PinId(id), ne::PinKind::Input);
             gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
         ne::EndPin();
         gui::SameLine();
-        gui::Text(prettyName, math::Size(0, nameOffsetH), true);
+        gui::Label(prettyName, minSize, inputLabelStyle);
     } else {
         auto nodeIndex = m_nodeId - 1;
-        uint32_t maxNameWidth = std::max(m_maxOutputPinNameWidthPerNode[nodeIndex], nameSize.w);
-        m_maxOutputPinNameWidthPerNode[nodeIndex] = maxNameWidth;
-        uint32_t nameOffsetW = maxNameWidth - nameSize.w;
-        if (m_existsInputPins) {
-            nameOffsetW += pinsSeparatorSize;
-        }
-
-        gui::Text(prettyName, math::Size(nameOffsetW, nameOffsetH), true);
+        minSize.w = m_maxOutputPinNameWidthPerNode[nodeIndex];
+        m_maxOutputPinNameWidthPerNode[nodeIndex] = gui::Label(prettyName, minSize, outputLabelStyle).w;
         gui::SameLine();
         ne::BeginPin(ne::PinId(id), ne::PinKind::Output);
             gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
