@@ -52,7 +52,7 @@ void PreviewWindow::Update(double deltaTime) {
     m_draw = ImGui::Begin("preview", pOpen, windowFlags);
     ImGui::PopStyleVar(1);
     if (m_draw) {
-        math::Rect rc = gui::Image(m_scene->GetColorTexture(), gui::ToSize(ImGui::GetContentRegionAvail()), m_isOpenGL);
+        math::Rect rc = gui::Image(m_scene->GetColorTexture(), gui::ToSizeU(ImGui::GetContentRegionAvail()), m_isOpenGL);
 
         bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
                                  ImGui::IsMouseHoveringRect(gui::ToImGui(rc.Min()), gui::ToImGui(rc.Max())));

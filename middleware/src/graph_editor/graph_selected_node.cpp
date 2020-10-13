@@ -61,7 +61,7 @@ void SelectedNode::Draw() {
 
     gui::Text("Preview:");
 
-    const auto size = gui::ToSize(ImGui::GetContentRegionAvail());
+    const auto size = gui::ToSizeU(ImGui::GetContentRegionAvail());
     const uint32_t borderSize = 2;
     auto minDim = std::min(size.h, size.w) - borderSize;
     minDim -= (minDim % 4);

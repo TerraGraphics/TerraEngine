@@ -3,19 +3,12 @@
 #include <cstdint>
 
 #include "imgui/imgui.h"
+#include "imgui/internal.h"
 
 
 namespace gui {
 
-ImVec2 ToImGui(math::Size value) {
-    return ImVec2(static_cast<float>(value.w), static_cast<float>(value.h));
-}
-
-ImVec2 ToImGui(math::SizeF value) {
-    return ImVec2(value.w, value.h);
-}
-
-ImVec2 ToImGui(math::Point value) {
+ImVec2 ToImGui(math::PointU value) {
     return ImVec2(static_cast<float>(value.x), static_cast<float>(value.y));
 }
 
@@ -27,16 +20,28 @@ ImVec2 ToImGui(math::PointF value) {
     return ImVec2(value.x, value.y);
 }
 
-math::Point ToPoint(ImVec2 value) {
-    return math::Point(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
+ImVec2 ToImGui(math::SizeU value) {
+    return ImVec2(static_cast<float>(value.w), static_cast<float>(value.h));
+}
+
+ImVec2 ToImGui(math::SizeF value) {
+    return ImVec2(value.w, value.h);
+}
+
+ImRect ToImGui(math::RectF value) {
+    return ImRect(value.x, value.y, value.x + value.w, value.y + value.h);
+}
+
+math::PointU ToPointU(ImVec2 value) {
+    return math::PointU(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
 }
 
 math::PointF ToPointF(ImVec2 value) {
     return math::PointF(value.x, value.y);
 }
 
-math::Size ToSize(ImVec2 value) {
-    return math::Size(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
+math::SizeU ToSizeU(ImVec2 value) {
+    return math::SizeU(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
 }
 
 math::SizeF ToSizeF(ImVec2 value) {

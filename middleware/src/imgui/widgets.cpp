@@ -420,7 +420,7 @@ void Dummy(math::SizeF size) {
 }
 
 math::Size GetTextSize(std::string_view text) {
-    return ToSize(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, -1.f));
+    return ToSizeU(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, -1.f));
 }
 
 void Text(std::string_view text) {
@@ -470,7 +470,7 @@ math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::P
         window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min, bb.Max, ToImGui(uv0), ToImGui(uv1), tintCol.value);
     }
 
-    return math::Rect(ToPoint(bb.Min), ToPoint(bb.Max));
+    return math::Rect(ToPointU(bb.Min), ToPointU(bb.Max));
 }
 
 void NodeIcon(const math::Size& size, IconType type, bool filled, math::Color color, math::Color innerColor) {
