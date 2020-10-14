@@ -14,6 +14,19 @@
 
 namespace gs {
 
+void Draw::NodeCache::OnStartDrawNode() {
+    m_maxOutputPinNameWidthPrev = m_maxOutputPinNameWidth;
+    m_maxOutputPinNameWidth = 0;
+}
+
+float Draw::NodeCache::GetOutputPinNameWidth() const noexcept {
+    return m_maxOutputPinNameWidthPrev;
+}
+
+void Draw::NodeCache::SetOutputPinNameWidth(float value) noexcept {
+    m_maxOutputPinNameWidth = std::max(m_maxOutputPinNameWidth, value);
+}
+
 Draw::Draw(TexturePtr& texBackground)
     : m_texBackground(texBackground->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE)) {
 
@@ -31,18 +44,9 @@ void Draw::OnStartDrawGraph() {
     ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
     ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
     ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
-
-    for (auto& it: m_actualNodes) {
-        it = 0;
-    }
 }
 
 void Draw::OnFinishDrawGraph() {
-    for (size_t i=0; i!=m_actualNodes.size(); ++i) {
-        if (m_actualNodes[i] == 0) {
-            m_maxOutputPinNameWidthPerNode[i] = 0;
-        }
-    }
     ne::PopStyleVar(3);
 }
 
@@ -52,11 +56,11 @@ void Draw::OnStartDrawNode(uintptr_t id, const std::string& prettyName) {
     m_nodeId = id;
     m_existsInputPins = false;
     auto nodeIndex = m_nodeId - 1;
-    if (nodeIndex >= m_actualNodes.size()) {
-        m_actualNodes.resize(nodeIndex + 1, false);
-        m_maxOutputPinNameWidthPerNode.resize(nodeIndex + 1, 0);
+    if (nodeIndex >= m_nodesCache.size()) {
+        m_nodesCache.resize(nodeIndex + 1);
     }
-    m_actualNodes[nodeIndex] = 1;
+    m_nodeCache = &m_nodesCache[nodeIndex];
+    m_nodeCache->OnStartDrawNode();
 
     // Header
     gui::BeginGroup();
@@ -139,9 +143,8 @@ void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, const std::st
         gui::SameLine();
         gui::Label(prettyName, minSize, inputLabelStyle);
     } else {
-        auto nodeIndex = m_nodeId - 1;
-        minSize.w = m_maxOutputPinNameWidthPerNode[nodeIndex];
-        m_maxOutputPinNameWidthPerNode[nodeIndex] = gui::Label(prettyName, minSize, outputLabelStyle).w;
+        minSize.w = m_nodeCache->GetOutputPinNameWidth();
+        m_nodeCache->SetOutputPinNameWidth(gui::Label(prettyName, minSize, outputLabelStyle).w);
         gui::SameLine();
         ne::BeginPin(ne::PinId(id), ne::PinKind::Output);
             gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);

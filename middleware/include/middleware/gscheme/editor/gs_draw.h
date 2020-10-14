@@ -17,6 +17,21 @@ namespace cpgf {
 namespace gs {
 
 class Draw final : public IDraw {
+    class NodeCache {
+    public:
+        NodeCache() = default;
+        ~NodeCache() = default;
+
+        void OnStartDrawNode();
+
+        float GetOutputPinNameWidth() const noexcept;
+        void SetOutputPinNameWidth(float value) noexcept;
+
+    private:
+        float m_maxOutputPinNameWidth = 0.f;
+        float m_maxOutputPinNameWidthPrev = 0.f;
+    };
+
 public:
     Draw() = delete;
     Draw(TexturePtr& texBackground);
@@ -47,13 +62,12 @@ private:
     math::PointF m_headerMin;
     math::SizeF m_headerSize;
     bool m_existsInputPins;
+    NodeCache* m_nodeCache = nullptr;
 
 // cache data
 private:
     // key = nodeIndex
-    std::vector<uint8_t> m_actualNodes;
-    // key = nodeIndex
-    std::vector<float> m_maxOutputPinNameWidthPerNode;
+    std::vector<NodeCache> m_nodesCache;
 
 // persistent data
 private:
