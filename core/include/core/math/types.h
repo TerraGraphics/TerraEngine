@@ -238,10 +238,34 @@ inline uint32_t BGRAToRGBA(uint32_t v) {
 template <typename T>
 struct PointT {
     PointT() = default;
-    PointT(T x, T y) noexcept : x(x), y(y) {}
+    PointT(const PointT& o) : x(o.x), y(o.y) {}
+    PointT(PointT&& o) noexcept : x(std::move(o.x)), y(std::move(o.y)) {}
+    PointT(T x, T y) : x(x), y(y) {}
 
-    T x = 0;
-    T y = 0;
+    PointT& operator=(PointT o) noexcept {
+        std::swap(x, o.x);
+        std::swap(y, o.y);
+        return *this;
+    }
+
+    bool operator==(const PointT& o) const { return (IsEqual(x, o.x) && IsEqual(y, o.y)); }
+    bool operator!=(const PointT& o) const { return (!operator==(o)); }
+
+#pragma GCC diagnostic push
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+    union {
+        T values[2] = {0, 0};
+        struct {
+            T x;
+            T y;
+        };
+    };
+#pragma GCC diagnostic pop
 };
 
 using Point = PointT<uint32_t>;
@@ -252,12 +276,26 @@ using PointD = PointT<double>;
 
 template <typename T>
 struct SizeT {
-    SizeT() noexcept : w(0), h(0) {}
-    SizeT(T w, T h) noexcept : w(w), h(h) {}
+    SizeT() = default;
+    SizeT(const SizeT& o) : w(o.w), h(o.h) {}
+    SizeT(SizeT&& o) noexcept : w(std::move(o.w)), h(std::move(o.h)) {}
+    SizeT(T w, T h) : w(w), h(h) {}
 
-    bool operator==(const SizeT other) const noexcept { return (IsEqual(w, other.w) && IsEqual(h, other.h)); }
-    bool operator!=(const SizeT other) const noexcept { return (!operator==(other)); }
-    SizeT operator+(const SizeT other) const noexcept { return SizeT(w + other.w, h + other.h); }
+    SizeT& operator=(SizeT o) noexcept {
+        std::swap(w, o.w);
+        std::swap(h, o.h);
+        return *this;
+    }
+
+    bool operator==(const SizeT& o) const { return (IsEqual(w, o.w) && IsEqual(h, o.h)); }
+    bool operator!=(const SizeT& o) const { return (!operator==(o)); }
+
+    SizeT operator+(const SizeT& o) const { return SizeT(w + o.w, h + o.h); }
+    SizeT& operator+=(const SizeT& o) {
+        w += o.w;
+        h += o.h;
+        return *this;
+    }
 
 #pragma GCC diagnostic push
 #if defined(__clang__)
@@ -285,11 +323,24 @@ using SizeD = SizeT<double>;
 template <typename T>
 struct RectOffsetT {
     RectOffsetT() = default;
-    RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
+    RectOffsetT(const RectOffsetT& o) : left(o.left), right(o.right), top(o.top), bottom(o.bottom) {}
+    RectOffsetT(RectOffsetT&& o) : left(std::move(o.left)), right(std::move(o.right)), top(std::move(o.top)), bottom(std::move(o.bottom)) {}
+    RectOffsetT(T left, T right, T top, T bottom) : left(left), right(right), top(top), bottom(bottom) {}
 
-    T Horizontal() const noexcept { return left + right; }
-    T Vertical() const noexcept { return top + bottom; }
-    SizeT<T> Size() const noexcept { return SizeT<T>(Horizontal(), Vertical()); }
+    RectOffsetT& operator=(RectOffsetT o) noexcept {
+        std::swap(left, o.left);
+        std::swap(right, o.right);
+        std::swap(top, o.top);
+        std::swap(bottom, o.bottom);
+        return *this;
+    }
+
+    bool operator==(const RectOffsetT& o) const { return (IsEqual(left, o.left) && IsEqual(right, o.right) && IsEqual(top, o.top) && IsEqual(bottom, o.bottom)); }
+    bool operator!=(const RectOffsetT& o) const { return (!operator==(o)); }
+
+    T Horizontal() const { return left + right; }
+    T Vertical() const { return top + bottom; }
+    SizeT<T> Size() const { return SizeT<T>(Horizontal(), Vertical()); }
 
     T left = 0;
     T right = 0;
@@ -306,44 +357,48 @@ using RectOffsetD = RectOffsetT<double>;
 template <typename T>
 struct RectT {
     RectT() = default;
-    RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
-    RectT(const PointT<T> pos, const SizeT<T> size) noexcept : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
-    RectT(const PointT<T> posMin, const PointT<T> posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
+    RectT(const RectT& o) : x(o.x), y(o.y), w(o.w), h(o.h) {}
+    RectT(RectT&& o) : x(std::move(o.x)), y(std::move(o.y)), w(std::move(o.w)), h(std::move(o.h)) {}
+    RectT(T x, T y, T w, T h) : x(x), y(y), w(w), h(h) {}
+    RectT(const PointT<T>& pos, const SizeT<T>& size) : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
+    RectT(const PointT<T>& posMin, const PointT<T>& posMax) : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
 
-    bool operator==(const RectT other) const noexcept {
-        return (IsEqual(x, other.x) && IsEqual(y, other.y) && IsEqual(w, other.w) && IsEqual(h, other.h));
+    RectT& operator=(RectT o) noexcept {
+        std::swap(x, o.x);
+        std::swap(y, o.y);
+        std::swap(w, o.w);
+        std::swap(h, o.h);
+        return *this;
     }
-    bool operator!=(const RectT other) const noexcept { return (!operator==(other)); }
-    RectT operator-(const RectOffsetT<T> other) const noexcept { return RectT(x + other.left, y + other.top, w - other.Horizontal(), h - other.Vertical()); }
+
+    bool operator==(const RectT& o) const { return (IsEqual(x, o.x) && IsEqual(y, o.y) && IsEqual(w, o.w) && IsEqual(w, o.w)); }
+    bool operator!=(const RectT& o) const { return (!operator==(o)); }
+
+    RectT operator-(const RectOffsetT<T>& o) const { return RectT(x + o.left, y + o.top, w - o.Horizontal(), h - o.Vertical()); }
+    RectT& operator+=(const RectOffsetT<T>& o) {
+        x += o.left;
+        y += o.top;
+        w -= o.Horizontal();
+        h -= o.Vertical();
+        return *this;
+    }
 
     T Top() const noexcept { return y; }
-    T Bottom() const noexcept { return y + h; }
+    T Bottom() const { return y + h; }
     T Left() const noexcept { return x; }
-    T Right() const noexcept { return x + w; }
+    T Right() const { return x + w; }
 
-    PointT<T> Min() const noexcept { return PointT<T>(x, y); }
-    PointT<T> Max() const noexcept { return PointT<T>(x + w, y + h); }
+    PointT<T> Min() const { return PointT<T>(x, y); }
+    PointT<T> Max() const { return PointT<T>(x + w, y + h); }
 
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
-    SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }
-    template<typename U> SizeT<U> SizeCast() const noexcept { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
+    SizeT<T> Size() const { return SizeT<T>(w, h); }
+    template<typename U> SizeT<U> SizeCast() const { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
 
-    T CenterX() const noexcept { return x + w / 2; }
-    T CenterY() const noexcept { return y + h / 2; }
-    PointT<T> Center() const noexcept { return PointT<T>(CenterX(), CenterY()); }
-
-    RectT CutOffTop(T height) {
-        auto result = RectT(x, y, w, height);
-        y += height;
-        return result;
-    }
-
-    RectT CutOffRight(T width) {
-        w -= width;
-        return RectT(w, y, width, h);
-    }
-
+    T CenterX() const { return x + w / 2; }
+    T CenterY() const { return y + h / 2; }
+    PointT<T> Center() const { return PointT<T>(CenterX(), CenterY()); }
 
 #pragma GCC diagnostic push
 #if defined(__clang__)
