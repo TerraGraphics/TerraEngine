@@ -314,7 +314,7 @@ struct RectT {
         return (IsEqual(x, other.x) && IsEqual(y, other.y) && IsEqual(w, other.w) && IsEqual(h, other.h));
     }
     bool operator!=(const RectT other) const noexcept { return (!operator==(other)); }
-    RectT operator-(const RectOffsetT<T> other) const noexcept { return RectT(x + other.left, y + other.top, w - other.right, h - other.bottom); }
+    RectT operator-(const RectOffsetT<T> other) const noexcept { return RectT(x + other.left, y + other.top, w - other.Horizontal(), h - other.Vertical()); }
 
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }
