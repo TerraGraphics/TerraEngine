@@ -2,6 +2,7 @@
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
+#include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {
@@ -19,11 +20,22 @@ void SameLine() {
     window->DC.CurrLineTextBaseOffset = window->DC.PrevLineTextBaseOffset;
 }
 
-void Label(std::string_view text) {
-    ImGuiContext& g = *GImGui;
+math::SizeF CalcTextSize(std::string_view text, float wrapWidth) {
+    return ToSizeF(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, wrapWidth));
+}
+
+void ItemSize(math::SizeF size) {
+    ImGui::ItemSize(ToImGui(size), 0);
+}
+
+bool ItemAdd(math::RectF rect) {
+    return ImGui::ItemAdd(ToImGui(rect), 0);
+}
+
+math::SizeF Label(std::string_view text, math::SizeF minSize, const LabelStyle& style) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
-        return;
+        return minSize;
     }
 
     const char* begin = text.cbegin();
@@ -34,18 +46,22 @@ void Label(std::string_view text) {
     const bool wrapEnabled = (wrapPosX >= 0.0f);
     const float wrapWidth = wrapEnabled ? ImGui::CalcWrapWidthForPos(window->DC.CursorPos, wrapPosX) : 0.0f;
 
-    const ImVec2 textPos(window->DC.CursorPos.x, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
-    const ImVec2 textSize = ImGui::CalcTextSize(begin, end, false, wrapWidth);
+    const math::PointF labelPos(window->DC.CursorPos.x, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
+    const math::SizeF labelSize = std::max(CalcTextSize(text, wrapWidth) + style.padding.Size(), minSize);
+    const math::RectF labelRect(labelPos, labelSize);
+    const math::RectF innerRect = labelRect - style.padding;
 
-    ImRect bb(textPos, textPos + textSize);
-    ImGui::ItemSize(textSize, 0.0f);
-    if (!ImGui::ItemAdd(bb, 0)) {
-        return;
+    ItemSize(labelSize);
+    if (!ItemAdd(labelRect)) {
+        return labelSize;
     }
 
     if (!text.empty()) {
-        window->DrawList->AddText(g.Font, g.FontSize, textPos, ImGui::GetColorU32(ImGuiCol_Text), begin, end, wrapWidth);
+        ImGuiContext& g = *GImGui;
+        window->DrawList->AddText(g.Font, g.FontSize, ToImGui(innerRect.Min()), ImGui::GetColorU32(ImGuiCol_Text), begin, end, wrapWidth);
     }
+
+    return labelSize;
 }
 
 } // end namespace gui

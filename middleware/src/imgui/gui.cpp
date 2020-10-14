@@ -420,7 +420,7 @@ void Gui::CreateFonts() {
         config.OversampleV = 1;
         config.PixelSnapH = false;
         const auto bFontPath = std::filesystem::current_path() / "assets" / "fonts" / "bfont.ttf";
-        if (io.Fonts->AddFontFromFileTTF(bFontPath.c_str(), 15.0f, nullptr, nullptr) == nullptr) {
+        if (io.Fonts->AddFontFromFileTTF(bFontPath.c_str(), 18.0f, nullptr, nullptr) == nullptr) {
             throw EngineError("failed to load a font {}", bFontPath.c_str());
         }
     }
