@@ -476,25 +476,26 @@ using RectI = RectT<int32_t>;
 using RectF = RectT<float>;
 using RectD = RectT<double>;
 
-template<typename T> struct PlaneT {
-    PlaneT() = default;
-    PlaneT(T a, T b, T c, T d) : a(a), b(b), c(c), d(d) {}
-
+template<typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
+struct PlaneT {
+    constexpr PlaneT() noexcept = default;
+    constexpr PlaneT(const PlaneT& o) noexcept : a(o.a), b(o.b), c(o.c), d(o.d) {}
+    constexpr PlaneT(PlaneT&& o) noexcept : a(std::move(o.a)), b(std::move(o.b)), c(std::move(o.c)), d(std::move(o.d)) {}
+    constexpr explicit PlaneT(T a, T b, T c, T d) noexcept : a(a), b(b), c(c), d(d) {}
     // point(x0, y0, z0), n(l, m, n)
     // l*(x-x0) + m(y-y0) + n*(z-z0) = 0
-    PlaneT(const dg::Vector3<T>& point, const dg::Vector3<T>& normal)
+    constexpr explicit PlaneT(const dg::Vector3<T>& point, const dg::Vector3<T>& normal) noexcept
         : a(normal.x)
         , b(normal.y)
         , c(normal.z)
         , d(-normal.x*point.x - normal.y*point.y - normal.z*point.z) {
 
     }
-
     // point(x0, y0, z0), vec0(a0, b0, c0), vec1(a1, b1, c1)
     // | x-x0 y-y0 z-z0 |
     // |   a0   b0   c0 | = (x-x0) * | b0 c0 | - (y-y0) * | a0 c0 | + (z-z0) * | a0 b0 |
     // |   a1   b1   c1 |            | b1 c1 |            | a1 c1 |            | a1 b1 |
-    PlaneT(const dg::Vector3<T>& point, const dg::Vector3<T>& vec0, const dg::Vector3<T>& vec1) {
+    constexpr explicit PlaneT(const dg::Vector3<T>& point, const dg::Vector3<T>& vec0, const dg::Vector3<T>& vec1) noexcept {
         auto normal = dg::cross(vec0, vec1);
         a = normal.x;
         b = normal.y;
@@ -502,11 +503,22 @@ template<typename T> struct PlaneT {
         d = -normal.x*point.x - normal.y*point.y - normal.z*point.z;
     }
 
-    operator dg::Vector3<T>() const noexcept {
+    PlaneT& operator=(PlaneT o) noexcept {
+        std::swap(a, o.a);
+        std::swap(b, o.b);
+        std::swap(c, o.c);
+        std::swap(d, o.d);
+        return *this;
+    }
+
+    bool operator==(const PlaneT& o) const noexcept { return (IsEqual(a, o.a) && IsEqual(b, o.b) && IsEqual(c, o.c) && IsEqual(d, o.d)); }
+    bool operator!=(const PlaneT& o) const noexcept { return (!operator==(o)); }
+
+    explicit operator dg::Vector3<T>() const noexcept {
         return dg::Vector3<T>(a, b, c);
     }
 
-    operator dg::Vector4<T>() const noexcept {
+    explicit operator dg::Vector4<T>() const noexcept {
         return dg::Vector4<T>(a, b, c, d);
     }
 
@@ -517,10 +529,23 @@ template<typename T> struct PlaneT {
 };
 
 using Plane = PlaneT<double>;
+using PlaneD = PlaneT<double>;
 
-template<typename T> struct RayT {
-    RayT() = default;
-    RayT(dg::Vector3<T> start, dg::Vector3<T> direction) : start(start), direction(direction) {}
+template<typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
+struct RayT {
+    constexpr RayT() noexcept = default;
+    constexpr RayT(const RayT& o) noexcept : start(o.start), direction(o.direction) {}
+    constexpr RayT(RayT&& o) noexcept : start(std::move(o.start)), direction(std::move(o.direction)) {}
+    constexpr explicit RayT(dg::Vector3<T> start, dg::Vector3<T> direction) noexcept : start(start), direction(direction) {}
+
+    RayT& operator=(RayT o) noexcept {
+        std::swap(start, o.start);
+        std::swap(direction, o.direction);
+        return *this;
+    }
+
+    bool operator==(const RayT& o) const noexcept = delete;
+    bool operator!=(const RayT& o) const noexcept = delete;
 
     RayT& operator*=(const dg::Matrix4x4<T>& right) {
         start = static_cast<dg::Vector3<T>>(dg::Vector4<T>(start, 1) * right);
@@ -538,8 +563,9 @@ template<typename T> struct RayT {
 };
 
 using Ray = RayT<double>;
+using RayD = RayT<double>;
 
-template<typename T> struct CylinderT {
+template<typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>> struct CylinderT {
     CylinderT() = default;
     CylinderT(T radius, T height, Axis axisUp) : radius(radius), height(height), axisUp(axisUp) {}
 
@@ -550,15 +576,30 @@ template<typename T> struct CylinderT {
 };
 
 using Cylinder = CylinderT<double>;
+using CylinderD = CylinderT<double>;
 
-template<typename T> struct TorusT {
-    TorusT() = default;
-    TorusT(T minorRadius, T majorRadius, Axis axisRotation)
+template<typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
+struct TorusT {
+    constexpr TorusT() noexcept = default;
+    constexpr TorusT(const TorusT& o) noexcept : minorRadius(o.minorRadius), majorRadius(o.majorRadius), axisRotation(o.axisRotation) {}
+    constexpr TorusT(TorusT&& o) noexcept : minorRadius(std::move(o.minorRadius)), majorRadius(std::move(o.majorRadius)), axisRotation(std::move(o.axisRotation)) {}
+    constexpr explicit TorusT(T minorRadius, T majorRadius, Axis axisRotation) noexcept
         : minorRadius(minorRadius)
         , majorRadius(majorRadius)
         , axisRotation(axisRotation) {
 
     }
+
+    TorusT& operator=(TorusT o) noexcept {
+        std::swap(minorRadius, o.minorRadius);
+        std::swap(majorRadius, o.majorRadius);
+        std::swap(axisRotation, o.axisRotation);
+        return *this;
+    }
+
+    bool operator==(const TorusT& o) const noexcept { return (IsEqual(minorRadius, o.minorRadius) && IsEqual(majorRadius, o.majorRadius) && IsEqual(axisRotation, o.axisRotation)); }
+    bool operator!=(const TorusT& o) const noexcept { return (!operator==(o)); }
+
 
     T minorRadius = 1;
     T majorRadius = 1;
@@ -566,6 +607,7 @@ template<typename T> struct TorusT {
 };
 
 using Torus = TorusT<double>;
+using TorusD = TorusT<double>;
 
 } // namespace math
 
