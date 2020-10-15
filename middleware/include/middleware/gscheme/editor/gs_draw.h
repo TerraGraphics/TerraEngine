@@ -6,6 +6,7 @@
 
 #include "dg/dg.h"
 #include "core/math/types.h"
+#include "middleware/gscheme/editor/gs_node.h"
 #include "middleware/gscheme/graph/gs_types_decl.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
@@ -17,21 +18,6 @@ namespace cpgf {
 namespace gs {
 
 class Draw final : public IDraw {
-    class NodeCache {
-    public:
-        NodeCache() = default;
-        ~NodeCache() = default;
-
-        void OnStartDrawNode();
-
-        float GetOutputPinNameWidth() const noexcept;
-        void SetOutputPinNameWidth(float value) noexcept;
-
-    private:
-        float m_maxOutputPinNameWidth = 0.f;
-        float m_maxOutputPinNameWidthPrev = 0.f;
-    };
-
 public:
     Draw() = delete;
     Draw(TexturePtr& texBackground);
@@ -41,13 +27,13 @@ public:
 public:
     void OnStartDrawGraph() final;
     void OnFinishDrawGraph() final;
-    void OnStartDrawNode(uintptr_t id, const std::string& prettyName) final;
+    void OnStartDrawNode(uintptr_t id, std::string prettyName) final;
     void OnFinishDrawNode() final;
     void OnStartDrawInputPins() final;
     void OnFinishDrawInputPins() final;
     void OnStartDrawOutputPins() final;
     void OnFinishDrawOutputPins() final;
-    void OnDrawPin(uintptr_t id, bool isInput, bool isConnected, const std::string& prettyName) final;
+    void OnDrawPin(uintptr_t id, bool isInput, bool isConnected, std::string prettyName) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
 
 // Draw node edit GUI
@@ -58,16 +44,12 @@ public:
 // tmp data for draw frame
 private:
     uint8_t m_alpha = 0;
-    uintptr_t m_nodeId;
-    math::PointF m_headerMin;
-    math::SizeF m_headerSize;
-    bool m_existsInputPins;
-    NodeCache* m_nodeCache = nullptr;
+    Node* m_node = nullptr;
 
 // cache data
 private:
     // key = nodeIndex
-    std::vector<NodeCache> m_nodesCache;
+    std::vector<Node> m_nodes;
 
 // persistent data
 private:

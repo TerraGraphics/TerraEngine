@@ -14,19 +14,6 @@
 
 namespace gs {
 
-void Draw::NodeCache::OnStartDrawNode() {
-    m_maxOutputPinNameWidthPrev = m_maxOutputPinNameWidth;
-    m_maxOutputPinNameWidth = 0;
-}
-
-float Draw::NodeCache::GetOutputPinNameWidth() const noexcept {
-    return m_maxOutputPinNameWidthPrev;
-}
-
-void Draw::NodeCache::SetOutputPinNameWidth(float value) noexcept {
-    m_maxOutputPinNameWidth = std::max(m_maxOutputPinNameWidth, value);
-}
-
 Draw::Draw(TexturePtr& texBackground)
     : m_texBackground(texBackground->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE)) {
 
@@ -50,106 +37,39 @@ void Draw::OnFinishDrawGraph() {
     ne::PopStyleVar(3);
 }
 
-void Draw::OnStartDrawNode(uintptr_t id, const std::string& prettyName) {
+void Draw::OnStartDrawNode(uintptr_t id, std::string prettyName) {
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(m_nodePaddingLeft, m_nodePaddingTop, m_nodePaddingRight, m_nodePaddingBottom));
     ne::BeginNode(ne::NodeId(id));
-    m_nodeId = id;
-    m_existsInputPins = false;
-    auto nodeIndex = m_nodeId - 1;
-    if (nodeIndex >= m_nodesCache.size()) {
-        m_nodesCache.resize(nodeIndex + 1);
+    auto nodeIndex = id - 1;
+    if (nodeIndex >= m_nodes.size()) {
+        m_nodes.resize(nodeIndex + 1);
     }
-    m_nodeCache = &m_nodesCache[nodeIndex];
-    m_nodeCache->OnStartDrawNode();
-
-    // Header
-    gui::BeginGroup();
-    gui::Text(prettyName);
-    m_headerMin = gui::ToPointF(ImGui::GetItemRectMin());
-    m_headerSize = gui::ToSizeF(ImGui::GetItemRectSize());
-    gui::Dummy(math::SizeF(1.0f, m_nodePaddingTop));
-    gui::EndGroup();
+    m_node = &m_nodes[nodeIndex];
+    m_node->OnStartDrawNode(id, prettyName, m_alpha);
 }
 
 void Draw::OnFinishDrawNode() {
-    const auto headerColor = math::Color(0, 125, 0, m_alpha).value;
-    const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
-    const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
-
-    m_headerSize.w = ImGui::GetItemRectMax().x - m_headerMin.x;
-    ne::EndNode();
-
-    // Header
-    if (ImGui::IsItemVisible()) {
-        auto drawList = ne::GetNodeBackgroundDrawList(ne::NodeId(m_nodeId));
-        const auto texBackgroundID = reinterpret_cast<ImTextureID>(m_texBackground.RawPtr());
-        const auto rounding = ne::GetStyle().NodeRounding;
-        const auto roundingCorners = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_TopRight;
-        const auto uvMin = ImVec2(0.0f, 0.0f);
-        const auto uvMax = ImVec2(m_headerSize.w / m_texBackgroundSize.w, m_headerSize.h / m_texBackgroundSize.h);
-
-        const auto halfBorderWidth = ne::GetStyle().NodeBorderWidth * 0.5f;
-        const auto imageTopLeft = ImVec2(
-            m_headerMin.x - m_nodePaddingLeft + halfBorderWidth,
-            m_headerMin.y - m_nodePaddingTop + halfBorderWidth);
-        const auto imageBottomRight = ImVec2(
-            m_headerMin.x + m_headerSize.w + m_nodePaddingRight - halfBorderWidth,
-            m_headerMin.y + m_headerSize.h + m_nodePaddingTop);
-        const auto imageBottomLeft = ImVec2(imageTopLeft.x, imageBottomRight.y);
-
-        drawList->AddImageRounded(texBackgroundID, imageTopLeft, imageBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
-        drawList->AddLine(imageBottomLeft, imageBottomRight, headerLineColor, 1.0f);
-    }
-    ne::PopStyleVar(1);
+    m_node->OnFinishDrawNode(m_texBackground.RawPtr(), m_texBackgroundSize);
 }
 
 void Draw::OnStartDrawInputPins() {
-    m_existsInputPins = true;
-    gui::BeginGroup();
+    m_node->OnStartDrawInputPins();
 }
 
 void Draw::OnFinishDrawInputPins() {
-    gui::EndGroup();
+    m_node->OnFinishDrawInputPins();
 }
 
 void Draw::OnStartDrawOutputPins() {
-    if (m_existsInputPins) {
-        gui::SameLine();
-    }
-    gui::BeginGroup();
+    m_node->OnStartDrawOutputPins();
 }
 
 void Draw::OnFinishDrawOutputPins() {
-    gui::EndGroup();
+    m_node->OnFinishDrawOutputPins();
 }
 
-void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, const std::string& prettyName) {
-    const auto iconSize = math::Size(24, 24);
-    const auto pinColor = math::Color(0, 255, 0, m_alpha);
-    const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
-    gui::LabelStyle inputLabelStyle;
-    inputLabelStyle.horisontalAlign = gui::HorisontalAlign::Left;
-    inputLabelStyle.verticalAlign = gui::VerticalAlign::Center;
-    gui::LabelStyle outputLabelStyle;
-    outputLabelStyle.horisontalAlign = gui::HorisontalAlign::Right;
-    outputLabelStyle.verticalAlign = gui::VerticalAlign::Center;
-    outputLabelStyle.padding.left = m_existsInputPins ? 10.f : 0;
-    math::SizeF minSize(0, static_cast<float>(iconSize.h));
-
-     if (isInput) {
-        ne::BeginPin(ne::PinId(id), ne::PinKind::Input);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
-        ne::EndPin();
-        gui::SameLine();
-        gui::Label(prettyName, minSize, inputLabelStyle);
-    } else {
-        minSize.w = m_nodeCache->GetOutputPinNameWidth();
-        m_nodeCache->SetOutputPinNameWidth(gui::Label(prettyName, minSize, outputLabelStyle).w);
-        gui::SameLine();
-        ne::BeginPin(ne::PinId(id), ne::PinKind::Output);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
-        ne::EndPin();
-    }
+void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, std::string prettyName) {
+    m_node->OnDrawPin(id, isInput, isConnected, prettyName);
 }
 
 void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) {
