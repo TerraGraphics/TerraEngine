@@ -477,21 +477,19 @@ void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
 void Node::DrawGraph(IDraw* drawer) {
     drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_class->GetPrettyName());
 
-    if (InputPinsCount() != 0) {
-        drawer->OnStartDrawInputPins();
-        for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), true, IsConnectedPin(i), m_class->GetPinPrettyName(i));
-        }
-        drawer->OnFinishDrawInputPins();
+    std::vector<IDraw::Pin> pins;
+    pins.reserve(InputPinsCount());
+    for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        pins.emplace_back(IDraw::Pin{ static_cast<uintptr_t>(m_pins[i].id), IsConnectedPin(i), m_class->GetPinPrettyName(i) });
     }
+    drawer->OnDrawInputPins(pins);
 
-    if (OutputPinsCount() != 0) {
-        drawer->OnStartDrawOutputPins();
-        for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-            drawer->OnDrawPin(static_cast<uintptr_t>(m_pins[i].id), false, IsConnectedPin(i), m_class->GetPinPrettyName(i));
-        }
-        drawer->OnFinishDrawOutputPins();
+    pins.clear();
+    pins.reserve(OutputPinsCount());
+    for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
+        pins.emplace_back(IDraw::Pin{ static_cast<uintptr_t>(m_pins[i].id), IsConnectedPin(i), m_class->GetPinPrettyName(i) });
     }
+    drawer->OnDrawOutputPins(pins);
 
     drawer->OnFinishDrawNode();
 }

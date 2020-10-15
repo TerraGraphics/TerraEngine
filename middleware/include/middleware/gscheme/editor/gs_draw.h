@@ -29,11 +29,8 @@ public:
     void OnFinishDrawGraph() final;
     void OnStartDrawNode(uintptr_t id, std::string prettyName) final;
     void OnFinishDrawNode() final;
-    void OnStartDrawInputPins() final;
-    void OnFinishDrawInputPins() final;
-    void OnStartDrawOutputPins() final;
-    void OnFinishDrawOutputPins() final;
-    void OnDrawPin(uintptr_t id, bool isInput, bool isConnected, std::string prettyName) final;
+    void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
+    void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
 
 // Draw node edit GUI

@@ -52,24 +52,12 @@ void Draw::OnFinishDrawNode() {
     m_node->OnFinishDrawNode(m_texBackground.RawPtr(), m_texBackgroundSize);
 }
 
-void Draw::OnStartDrawInputPins() {
-    m_node->OnStartDrawInputPins();
+void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
+    m_node->OnDrawInputPins(pins);
 }
 
-void Draw::OnFinishDrawInputPins() {
-    m_node->OnFinishDrawInputPins();
-}
-
-void Draw::OnStartDrawOutputPins() {
-    m_node->OnStartDrawOutputPins();
-}
-
-void Draw::OnFinishDrawOutputPins() {
-    m_node->OnFinishDrawOutputPins();
-}
-
-void Draw::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, std::string prettyName) {
-    m_node->OnDrawPin(id, isInput, isConnected, prettyName);
+void Draw::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
+    m_node->OnDrawOutputPins(pins);
 }
 
 void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) {

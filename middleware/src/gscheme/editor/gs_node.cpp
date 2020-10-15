@@ -51,53 +51,60 @@ void Node::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) 
     ne::PopStyleVar(1);
 }
 
-void Node::OnStartDrawInputPins() {
+void Node::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
+    if (pins.empty()) {
+        return;
+    }
     m_existsInputPins = true;
     gui::BeginGroup();
-}
 
-void Node::OnFinishDrawInputPins() {
+    const auto iconSize = math::Size(24, 24);
+    const auto pinColor = math::Color(0, 255, 0, m_alpha);
+    const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
+    gui::LabelStyle labelStyle;
+    labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
+    labelStyle.verticalAlign = gui::VerticalAlign::Center;
+    math::SizeF minSize(0, static_cast<float>(iconSize.h));
+
+    for (const auto& pin: pins) {
+        ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
+            gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+        ne::EndPin();
+        gui::SameLine();
+        gui::Label(pin.prettyName, labelStyle, minSize);
+    }
+
     gui::EndGroup();
 }
 
-void Node::OnStartDrawOutputPins() {
+void Node::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
+    if (pins.empty()) {
+        return;
+    }
     if (m_existsInputPins) {
         gui::SameLine();
     }
     gui::BeginGroup();
-}
 
-void Node::OnFinishDrawOutputPins() {
-    gui::EndGroup();
-}
-
-void Node::OnDrawPin(uintptr_t id, bool isInput, bool isConnected, std::string_view prettyName) {
     const auto iconSize = math::Size(24, 24);
     const auto pinColor = math::Color(0, 255, 0, m_alpha);
     const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
-    gui::LabelStyle inputLabelStyle;
-    inputLabelStyle.horisontalAlign = gui::HorisontalAlign::Left;
-    inputLabelStyle.verticalAlign = gui::VerticalAlign::Center;
-    gui::LabelStyle outputLabelStyle;
-    outputLabelStyle.horisontalAlign = gui::HorisontalAlign::Right;
-    outputLabelStyle.verticalAlign = gui::VerticalAlign::Center;
-    outputLabelStyle.padding.left = m_existsInputPins ? 10.f : 0;
+    gui::LabelStyle labelStyle;
+    labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
+    labelStyle.verticalAlign = gui::VerticalAlign::Center;
+    labelStyle.padding.left = m_existsInputPins ? 10.f : 0;
     math::SizeF minSize(0, static_cast<float>(iconSize.h));
 
-     if (isInput) {
-        ne::BeginPin(ne::PinId(id), ne::PinKind::Input);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
-        ne::EndPin();
-        gui::SameLine();
-        gui::Label(prettyName, inputLabelStyle, minSize);
-    } else {
+    for (const auto& pin: pins) {
         minSize.w = m_maxOutputPinNameWidth;
-        m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, gui::Label(prettyName, outputLabelStyle, minSize).w);
+        m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, gui::Label(pin.prettyName, labelStyle, minSize).w);
         gui::SameLine();
-        ne::BeginPin(ne::PinId(id), ne::PinKind::Output);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, isConnected, pinColor, innerPinColor);
+        ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
+            gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
     }
+
+    gui::EndGroup();
 }
 
 }
