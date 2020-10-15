@@ -9,10 +9,10 @@
 
 namespace gs {
 
-class Node {
+class DrawNode {
 public:
-    Node() = default;
-    ~Node() = default;
+    DrawNode() = default;
+    ~DrawNode() = default;
 
     void OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha);
     void OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize);

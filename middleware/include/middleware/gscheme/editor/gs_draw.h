@@ -6,7 +6,7 @@
 
 #include "dg/dg.h"
 #include "core/math/types.h"
-#include "middleware/gscheme/editor/gs_node.h"
+#include "middleware/gscheme/editor/gs_draw_node.h"
 #include "middleware/gscheme/graph/gs_types_decl.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
@@ -41,20 +41,12 @@ public:
 // tmp data for draw frame
 private:
     uint8_t m_alpha = 0;
-    Node* m_node = nullptr;
-
-// cache data
-private:
-    // key = nodeIndex
-    std::vector<Node> m_nodes;
+    DrawNode* m_node = nullptr;
 
 // persistent data
 private:
-    const float m_nodePaddingLeft = 8;
-    const float m_nodePaddingRight = 8;
-    const float m_nodePaddingTop = 4;
-    const float m_nodePaddingBottom = 8;
-
+    // key = nodeIndex
+    std::vector<DrawNode> m_nodes;
     math::SizeF m_texBackgroundSize;
     TextureViewPtr m_texBackground;
 };

@@ -1,4 +1,4 @@
-#include "middleware/gscheme/editor/gs_node.h"
+#include "middleware/gscheme/editor/gs_draw_node.h"
 
 #include "imgui/node_editor.h"
 #include "middleware/imgui/label.h"
@@ -7,7 +7,10 @@
 
 namespace gs {
 
-void Node::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
+void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
+    ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(m_nodePaddingLeft, m_nodePaddingTop, m_nodePaddingRight, m_nodePaddingBottom));
+    ne::BeginNode(ne::NodeId(id));
+
     m_alpha = alpha;
     m_nodeId = id;
     gui::BeginGroup();
@@ -19,7 +22,7 @@ void Node::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t al
     m_maxOutputPinNameWidthFrame = 0;
 }
 
-void Node::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) {
+void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) {
     const auto headerColor = math::Color(0, 125, 0, m_alpha).value;
     const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
     const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
@@ -51,7 +54,7 @@ void Node::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) 
     ne::PopStyleVar(1);
 }
 
-void Node::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
+void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     if (pins.empty()) {
         return;
     }
@@ -77,7 +80,7 @@ void Node::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     gui::EndGroup();
 }
 
-void Node::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
+void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     if (pins.empty()) {
         return;
     }

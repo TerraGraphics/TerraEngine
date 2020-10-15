@@ -38,8 +38,6 @@ void Draw::OnFinishDrawGraph() {
 }
 
 void Draw::OnStartDrawNode(uintptr_t id, std::string prettyName) {
-    ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(m_nodePaddingLeft, m_nodePaddingTop, m_nodePaddingRight, m_nodePaddingBottom));
-    ne::BeginNode(ne::NodeId(id));
     auto nodeIndex = id - 1;
     if (nodeIndex >= m_nodes.size()) {
         m_nodes.resize(nodeIndex + 1);
