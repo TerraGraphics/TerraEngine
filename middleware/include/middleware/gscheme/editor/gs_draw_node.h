@@ -27,10 +27,13 @@ private:
     float m_maxOutputPinNameWidth = 0.f;
     float m_maxOutputPinNameWidthFrame = 0.f;
 
+private:
     static constexpr const float m_nodePaddingLeft = 8;
     static constexpr const float m_nodePaddingRight = 8;
     static constexpr const float m_nodePaddingTop = 4;
     static constexpr const float m_nodePaddingBottom = 8;
+
+    static constexpr const auto m_iconSize = math::SizeF(24.f, 24.f);
 };
 
 }

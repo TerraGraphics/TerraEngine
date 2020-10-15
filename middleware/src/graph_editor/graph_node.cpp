@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 #include "core/math/types.h"
 #include "imgui/node_editor.h"
+#include "middleware/imgui/icon.h"
 #include "core/common/exception.h"
 #include "middleware/imgui/widgets.h"
 
@@ -139,7 +140,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
         ImGui::BeginGroup();
         for (auto& pin : m_inputPins) {
             ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
+            gui::Icon(iconSize, gui::IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
             ne::EndPin();
         }
         dummySize -= static_cast<float>(iconSize.w + 8);
@@ -155,7 +156,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
         ImGui::BeginGroup();
             ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
             bool filled = ((isSelected && (m_outputs.size() > 1)) || (!isSelected && !m_outputs.empty()));
-            gui::NodeIcon(iconSize, gui::IconType::Circle, filled, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
+            gui::Icon(iconSize, gui::IconType::Circle, filled, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
             ne::EndPin();
         ImGui::EndGroup();
     }

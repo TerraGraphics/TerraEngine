@@ -22,15 +22,6 @@ bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames
 
 } // end namespace gui::detail
 
-enum class IconType : uint8_t {
-    Flow,
-    Circle,
-    Square,
-    Grid,
-    RoundSquare,
-    Diamond
-};
-
 template<typename T> struct Range {
     Range(T minValue = std::numeric_limits<T>::lowest(), T maxValue = std::numeric_limits<T>::max())
         : minValue(minValue)
@@ -97,9 +88,5 @@ void Text(std::string_view text);
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
     math::PointF uv0 = math::PointF(0, 0), math::PointF uv1 = math::PointF(1, 1),
     math::Color tintCol = math::Color(255), math::Color borderCol = math::Color(0));
-
-
-void NodeIcon(math::SizeF size, IconType type, bool filled,
-    math::Color color = math::Color(255), math::Color innerColor = math::Color(0));
 
 } // end namespace gui

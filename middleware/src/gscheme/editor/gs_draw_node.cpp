@@ -61,17 +61,16 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_existsInputPins = true;
     gui::BeginGroup();
 
-    const auto iconSize = math::Size(24, 24);
     const auto pinColor = math::Color(0, 255, 0, m_alpha);
     const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
+    const auto minSize = math::SizeF(0, m_iconSize.h);
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    math::SizeF minSize(0, static_cast<float>(iconSize.h));
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+            gui::NodeIcon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
         gui::SameLine();
         gui::Label(pin.prettyName, labelStyle, minSize);
@@ -89,21 +88,19 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     }
     gui::BeginGroup();
 
-    const auto iconSize = math::Size(24, 24);
     const auto pinColor = math::Color(0, 255, 0, m_alpha);
     const auto innerPinColor = math::Color(32, 32, 32, m_alpha);
+    const auto minSize = math::SizeF(m_maxOutputPinNameWidth, m_iconSize.h);
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
     labelStyle.padding.left = m_existsInputPins ? 10.f : 0;
-    math::SizeF minSize(0, static_cast<float>(iconSize.h));
 
     for (const auto& pin: pins) {
-        minSize.w = m_maxOutputPinNameWidth;
         m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, gui::Label(pin.prettyName, labelStyle, minSize).w);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
-            gui::NodeIcon(iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+            gui::NodeIcon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
     }
 
