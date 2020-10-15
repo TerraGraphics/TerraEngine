@@ -42,10 +42,10 @@ enum class Axis : uint8_t {
 using Axis2 = dg::Vector2<Axis>;
 using Axis3 = dg::Vector3<Axis>;
 
-Axis Next(Axis value);
-Axis Prev(Axis value);
-Axis GetThirdAxis(Axis first, Axis second);
-Axis GetThirdAxis(Axis2 values);
+Axis Next(Axis value) noexcept;
+Axis Prev(Axis value) noexcept;
+Axis GetThirdAxis(Axis first, Axis second) noexcept;
+Axis GetThirdAxis(Axis2 values) noexcept;
 
 enum class Direction : uint8_t {
     POS_X = 0,
@@ -56,11 +56,11 @@ enum class Direction : uint8_t {
     NEG_Z = 5,
 };
 
-Axis GetAxis(Direction value);
-Direction GetDirection(Axis value);
+Axis GetAxis(Direction value) noexcept;
+Direction GetDirection(Axis value) noexcept;
 
 // For POX_ return +1, for NEG_ return -1
-int8_t GetSign(Direction value);
+int8_t GetSign(Direction value) noexcept;
 
 template <typename T> bool IsEqual(T a, T b) {
     if constexpr (std::is_integral_v<T>) {
@@ -73,15 +73,28 @@ template <typename T> bool IsEqual(T a, T b) {
 }
 
 struct Color4f {
-    Color4f() = default;
-    Color4f(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
+    constexpr Color4f() noexcept = default;
+    constexpr Color4f(const Color4f& o) noexcept : red(o.red), green(o.green), blue(o.blue), alpha(o.alpha) {}
+    constexpr Color4f(Color4f&& o) noexcept : red(std::move(o.red)), green(std::move(o.green)), blue(std::move(o.blue)), alpha(std::move(o.alpha)) {}
+    constexpr explicit Color4f(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept
         : red(static_cast<float>(r) / 255.0f)
         , green(static_cast<float>(g) / 255.0f)
         , blue(static_cast<float>(b) / 255.0f)
         , alpha(static_cast<float>(a) / 255.0f) {}
+    constexpr explicit Color4f(float r, float g, float b, float a = 1.0f) noexcept : red(r), green(g), blue(b), alpha(a) {}
+    constexpr explicit Color4f(float v) noexcept : Color4f(v, v, v, v) {}
+    constexpr explicit Color4f(uint8_t v) noexcept : Color4f(v, v, v, v) {}
 
-    Color4f(float r, float g, float b, float a = 1.0f) noexcept : red(r), green(g), blue(b), alpha(a) {}
-    Color4f(float v) noexcept : Color4f(v, v, v, v) {}
+    Color4f& operator=(Color4f o) noexcept {
+        std::swap(red, o.red);
+        std::swap(green, o.green);
+        std::swap(blue, o.blue);
+        std::swap(alpha, o.alpha);
+        return *this;
+    }
+
+    bool operator==(const Color4f& o) const noexcept { return (IsEqual(red, o.red) && IsEqual(green, o.green) && IsEqual(blue, o.blue) && IsEqual(alpha, o.alpha) ); }
+    bool operator!=(const Color4f& o) const noexcept { return (!operator==(o)); }
 
     dg::float4 ToFloat4() const noexcept {
         return dg::float4(red, green, blue, alpha);
@@ -108,9 +121,22 @@ struct Color4f {
 };
 
 struct Color4 {
-    Color4() = default;
-    Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept : red(r), green(g), blue(b), alpha(a) {}
-    Color4(uint8_t v) noexcept : Color4(v, v, v, v) {}
+    constexpr Color4() noexcept = default;
+    constexpr Color4(const Color4& o) noexcept : red(o.red), green(o.green), blue(o.blue), alpha(o.alpha) {}
+    constexpr Color4(Color4&& o) noexcept : red(std::move(o.red)), green(std::move(o.green)), blue(std::move(o.blue)), alpha(std::move(o.alpha)) {}
+    constexpr explicit Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept : red(r), green(g), blue(b), alpha(a) {}
+    constexpr explicit Color4(uint8_t v) noexcept : Color4(v, v, v, v) {}
+
+    Color4& operator=(Color4 o) noexcept {
+        std::swap(red, o.red);
+        std::swap(green, o.green);
+        std::swap(blue, o.blue);
+        std::swap(alpha, o.alpha);
+        return *this;
+    }
+
+    bool operator==(const Color4& o) const noexcept { return ((red == o.red) && (green == o.green) && (blue == o.blue) && (alpha == o.alpha)); }
+    bool operator!=(const Color4& o) const noexcept { return (!operator==(o)); }
 
     Color4f ToColor4f() const noexcept {
         return Color4f(red, green, blue, alpha);
@@ -147,14 +173,26 @@ struct Color4 {
 using Color = Color4;
 
 struct Color3f {
-    Color3f() = default;
-    Color3f(uint8_t r, uint8_t g, uint8_t b) noexcept
+    constexpr Color3f() noexcept = default;
+    constexpr Color3f(const Color3f& o) noexcept : red(o.red), green(o.green), blue(o.blue) {}
+    constexpr Color3f(Color3f&& o) noexcept : red(std::move(o.red)), green(std::move(o.green)), blue(std::move(o.blue)) {}
+    constexpr explicit Color3f(uint8_t r, uint8_t g, uint8_t b) noexcept
         : red(static_cast<float>(r) / 255.0f)
         , green(static_cast<float>(g) / 255.0f)
         , blue(static_cast<float>(b) / 255.0f) {}
+    constexpr explicit Color3f(float r, float g, float b) noexcept : red(r), green(g), blue(b) {}
+    constexpr explicit Color3f(float v) noexcept : Color3f(v, v, v) {}
+    constexpr explicit Color3f(uint8_t v) noexcept : Color3f(v, v, v) {}
 
-    Color3f(float r, float g, float b) noexcept : red(r), green(g), blue(b) {}
-    Color3f(float v) noexcept : Color3f(v, v, v) {}
+    Color3f& operator=(Color3f o) noexcept {
+        std::swap(red, o.red);
+        std::swap(green, o.green);
+        std::swap(blue, o.blue);
+        return *this;
+    }
+
+    bool operator==(const Color3f& o) const noexcept { return (IsEqual(red, o.red) && IsEqual(green, o.green) && IsEqual(blue, o.blue) ); }
+    bool operator!=(const Color3f& o) const noexcept { return (!operator==(o)); }
 
     dg::float3 ToFloat3() const noexcept {
         return dg::float3(red, green, blue);
@@ -180,17 +218,24 @@ struct Color3f {
         };
     };
 #pragma GCC diagnostic pop
-
 };
 
 struct Color3 {
-    Color3() = default;
-    Color3(uint8_t r, uint8_t g, uint8_t b) noexcept : red(r), green(g), blue(b) {}
-    Color3(uint8_t v) noexcept : Color3(v, v, v) {}
+    constexpr Color3() noexcept = default;
+    constexpr Color3(const Color3& o) noexcept : red(o.red), green(o.green), blue(o.blue) {}
+    constexpr Color3(Color3&& o) noexcept : red(std::move(o.red)), green(std::move(o.green)), blue(std::move(o.blue)) {}
+    constexpr explicit Color3(uint8_t r, uint8_t g, uint8_t b) noexcept : red(r), green(g), blue(b) {}
+    constexpr explicit Color3(uint8_t v) noexcept : Color3(v, v, v) {}
 
-    Color3f ToColor3f() const noexcept {
-        return Color3f(red, green, blue);
+    Color3& operator=(Color3 o) noexcept {
+        std::swap(red, o.red);
+        std::swap(green, o.green);
+        std::swap(blue, o.blue);
+        return *this;
     }
+
+    bool operator==(const Color3& o) const noexcept { return ((red == o.red) && (green == o.green) && (blue == o.blue)); }
+    bool operator!=(const Color3& o) const noexcept { return (!operator==(o)); }
 
     dg::float3 ToFloat3() const noexcept {
         return dg::float3(
@@ -228,7 +273,7 @@ struct Color3 {
 };
 
 // 0xAARRGGBB to 0xAABBGGRR
-inline uint32_t BGRAToRGBA(uint32_t v) {
+inline constexpr uint32_t BGRAToRGBA(uint32_t v) noexcept {
     return
         (v & 0xFF00FF00) |
         ((v & 0x00FF0000) >> 16) |
@@ -240,7 +285,7 @@ struct PointT {
     constexpr PointT() noexcept = default;
     constexpr PointT(const PointT& o) noexcept : x(o.x), y(o.y) {}
     constexpr PointT(PointT&& o) noexcept : x(std::move(o.x)), y(std::move(o.y)) {}
-    constexpr PointT(T x, T y) noexcept : x(x), y(y) {}
+    constexpr explicit PointT(T x, T y) noexcept : x(x), y(y) {}
 
     PointT& operator=(PointT o) noexcept {
         std::swap(x, o.x);
@@ -248,8 +293,8 @@ struct PointT {
         return *this;
     }
 
-    bool operator==(const PointT& o) const { return (IsEqual(x, o.x) && IsEqual(y, o.y)); }
-    bool operator!=(const PointT& o) const { return (!operator==(o)); }
+    bool operator==(const PointT& o) const noexcept { return (IsEqual(x, o.x) && IsEqual(y, o.y)); }
+    bool operator!=(const PointT& o) const noexcept { return (!operator==(o)); }
 
 #pragma GCC diagnostic push
 #if defined(__clang__)
@@ -279,7 +324,7 @@ struct SizeT {
     constexpr SizeT() noexcept = default;
     constexpr SizeT(const SizeT& o) noexcept : w(o.w), h(o.h) {}
     constexpr SizeT(SizeT&& o) noexcept : w(std::move(o.w)), h(std::move(o.h)) {}
-    constexpr SizeT(T w, T h) noexcept : w(w), h(h) {}
+    constexpr explicit SizeT(T w, T h) noexcept : w(w), h(h) {}
 
     SizeT& operator=(SizeT o) noexcept {
         std::swap(w, o.w);
@@ -287,8 +332,8 @@ struct SizeT {
         return *this;
     }
 
-    bool operator==(const SizeT& o) const { return (IsEqual(w, o.w) && IsEqual(h, o.h)); }
-    bool operator!=(const SizeT& o) const { return (!operator==(o)); }
+    bool operator==(const SizeT& o) const noexcept { return (IsEqual(w, o.w) && IsEqual(h, o.h)); }
+    bool operator!=(const SizeT& o) const noexcept { return (!operator==(o)); }
 
     SizeT operator+(const SizeT& o) const noexcept { return SizeT(w + o.w, h + o.h); }
     SizeT& operator+=(const SizeT& o) noexcept {
@@ -325,7 +370,7 @@ struct RectOffsetT {
     constexpr RectOffsetT() noexcept = default;
     constexpr RectOffsetT(const RectOffsetT& o) noexcept : left(o.left), right(o.right), top(o.top), bottom(o.bottom) {}
     constexpr RectOffsetT(RectOffsetT&& o) noexcept : left(std::move(o.left)), right(std::move(o.right)), top(std::move(o.top)), bottom(std::move(o.bottom)) {}
-    constexpr RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
+    constexpr explicit RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
 
     RectOffsetT& operator=(RectOffsetT o) noexcept {
         std::swap(left, o.left);
@@ -335,8 +380,8 @@ struct RectOffsetT {
         return *this;
     }
 
-    bool operator==(const RectOffsetT& o) const { return (IsEqual(left, o.left) && IsEqual(right, o.right) && IsEqual(top, o.top) && IsEqual(bottom, o.bottom)); }
-    bool operator!=(const RectOffsetT& o) const { return (!operator==(o)); }
+    bool operator==(const RectOffsetT& o) const noexcept { return (IsEqual(left, o.left) && IsEqual(right, o.right) && IsEqual(top, o.top) && IsEqual(bottom, o.bottom)); }
+    bool operator!=(const RectOffsetT& o) const noexcept { return (!operator==(o)); }
 
     T Horizontal() const noexcept { return left + right; }
     T Vertical() const noexcept { return top + bottom; }
@@ -359,9 +404,9 @@ struct RectT {
     constexpr RectT() noexcept = default;
     constexpr RectT(const RectT& o) noexcept : x(o.x), y(o.y), w(o.w), h(o.h) {}
     constexpr RectT(RectT&& o) noexcept : x(std::move(o.x)), y(std::move(o.y)), w(std::move(o.w)), h(std::move(o.h)) {}
-    constexpr RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
-    constexpr RectT(const PointT<T>& pos, const SizeT<T>& size) noexcept : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
-    constexpr RectT(const PointT<T>& posMin, const PointT<T>& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
+    constexpr explicit RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
+    constexpr explicit RectT(const PointT<T>& pos, const SizeT<T>& size) noexcept : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
+    constexpr explicit RectT(const PointT<T>& posMin, const PointT<T>& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
 
     RectT& operator=(RectT o) noexcept {
         std::swap(x, o.x);
@@ -371,8 +416,8 @@ struct RectT {
         return *this;
     }
 
-    bool operator==(const RectT& o) const { return (IsEqual(x, o.x) && IsEqual(y, o.y) && IsEqual(w, o.w) && IsEqual(w, o.w)); }
-    bool operator!=(const RectT& o) const { return (!operator==(o)); }
+    bool operator==(const RectT& o) const noexcept { return (IsEqual(x, o.x) && IsEqual(y, o.y) && IsEqual(w, o.w) && IsEqual(w, o.w)); }
+    bool operator!=(const RectT& o) const noexcept { return (!operator==(o)); }
 
     RectT operator-(const RectOffsetT<T>& o) const noexcept { return RectT(x + o.left, y + o.top, w - o.Horizontal(), h - o.Vertical()); }
     RectT& operator+=(const RectOffsetT<T>& o) noexcept {
