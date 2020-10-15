@@ -235,12 +235,12 @@ inline uint32_t BGRAToRGBA(uint32_t v) {
         ((v & 0x000000FF) << 16);
 }
 
-template <typename T>
+template <typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
 struct PointT {
-    PointT() = default;
-    PointT(const PointT& o) : x(o.x), y(o.y) {}
-    PointT(PointT&& o) noexcept : x(std::move(o.x)), y(std::move(o.y)) {}
-    PointT(T x, T y) : x(x), y(y) {}
+    constexpr PointT() noexcept = default;
+    constexpr PointT(const PointT& o) noexcept : x(o.x), y(o.y) {}
+    constexpr PointT(PointT&& o) noexcept : x(std::move(o.x)), y(std::move(o.y)) {}
+    constexpr PointT(T x, T y) noexcept : x(x), y(y) {}
 
     PointT& operator=(PointT o) noexcept {
         std::swap(x, o.x);
@@ -274,12 +274,12 @@ using PointI = PointT<int32_t>;
 using PointF = PointT<float>;
 using PointD = PointT<double>;
 
-template <typename T>
+template <typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
 struct SizeT {
-    SizeT() = default;
-    SizeT(const SizeT& o) : w(o.w), h(o.h) {}
-    SizeT(SizeT&& o) noexcept : w(std::move(o.w)), h(std::move(o.h)) {}
-    SizeT(T w, T h) : w(w), h(h) {}
+    constexpr SizeT() noexcept = default;
+    constexpr SizeT(const SizeT& o) noexcept : w(o.w), h(o.h) {}
+    constexpr SizeT(SizeT&& o) noexcept : w(std::move(o.w)), h(std::move(o.h)) {}
+    constexpr SizeT(T w, T h) noexcept : w(w), h(h) {}
 
     SizeT& operator=(SizeT o) noexcept {
         std::swap(w, o.w);
@@ -290,8 +290,8 @@ struct SizeT {
     bool operator==(const SizeT& o) const { return (IsEqual(w, o.w) && IsEqual(h, o.h)); }
     bool operator!=(const SizeT& o) const { return (!operator==(o)); }
 
-    SizeT operator+(const SizeT& o) const { return SizeT(w + o.w, h + o.h); }
-    SizeT& operator+=(const SizeT& o) {
+    SizeT operator+(const SizeT& o) const noexcept { return SizeT(w + o.w, h + o.h); }
+    SizeT& operator+=(const SizeT& o) noexcept {
         w += o.w;
         h += o.h;
         return *this;
@@ -320,12 +320,12 @@ using SizeI = SizeT<int32_t>;
 using SizeF = SizeT<float>;
 using SizeD = SizeT<double>;
 
-template <typename T>
+template <typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
 struct RectOffsetT {
-    RectOffsetT() = default;
-    RectOffsetT(const RectOffsetT& o) : left(o.left), right(o.right), top(o.top), bottom(o.bottom) {}
-    RectOffsetT(RectOffsetT&& o) : left(std::move(o.left)), right(std::move(o.right)), top(std::move(o.top)), bottom(std::move(o.bottom)) {}
-    RectOffsetT(T left, T right, T top, T bottom) : left(left), right(right), top(top), bottom(bottom) {}
+    constexpr RectOffsetT() noexcept = default;
+    constexpr RectOffsetT(const RectOffsetT& o) noexcept : left(o.left), right(o.right), top(o.top), bottom(o.bottom) {}
+    constexpr RectOffsetT(RectOffsetT&& o) noexcept : left(std::move(o.left)), right(std::move(o.right)), top(std::move(o.top)), bottom(std::move(o.bottom)) {}
+    constexpr RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
 
     RectOffsetT& operator=(RectOffsetT o) noexcept {
         std::swap(left, o.left);
@@ -338,9 +338,9 @@ struct RectOffsetT {
     bool operator==(const RectOffsetT& o) const { return (IsEqual(left, o.left) && IsEqual(right, o.right) && IsEqual(top, o.top) && IsEqual(bottom, o.bottom)); }
     bool operator!=(const RectOffsetT& o) const { return (!operator==(o)); }
 
-    T Horizontal() const { return left + right; }
-    T Vertical() const { return top + bottom; }
-    SizeT<T> Size() const { return SizeT<T>(Horizontal(), Vertical()); }
+    T Horizontal() const noexcept { return left + right; }
+    T Vertical() const noexcept { return top + bottom; }
+    SizeT<T> Size() const noexcept { return SizeT<T>(Horizontal(), Vertical()); }
 
     T left = 0;
     T right = 0;
@@ -354,14 +354,14 @@ using RectOffsetI = RectOffsetT<int32_t>;
 using RectOffsetF = RectOffsetT<float>;
 using RectOffsetD = RectOffsetT<double>;
 
-template <typename T>
+template <typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
 struct RectT {
-    RectT() = default;
-    RectT(const RectT& o) : x(o.x), y(o.y), w(o.w), h(o.h) {}
-    RectT(RectT&& o) : x(std::move(o.x)), y(std::move(o.y)), w(std::move(o.w)), h(std::move(o.h)) {}
-    RectT(T x, T y, T w, T h) : x(x), y(y), w(w), h(h) {}
-    RectT(const PointT<T>& pos, const SizeT<T>& size) : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
-    RectT(const PointT<T>& posMin, const PointT<T>& posMax) : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
+    constexpr RectT() noexcept = default;
+    constexpr RectT(const RectT& o) noexcept : x(o.x), y(o.y), w(o.w), h(o.h) {}
+    constexpr RectT(RectT&& o) noexcept : x(std::move(o.x)), y(std::move(o.y)), w(std::move(o.w)), h(std::move(o.h)) {}
+    constexpr RectT(T x, T y, T w, T h) noexcept : x(x), y(y), w(w), h(h) {}
+    constexpr RectT(const PointT<T>& pos, const SizeT<T>& size) noexcept : x(pos.x), y(pos.y), w(size.w), h(size.h) {}
+    constexpr RectT(const PointT<T>& posMin, const PointT<T>& posMax) noexcept : x(posMin.x), y(posMin.y), w(posMax.x - posMin.x), h(posMax.y - posMin.y) {}
 
     RectT& operator=(RectT o) noexcept {
         std::swap(x, o.x);
@@ -374,8 +374,8 @@ struct RectT {
     bool operator==(const RectT& o) const { return (IsEqual(x, o.x) && IsEqual(y, o.y) && IsEqual(w, o.w) && IsEqual(w, o.w)); }
     bool operator!=(const RectT& o) const { return (!operator==(o)); }
 
-    RectT operator-(const RectOffsetT<T>& o) const { return RectT(x + o.left, y + o.top, w - o.Horizontal(), h - o.Vertical()); }
-    RectT& operator+=(const RectOffsetT<T>& o) {
+    RectT operator-(const RectOffsetT<T>& o) const noexcept { return RectT(x + o.left, y + o.top, w - o.Horizontal(), h - o.Vertical()); }
+    RectT& operator+=(const RectOffsetT<T>& o) noexcept {
         x += o.left;
         y += o.top;
         w -= o.Horizontal();
@@ -384,21 +384,22 @@ struct RectT {
     }
 
     T Top() const noexcept { return y; }
-    T Bottom() const { return y + h; }
+    T Bottom() const noexcept { return y + h; }
     T Left() const noexcept { return x; }
-    T Right() const { return x + w; }
+    T Right() const noexcept { return x + w; }
 
-    PointT<T> Min() const { return PointT<T>(x, y); }
-    PointT<T> Max() const { return PointT<T>(x + w, y + h); }
+    PointT<T> Min() const noexcept { return PointT<T>(x, y); }
+    PointT<T> Max() const noexcept { return PointT<T>(x + w, y + h); }
 
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
-    SizeT<T> Size() const { return SizeT<T>(w, h); }
-    template<typename U> SizeT<U> SizeCast() const { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
+    SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }
+    template<typename U, typename EnableU = std::enable_if_t<std::is_arithmetic_v<U>>>
+        SizeT<U> SizeCast() const noexcept { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
 
-    T CenterX() const { return x + w / 2; }
-    T CenterY() const { return y + h / 2; }
-    PointT<T> Center() const { return PointT<T>(CenterX(), CenterY()); }
+    T CenterX() const noexcept { return x + w / 2; }
+    T CenterY() const noexcept { return y + h / 2; }
+    PointT<T> Center() const noexcept { return PointT<T>(CenterX(), CenterY()); }
 
 #pragma GCC diagnostic push
 #if defined(__clang__)
