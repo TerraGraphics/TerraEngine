@@ -26,6 +26,6 @@ struct LabelStyle {
 };
 
 void SameLine();
-math::SizeF Label(std::string_view text, math::SizeF minSize, const LabelStyle& style);
+math::RectF Label(std::string_view text, const LabelStyle& style = LabelStyle(), math::SizeF minSize = math::SizeF());
 
 } // end namespace gui

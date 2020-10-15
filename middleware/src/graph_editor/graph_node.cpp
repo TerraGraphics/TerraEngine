@@ -113,7 +113,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
     const float nodePaddingRight = 8;
     const float nodePaddingTop = 4;
     const float nodePaddingBottom = 8;
-    const auto iconSize = math::Size(24, 24);
+    const auto iconSize = math::SizeF(24.f, 24.f);
     const auto innerPinColor = math::Color(32, 32, 32, alpha);
     const auto headerColor = math::Color(0, 125, 0, alpha).value;
     const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(alpha) / (3 * 255));

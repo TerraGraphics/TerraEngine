@@ -99,7 +99,7 @@ math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
     math::Color tintCol = math::Color(255), math::Color borderCol = math::Color(0));
 
 
-void NodeIcon(const math::Size& size, IconType type, bool filled,
+void NodeIcon(math::SizeF size, IconType type, bool filled,
     math::Color color = math::Color(255), math::Color innerColor = math::Color(0));
 
 } // end namespace gui

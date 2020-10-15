@@ -449,13 +449,13 @@ math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::P
     return math::Rect(ToPointU(bb.Min), ToPointU(bb.Max));
 }
 
-void NodeIcon(const math::Size& size, IconType type, bool filled, math::Color color, math::Color innerColor) {
+void NodeIcon(math::SizeF size, IconType type, bool filled, math::Color color, math::Color innerColor) {
     const ImVec2 imSize = ToImGui(size);
     if (ImGui::IsRectVisible(imSize)) {
-        auto cursorPos = ImGui::GetCursorScreenPos();
+        auto cursorPos = ToPointF(ImGui::GetCursorScreenPos());
         auto drawList  = ImGui::GetWindowDrawList();
 
-        math::RectF rect(cursorPos.x, cursorPos.y, static_cast<float>(size.w), static_cast<float>(size.h));
+        math::RectF rect(cursorPos, size);
         detail::DrawNodeIcon(drawList, rect, type, filled, color.value, innerColor.value);
     }
 

@@ -32,10 +32,10 @@ bool ItemAdd(math::RectF rect) {
     return ImGui::ItemAdd(ToImGui(rect), 0);
 }
 
-math::SizeF Label(std::string_view text, math::SizeF minSize, const LabelStyle& style) {
+math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF minSize) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
-        return minSize;
+        return math::RectF();
     }
 
     const char* begin = text.cbegin();
@@ -77,7 +77,7 @@ math::SizeF Label(std::string_view text, math::SizeF minSize, const LabelStyle& 
 
     ItemSize(labelSize);
     if (!ItemAdd(labelRect)) {
-        return labelSize;
+        return labelRect;
     }
 
     if (!text.empty()) {
@@ -85,7 +85,7 @@ math::SizeF Label(std::string_view text, math::SizeF minSize, const LabelStyle& 
         window->DrawList->AddText(g.Font, g.FontSize, ToImGui(textPos), ImGui::GetColorU32(ImGuiCol_Text), begin, end, wrapWidth);
     }
 
-    return labelSize;
+    return labelRect;
 }
 
 } // end namespace gui
