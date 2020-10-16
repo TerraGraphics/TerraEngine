@@ -3,9 +3,18 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/imgui/gui_helpers.h"
 
 
 namespace gui {
+
+float GetThickness(math::RectF rect) {
+    return rect.w / 12.0f;
+}
+
+int GetNumSegments(math::RectF rect, int additional) {
+    return static_cast<int>(rect.w / 12.0f) + additional;
+}
 
 void DrawTriangle(ImDrawList* drawList, math::RectF rect, float triangleStart, uint32_t color) {
     const auto triangleTip = triangleStart + rect.w * (0.45f - 0.32f);
@@ -18,9 +27,8 @@ void DrawTriangle(ImDrawList* drawList, math::RectF rect, float triangleStart, u
 }
 
 void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
-    const auto outlineScale = rect.w / 24.0f;
+    const auto thickness = GetThickness(rect);
     const auto originScale = rect.w / 24.0f;
-
     const auto offsetX  = 1.0f * originScale;
     const auto offsetY  = 0.0f * originScale;
     const auto margin   = (filled ? 2.0f : 2.0f) * originScale;
@@ -62,18 +70,19 @@ void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
         ImVec2(left, bottom) - ImVec2(0, rounding));
 
     if (!filled) {
-        if (innerColor & 0xFF000000)
+        if (innerColor & 0xFF000000) {
             drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, innerColor);
+        }
 
-        drawList->PathStroke(color, true, 2.0f * outlineScale);
+        drawList->PathStroke(color, true, thickness);
     } else {
         drawList->PathFillConvex(color);
     }
 }
 
 void DrawCircle(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
-    const auto outlineScale = rect.w / 24.0f;
-    const auto extraSegments = static_cast<int>(2 * outlineScale);
+    const auto thickness = GetThickness(rect);
+    const auto numSegments = GetNumSegments(rect, 12);
     const auto triangleStart = rect.CenterX() + 0.32f * rect.w;
     rect.x -= (rect.w * 0.25f * 0.25f);
 
@@ -83,18 +92,18 @@ void DrawCircle(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t co
         const auto r = 0.5f * rect.w / 2.0f - 0.5f;
 
         if (innerColor & 0xFF000000)
-            drawList->AddCircleFilled(c, r, innerColor, 12 + extraSegments);
-        drawList->AddCircle(c, r, color, 12 + extraSegments, 2.0f * outlineScale);
+            drawList->AddCircleFilled(c, r, innerColor, numSegments);
+        drawList->AddCircle(c, r, color, numSegments, thickness);
     } else {
-        drawList->AddCircleFilled(c, 0.5f * rect.w / 2.0f, color, 12 + extraSegments);
+        drawList->AddCircleFilled(c, 0.5f * rect.w / 2.0f, color, numSegments);
     }
 
     DrawTriangle(drawList, rect, triangleStart, color);
 }
 
 void DrawSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
-    const auto outlineScale = rect.w / 24.0f;
-    const auto extraSegments = static_cast<int>(2 * outlineScale);
+    const auto thickness = GetThickness(rect);
+    const auto numSegments = GetNumSegments(rect, 15);
     const auto triangleStart = rect.CenterX() + 0.32f * rect.w;
     rect.x -= (rect.w * 0.25f * 0.25f);
 
@@ -103,17 +112,17 @@ void DrawSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t co
         const auto p0 = ToImGui(rect.Center()) - ImVec2(r, r);
         const auto p1 = ToImGui(rect.Center()) + ImVec2(r, r);
 
-        drawList->AddRectFilled(p0, p1, color, 0, 15 + extraSegments);
+        drawList->AddRectFilled(p0, p1, color, 0, numSegments);
     } else {
         const auto r = 0.5f * rect.w / 2.0f - 0.5f;
         const auto p0 = ToImGui(rect.Center()) - ImVec2(r, r);
         const auto p1 = ToImGui(rect.Center()) + ImVec2(r, r);
 
         if (innerColor & 0xFF000000) {
-            drawList->AddRectFilled(p0, p1, innerColor, 0, 15 + extraSegments);
+            drawList->AddRectFilled(p0, p1, innerColor, 0, numSegments);
         }
 
-        drawList->AddRect(p0, p1, color, 0, 15 + extraSegments, 2.0f * outlineScale);
+        drawList->AddRect(p0, p1, color, 0, numSegments, thickness);
     }
 
     DrawTriangle(drawList, rect, triangleStart, color);
@@ -136,8 +145,9 @@ void DrawGrid(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
         drawList->AddRectFilled(tl, br, color);
         tl.x += w * 2;
         br.x += w * 2;
-        if (i != 1 || filled)
+        if (i != 1 || filled) {
             drawList->AddRectFilled(tl, br, color);
+        }
         tl.x += w * 2;
         br.x += w * 2;
         drawList->AddRectFilled(tl, br, color);
@@ -151,7 +161,7 @@ void DrawGrid(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
 }
 
 void DrawRoundSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
-    const auto outlineScale = rect.w / 24.0f;
+    const auto thickness = GetThickness(rect);
     rect.x -= (rect.w * 0.25f * 0.25f);
 
     if (filled) {
@@ -171,12 +181,12 @@ void DrawRoundSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32
             drawList->AddRectFilled(p0, p1, innerColor, cr, 15);
         }
 
-        drawList->AddRect(p0, p1, color, cr, 15, 2.0f * outlineScale);
+        drawList->AddRect(p0, p1, color, cr, 15, thickness);
     }
 }
 
 void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
-    const auto outlineScale  = rect.w / 24.0f;
+    const auto thickness = GetThickness(rect);
     rect.x -= (rect.w * 0.25f * 0.25f);
 
     if (filled) {
@@ -201,40 +211,51 @@ void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t c
             drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, innerColor);
         }
 
-        drawList->PathStroke(color, true, 2.0f * outlineScale);
+        drawList->PathStroke(color, true, thickness);
     }
 }
 
-void Icon(math::SizeF size, IconType type, bool filled, math::Color color, math::Color innerColor) {
-    const ImVec2 imSize = ToImGui(size);
-    if (ImGui::IsRectVisible(imSize)) {
-        auto cursorPos = ToPointF(ImGui::GetCursorScreenPos());
-        auto drawList  = ImGui::GetWindowDrawList();
+math::RectF Icon(math::SizeF size, IconType type, bool filled, math::Color color, math::Color innerColor) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems) {
+        return math::RectF();
+    }
 
-        math::RectF rect(cursorPos, size);
+    const auto iconPos = ToPointF(window->DC.CursorPos);
+    const math::RectF iconRect(iconPos, size);
+
+    if (!ItemFullAdd(iconRect)) {
+        return iconRect;
+    }
+
+    if (IsRectVisible(iconRect)) {
+        auto drawList = window->DrawList;
+        const auto clr = color.value;
+        const auto innerClr = innerColor.value;
+
         switch (type) {
         case IconType::Flow:
-            DrawFlow(drawList, rect, filled, color.value, innerColor.value);
+            DrawFlow(drawList, iconRect, filled, clr, innerClr);
             break;
         case IconType::Circle:
-            DrawCircle(drawList, rect, filled, color.value, innerColor.value);
+            DrawCircle(drawList, iconRect, filled, clr, innerClr);
             break;
         case IconType::Square:
-            DrawSquare(drawList, rect, filled, color.value, innerColor.value);
+            DrawSquare(drawList, iconRect, filled, clr, innerClr);
             break;
         case IconType::Grid:
-            DrawGrid(drawList, rect, filled, color.value);
+            DrawGrid(drawList, iconRect, filled, clr);
             break;
         case IconType::RoundSquare:
-            DrawRoundSquare(drawList, rect, filled, color.value, innerColor.value);
+            DrawRoundSquare(drawList, iconRect, filled, clr, innerClr);
             break;
         case IconType::Diamond:
-            DrawDiamond(drawList, rect, filled, color.value, innerColor.value);
+            DrawDiamond(drawList, iconRect, filled, clr, innerClr);
             break;
         }
     }
 
-    ImGui::Dummy(imSize);
+    return iconRect;
 }
 
 } // end namespace gui

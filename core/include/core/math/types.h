@@ -371,6 +371,7 @@ struct RectOffsetT {
     constexpr RectOffsetT(const RectOffsetT& o) noexcept : left(o.left), right(o.right), top(o.top), bottom(o.bottom) {}
     constexpr RectOffsetT(RectOffsetT&& o) noexcept : left(std::move(o.left)), right(std::move(o.right)), top(std::move(o.top)), bottom(std::move(o.bottom)) {}
     constexpr explicit RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
+    constexpr explicit RectOffsetT(T v) noexcept : RectOffsetT(v, v, v, v) {}
 
     RectOffsetT& operator=(RectOffsetT o) noexcept {
         std::swap(left, o.left);
@@ -420,7 +421,7 @@ struct RectT {
     bool operator!=(const RectT& o) const noexcept { return (!operator==(o)); }
 
     RectT operator-(const RectOffsetT<T>& o) const noexcept { return RectT(x + o.left, y + o.top, w - o.Horizontal(), h - o.Vertical()); }
-    RectT& operator+=(const RectOffsetT<T>& o) noexcept {
+    RectT& operator-=(const RectOffsetT<T>& o) noexcept {
         x += o.left;
         y += o.top;
         w -= o.Horizontal();

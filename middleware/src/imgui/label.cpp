@@ -3,6 +3,7 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/imgui/gui_helpers.h"
 
 
 namespace gui {
@@ -22,14 +23,6 @@ void SameLine() {
 
 math::SizeF CalcTextSize(std::string_view text, float wrapWidth) {
     return ToSizeF(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, wrapWidth));
-}
-
-void ItemSize(math::SizeF size) {
-    ImGui::ItemSize(ToImGui(size), 0);
-}
-
-bool ItemAdd(math::RectF rect) {
-    return ImGui::ItemAdd(ToImGui(rect), 0);
 }
 
 math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF minSize) {
@@ -75,8 +68,7 @@ math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF mi
         break;
     }
 
-    ItemSize(labelSize);
-    if (!ItemAdd(labelRect)) {
+    if (!ItemFullAdd(labelRect)) {
         return labelRect;
     }
 

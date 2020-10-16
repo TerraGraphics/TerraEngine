@@ -1,6 +1,7 @@
 #include "middleware/gscheme/editor/gs_draw_node.h"
 
 #include "imgui/node_editor.h"
+#include "middleware/imgui/icon.h"
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/widgets.h"
 
@@ -70,7 +71,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
-            gui::NodeIcon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+            gui::Icon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
         gui::SameLine();
         gui::Label(pin.prettyName, labelStyle, minSize);
@@ -100,7 +101,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
         m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, gui::Label(pin.prettyName, labelStyle, minSize).w);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
-            gui::NodeIcon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+            gui::Icon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
     }
 

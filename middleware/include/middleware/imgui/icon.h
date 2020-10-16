@@ -14,6 +14,6 @@ enum class IconType : uint8_t {
     Diamond
 };
 
-void Icon(math::SizeF size, IconType type, bool filled, math::Color color = math::Color(255), math::Color innerColor = math::Color(0));
+math::RectF Icon(math::SizeF size, IconType type, bool filled, math::Color color = math::Color(255), math::Color innerColor = math::Color(0));
 
 } // end namespace gui
