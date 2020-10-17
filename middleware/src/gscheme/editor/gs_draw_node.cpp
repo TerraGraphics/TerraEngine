@@ -15,7 +15,8 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     m_alpha = alpha;
     m_nodeId = id;
     gui::BeginGroup();
-    m_headerRect = gui::Label(prettyName);
+    m_nodeRect = gui::Label(prettyName);
+    m_headerHeight = m_nodeRect.h;
     gui::EndGroup();
 
     m_existsInputPins = false;
@@ -28,7 +29,7 @@ void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSi
     const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
     const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
 
-    auto headerSize = math::SizeF(ImGui::GetItemRectMax().x - m_headerRect.x, m_headerRect.Height());
+    auto headerSize = math::SizeF(m_nodeRect.w, m_headerHeight);
     ne::EndNode();
 
     // Header
@@ -42,11 +43,11 @@ void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSi
 
         const auto halfBorderWidth = ne::GetStyle().NodeBorderWidth * 0.5f;
         const auto imageTopLeft = ImVec2(
-            m_headerRect.x - m_nodePaddingLeft + halfBorderWidth,
-            m_headerRect.y - m_nodePaddingTop + halfBorderWidth);
+            m_nodeRect.x - m_nodePaddingLeft + halfBorderWidth,
+            m_nodeRect.y - m_nodePaddingTop + halfBorderWidth);
         const auto imageBottomRight = ImVec2(
-            m_headerRect.x + headerSize.w + m_nodePaddingRight - halfBorderWidth,
-            m_headerRect.y + headerSize.h + m_nodePaddingTop);
+            m_nodeRect.x + headerSize.w + m_nodePaddingRight - halfBorderWidth,
+            m_nodeRect.y + headerSize.h + m_nodePaddingTop);
         const auto imageBottomLeft = ImVec2(imageTopLeft.x, imageBottomRight.y);
 
         drawList->AddImageRounded(texBackgroundID, imageTopLeft, imageBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
@@ -71,10 +72,10 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
-            gui::Icon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+            m_nodeRect += gui::Icon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
         gui::SameLine();
-        gui::Label(pin.prettyName, labelStyle, minSize);
+        m_nodeRect += gui::Label(pin.prettyName, labelStyle, minSize);
     }
 
     gui::EndGroup();
@@ -98,10 +99,12 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     labelStyle.padding.left = m_existsInputPins ? 10.f : 0;
 
     for (const auto& pin: pins) {
-        m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, gui::Label(pin.prettyName, labelStyle, minSize).w);
+        auto labelRect = gui::Label(pin.prettyName, labelStyle, minSize);
+        m_nodeRect += labelRect;
+        m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, labelRect.w);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
-            gui::Icon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
+            m_nodeRect += gui::Icon(m_iconSize, gui::IconType::Circle, pin.isConnected, pinColor, innerPinColor);
         ne::EndPin();
     }
 

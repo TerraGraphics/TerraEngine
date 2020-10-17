@@ -22,8 +22,11 @@ public:
 private:
     uint8_t m_alpha = 0;
     uintptr_t m_nodeId = 0;
-    math::RectF m_headerRect;
     bool m_existsInputPins = false;
+
+private:
+    math::RectF m_nodeRect;
+    float m_headerHeight = 0.f;
     float m_maxOutputPinNameWidth = 0.f;
     float m_maxOutputPinNameWidthFrame = 0.f;
 

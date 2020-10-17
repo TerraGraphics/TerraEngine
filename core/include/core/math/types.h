@@ -429,6 +429,25 @@ struct RectT {
         return *this;
     }
 
+    RectT operator+(const RectT<T>& o) const noexcept {
+        auto minX = std::min(Left(), o.Left());
+        auto minY = std::min(Top(), o.Top());
+        auto maxX = std::max(Right(), o.Right());
+        auto maxY = std::max(Right(), o.Right());
+        return RectT(minX, minY, maxX - minX, maxY - minY);
+    }
+    RectT& operator+=(const RectT<T>& o) noexcept {
+        auto minX = std::min(Left(), o.Left());
+        auto minY = std::min(Top(), o.Top());
+        auto maxX = std::max(Right(), o.Right());
+        auto maxY = std::max(Right(), o.Right());
+        x = minX;
+        y = minY;
+        w = maxX - minX;
+        h = maxY - minY;
+        return *this;
+    }
+
     T Top() const noexcept { return y; }
     T Bottom() const noexcept { return y + h; }
     T Left() const noexcept { return x; }
@@ -566,9 +585,27 @@ struct RayT {
 using Ray = RayT<double>;
 using RayD = RayT<double>;
 
-template<typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>> struct CylinderT {
-    CylinderT() = default;
-    CylinderT(T radius, T height, Axis axisUp) : radius(radius), height(height), axisUp(axisUp) {}
+template<typename T, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
+struct CylinderT {
+    constexpr CylinderT() noexcept = default;
+    constexpr CylinderT(const CylinderT& o) noexcept : radius(o.radius), height(o.height), axisUp(o.axisUp) {}
+    constexpr CylinderT(CylinderT&& o) noexcept : radius(std::move(o.radius)), height(std::move(o.height)), axisUp(std::move(o.axisUp)) {}
+    constexpr explicit CylinderT(T radius, T height, Axis axisUp) noexcept
+        : radius(radius)
+        , height(height)
+        , axisUp(axisUp) {
+
+    }
+
+    CylinderT& operator=(CylinderT o) noexcept {
+        std::swap(radius, o.radius);
+        std::swap(height, o.height);
+        std::swap(axisUp, o.axisUp);
+        return *this;
+    }
+
+    bool operator==(const CylinderT& o) const noexcept { return (IsEqual(radius, o.radius) && IsEqual(height, o.height) && IsEqual(axisUp, o.axisUp)); }
+    bool operator!=(const CylinderT& o) const noexcept { return (!operator==(o)); }
 
     T radius = 1;
     // along the axisUp, values: [0; height]
