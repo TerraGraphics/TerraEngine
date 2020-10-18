@@ -158,10 +158,8 @@ TYPED_TEST(MathIntersection, RayAndTorusOX) {
     auto rdt = r + static_cast<TypeParam>(.1);
     TypeParam Rdt = R + r + 1;
     math::TorusT<TypeParam> torus(r, R, math::Axis::X);
-    const auto dirX = dg::Vector3<TypeParam>(1, 0, 0);
-    const auto dirY = dg::Vector3<TypeParam>(0, 1, 0);
-    const auto dirZ = dg::Vector3<TypeParam>(0, 0, 1);
 
+    const auto dirZ = dg::Vector3<TypeParam>(0, 0, 1);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0, 0, -Rdt), dirZ, torus, 4);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((rdt, 0, -Rdt), dirZ, torus, 0);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0, 0,   -R), dirZ, torus, 3);
@@ -169,6 +167,7 @@ TYPED_TEST(MathIntersection, RayAndTorusOX) {
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0, 0,    R), dirZ, torus, 1);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0, 0,  Rdt), dirZ, torus, 0);
 
+    const auto dirY = dg::Vector3<TypeParam>(0, 1, 0);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0, -Rdt, 0), dirY, torus, 4);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((rdt, -Rdt, 0), dirY, torus, 0);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0,   -R, 0), dirY, torus, 3);
@@ -176,6 +175,7 @@ TYPED_TEST(MathIntersection, RayAndTorusOX) {
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0,    R, 0), dirY, torus, 1);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((  0,  Rdt, 0), dirY, torus, 0);
 
+    const auto dirX = dg::Vector3<TypeParam>(1, 0, 0);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((-rdt, 0, -Rdt), dirX, torus, 0);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((-rdt, 0,   -R), dirX, torus, 2);
     ASSERT_RAY_AND_TORUS_OX_INTERSECTION((-rdt, 0,    0), dirX, torus, 0);
@@ -195,10 +195,8 @@ TYPED_TEST(MathIntersection, RayAndTorusOY) {
     auto rdt = r + static_cast<TypeParam>(.1);
     TypeParam Rdt = R + r + 1;
     math::TorusT<TypeParam> torus(r, R, math::Axis::Y);
-    const auto dirX = dg::Vector3<TypeParam>(1, 0, 0);
-    const auto dirY = dg::Vector3<TypeParam>(0, 1, 0);
-    const auto dirZ = dg::Vector3<TypeParam>(0, 0, 1);
 
+    const auto dirX = dg::Vector3<TypeParam>(1, 0, 0);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((-Rdt,   0, 0), dirX, torus, 4);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((-Rdt, rdt, 0), dirX, torus, 0);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((  -R,   0, 0), dirX, torus, 3);
@@ -206,6 +204,7 @@ TYPED_TEST(MathIntersection, RayAndTorusOY) {
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((   R,   0, 0), dirX, torus, 1);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION(( Rdt,   0, 0), dirX, torus, 0);
 
+    const auto dirZ = dg::Vector3<TypeParam>(0, 0, 1);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((0,   0, -Rdt), dirZ, torus, 4);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((0, rdt, -Rdt), dirZ, torus, 0);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((0,   0,   -R), dirZ, torus, 3);
@@ -213,6 +212,7 @@ TYPED_TEST(MathIntersection, RayAndTorusOY) {
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((0,   0,    R), dirZ, torus, 1);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((0,   0,  Rdt), dirZ, torus, 0);
 
+    const auto dirY = dg::Vector3<TypeParam>(0, 1, 0);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((-Rdt, -rdt, 0), dirY, torus, 0);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((  -R, -rdt, 0), dirY, torus, 2);
     ASSERT_RAY_AND_TORUS_OY_INTERSECTION((   0, -rdt, 0), dirY, torus, 0);
@@ -232,10 +232,8 @@ TYPED_TEST(MathIntersection, RayAndTorusOZ) {
     auto rdt = r + static_cast<TypeParam>(.1);
     TypeParam Rdt = R + r + 1;
     math::TorusT<TypeParam> torus(r, R, math::Axis::Z);
-    const auto dirX = dg::Vector3<TypeParam>(1, 0, 0);
-    const auto dirY = dg::Vector3<TypeParam>(0, 1, 0);
-    const auto dirZ = dg::Vector3<TypeParam>(0, 0, 1);
 
+    const auto dirX = dg::Vector3<TypeParam>(1, 0, 0);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((-Rdt, 0,   0), dirX, torus, 4);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((-Rdt, 0, rdt), dirX, torus, 0);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((  -R, 0,   0), dirX, torus, 3);
@@ -243,6 +241,7 @@ TYPED_TEST(MathIntersection, RayAndTorusOZ) {
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((   R, 0,   0), dirX, torus, 1);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION(( Rdt, 0,   0), dirX, torus, 0);
 
+    const auto dirY = dg::Vector3<TypeParam>(0, 1, 0);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((0, -Rdt,   0), dirY, torus, 4);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((0, -Rdt, rdt), dirY, torus, 0);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((0,   -R,   0), dirY, torus, 3);
@@ -250,6 +249,7 @@ TYPED_TEST(MathIntersection, RayAndTorusOZ) {
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((0,    R,   0), dirY, torus, 1);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((0,  Rdt,   0), dirY, torus, 0);
 
+    const auto dirZ = dg::Vector3<TypeParam>(0, 0, 1);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((-Rdt, 0, -rdt), dirZ, torus, 0);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((  -R, 0, -rdt), dirZ, torus, 2);
     ASSERT_RAY_AND_TORUS_OZ_INTERSECTION((   0, 0, -rdt), dirZ, torus, 0);
