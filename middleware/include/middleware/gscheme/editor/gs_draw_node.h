@@ -36,7 +36,7 @@ private:
     static constexpr const float m_nodePaddingTop = 4;
     static constexpr const float m_nodePaddingBottom = 8;
 
-    static constexpr const auto m_iconSize = math::SizeF(24.f, 24.f);
+    static constexpr const float m_iconSideSize = 24.f;
 };
 
 }

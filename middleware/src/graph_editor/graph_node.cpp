@@ -114,12 +114,12 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
     const float nodePaddingRight = 8;
     const float nodePaddingTop = 4;
     const float nodePaddingBottom = 8;
-    const auto iconSize = math::SizeF(24.f, 24.f);
-    const auto innerPinColor = math::Color(32, 32, 32, alpha);
     const auto headerColor = math::Color(0, 125, 0, alpha).value;
     const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(alpha) / (3 * 255));
     const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
-
+    gui::IconStyle iconStyle;
+    iconStyle.sideSize = 24.f;
+    iconStyle.fillColor = math::Color(32, 32, 32, alpha);
 
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, nodePaddingTop, nodePaddingRight, nodePaddingBottom));
     ne::NodeId id(this);
@@ -131,7 +131,7 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
     auto headerMin = ImGui::GetItemRectMin();
     auto headerMax = ImGui::GetItemRectMax();
     auto headerSize = ImGui::GetItemRectSize();
-    float dummySize = headerSize.x - static_cast<float>(iconSize.w + 8);
+    float dummySize = headerSize.x - iconStyle.sideSize + 8.f;
     ImGui::Dummy(ImVec2(1.0f, nodePaddingTop));
     ImGui::EndGroup();
 
@@ -140,10 +140,11 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
         ImGui::BeginGroup();
         for (auto& pin : m_inputPins) {
             ne::BeginPin(ne::PinId(&pin), ne::PinKind::Input);
-            gui::Icon(iconSize, gui::IconType::Circle, pin.isConnected, GetColorByPinType(pin.pinType, alpha), innerPinColor);
+            iconStyle.color = GetColorByPinType(pin.pinType, alpha);
+            gui::Icon(gui::IconType::Circle, pin.isConnected, iconStyle);
             ne::EndPin();
         }
-        dummySize -= static_cast<float>(iconSize.w + 8);
+        dummySize -= (iconStyle.sideSize + 8.f);
         ImGui::EndGroup();
         ImGui::SameLine();
     }
@@ -156,7 +157,8 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
         ImGui::BeginGroup();
             ne::BeginPin(ne::PinId(&m_outputPin), ne::PinKind::Output);
             bool filled = ((isSelected && (m_outputs.size() > 1)) || (!isSelected && !m_outputs.empty()));
-            gui::Icon(iconSize, gui::IconType::Circle, filled, GetColorByPinType(m_outputPin.pinType, alpha), innerPinColor);
+            iconStyle.color = GetColorByPinType(m_outputPin.pinType, alpha);
+            gui::Icon(gui::IconType::Circle, filled, iconStyle);
             ne::EndPin();
         ImGui::EndGroup();
     }

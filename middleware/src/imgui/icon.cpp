@@ -26,7 +26,7 @@ void DrawTriangle(ImDrawList* drawList, math::RectF rect, float triangleStart, u
         color);
 }
 
-void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
+void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
     const auto thickness = GetThickness(rect);
     const auto originScale = rect.w / 24.0f;
     const auto offsetX  = 1.0f * originScale;
@@ -70,8 +70,8 @@ void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
         ImVec2(left, bottom) - ImVec2(0, rounding));
 
     if (!filled) {
-        if (innerColor & 0xFF000000) {
-            drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, innerColor);
+        if (fillColor & 0xFF000000) {
+            drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, fillColor);
         }
 
         drawList->PathStroke(color, true, thickness);
@@ -80,7 +80,7 @@ void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
     }
 }
 
-void DrawCircle(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
+void DrawCircle(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
     const auto thickness = GetThickness(rect);
     const auto numSegments = GetNumSegments(rect, 12);
     const auto triangleStart = rect.CenterX() + 0.32f * rect.w;
@@ -91,8 +91,8 @@ void DrawCircle(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t co
     if (!filled) {
         const auto r = 0.5f * rect.w / 2.0f - 0.5f;
 
-        if (innerColor & 0xFF000000)
-            drawList->AddCircleFilled(c, r, innerColor, numSegments);
+        if (fillColor & 0xFF000000)
+            drawList->AddCircleFilled(c, r, fillColor, numSegments);
         drawList->AddCircle(c, r, color, numSegments, thickness);
     } else {
         drawList->AddCircleFilled(c, 0.5f * rect.w / 2.0f, color, numSegments);
@@ -101,7 +101,7 @@ void DrawCircle(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t co
     DrawTriangle(drawList, rect, triangleStart, color);
 }
 
-void DrawSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
+void DrawSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
     const auto thickness = GetThickness(rect);
     const auto numSegments = GetNumSegments(rect, 15);
     const auto triangleStart = rect.CenterX() + 0.32f * rect.w;
@@ -118,8 +118,8 @@ void DrawSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t co
         const auto p0 = ToImGui(rect.Center()) - ImVec2(r, r);
         const auto p1 = ToImGui(rect.Center()) + ImVec2(r, r);
 
-        if (innerColor & 0xFF000000) {
-            drawList->AddRectFilled(p0, p1, innerColor, 0, numSegments);
+        if (fillColor & 0xFF000000) {
+            drawList->AddRectFilled(p0, p1, fillColor, 0, numSegments);
         }
 
         drawList->AddRect(p0, p1, color, 0, numSegments, thickness);
@@ -160,7 +160,7 @@ void DrawGrid(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
     DrawTriangle(drawList, rect, triangleStart, color);
 }
 
-void DrawRoundSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
+void DrawRoundSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
     const auto thickness = GetThickness(rect);
     rect.x -= (rect.w * 0.25f * 0.25f);
 
@@ -177,15 +177,15 @@ void DrawRoundSquare(ImDrawList* drawList, math::RectF rect, bool filled, uint32
         const auto p0 = ToImGui(rect.Center()) - ImVec2(r, r);
         const auto p1 = ToImGui(rect.Center()) + ImVec2(r, r);
 
-        if (innerColor & 0xFF000000) {
-            drawList->AddRectFilled(p0, p1, innerColor, cr, 15);
+        if (fillColor & 0xFF000000) {
+            drawList->AddRectFilled(p0, p1, fillColor, cr, 15);
         }
 
         drawList->AddRect(p0, p1, color, cr, 15, thickness);
     }
 }
 
-void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t innerColor) {
+void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
     const auto thickness = GetThickness(rect);
     rect.x -= (rect.w * 0.25f * 0.25f);
 
@@ -207,55 +207,59 @@ void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t c
         drawList->PathLineTo(ToImGui(c) + ImVec2( 0,  r));
         drawList->PathLineTo(ToImGui(c) + ImVec2(-r,  0));
 
-        if (innerColor & 0xFF000000) {
-            drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, innerColor);
+        if (fillColor & 0xFF000000) {
+            drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, fillColor);
         }
 
         drawList->PathStroke(color, true, thickness);
     }
 }
 
-math::RectF Icon(math::SizeF size, IconType type, bool filled, math::Color color, math::Color innerColor) {
+math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF minSize) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::RectF();
     }
 
-    const auto iconPos = ToPointF(window->DC.CursorPos);
-    const math::RectF iconRect(iconPos, size);
+    const math::SizeF drawSize(style.sideSize, style.sideSize);
 
-    if (!ItemFullAdd(iconRect)) {
-        return iconRect;
+    math::RectF drawRect;
+    math::RectF widgetRect;
+    if (!PlaceWidget(static_cast<const Style*>(&style), minSize, drawSize, drawRect, widgetRect)) {
+        return widgetRect;
     }
 
-    if (IsRectVisible(iconRect)) {
-        auto drawList = window->DrawList;
-        const auto clr = color.value;
-        const auto innerClr = innerColor.value;
-
-        switch (type) {
-        case IconType::Flow:
-            DrawFlow(drawList, iconRect, filled, clr, innerClr);
-            break;
-        case IconType::Circle:
-            DrawCircle(drawList, iconRect, filled, clr, innerClr);
-            break;
-        case IconType::Square:
-            DrawSquare(drawList, iconRect, filled, clr, innerClr);
-            break;
-        case IconType::Grid:
-            DrawGrid(drawList, iconRect, filled, clr);
-            break;
-        case IconType::RoundSquare:
-            DrawRoundSquare(drawList, iconRect, filled, clr, innerClr);
-            break;
-        case IconType::Diamond:
-            DrawDiamond(drawList, iconRect, filled, clr, innerClr);
-            break;
-        }
+    if (!IsRectVisible(drawRect)) {
+        return widgetRect;
     }
 
-    return iconRect;
+    auto drawList = window->DrawList;
+    const auto color = style.color.value;
+    const auto fillColor = style.fillColor.value;
+
+    switch (type) {
+    case IconType::Flow:
+        DrawFlow(drawList, drawRect, filled, color, fillColor);
+        break;
+    case IconType::Circle:
+        DrawCircle(drawList, drawRect, filled, color, fillColor);
+        break;
+    case IconType::Square:
+        DrawSquare(drawList, drawRect, filled, color, fillColor);
+        break;
+    case IconType::Grid:
+        DrawGrid(drawList, drawRect, filled, color);
+        break;
+    case IconType::RoundSquare:
+        DrawRoundSquare(drawList, drawRect, filled, color, fillColor);
+        break;
+    case IconType::Diamond:
+        DrawDiamond(drawList, drawRect, filled, color, fillColor);
+        break;
+    }
+
+
+    return widgetRect;
 }
 
 } // end namespace gui
