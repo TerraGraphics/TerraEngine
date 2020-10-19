@@ -9,13 +9,15 @@ namespace gui {
 enum class IconType : uint8_t {
     Circle,
     CircleTriangle,
+    Hexagon,
+    HexagonTriangle,
+    Tetragon,
     RoundSquare,
     RoundSquareTriangle,
     Square,
     SquareTriangle,
     Triangle,
-    Flow,
-    Diamond
+    Flow
 };
 
 struct IconStyle : Style {

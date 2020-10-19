@@ -64,6 +64,21 @@ public:
         }
     }
 
+    void DrawNgon(int numSegments, bool withTriange) const {
+        const auto r = GetRadius();
+        const auto center = GetCenter();
+
+        if (m_filled) {
+            m_drawList->AddNgonFilled(center, r, m_color, numSegments);
+        } else {
+            m_drawList->AddNgon(center, r, m_color, numSegments, GetThickness());
+        }
+
+        if (withTriange) {
+            DrawAdditionalTriangle();
+        }
+    }
+
     void DrawSquare(bool rounded, bool withTriange) const {
         const auto r = GetRadius();
         const auto center = GetCenter();
@@ -161,36 +176,6 @@ void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
     }
 }
 
-void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
-    const auto thickness = GetThickness(rect);
-    rect.x -= (rect.w * 0.25f * 0.25f);
-
-    if (filled) {
-        const auto r = 0.607f * rect.w / 2.0f;
-        const auto c = rect.Center();
-
-        drawList->PathLineTo(ToImGui(c) + ImVec2( 0, -r));
-        drawList->PathLineTo(ToImGui(c) + ImVec2( r,  0));
-        drawList->PathLineTo(ToImGui(c) + ImVec2( 0,  r));
-        drawList->PathLineTo(ToImGui(c) + ImVec2(-r,  0));
-        drawList->PathFillConvex(color);
-    } else {
-        const auto r = 0.607f * rect.w / 2.0f - 0.5f;
-        const auto c = rect.Center();
-
-        drawList->PathLineTo(ToImGui(c) + ImVec2( 0, -r));
-        drawList->PathLineTo(ToImGui(c) + ImVec2( r,  0));
-        drawList->PathLineTo(ToImGui(c) + ImVec2( 0,  r));
-        drawList->PathLineTo(ToImGui(c) + ImVec2(-r,  0));
-
-        if (fillColor & 0xFF000000) {
-            drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, fillColor);
-        }
-
-        drawList->PathStroke(color, true, thickness);
-    }
-}
-
 math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF minSize) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
@@ -221,6 +206,15 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
     case IconType::CircleTriangle:
         driver.DrawCircle(true);
         break;
+    case IconType::Hexagon:
+        driver.DrawNgon(6, false);
+        break;
+    case IconType::HexagonTriangle:
+        driver.DrawNgon(6, true);
+        break;
+    case IconType::Tetragon:
+        driver.DrawNgon(4, false);
+        break;
     case IconType::RoundSquare:
         driver.DrawSquare(true, false);
         break;
@@ -238,9 +232,6 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
         break;
     case IconType::Flow:
         DrawFlow(drawList, drawRect, filled, color, fillColor);
-        break;
-    case IconType::Diamond:
-        DrawDiamond(drawList, drawRect, filled, color, fillColor);
         break;
     }
 
