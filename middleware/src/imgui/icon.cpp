@@ -10,12 +10,11 @@ namespace gui {
 
 class IconDriver {
 public:
-    IconDriver(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color) noexcept
+    IconDriver(ImDrawList* drawList, math::RectF rect, uint32_t color, bool filled) noexcept
         : m_drawList(drawList)
-        , m_thickness(rect.w / 12.0f)
         , m_rect(rect)
-        , m_filled(filled)
-        , m_color(color) {}
+        , m_color(color)
+        , m_filled(filled) {}
 
     float GetAdditionalTriangleSizeX() const noexcept {
         return m_rect.w * 0.13f;
@@ -31,6 +30,10 @@ public:
             r -= 0.5f;
         }
         return r;
+    }
+
+    float GetThickness() const noexcept {
+        return m_rect.w / 12.0f;
     }
 
     void DrawAdditionalTriangle() const {
@@ -53,7 +56,7 @@ public:
         if (m_filled) {
             m_drawList->AddCircleFilled(center, r, m_color, numSegments);
         } else {
-            m_drawList->AddCircle(center, r, m_color, numSegments, m_thickness);
+            m_drawList->AddCircle(center, r, m_color, numSegments, GetThickness());
         }
 
         if (withTriange) {
@@ -71,7 +74,7 @@ public:
         if (m_filled) {
             m_drawList->AddRectFilled(p0, p1, m_color, rounding, ImDrawCornerFlags_All);
         } else {
-            m_drawList->AddRect(p0, p1, m_color, rounding, ImDrawCornerFlags_All, m_thickness);
+            m_drawList->AddRect(p0, p1, m_color, rounding, ImDrawCornerFlags_All, GetThickness());
         }
 
         if (withTriange) {
@@ -79,26 +82,29 @@ public:
         }
     }
 
+    void DrawTriangle() const {
+        const auto r = GetRadius();
+        const auto center = GetCenter();
+        const auto p0 = center + ImVec2(-r,  r);
+        const auto p1 = center + ImVec2(-r, -r);
+        const auto p2 = center + ImVec2( r,  0);
+
+        if (m_filled) {
+            m_drawList->AddTriangleFilled(p0, p1, p2, m_color);
+        } else {
+            m_drawList->AddTriangle(p0, p1, p2, m_color, GetThickness());
+        }
+    }
+
 private:
     ImDrawList* m_drawList;
-    const float m_thickness;
     const math::RectF m_rect;
-    const bool m_filled;
     const uint32_t m_color;
+    const bool m_filled;
 };
 
 float GetThickness(math::RectF rect) {
     return rect.w / 12.0f;
-}
-
-void DrawTriangle(ImDrawList* drawList, math::RectF rect, float triangleStart, uint32_t color) {
-    const auto triangleTip = triangleStart + rect.w * (0.45f - 0.32f);
-
-    drawList->AddTriangleFilled(
-        ImVec2(ceilf(triangleTip), rect.Top() + rect.h * 0.5f),
-        ImVec2(triangleStart, rect.CenterY() + 0.15f * rect.h),
-        ImVec2(triangleStart, rect.CenterY() - 0.15f * rect.h),
-        color);
 }
 
 void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
@@ -155,38 +161,6 @@ void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t colo
     }
 }
 
-void DrawGrid(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color) {
-    rect.x -= (rect.w * 0.25f * 0.25f);
-
-    const auto r = 0.5f * rect.w / 2.0f;
-    const auto w = ceilf(r / 3.0f);
-
-    const auto baseTl = ImVec2(floorf(rect.CenterX() - w * 2.5f), floorf(rect.CenterY() - w * 2.5f));
-    const auto baseBr = ImVec2(floorf(baseTl.x + w), floorf(baseTl.y + w));
-
-    auto tl = baseTl;
-    auto br = baseBr;
-    for (int i = 0; i < 3; ++i) {
-        tl.x = baseTl.x;
-        br.x = baseBr.x;
-        drawList->AddRectFilled(tl, br, color);
-        tl.x += w * 2;
-        br.x += w * 2;
-        if (i != 1 || filled) {
-            drawList->AddRectFilled(tl, br, color);
-        }
-        tl.x += w * 2;
-        br.x += w * 2;
-        drawList->AddRectFilled(tl, br, color);
-
-        tl.y += w * 2;
-        br.y += w * 2;
-    }
-
-    const auto triangleStart = br.x + w + 1.0f / 24.0f * rect.w;
-    DrawTriangle(drawList, rect, triangleStart, color);
-}
-
 void DrawDiamond(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
     const auto thickness = GetThickness(rect);
     rect.x -= (rect.w * 0.25f * 0.25f);
@@ -239,7 +213,7 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
     const auto color = style.color.value;
     const auto fillColor = style.fillColor.value;
 
-    IconDriver driver(drawList, drawRect, filled, color);
+    IconDriver driver(window->DrawList, drawRect, style.color.value, filled);
     switch (type) {
     case IconType::Circle:
         driver.DrawCircle(false);
@@ -259,11 +233,11 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
     case IconType::SquareTriangle:
         driver.DrawSquare(false, true);
         break;
+    case IconType::Triangle:
+        driver.DrawTriangle();
+        break;
     case IconType::Flow:
         DrawFlow(drawList, drawRect, filled, color, fillColor);
-        break;
-    case IconType::Grid:
-        DrawGrid(drawList, drawRect, filled, color);
         break;
     case IconType::Diamond:
         DrawDiamond(drawList, drawRect, filled, color, fillColor);

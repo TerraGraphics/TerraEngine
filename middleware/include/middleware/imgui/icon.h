@@ -13,8 +13,8 @@ enum class IconType : uint8_t {
     RoundSquareTriangle,
     Square,
     SquareTriangle,
+    Triangle,
     Flow,
-    Grid,
     Diamond
 };
 
