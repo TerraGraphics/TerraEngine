@@ -10,45 +10,56 @@ namespace gui {
 
 class IconDriver {
 public:
-    IconDriver(ImDrawList* drawList, float sideSize, math::RectF rect, bool filled, uint32_t color)
+    IconDriver(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color) noexcept
         : m_drawList(drawList)
-        , m_thickness(sideSize / 12.0f)
+        , m_thickness(rect.w / 12.0f)
         , m_rect(rect)
         , m_filled(filled)
         , m_color(color) {}
 
-    void DrawAdditionalTriangle(float triangleStart) {
-        const auto triangleTip = triangleStart + m_rect.w * (0.45f - 0.32f);
+    float GetAdditionalTriangleSizeX() const noexcept {
+        return m_rect.w * 0.13f;
+    }
+
+    math::PointF GetCenter() const noexcept {
+        return math::PointF(m_rect.CenterX() - GetAdditionalTriangleSizeX() * 0.5f, m_rect.CenterY());
+    }
+
+    float GetRadius() const noexcept {
+        float r = m_rect.w / 3.f - GetAdditionalTriangleSizeX() * 0.5f;
+        if (!m_filled) {
+            r -= 0.5f;
+        }
+        return r;
+    }
+
+    void DrawAdditionalTriangle() const {
+        const float x1 = m_rect.Right() - 1.5f;
+        const float x0 = x1 - GetAdditionalTriangleSizeX();
+        const float centerY = m_rect.CenterY();
 
         m_drawList->AddTriangleFilled(
-            ImVec2(ceilf(triangleTip), m_rect.Top() + m_rect.h * 0.5f),
-            ImVec2(triangleStart, m_rect.CenterY() + 0.15f * m_rect.h),
-            ImVec2(triangleStart, m_rect.CenterY() - 0.15f * m_rect.h),
+            ImVec2(x0, centerY - 0.15f * m_rect.h),
+            ImVec2(x0, centerY + 0.15f * m_rect.h),
+            ImVec2(x1, centerY),
             m_color);
     }
 
     void DrawSquare(bool rounded, bool withTriange) {
-        const auto triangleStart = m_rect.CenterX() + 0.32f * m_rect.w;
-        m_rect.x -= (m_rect.w * 0.25f * 0.25f);
+        const auto r = GetRadius();
+        const auto center = ToImGui(GetCenter());
+        const auto rounding = rounded ? r * 0.5f : 0;
+        const auto p0 = center - ImVec2(r, r);
+        const auto p1 = center + ImVec2(r, r);
 
         if (m_filled) {
-            const auto r  = 0.5f * m_rect.w / 2.0f;
-            const auto rounding = rounded ? r * 0.5f : 0;
-            const auto p0 = ToImGui(m_rect.Center()) - ImVec2(r, r);
-            const auto p1 = ToImGui(m_rect.Center()) + ImVec2(r, r);
-
             m_drawList->AddRectFilled(p0, p1, m_color, rounding, ImDrawCornerFlags_All);
         } else {
-            const auto r = 0.5f * m_rect.w / 2.0f - 0.5f;
-            const auto rounding = rounded ? r * 0.5f : 0;
-            const auto p0 = ToImGui(m_rect.Center()) - ImVec2(r, r);
-            const auto p1 = ToImGui(m_rect.Center()) + ImVec2(r, r);
-
             m_drawList->AddRect(p0, p1, m_color, rounding, ImDrawCornerFlags_All, m_thickness);
         }
 
         if (withTriange) {
-            DrawAdditionalTriangle(triangleStart);
+            DrawAdditionalTriangle();
         }
     }
 
@@ -237,7 +248,7 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
     const auto color = style.color.value;
     const auto fillColor = style.fillColor.value;
 
-    IconDriver driver(drawList, style.sideSize, drawRect, filled, color);
+    IconDriver driver(drawList, drawRect, filled, color);
     switch (type) {
     case IconType::Square:
         driver.DrawSquare(false, false);
