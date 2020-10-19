@@ -7,12 +7,13 @@
 namespace gui {
 
 enum class IconType : uint8_t {
-    Square,
-    SquareTriangle,
+    Circle,
+    CircleTriangle,
     RoundSquare,
     RoundSquareTriangle,
+    Square,
+    SquareTriangle,
     Flow,
-    Circle,
     Grid,
     Diamond
 };

@@ -430,21 +430,21 @@ struct RectT {
     }
 
     RectT operator+(const RectT<T>& o) const noexcept {
-        auto minX = std::min(Left(), o.Left());
-        auto minY = std::min(Top(), o.Top());
-        auto maxX = std::max(Right(), o.Right());
-        auto maxY = std::max(Right(), o.Right());
+        const auto maxX = std::max(Right(), o.Right());
+        const auto maxY = std::max(Right(), o.Right());
+        const auto minX = std::min(Left(), o.Left());
+        const auto minY = std::min(Top(), o.Top());
+
         return RectT(minX, minY, maxX - minX, maxY - minY);
     }
     RectT& operator+=(const RectT<T>& o) noexcept {
-        auto minX = std::min(Left(), o.Left());
-        auto minY = std::min(Top(), o.Top());
-        auto maxX = std::max(Right(), o.Right());
-        auto maxY = std::max(Right(), o.Right());
-        x = minX;
-        y = minY;
-        w = maxX - minX;
-        h = maxY - minY;
+        const auto maxX = std::max(Right(), o.Right());
+        const auto maxY = std::max(Right(), o.Right());
+
+        x = std::min(Left(), o.Left());
+        y = std::min(Top(), o.Top());
+        w = maxX - x;
+        h = maxY - y;
         return *this;
     }
 
