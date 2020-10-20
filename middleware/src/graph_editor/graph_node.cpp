@@ -119,7 +119,6 @@ void GraphNode::Draw(bool isSelected, uint8_t alpha, TextureViewRaw texBackgroun
     const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
     gui::IconStyle iconStyle;
     iconStyle.sideSize = 24.f;
-    iconStyle.fillColor = math::Color(32, 32, 32, alpha);
 
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(nodePaddingLeft, nodePaddingTop, nodePaddingRight, nodePaddingBottom));
     ne::NodeId id(this);

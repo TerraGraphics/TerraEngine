@@ -24,6 +24,10 @@ public:
         return ImVec2(m_rect.CenterX() - GetAdditionalTriangleSizeX() * 0.5f, m_rect.CenterY());
     }
 
+    float GetOffset() const noexcept {
+        return m_rect.w / 6.f;
+    }
+
     float GetRadius() const noexcept {
         float r = m_rect.w / 3.f - GetAdditionalTriangleSizeX() * 0.5f;
         if (!m_filled) {
@@ -111,70 +115,63 @@ public:
         }
     }
 
+    void DrawFlow() const {
+        const auto originScale = m_rect.w / 24.0f;
+        const auto offsetX  = 1.0f * originScale;
+        const auto offsetY  = 0.0f * originScale;
+        const auto margin   = (m_filled ? 0.0f : 1.5f) * originScale;
+        const auto rounding = 0.1f * originScale;
+        const auto tipRound = 0.7f; // percentage of triangle edge (for tip)
+
+        const auto canvas = math::RectF(
+            m_rect.x + margin + offsetX,
+            m_rect.y + margin + offsetY,
+            m_rect.w - margin * 2.0f,
+            m_rect.h - margin * 2.0f);
+
+        const auto left    = canvas.x + canvas.w            * 0.5f * 0.3f;
+        const auto right   = canvas.x + canvas.w - canvas.w * 0.5f * 0.3f;
+        const auto top     = canvas.y + canvas.h            * 0.5f * 0.2f;
+        const auto bottom  = canvas.y + canvas.h - canvas.h * 0.5f * 0.2f;
+        const auto centerY = (top + bottom) * 0.5f;
+
+        const auto leftTop    = ImVec2(left, top);
+        const auto leftBottom = ImVec2(left, bottom);
+        const auto tipTop     = ImVec2(canvas.x + canvas.w * 0.5f, top);
+        const auto tipRight   = ImVec2(right, centerY);
+        const auto tipBottom  = ImVec2(canvas.x + canvas.w * 0.5f, bottom);
+
+        m_drawList->PathLineTo(leftTop + ImVec2(0, rounding));
+        m_drawList->PathBezierCurveTo(
+            leftTop,
+            leftTop,
+            leftTop + ImVec2(rounding, 0));
+        m_drawList->PathLineTo(tipTop);
+        m_drawList->PathLineTo(tipTop + (tipRight - tipTop) * tipRound);
+        m_drawList->PathBezierCurveTo(
+            tipRight,
+            tipRight,
+            tipBottom + (tipRight - tipBottom) * tipRound);
+        m_drawList->PathLineTo(tipBottom);
+        m_drawList->PathLineTo(leftBottom + ImVec2(rounding, 0));
+        m_drawList->PathBezierCurveTo(
+            leftBottom,
+            leftBottom,
+            leftBottom - ImVec2(0, rounding));
+
+        if (m_filled) {
+            m_drawList->PathFillConvex(m_color);
+        } else {
+            m_drawList->PathStroke(m_color, true, GetThickness());
+        }
+    }
+
 private:
     ImDrawList* m_drawList;
     const math::RectF m_rect;
     const uint32_t m_color;
     const bool m_filled;
 };
-
-float GetThickness(math::RectF rect) {
-    return rect.w / 12.0f;
-}
-
-void DrawFlow(ImDrawList* drawList, math::RectF rect, bool filled, uint32_t color, uint32_t fillColor) {
-    const auto thickness = GetThickness(rect);
-    const auto originScale = rect.w / 24.0f;
-    const auto offsetX  = 1.0f * originScale;
-    const auto offsetY  = 0.0f * originScale;
-    const auto margin   = (filled ? 2.0f : 2.0f) * originScale;
-    const auto rounding = 0.1f * originScale;
-    const auto tipRound = 0.7f; // percentage of triangle edge (for tip)
-
-    const auto canvas = math::RectF(
-        rect.x + margin + offsetX,
-        rect.y + margin + offsetY,
-        rect.w - margin * 2.0f,
-        rect.h - margin * 2.0f);
-
-    const auto left   = canvas.x + canvas.w            * 0.5f * 0.3f;
-    const auto right  = canvas.x + canvas.w - canvas.w * 0.5f * 0.3f;
-    const auto top    = canvas.y + canvas.h            * 0.5f * 0.2f;
-    const auto bottom = canvas.y + canvas.h - canvas.h * 0.5f * 0.2f;
-    const auto center_y = (top + bottom) * 0.5f;
-
-    const auto tipTop    = ImVec2(canvas.x + canvas.w * 0.5f, top);
-    const auto tipRight  = ImVec2(right, center_y);
-    const auto tipBottom = ImVec2(canvas.x + canvas.w * 0.5f, bottom);
-
-    drawList->PathLineTo(ImVec2(left, top) + ImVec2(0, rounding));
-    drawList->PathBezierCurveTo(
-        ImVec2(left, top),
-        ImVec2(left, top),
-        ImVec2(left, top) + ImVec2(rounding, 0));
-    drawList->PathLineTo(tipTop);
-    drawList->PathLineTo(tipTop + (tipRight - tipTop) * tipRound);
-    drawList->PathBezierCurveTo(
-        tipRight,
-        tipRight,
-        tipBottom + (tipRight - tipBottom) * tipRound);
-    drawList->PathLineTo(tipBottom);
-    drawList->PathLineTo(ImVec2(left, bottom) + ImVec2(rounding, 0));
-    drawList->PathBezierCurveTo(
-        ImVec2(left, bottom),
-        ImVec2(left, bottom),
-        ImVec2(left, bottom) - ImVec2(0, rounding));
-
-    if (!filled) {
-        if (fillColor & 0xFF000000) {
-            drawList->AddConvexPolyFilled(drawList->_Path.Data, drawList->_Path.Size, fillColor);
-        }
-
-        drawList->PathStroke(color, true, thickness);
-    } else {
-        drawList->PathFillConvex(color);
-    }
-}
 
 math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF minSize) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -193,10 +190,6 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
     if (!IsRectVisible(drawRect)) {
         return widgetRect;
     }
-
-    auto drawList = window->DrawList;
-    const auto color = style.color.value;
-    const auto fillColor = style.fillColor.value;
 
     IconDriver driver(window->DrawList, drawRect, style.color.value, filled);
     switch (type) {
@@ -231,7 +224,7 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
         driver.DrawTriangle();
         break;
     case IconType::Flow:
-        DrawFlow(drawList, drawRect, filled, color, fillColor);
+        driver.DrawFlow();
         break;
     }
 

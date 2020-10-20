@@ -66,14 +66,13 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
-    iconStyle.fillColor = math::Color(32, 32, 32, m_alpha);
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
-            m_nodeRect += gui::Icon(gui::IconType::Circle, pin.isConnected, iconStyle);
+            m_nodeRect += gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
         gui::SameLine();
         m_nodeRect += gui::Label(pin.prettyName, labelStyle, math::SizeF(0, m_iconSideSize));
@@ -94,7 +93,6 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
-    iconStyle.fillColor = math::Color(32, 32, 32, m_alpha);
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
@@ -106,7 +104,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
         m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, labelRect.w);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
-            m_nodeRect += gui::Icon(gui::IconType::Circle, pin.isConnected, iconStyle);
+            m_nodeRect += gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
     }
 

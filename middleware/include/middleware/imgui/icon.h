@@ -22,7 +22,6 @@ enum class IconType : uint8_t {
 
 struct IconStyle : Style {
     math::Color color = math::Color(255);
-    math::Color fillColor = math::Color(255);
     float sideSize = 24.f;
 };
 
