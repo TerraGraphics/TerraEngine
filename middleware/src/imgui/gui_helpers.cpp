@@ -7,17 +7,22 @@
 
 namespace gui {
 
-void ItemSize(math::SizeF size) {
-    ImGui::ItemSize(ToImGui(size), 0);
+void ItemSize(math::SizeF widgetSize) {
+    ImGui::ItemSize(ToImGui(widgetSize), 0);
 }
 
-bool ItemAdd(math::RectF rect) {
-    return ImGui::ItemAdd(ToImGui(rect), 0);
+bool ItemAdd(math::RectF widgetRect) {
+    return ImGui::ItemAdd(ToImGui(widgetRect), 0);
 }
 
-bool ItemFullAdd(math::RectF rect) {
-    ItemSize(rect.Size());
-    return ItemAdd(rect);
+bool PlaceWidget(math::SizeF widgetSize, math::RectF& widgetRect) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+
+    const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
+    widgetRect = math::RectF(widgetPos, widgetSize);
+
+    ItemSize(widgetSize);
+    return ItemAdd(widgetRect);
 }
 
 bool PlaceWidget(const Style* style, math::SizeF minSize, math::SizeF drawSize, math::RectF& drawRect, math::RectF& widgetRect) {
@@ -50,7 +55,7 @@ bool PlaceWidget(const Style* style, math::SizeF minSize, math::SizeF drawSize, 
         break;
     }
 
-    ItemSize(widgetRect.Size());
+    ItemSize(widgetSize);
     return ItemAdd(widgetRect);
 }
 

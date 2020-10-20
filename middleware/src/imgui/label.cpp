@@ -8,19 +8,6 @@
 
 namespace gui {
 
-void SameLine() {
-    ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
-        return;
-    }
-
-    window->DC.CursorPos.x = window->DC.CursorPosPrevLine.x + g.Style.ItemSpacing.x;
-    window->DC.CursorPos.y = window->DC.CursorPosPrevLine.y;
-    window->DC.CurrLineSize = window->DC.PrevLineSize;
-    window->DC.CurrLineTextBaseOffset = window->DC.PrevLineTextBaseOffset;
-}
-
 math::SizeF CalcTextSize(std::string_view text, float wrapWidth) {
     return ToSizeF(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, wrapWidth));
 }

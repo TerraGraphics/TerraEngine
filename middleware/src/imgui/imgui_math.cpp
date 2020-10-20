@@ -48,6 +48,10 @@ math::SizeF ToSizeF(ImVec2 value) {
     return math::SizeF(value.x, value.y);
 }
 
+math::RectF ToRectF(ImRect value) {
+    return math::RectF(value.Min.x, value.Min.y, value.GetWidth(), value.GetHeight());
+}
+
 math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax) {
     return math::RectF(ToPointF(pointMin), ToPointF(pointMax));
 }

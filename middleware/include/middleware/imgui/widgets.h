@@ -79,10 +79,6 @@ template<typename T, size_t N>
         return false;
     }
 
-void BeginGroup();
-void EndGroup();
-void Dummy(math::SizeF size);
-
 void Text(std::string_view text);
 
 math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,

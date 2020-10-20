@@ -11,7 +11,6 @@ namespace gui {
 struct LabelStyle : Style {
 };
 
-void SameLine();
 math::RectF Label(std::string_view text, const LabelStyle& style = LabelStyle(), math::SizeF minSize = math::SizeF());
 
 } // end namespace gui

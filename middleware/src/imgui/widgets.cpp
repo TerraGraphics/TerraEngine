@@ -216,26 +216,6 @@ bool Combo(const char* label, size_t& currentIndex, const char* const* itemNames
 
 } // end namespace gui::detail
 
-void BeginGroup() {
-    ImGui::BeginGroup();
-}
-
-void EndGroup() {
-    ImGui::EndGroup();
-}
-
-void Dummy(math::SizeF size) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
-        return;
-    }
-
-    const auto imSize = ToImGui(size);
-    const ImRect bb(window->DC.CursorPos, window->DC.CursorPos + imSize);
-    ImGui::ItemSize(imSize);
-    ImGui::ItemAdd(bb, 0);
-}
-
 void Text(std::string_view text) {
     ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
 }
