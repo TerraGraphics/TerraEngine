@@ -484,6 +484,8 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawInputPins(pins);
 
+    drawer->OnDrawPreview();
+
     pins.clear();
     pins.reserve(OutputPinsCount());
     for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {

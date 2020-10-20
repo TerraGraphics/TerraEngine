@@ -30,6 +30,7 @@ public:
     void OnStartDrawNode(uintptr_t id, std::string prettyName) final;
     void OnFinishDrawNode() final;
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
+    void OnDrawPreview() final;
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
 

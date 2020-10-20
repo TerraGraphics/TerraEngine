@@ -9,19 +9,17 @@
 namespace gs {
 
 void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
+    m_alpha = alpha;
+    m_nodeId = id;
+    m_addSameLine = false;
+
     ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(m_nodePaddingLeft, m_nodePaddingTop, m_nodePaddingRight, m_nodePaddingBottom));
     ne::BeginNode(ne::NodeId(id));
 
-    m_alpha = alpha;
-    m_nodeId = id;
     gui::BeginGroup();
     m_nodeRect = gui::Label(prettyName);
-    m_headerHeight = m_nodeRect.h;
+    m_headerSize = m_nodeRect.Size();
     gui::EndGroup();
-
-    m_existsInputPins = false;
-    m_maxOutputPinNameWidth = m_maxOutputPinNameWidthFrame;
-    m_maxOutputPinNameWidthFrame = 0;
 }
 
 void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) {
@@ -29,7 +27,7 @@ void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSi
     const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
     const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
 
-    auto headerSize = math::SizeF(m_nodeRect.w, m_headerHeight);
+    auto headerSize = math::SizeF(m_nodeRect.w, m_headerSize.h);
     ne::EndNode();
 
     // Header
@@ -58,57 +56,88 @@ void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSi
 
 void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     if (pins.empty()) {
+        m_inputPinsWidth = 0.f;
         return;
     }
-    m_existsInputPins = true;
+
+    m_addSameLine = true;
+
     gui::BeginGroup();
 
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
+
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
+    labelStyle.padding.right = 5.f;
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
-            m_nodeRect += gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
+            gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
         gui::SameLine();
-        m_nodeRect += gui::Label(pin.prettyName, labelStyle, math::SizeF(0, m_iconSideSize));
+        gui::Label(pin.prettyName, labelStyle, math::SizeF(0, m_iconSideSize));
     }
 
-    gui::EndGroup();
+    const auto rect = gui::EndGroup();
+    m_nodeRect += rect;
+    m_inputPinsWidth = rect.Width();
+}
+
+void DrawNode::OnDrawPreview() {
+    float dt = m_headerSize.w - m_inputPinsWidth - m_outputPinsWidth;
+    if (dt <= 0) {
+        return;
+    }
+
+    if (m_addSameLine) {
+        gui::SameLine();
+    }
+    m_addSameLine = true;
+
+    gui::BeginGroup();
+    gui::Dummy(math::SizeF(dt, 0));
+    m_nodeRect += gui::EndGroup();
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     if (pins.empty()) {
+        m_outputPinsWidth = 0.f;
         return;
     }
-    if (m_existsInputPins) {
+
+    if (m_addSameLine) {
         gui::SameLine();
     }
+    m_addSameLine = true;
+
     gui::BeginGroup();
 
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
+
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    labelStyle.padding.left = m_existsInputPins ? 10.f : 0;
+    labelStyle.padding.left = 5.f;
 
+    float outputPinsLabelWidth = 0;
     for (const auto& pin: pins) {
-        auto labelRect = gui::Label(pin.prettyName, labelStyle, math::SizeF(m_maxOutputPinNameWidth, m_iconSideSize));
-        m_nodeRect += labelRect;
-        m_maxOutputPinNameWidthFrame = std::max(m_maxOutputPinNameWidthFrame, labelRect.w);
+        auto labelRect = gui::Label(pin.prettyName, labelStyle, math::SizeF(m_outputPinsLabelWidth, m_iconSideSize));
+        outputPinsLabelWidth = std::max(outputPinsLabelWidth, labelRect.w);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
-            m_nodeRect += gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
+            gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
     }
+    m_outputPinsLabelWidth = outputPinsLabelWidth;
 
-    gui::EndGroup();
+    const auto rect = gui::EndGroup();
+    m_nodeRect += rect;
+    m_outputPinsWidth = rect.Width();
 }
 
 }

@@ -31,6 +31,7 @@ public:
     virtual void OnFinishDrawNode() = 0;
 
     virtual void OnDrawInputPins(const std::vector<Pin>& pins) = 0;
+    virtual void OnDrawPreview() = 0;
     virtual void OnDrawOutputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) = 0;
 

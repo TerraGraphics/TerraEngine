@@ -8,9 +8,9 @@
 
 namespace gui {
 
-class IconDriver {
+class IconDrawer {
 public:
-    IconDriver(ImDrawList* drawList, math::RectF rect, uint32_t color, bool filled) noexcept
+    IconDrawer(ImDrawList* drawList, math::RectF rect, uint32_t color, bool filled) noexcept
         : m_drawList(drawList)
         , m_rect(rect)
         , m_color(color)
@@ -191,40 +191,40 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
         return widgetRect;
     }
 
-    IconDriver driver(window->DrawList, drawRect, style.color.value, filled);
+    IconDrawer drawer(window->DrawList, drawRect, style.color.value, filled);
     switch (type) {
     case IconType::Circle:
-        driver.DrawCircle(false);
+        drawer.DrawCircle(false);
         break;
     case IconType::CircleTriangle:
-        driver.DrawCircle(true);
+        drawer.DrawCircle(true);
         break;
     case IconType::Hexagon:
-        driver.DrawNgon(6, false);
+        drawer.DrawNgon(6, false);
         break;
     case IconType::HexagonTriangle:
-        driver.DrawNgon(6, true);
+        drawer.DrawNgon(6, true);
         break;
     case IconType::Tetragon:
-        driver.DrawNgon(4, false);
+        drawer.DrawNgon(4, false);
         break;
     case IconType::RoundSquare:
-        driver.DrawSquare(true, false);
+        drawer.DrawSquare(true, false);
         break;
     case IconType::RoundSquareTriangle:
-        driver.DrawSquare(true, true);
+        drawer.DrawSquare(true, true);
         break;
     case IconType::Square:
-        driver.DrawSquare(false, false);
+        drawer.DrawSquare(false, false);
         break;
     case IconType::SquareTriangle:
-        driver.DrawSquare(false, true);
+        drawer.DrawSquare(false, true);
         break;
     case IconType::Triangle:
-        driver.DrawTriangle();
+        drawer.DrawTriangle();
         break;
     case IconType::Flow:
-        driver.DrawFlow();
+        drawer.DrawFlow();
         break;
     }
 
