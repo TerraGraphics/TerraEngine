@@ -3,6 +3,7 @@
 #include "core/math/types.h"
 
 struct ImVec2;
+struct ImVec4;
 struct ImRect;
 
 namespace gui {
@@ -13,6 +14,7 @@ ImVec2 ToImGui(math::PointF value);
 ImVec2 ToImGui(math::SizeU value);
 ImVec2 ToImGui(math::SizeF value);
 ImRect ToImGui(math::RectF value);
+ImVec4 ToImGui(math::RectOffsetF value);
 
 math::PointU ToPointU(ImVec2 value);
 math::PointF ToPointF(ImVec2 value);

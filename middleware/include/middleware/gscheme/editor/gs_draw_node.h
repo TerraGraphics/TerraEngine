@@ -34,12 +34,8 @@ private:
 
     bool m_addSameLine = false;
 private:
-    static constexpr const float m_nodePaddingLeft = 8;
-    static constexpr const float m_nodePaddingRight = 8;
-    static constexpr const float m_nodePaddingTop = 4;
-    static constexpr const float m_nodePaddingBottom = 8;
-
     static constexpr const float m_iconSideSize = 24.f;
+    static constexpr const math::RectOffsetF m_nodePadding = math::RectOffsetF(/* left */ 8, /* right */ 8, /* top */ 4, /* bottom */ 8);
 };
 
 }

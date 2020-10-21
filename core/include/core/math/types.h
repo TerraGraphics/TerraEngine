@@ -384,6 +384,15 @@ struct RectOffsetT {
     bool operator==(const RectOffsetT& o) const noexcept { return (IsEqual(left, o.left) && IsEqual(right, o.right) && IsEqual(top, o.top) && IsEqual(bottom, o.bottom)); }
     bool operator!=(const RectOffsetT& o) const noexcept { return (!operator==(o)); }
 
+    RectOffsetT operator-(const RectOffsetT& o) const noexcept { return RectOffsetT(left - o.left, right - o.right, top - o.top, bottom - o.bottom); }
+    RectOffsetT& operator-=(const RectOffsetT& o) noexcept {
+        left -= o.left;
+        right -= o.right;
+        top -= o.top;
+        bottom -= o.bottom;
+        return *this;
+    }
+
     T Horizontal() const noexcept { return left + right; }
     T Vertical() const noexcept { return top + bottom; }
     SizeT<T> Size() const noexcept { return SizeT<T>(Horizontal(), Vertical()); }
@@ -429,6 +438,15 @@ struct RectT {
         return *this;
     }
 
+    RectT operator+(const RectOffsetT<T>& o) const noexcept { return RectT(x - o.left, y - o.top, w + o.Horizontal(), h + o.Vertical()); }
+    RectT& operator+=(const RectOffsetT<T>& o) noexcept {
+        x -= o.left;
+        y -= o.top;
+        w += o.Horizontal();
+        h += o.Vertical();
+        return *this;
+    }
+
     RectT operator+(const RectT<T>& o) const noexcept {
         const auto maxX = std::max(Right(), o.Right());
         const auto maxY = std::max(Right(), o.Right());
@@ -453,14 +471,19 @@ struct RectT {
     T Left() const noexcept { return x; }
     T Right() const noexcept { return x + w; }
 
-    PointT<T> Min() const noexcept { return PointT<T>(x, y); }
-    PointT<T> Max() const noexcept { return PointT<T>(x + w, y + h); }
-
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
     SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }
     template<typename U, typename EnableU = std::enable_if_t<std::is_arithmetic_v<U>>>
         SizeT<U> SizeCast() const noexcept { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
+
+    PointT<T> Min() const noexcept { return PointT<T>(x, y); }
+    PointT<T> Max() const noexcept { return PointT<T>(x + w, y + h); }
+
+    PointT<T> LeftTop() const noexcept { return PointT<T>(x, y); }
+    PointT<T> RightTop() const noexcept { return PointT<T>(x + w, y); }
+    PointT<T> LeftBottom() const noexcept { return PointT<T>(x, y + h); }
+    PointT<T> RightBottom() const noexcept { return PointT<T>(x + w, y + h); }
 
     T CenterX() const noexcept { return x + w / 2; }
     T CenterY() const noexcept { return y + h / 2; }

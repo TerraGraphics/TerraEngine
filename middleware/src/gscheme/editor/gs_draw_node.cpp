@@ -4,6 +4,7 @@
 #include "middleware/imgui/icon.h"
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/layout.h"
+#include "middleware/imgui/imgui_math.h"
 
 
 namespace gs {
@@ -13,45 +14,48 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     m_nodeId = id;
     m_addSameLine = false;
 
-    ne::PushStyleVar(ne::StyleVar_NodePadding, ImVec4(m_nodePaddingLeft, m_nodePaddingTop, m_nodePaddingRight, m_nodePaddingBottom));
+    ne::PushStyleVar(ne::StyleVar_NodePadding, gui::ToImGui(m_nodePadding));
     ne::BeginNode(ne::NodeId(id));
 
-    gui::BeginGroup();
-    m_nodeRect = gui::Label(prettyName);
+    gui::LabelStyle headerStyle;
+    headerStyle.padding.bottom = m_nodePadding.top;
+
+    m_nodeRect = gui::Label(prettyName, headerStyle);
     m_headerSize = m_nodeRect.Size();
-    gui::EndGroup();
 }
 
 void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) {
+    ne::EndNode();
+    ne::PopStyleVar(1);
+
+    if (!ImGui::IsItemVisible()) {
+        return;
+    }
+
     const auto headerColor = math::Color(0, 125, 0, m_alpha).value;
     const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
     const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
 
-    auto headerSize = math::SizeF(m_nodeRect.w, m_headerSize.h);
-    ne::EndNode();
+    auto drawList = ne::GetNodeBackgroundDrawList(ne::NodeId(m_nodeId));
+    const auto texBackgroundID = reinterpret_cast<ImTextureID>(texBackground);
+    const auto rounding = ne::GetStyle().NodeRounding;
+    const auto borderWidth = ne::GetStyle().NodeBorderWidth;
+    const auto roundingCorners = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_TopRight;
+    const auto nodeInnerPadding = m_nodePadding - math::RectOffsetF(borderWidth * 0.5f);
 
-    // Header
-    if (ImGui::IsItemVisible()) {
-        auto drawList = ne::GetNodeBackgroundDrawList(ne::NodeId(m_nodeId));
-        const auto texBackgroundID = reinterpret_cast<ImTextureID>(texBackground);
-        const auto rounding = ne::GetStyle().NodeRounding;
-        const auto roundingCorners = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_TopRight;
-        const auto uvMin = ImVec2(0.0f, 0.0f);
-        const auto uvMax = ImVec2(headerSize.w / texBackgroundSize.w, headerSize.h / texBackgroundSize.h);
+    m_nodeRect += nodeInnerPadding;
+    auto headerRect = m_nodeRect;
+    headerRect.h = m_headerSize.h + nodeInnerPadding.top;
 
-        const auto halfBorderWidth = ne::GetStyle().NodeBorderWidth * 0.5f;
-        const auto imageTopLeft = ImVec2(
-            m_nodeRect.x - m_nodePaddingLeft + halfBorderWidth,
-            m_nodeRect.y - m_nodePaddingTop + halfBorderWidth);
-        const auto imageBottomRight = ImVec2(
-            m_nodeRect.x + headerSize.w + m_nodePaddingRight - halfBorderWidth,
-            m_nodeRect.y + headerSize.h + m_nodePaddingTop);
-        const auto imageBottomLeft = ImVec2(imageTopLeft.x, imageBottomRight.y);
+    const auto headerTopLeft = gui::ToImGui(headerRect.LeftTop());
+    const auto headerBottomRight = gui::ToImGui(headerRect.RightBottom());
+    const auto headerBottomLeft = gui::ToImGui(headerRect.LeftBottom());
 
-        drawList->AddImageRounded(texBackgroundID, imageTopLeft, imageBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
-        drawList->AddLine(imageBottomLeft, imageBottomRight, headerLineColor, 1.0f);
-    }
-    ne::PopStyleVar(1);
+    const auto uvMin = ImVec2(0.0f, 0.0f);
+    const auto uvMax = ImVec2(headerRect.w / texBackgroundSize.w, headerRect.h / texBackgroundSize.h);
+
+    drawList->AddImageRounded(texBackgroundID, headerTopLeft, headerBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
+    drawList->AddLine(headerBottomLeft, headerBottomRight, headerLineColor, 1.0f);
 }
 
 void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {

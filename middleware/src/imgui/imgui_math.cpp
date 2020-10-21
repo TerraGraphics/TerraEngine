@@ -32,6 +32,10 @@ ImRect ToImGui(math::RectF value) {
     return ImRect(value.x, value.y, value.x + value.w, value.y + value.h);
 }
 
+ImVec4 ToImGui(math::RectOffsetF value) {
+    return ImVec4(value.left, value.top, value.right, value.bottom);
+}
+
 math::PointU ToPointU(ImVec2 value) {
     return math::PointU(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
 }
