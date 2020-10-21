@@ -29,7 +29,6 @@ private:
 
     float m_inputPinsWidth = 0.f;
     float m_outputPinsWidth = 0.f;
-    float m_outputPinsLabelWidth = 0.f;
 private:
     static constexpr const float m_iconSideSize = 24.f;
     static constexpr const math::RectOffsetF m_nodePadding = math::RectOffsetF(/* left */ 8, /* right */ 8, /* top */ 4, /* bottom */ 8);

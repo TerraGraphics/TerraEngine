@@ -8,8 +8,28 @@
 
 namespace gui {
 
-math::SizeF CalcTextSize(std::string_view text, float wrapWidth) {
+math::SizeF CalcTextSize(std::string_view text, float& wrapWidth) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+
+    const float wrapPosX = window->DC.TextWrapPos;
+    const bool wrapEnabled = (wrapPosX >= 0.0f);
+    wrapWidth = wrapEnabled ? ImGui::CalcWrapWidthForPos(window->DC.CursorPos, wrapPosX) : 0.0f;
+
     return ToSizeF(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, wrapWidth));
+}
+
+math::RectF LabelCalc(std::string_view text, const LabelStyle& style, math::SizeF minSize) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems) {
+        return math::RectF();
+    }
+
+    float wrapWidth;
+    math::RectF drawRect;
+    math::RectF widgetRect;
+    PlaceWidgetCalc(static_cast<const Style*>(&style), minSize, CalcTextSize(text, wrapWidth), drawRect, widgetRect);
+
+    return widgetRect;
 }
 
 math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF minSize) {
@@ -22,9 +42,7 @@ math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF mi
     const char* end = text.cend();
     IM_ASSERT(begin != nullptr);
 
-    const float wrapPosX = window->DC.TextWrapPos;
-    const bool wrapEnabled = (wrapPosX >= 0.0f);
-    const float wrapWidth = wrapEnabled ? ImGui::CalcWrapWidthForPos(window->DC.CursorPos, wrapPosX) : 0.0f;
+    float wrapWidth;
     const math::SizeF drawSize = CalcTextSize(text, wrapWidth);
 
     math::RectF drawRect;

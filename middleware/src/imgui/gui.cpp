@@ -141,6 +141,8 @@ void Gui::Create() {
 
     CreateFonts();
     CreateGraphics();
+
+    ImGui::GetStyle().ItemSpacing.x = 0;
 }
 
 void Gui::Update(double deltaTime, std::shared_ptr<DefaultWindowEventsHandler>& handler) {

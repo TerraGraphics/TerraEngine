@@ -22,7 +22,9 @@ enum class VerticalAlign : uint8_t {
 struct Style {
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;
     VerticalAlign verticalAlign = VerticalAlign::Top;
-    math::RectOffsetF padding;
+    math::RectOffsetF padding = DEFUALT_PADDING;
+
+    constexpr static const math::RectOffsetF DEFUALT_PADDING = math::RectOffsetF(8.f, 0, 0, 0);
 };
 
 } // end namespace gui

@@ -25,7 +25,7 @@ bool PlaceWidget(math::SizeF widgetSize, math::RectF& widgetRect) {
     return ItemAdd(widgetRect);
 }
 
-bool PlaceWidget(const Style* style, math::SizeF minSize, math::SizeF drawSize, math::RectF& drawRect, math::RectF& widgetRect) {
+void PlaceWidgetCalc(const Style* style, math::SizeF minSize, math::SizeF drawSize, math::RectF& drawRect, math::RectF& widgetRect) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
 
     const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
@@ -54,8 +54,12 @@ bool PlaceWidget(const Style* style, math::SizeF minSize, math::SizeF drawSize, 
     default:
         break;
     }
+}
 
-    ItemSize(widgetSize);
+bool PlaceWidget(const Style* style, math::SizeF minSize, math::SizeF drawSize, math::RectF& drawRect, math::RectF& widgetRect) {
+    PlaceWidgetCalc(style, minSize, drawSize, drawRect, widgetRect);
+
+    ItemSize(widgetRect.Size());
     return ItemAdd(widgetRect);
 }
 

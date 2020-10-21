@@ -18,7 +18,8 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     gui::BeginVertical();
 
     gui::LabelStyle headerStyle;
-    headerStyle.padding.bottom = m_nodePadding.top;
+    headerStyle.padding.left = 0;
+    headerStyle.padding.bottom += m_nodePadding.top;
     m_headerSize = gui::Label(prettyName, headerStyle).Size();
 
     gui::BeginHorizontal();
@@ -71,18 +72,23 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
+    iconStyle.padding.left = 0;
+    iconStyle.padding.right = gui::Style::DEFUALT_PADDING.left;
 
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    labelStyle.padding.right = 5.f;
+    labelStyle.padding.left = 0;
+    labelStyle.padding.right += 5.f;
+
+    const auto minLabelSize = math::SizeF(0, m_iconSideSize);
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
             gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
         gui::SameLine();
-        gui::Label(pin.prettyName, labelStyle, math::SizeF(0, m_iconSideSize));
+        gui::Label(pin.prettyName, labelStyle, minLabelSize);
     }
 
     m_inputPinsWidth = gui::EndVertical().Width();
@@ -112,18 +118,22 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    labelStyle.padding.left = 5.f;
+    labelStyle.padding.left += 5.f;
 
-    float outputPinsLabelWidth = 0;
+    float labelWidth = 0;
     for (const auto& pin: pins) {
-        auto labelRect = gui::Label(pin.prettyName, labelStyle, math::SizeF(m_outputPinsLabelWidth, m_iconSideSize));
-        outputPinsLabelWidth = std::max(outputPinsLabelWidth, labelRect.w);
+        labelWidth = std::max(labelWidth, gui::LabelCalc(pin.prettyName, labelStyle, math::SizeF()).w);
+    }
+
+    const auto minLabelSize = math::SizeF(labelWidth, m_iconSideSize);
+
+    for (const auto& pin: pins) {
+        gui::Label(pin.prettyName, labelStyle, minLabelSize);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
             gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
     }
-    m_outputPinsLabelWidth = outputPinsLabelWidth;
 
     m_outputPinsWidth = gui::EndVertical().Width();
 }
