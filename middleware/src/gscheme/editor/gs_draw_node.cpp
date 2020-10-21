@@ -40,8 +40,8 @@ void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF t
         footerStyle.horisontalAlign = gui::HorisontalAlign::Center;
         footerStyle.padding.left = 0;
         footerStyle.padding.top += m_nodePadding.bottom;
-        auto footerMinSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
-        footerRectTop = gui::Label("Error", footerStyle, footerMinSize).Top();
+        footerStyle.minSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
+        footerRectTop = gui::Label("Error", footerStyle).Top();
     }
 
     gui::EndVertical();
@@ -107,15 +107,14 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
     labelStyle.padding.left = 0;
     labelStyle.padding.right += 5.f;
-
-    const auto minLabelSize = math::SizeF(0, m_iconSideSize);
+    labelStyle.minSize = math::SizeF(0, m_iconSideSize);
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
             gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
         gui::SameLine();
-        gui::Label(pin.prettyName, labelStyle, minLabelSize);
+        gui::Label(pin.prettyName, labelStyle);
     }
 
     m_inputPinsWidth = gui::EndVertical().Width();
@@ -149,13 +148,13 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
 
     float labelWidth = 0;
     for (const auto& pin: pins) {
-        labelWidth = std::max(labelWidth, gui::LabelCalc(pin.prettyName, labelStyle, math::SizeF()).w);
+        labelWidth = std::max(labelWidth, gui::LabelCalc(pin.prettyName, labelStyle).w);
     }
 
-    const auto minLabelSize = math::SizeF(labelWidth, m_iconSideSize);
+    labelStyle.minSize = math::SizeF(labelWidth, m_iconSideSize);
 
     for (const auto& pin: pins) {
-        gui::Label(pin.prettyName, labelStyle, minLabelSize);
+        gui::Label(pin.prettyName, labelStyle);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
             gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);

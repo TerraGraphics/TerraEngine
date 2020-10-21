@@ -27,6 +27,6 @@ struct IconStyle : Style {
     float sideSize = 24.f;
 };
 
-math::RectF Icon(IconType type, bool filled, const IconStyle& style = IconStyle(), math::SizeF minSize = math::SizeF());
+math::RectF Icon(IconType type, bool filled, const IconStyle& style = IconStyle());
 
 } // end namespace gui

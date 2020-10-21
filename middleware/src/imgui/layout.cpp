@@ -31,7 +31,7 @@ math::RectF Dummy(math::SizeF size) {
     }
 
     math::RectF widgetRect;
-    if (!PlaceWidget(size, widgetRect)) {
+    if (!PlaceWidget(0, size, widgetRect)) {
         return widgetRect;
     }
 

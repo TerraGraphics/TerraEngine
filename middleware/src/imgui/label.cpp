@@ -18,7 +18,7 @@ math::SizeF CalcTextSize(std::string_view text, float& wrapWidth) {
     return ToSizeF(ImGui::CalcTextSize(text.cbegin(), text.cend(), false, wrapWidth));
 }
 
-math::RectF LabelCalc(std::string_view text, const LabelStyle& style, math::SizeF minSize) {
+math::RectF LabelCalc(std::string_view text, const LabelStyle& style) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::RectF();
@@ -27,12 +27,12 @@ math::RectF LabelCalc(std::string_view text, const LabelStyle& style, math::Size
     float wrapWidth;
     math::RectF drawRect;
     math::RectF widgetRect;
-    PlaceWidgetCalc(static_cast<const Style*>(&style), minSize, CalcTextSize(text, wrapWidth), drawRect, widgetRect);
+    PlaceWidgetCalc(static_cast<const Style*>(&style), CalcTextSize(text, wrapWidth), drawRect, widgetRect);
 
     return widgetRect;
 }
 
-math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF minSize) {
+math::RectF Label(std::string_view text, const LabelStyle& style) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::RectF();
@@ -47,7 +47,7 @@ math::RectF Label(std::string_view text, const LabelStyle& style, math::SizeF mi
 
     math::RectF drawRect;
     math::RectF widgetRect;
-    if (!PlaceWidget(static_cast<const Style*>(&style), minSize, drawSize, drawRect, widgetRect)) {
+    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, drawRect, widgetRect)) {
         return widgetRect;
     }
 

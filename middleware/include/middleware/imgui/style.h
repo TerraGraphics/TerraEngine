@@ -20,6 +20,7 @@ enum class VerticalAlign : uint8_t {
 };
 
 struct Style {
+    math::SizeF minSize;
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;
     VerticalAlign verticalAlign = VerticalAlign::Top;
     math::RectOffsetF padding = DEFUALT_PADDING;

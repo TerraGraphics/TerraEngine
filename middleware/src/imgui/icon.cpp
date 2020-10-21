@@ -172,7 +172,7 @@ private:
     const bool m_filled;
 };
 
-math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF minSize) {
+math::RectF Icon(IconType type, bool filled, const IconStyle& style) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
         return math::RectF();
@@ -182,7 +182,7 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style, math::SizeF
 
     math::RectF drawRect;
     math::RectF widgetRect;
-    if (!PlaceWidget(static_cast<const Style*>(&style), minSize, drawSize, drawRect, widgetRect)) {
+    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, drawRect, widgetRect)) {
         return widgetRect;
     }
 
