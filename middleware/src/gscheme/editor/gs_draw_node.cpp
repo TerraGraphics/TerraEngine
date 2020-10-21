@@ -20,45 +20,68 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     gui::LabelStyle headerStyle;
     headerStyle.padding.left = 0;
     headerStyle.padding.bottom += m_nodePadding.top;
-    m_headerSize = gui::Label(prettyName, headerStyle).Size();
+    auto rect = gui::Label(prettyName, headerStyle);
+    m_headerWidth = rect.Width();
+    m_headerBottom = rect.Bottom();
 
     gui::BeginHorizontal();
 }
 
-void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) {
-    const auto nodeInnerPadding = m_nodePadding - math::RectOffsetF(ne::GetStyle().NodeBorderWidth * 0.5f);
+void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF texBackgroundSize) {
+    auto nodePartWidht = gui::EndHorizontal().w;
 
-    gui::EndHorizontal();
-    auto nodeRect = gui::EndVertical() + nodeInnerPadding;
+    float footerRectTop = 0;
+    if (!isValid) {
+        gui::LabelStyle footerStyle;
+        footerStyle.horisontalAlign = gui::HorisontalAlign::Center;
+        footerStyle.padding.left = 0;
+        footerStyle.padding.top += m_nodePadding.bottom;
+        auto footerMinSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
+        footerRectTop = gui::Label("Error", footerStyle, footerMinSize).Top();
+    }
+
+    gui::EndVertical();
 
     ne::EndNode();
     ne::PopStyleVar(1);
+    auto nodeRect = math::RectF(gui::ToPointF(ImGui::GetItemRectMin()), gui::ToPointF(ImGui::GetItemRectMax()));
 
     if (!ImGui::IsItemVisible()) {
         return;
     }
 
     const auto headerColor = math::Color(0, 125, 0, m_alpha).value;
-    const auto headerLineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
-    const auto headerLineColor = math::Color(255, 255, 255, headerLineAlpha).value;
+    const auto footerColor = math::Color(125, 0, 0, m_alpha).value;
+    const auto lineAlpha = static_cast<uint8_t>(96 * static_cast<int>(m_alpha) / (3 * 255));
+    const auto lineColor = math::Color(255, 255, 255, lineAlpha).value;
 
     auto drawList = ne::GetNodeBackgroundDrawList(ne::NodeId(m_nodeId));
     const auto texBackgroundID = reinterpret_cast<ImTextureID>(texBackground);
     const auto rounding = ne::GetStyle().NodeRounding;
-    const auto roundingCorners = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_TopRight;
 
     auto headerRect = nodeRect;
-    headerRect.h = m_headerSize.h + nodeInnerPadding.top;
+    headerRect.Bottom(m_headerBottom);
 
-    const auto headerTopLeft = gui::ToImGui(headerRect.LeftTop());
-    const auto headerBottomRight = gui::ToImGui(headerRect.RightBottom());
-    const auto headerBottomLeft = gui::ToImGui(headerRect.LeftBottom());
+    const auto headerLeftTop = gui::ToImGui(headerRect.LeftTop());
+    const auto headerRightBottom = gui::ToImGui(headerRect.RightBottom());
+    const auto headerLeftBottom = gui::ToImGui(headerRect.LeftBottom());
 
     const auto uvMin = ImVec2(0.0f, 0.0f);
     const auto uvMax = ImVec2(headerRect.w / texBackgroundSize.w, headerRect.h / texBackgroundSize.h);
 
-    drawList->AddImageRounded(texBackgroundID, headerTopLeft, headerBottomRight, uvMin, uvMax, headerColor, rounding, roundingCorners);
-    drawList->AddLine(headerBottomLeft, headerBottomRight, headerLineColor, 1.0f);
+    drawList->AddImageRounded(texBackgroundID, headerLeftTop, headerRightBottom, uvMin, uvMax, headerColor, rounding, ImDrawCornerFlags_Top);
+    drawList->AddLine(headerLeftBottom, headerRightBottom, lineColor, 1.0f);
+
+    if (!isValid) {
+        auto footerRect = nodeRect;
+        footerRect.Top(footerRectTop);
+        const auto footerLeftTop = gui::ToImGui(footerRect.LeftTop());
+        const auto footerRightBottom = gui::ToImGui(footerRect.RightBottom());
+        const auto footerRightTop = gui::ToImGui(footerRect.RightTop());
+
+        drawList->AddRectFilled(footerLeftTop, footerRightBottom, footerColor, rounding, ImDrawCornerFlags_Bot);
+        drawList->AddLine(footerLeftTop, footerRightTop, lineColor, 1.0f);
+    }
 }
 
 void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
@@ -95,7 +118,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
 }
 
 void DrawNode::OnDrawPreview() {
-    float dt = m_headerSize.w - m_inputPinsWidth - m_outputPinsWidth;
+    float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
     if (dt <= 0) {
         return;
     }

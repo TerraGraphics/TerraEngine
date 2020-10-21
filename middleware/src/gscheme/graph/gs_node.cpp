@@ -493,7 +493,7 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawOutputPins(pins);
 
-    drawer->OnFinishDrawNode();
+    drawer->OnFinishDrawNode(m_isValid);
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {

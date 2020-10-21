@@ -471,6 +471,11 @@ struct RectT {
     T Left() const noexcept { return x; }
     T Right() const noexcept { return x + w; }
 
+    void Top(T value) noexcept { h += y - value; y = value; }
+    void Bottom(T value) noexcept { h = value - y; }
+    void Left(T value) noexcept { w += x - value; x = value; }
+    void Right(T value) noexcept { w = value - x; }
+
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
     SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }

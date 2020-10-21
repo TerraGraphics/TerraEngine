@@ -28,7 +28,7 @@ public:
     virtual void OnFinishDrawGraph() = 0;
 
     virtual void OnStartDrawNode(uintptr_t id, std::string prettyName) = 0;
-    virtual void OnFinishDrawNode() = 0;
+    virtual void OnFinishDrawNode(bool isValid) = 0;
 
     virtual void OnDrawInputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawPreview() = 0;

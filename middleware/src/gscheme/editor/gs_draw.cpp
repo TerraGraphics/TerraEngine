@@ -46,8 +46,8 @@ void Draw::OnStartDrawNode(uintptr_t id, std::string prettyName) {
     m_node->OnStartDrawNode(id, prettyName, m_alpha);
 }
 
-void Draw::OnFinishDrawNode() {
-    m_node->OnFinishDrawNode(m_texBackground.RawPtr(), m_texBackgroundSize);
+void Draw::OnFinishDrawNode(bool isValid) {
+    m_node->OnFinishDrawNode(isValid, m_texBackground.RawPtr(), m_texBackgroundSize);
 }
 
 void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {

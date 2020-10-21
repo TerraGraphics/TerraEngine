@@ -15,7 +15,7 @@ public:
     ~DrawNode() = default;
 
     void OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha);
-    void OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize);
+    void OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
     void OnDrawPreview();
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
@@ -25,13 +25,13 @@ private:
     uintptr_t m_nodeId = 0;
 
 private:
-    math::SizeF m_headerSize;
-
+    float m_headerWidth = 0.f;
+    float m_headerBottom = 0.f;
     float m_inputPinsWidth = 0.f;
     float m_outputPinsWidth = 0.f;
 private:
     static constexpr const float m_iconSideSize = 24.f;
-    static constexpr const math::RectOffsetF m_nodePadding = math::RectOffsetF(/* left */ 8, /* right */ 8, /* top */ 4, /* bottom */ 8);
+    static constexpr const math::RectOffsetF m_nodePadding = math::RectOffsetF(/* left */ 8, /* right */ 8, /* top */ 4, /* bottom */ 2);
 };
 
 }
