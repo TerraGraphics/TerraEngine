@@ -12,19 +12,24 @@ namespace gs {
 void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
     m_alpha = alpha;
     m_nodeId = id;
-    m_addSameLine = false;
 
     ne::PushStyleVar(ne::StyleVar_NodePadding, gui::ToImGui(m_nodePadding));
     ne::BeginNode(ne::NodeId(id));
+    gui::BeginVertical();
 
     gui::LabelStyle headerStyle;
     headerStyle.padding.bottom = m_nodePadding.top;
+    m_headerSize = gui::Label(prettyName, headerStyle).Size();
 
-    m_nodeRect = gui::Label(prettyName, headerStyle);
-    m_headerSize = m_nodeRect.Size();
+    gui::BeginHorizontal();
 }
 
 void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSize) {
+    const auto nodeInnerPadding = m_nodePadding - math::RectOffsetF(ne::GetStyle().NodeBorderWidth * 0.5f);
+
+    gui::EndHorizontal();
+    auto nodeRect = gui::EndVertical() + nodeInnerPadding;
+
     ne::EndNode();
     ne::PopStyleVar(1);
 
@@ -39,12 +44,9 @@ void DrawNode::OnFinishDrawNode(void* texBackground, math::SizeF texBackgroundSi
     auto drawList = ne::GetNodeBackgroundDrawList(ne::NodeId(m_nodeId));
     const auto texBackgroundID = reinterpret_cast<ImTextureID>(texBackground);
     const auto rounding = ne::GetStyle().NodeRounding;
-    const auto borderWidth = ne::GetStyle().NodeBorderWidth;
     const auto roundingCorners = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_TopRight;
-    const auto nodeInnerPadding = m_nodePadding - math::RectOffsetF(borderWidth * 0.5f);
 
-    m_nodeRect += nodeInnerPadding;
-    auto headerRect = m_nodeRect;
+    auto headerRect = nodeRect;
     headerRect.h = m_headerSize.h + nodeInnerPadding.top;
 
     const auto headerTopLeft = gui::ToImGui(headerRect.LeftTop());
@@ -64,9 +66,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
         return;
     }
 
-    m_addSameLine = true;
-
-    gui::BeginGroup();
+    gui::BeginVertical();
 
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
@@ -85,9 +85,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
         gui::Label(pin.prettyName, labelStyle, math::SizeF(0, m_iconSideSize));
     }
 
-    const auto rect = gui::EndGroup();
-    m_nodeRect += rect;
-    m_inputPinsWidth = rect.Width();
+    m_inputPinsWidth = gui::EndVertical().Width();
 }
 
 void DrawNode::OnDrawPreview() {
@@ -96,14 +94,7 @@ void DrawNode::OnDrawPreview() {
         return;
     }
 
-    if (m_addSameLine) {
-        gui::SameLine();
-    }
-    m_addSameLine = true;
-
-    gui::BeginGroup();
     gui::Dummy(math::SizeF(dt, 0));
-    m_nodeRect += gui::EndGroup();
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
@@ -112,12 +103,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
         return;
     }
 
-    if (m_addSameLine) {
-        gui::SameLine();
-    }
-    m_addSameLine = true;
-
-    gui::BeginGroup();
+    gui::BeginVertical();
 
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
@@ -139,9 +125,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     }
     m_outputPinsLabelWidth = outputPinsLabelWidth;
 
-    const auto rect = gui::EndGroup();
-    m_nodeRect += rect;
-    m_outputPinsWidth = rect.Width();
+    m_outputPinsWidth = gui::EndVertical().Width();
 }
 
 }

@@ -25,14 +25,11 @@ private:
     uintptr_t m_nodeId = 0;
 
 private:
-    math::RectF m_nodeRect;
     math::SizeF m_headerSize;
 
     float m_inputPinsWidth = 0.f;
     float m_outputPinsWidth = 0.f;
     float m_outputPinsLabelWidth = 0.f;
-
-    bool m_addSameLine = false;
 private:
     static constexpr const float m_iconSideSize = 24.f;
     static constexpr const math::RectOffsetF m_nodePadding = math::RectOffsetF(/* left */ 8, /* right */ 8, /* top */ 4, /* bottom */ 8);

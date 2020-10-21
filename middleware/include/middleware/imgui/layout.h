@@ -9,7 +9,10 @@ void SameLine();
 
 math::RectF Dummy(math::SizeF size);
 
-void BeginGroup();
-math::RectF EndGroup();
+void BeginHorizontal();
+math::RectF EndHorizontal();
+
+void BeginVertical();
+math::RectF EndVertical();
 
 } // end namespace gui

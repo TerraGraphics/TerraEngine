@@ -1,5 +1,7 @@
 #include "middleware/imgui/icon.h"
 
+#include <stack>
+
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"
@@ -35,15 +37,39 @@ math::RectF Dummy(math::SizeF size) {
     return widgetRect;
 }
 
-void BeginGroup() {
+static std::stack<ImGuiLayoutType> layouts;
+
+void BeginGroup(bool horizontal) {
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    layouts.push(window->DC.LayoutType);
+    window->DC.LayoutType = horizontal ? ImGuiLayoutType_Horizontal : ImGuiLayoutType_Vertical;
+
     ImGui::BeginGroup();
 }
 
 math::RectF EndGroup() {
-    ImGui::EndGroup();
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    window->DC.LayoutType = layouts.top();
+    layouts.pop();
 
-    ImGuiWindow* window = ImGui::GetCurrentWindowRead();
+    ImGui::EndGroup();
     return ToRectF(window->DC.LastItemRect);
+}
+
+void BeginHorizontal() {
+    BeginGroup(true);
+}
+
+math::RectF EndHorizontal() {
+    return EndGroup();
+}
+
+void BeginVertical() {
+    BeginGroup(false);
+}
+
+math::RectF EndVertical() {
+    return EndGroup();
 }
 
 } // end namespace gui
