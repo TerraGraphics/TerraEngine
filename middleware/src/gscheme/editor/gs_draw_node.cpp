@@ -1,5 +1,9 @@
 #include "middleware/gscheme/editor/gs_draw_node.h"
 
+#include <string>
+#include <algorithm>
+
+#include "imgui/imgui.h"
 #include "imgui/node_editor.h"
 #include "middleware/imgui/icon.h"
 #include "middleware/imgui/label.h"

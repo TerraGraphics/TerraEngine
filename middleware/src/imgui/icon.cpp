@@ -3,7 +3,6 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"
-#include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {

@@ -2,12 +2,12 @@
 
 #include <memory>
 #include <cstdint>
+#include <type_traits>
 #include <string_view>
 
 #include "cpgf/variant.h"
 #include "core/common/ctor.h"
 #include "middleware/gscheme/graph/gs_types.h"
-#include "middleware/gscheme/graph/gs_types_decl.h"
 
 
 namespace gs {

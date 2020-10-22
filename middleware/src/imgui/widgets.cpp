@@ -1,6 +1,5 @@
 #include "middleware/imgui/widgets.h"
 
-#include <cmath>
 #include <memory>
 #include <utility>
 #include <istream>

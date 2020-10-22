@@ -1,10 +1,11 @@
 #include <memory>
+#include <variant>
 
 #include "test/test.h"
 #include "eigen/core.h"
 #include "cpgf/variant.h"
+#include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_types.h"
-#include "middleware/gscheme/graph/gs_types_convert.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 

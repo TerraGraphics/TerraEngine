@@ -7,9 +7,7 @@
 #include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
 #include "core/common/exception.h"
-#include "middleware/imgui/label.h"
 #include "middleware/imgui/widgets.h"
-#include "middleware/imgui/imgui_math.h"
 
 
 namespace gs {

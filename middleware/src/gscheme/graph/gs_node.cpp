@@ -1,6 +1,8 @@
 #include "middleware/gscheme/graph/gs_node.h"
 
+#include <vector>
 #include <utility>
+#include <variant>
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"

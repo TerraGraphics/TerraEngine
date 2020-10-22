@@ -3,6 +3,8 @@
 #include <limits>
 #include <cstdint>
 #include <cstdlib>
+#include <utility>
+#include <type_traits>
 
 #include "dg/math.h"
 

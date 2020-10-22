@@ -1,12 +1,10 @@
 #pragma once
 
-#include <string_view>
-
 #include "core/math/types.h"
-#include "middleware/imgui/style.h"
-
 
 namespace gui {
+
+struct Style;
 
 void ItemSize(math::SizeF widgetSize);
 bool ItemAdd(math::RectF widgetRect);

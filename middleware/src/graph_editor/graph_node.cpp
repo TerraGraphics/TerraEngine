@@ -9,7 +9,6 @@
 #include "imgui/node_editor.h"
 #include "middleware/imgui/icon.h"
 #include "core/common/exception.h"
-#include "middleware/imgui/widgets.h"
 
 
 namespace {

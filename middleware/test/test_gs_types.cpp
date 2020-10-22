@@ -3,7 +3,6 @@
 
 #include "test/test.h"
 #include "eigen/core.h"
-#include "core/common/meta.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_types.h"
 
