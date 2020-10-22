@@ -327,6 +327,7 @@ struct SizeT {
     constexpr SizeT(const SizeT& o) noexcept : w(o.w), h(o.h) {}
     constexpr SizeT(SizeT&& o) noexcept : w(std::move(o.w)), h(std::move(o.h)) {}
     constexpr explicit SizeT(T w, T h) noexcept : w(w), h(h) {}
+    constexpr explicit SizeT(T v) noexcept : w(v), h(v) {}
 
     SizeT& operator=(SizeT o) noexcept {
         std::swap(w, o.w);
@@ -451,7 +452,7 @@ struct RectT {
 
     RectT operator+(const RectT<T>& o) const noexcept {
         const auto maxX = std::max(Right(), o.Right());
-        const auto maxY = std::max(Right(), o.Right());
+        const auto maxY = std::max(Bottom(), o.Bottom());
         const auto minX = std::min(Left(), o.Left());
         const auto minY = std::min(Top(), o.Top());
 
@@ -459,7 +460,7 @@ struct RectT {
     }
     RectT& operator+=(const RectT<T>& o) noexcept {
         const auto maxX = std::max(Right(), o.Right());
-        const auto maxY = std::max(Right(), o.Right());
+        const auto maxY = std::max(Bottom(), o.Bottom());
 
         x = std::min(Left(), o.Left());
         y = std::min(Top(), o.Top());
@@ -481,6 +482,7 @@ struct RectT {
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
     SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }
+    void Size(SizeT<T> value) noexcept { w = value.w, h = value.h; }
     template<typename U, typename EnableU = std::enable_if_t<std::is_arithmetic_v<U>>>
         SizeT<U> SizeCast() const noexcept { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
 
