@@ -25,8 +25,9 @@ math::RectF LabelCalc(std::string_view text, const LabelStyle& style) {
     }
 
     float wrapWidth;
+    math::RectF fullRect;
     math::RectF widgetRect;
-    PlaceWidgetCalc(static_cast<const Style*>(&style), CalcTextSize(text, wrapWidth), nullptr, &widgetRect);
+    PlaceWidgetCalc(static_cast<const Style*>(&style), CalcTextSize(text, wrapWidth), nullptr, &widgetRect, &fullRect);
 
     return widgetRect;
 }

@@ -29,20 +29,22 @@ bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect
     return ItemAdd(id, widgetRect);
 }
 
-void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect) {
+void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect, math::RectF* outFullRect) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-    const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
+    const math::PointF fullPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
     const math::SizeF widgetSize(std::max(drawSize + style->padding.Size(), style->minSize));
-    const math::RectF widgetRect(widgetPos, widgetSize);
-    math::RectF drawRect(widgetRect - style->padding);
+    const math::SizeF fullSize(widgetSize + style->margin.Size());
+    const math::RectF fullRect(fullPos, fullSize);
+    const math::RectF widgetRect(fullRect - style->margin);
+    math::RectF innerRect(widgetRect - style->padding);
 
     switch (style->horisontalAlign) {
     case HorisontalAlign::Center:
-        drawRect.x += (drawRect.Width() - drawSize.w) / 2.f;
+        innerRect.x += (innerRect.Width() - drawSize.w) / 2.f;
         break;
     case HorisontalAlign::Right:
-        drawRect.x += (drawRect.Width() - drawSize.w);
+        innerRect.x += (innerRect.Width() - drawSize.w);
         break;
     default:
         break;
@@ -50,32 +52,36 @@ void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outD
 
     switch (style->verticalAlign) {
     case VerticalAlign::Center:
-        drawRect.y += (drawRect.Height() - drawSize.h) / 2.f;
+        innerRect.y += (innerRect.Height() - drawSize.h) / 2.f;
         break;
     case VerticalAlign::Bottom:
-        drawRect.y += (drawRect.Height() - drawSize.h);
+        innerRect.y += (innerRect.Height() - drawSize.h);
         break;
     default:
         break;
     }
 
     if (outDrawRect != nullptr) {
-        *outDrawRect = drawRect;
+        *outDrawRect = math::RectF(innerRect.LeftTop(), drawSize);
     }
     if (outWidgetRect != nullptr) {
         *outWidgetRect = widgetRect;
+    }
+    if (outFullRect != nullptr) {
+        *outFullRect = fullRect;
     }
 }
 
 bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect) {
+    math::RectF fullRect;
     math::RectF widgetRect;
-    PlaceWidgetCalc(style, drawSize, outDrawRect, &widgetRect);
+    PlaceWidgetCalc(style, drawSize, outDrawRect, &widgetRect, &fullRect);
 
     if (outWidgetRect != nullptr) {
         *outWidgetRect = widgetRect;
     }
 
-    ItemSize(widgetRect.Size());
+    ItemSize(fullRect.Size());
     return ItemAdd(id, widgetRect);
 }
 
