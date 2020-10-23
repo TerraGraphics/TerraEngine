@@ -16,23 +16,26 @@ bool ItemAdd(uint32_t id, math::RectF widgetRect) {
     return ImGui::ItemAdd(ToImGui(widgetRect), id);
 }
 
-bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF& widgetRect) {
+bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
 
     const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
-    widgetRect = math::RectF(widgetPos, widgetSize);
+    const math::RectF widgetRect(widgetPos, widgetSize);
+    if (outWidgetRect != nullptr) {
+        *outWidgetRect = widgetRect;
+    }
 
     ItemSize(widgetSize);
     return ItemAdd(id, widgetRect);
 }
 
-void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF& drawRect, math::RectF& widgetRect) {
+void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
 
     const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
     const math::SizeF widgetSize(std::max(drawSize + style->padding.Size(), style->minSize));
-    widgetRect = math::RectF(widgetPos, widgetSize);
-    drawRect = widgetRect - style->padding;
+    const math::RectF widgetRect(widgetPos, widgetSize);
+    math::RectF drawRect(widgetRect - style->padding);
 
     switch (style->horisontalAlign) {
     case HorisontalAlign::Center:
@@ -55,10 +58,22 @@ void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF& draw
     default:
         break;
     }
+
+    if (outDrawRect != nullptr) {
+        *outDrawRect = drawRect;
+    }
+    if (outWidgetRect != nullptr) {
+        *outWidgetRect = widgetRect;
+    }
 }
 
-bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF& drawRect, math::RectF& widgetRect) {
-    PlaceWidgetCalc(style, drawSize, drawRect, widgetRect);
+bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect) {
+    math::RectF widgetRect;
+    PlaceWidgetCalc(style, drawSize, outDrawRect, &widgetRect);
+
+    if (outWidgetRect != nullptr) {
+        *outWidgetRect = widgetRect;
+    }
 
     ItemSize(widgetRect.Size());
     return ItemAdd(id, widgetRect);

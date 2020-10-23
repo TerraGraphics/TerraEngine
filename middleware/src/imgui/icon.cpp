@@ -172,22 +172,24 @@ private:
     const bool m_filled;
 };
 
-math::RectF Icon(IconType type, bool filled, const IconStyle& style) {
+void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWidgetRect) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
-        return math::RectF();
+        if (outWidgetRect != nullptr) {
+            *outWidgetRect = math::RectF();
+        }
+        return;
     }
 
     const math::SizeF drawSize(style.sideSize, style.sideSize);
 
     math::RectF drawRect;
-    math::RectF widgetRect;
-    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, drawRect, widgetRect)) {
-        return widgetRect;
+    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+        return;
     }
 
     if (!IsRectVisible(drawRect)) {
-        return widgetRect;
+        return;
     }
 
     IconDrawer drawer(window->DrawList, drawRect, style.color.value, filled);
@@ -226,8 +228,6 @@ math::RectF Icon(IconType type, bool filled, const IconStyle& style) {
         drawer.DrawFlow();
         break;
     }
-
-    return widgetRect;
 }
 
 } // end namespace gui

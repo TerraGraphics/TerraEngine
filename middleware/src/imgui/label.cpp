@@ -25,17 +25,19 @@ math::RectF LabelCalc(std::string_view text, const LabelStyle& style) {
     }
 
     float wrapWidth;
-    math::RectF drawRect;
     math::RectF widgetRect;
-    PlaceWidgetCalc(static_cast<const Style*>(&style), CalcTextSize(text, wrapWidth), drawRect, widgetRect);
+    PlaceWidgetCalc(static_cast<const Style*>(&style), CalcTextSize(text, wrapWidth), nullptr, &widgetRect);
 
     return widgetRect;
 }
 
-math::RectF Label(std::string_view text, const LabelStyle& style) {
+void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidgetRect) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems) {
-        return math::RectF();
+        if (outWidgetRect != nullptr) {
+            *outWidgetRect = math::RectF();
+        }
+        return;
     }
 
     const char* begin = text.cbegin();
@@ -46,17 +48,14 @@ math::RectF Label(std::string_view text, const LabelStyle& style) {
     const math::SizeF drawSize = CalcTextSize(text, wrapWidth);
 
     math::RectF drawRect;
-    math::RectF widgetRect;
-    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, drawRect, widgetRect)) {
-        return widgetRect;
+    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+        return;
     }
 
     if (!text.empty()) {
         ImGuiContext& g = *GImGui;
         window->DrawList->AddText(g.Font, g.FontSize, ToImGui(drawRect.Min()), ImGui::GetColorU32(ImGuiCol_Text), begin, end, wrapWidth);
     }
-
-    return widgetRect;
 }
 
 } // end namespace gui

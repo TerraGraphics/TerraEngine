@@ -24,9 +24,10 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     gui::LabelStyle headerStyle;
     headerStyle.padding.left = 0;
     headerStyle.padding.bottom += m_nodePadding.top;
-    auto rect = gui::Label(prettyName, headerStyle);
-    m_headerWidth = rect.Width();
-    m_headerBottom = rect.Bottom();
+    math::RectF headerRect;
+    gui::Label(prettyName, headerStyle, &headerRect);
+    m_headerWidth = headerRect.Width();
+    m_headerBottom = headerRect.Bottom();
 
     gui::BeginHorizontal();
 }
@@ -41,7 +42,9 @@ void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF t
         footerStyle.padding.left = 0;
         footerStyle.padding.top += m_nodePadding.bottom;
         footerStyle.minSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
-        footerRectTop = gui::Label("Error", footerStyle).Top();
+        math::RectF footerRect;
+        gui::Label("Error", footerStyle, &footerRect);
+        footerRectTop = footerRect.Top();
     }
 
     gui::EndVertical();
