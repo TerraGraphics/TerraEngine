@@ -511,7 +511,7 @@ void Gui::CreateGraphics() {
     gp.InputLayout.LayoutElements = layoutElems;
     gp.InputLayout.NumElements = _countof(layoutElems);
     gp.RasterizerDesc.CullMode = dg::CULL_MODE_NONE;
-    gp.RasterizerDesc.ScissorEnable = false;
+    gp.RasterizerDesc.ScissorEnable = true;
     gp.RTVFormats[0] = m_backBufferFormat;
     gp.DSVFormat = m_depthBufferFormat;
 
