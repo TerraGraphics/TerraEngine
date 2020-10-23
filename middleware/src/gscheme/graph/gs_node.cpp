@@ -486,7 +486,7 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawInputPins(pins);
 
-    drawer->OnDrawPreview();
+    drawer->OnDrawPinPreview();
 
     pins.clear();
     pins.reserve(OutputPinsCount());

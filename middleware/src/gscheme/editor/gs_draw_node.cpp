@@ -7,6 +7,7 @@
 #include "imgui/node_editor.h"
 #include "middleware/imgui/icon.h"
 #include "middleware/imgui/label.h"
+#include "middleware/imgui/button.h"
 #include "middleware/imgui/layout.h"
 #include "middleware/imgui/imgui_math.h"
 
@@ -24,10 +25,19 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
 
     gui::LabelStyle headerStyle;
     headerStyle.margin.left = 0;
-    headerStyle.margin.right += 4.f;
-    headerStyle.margin.top = 0;
     headerStyle.margin.bottom += ne::GetStyle().NodePadding.y; // NodePadding.top;
+
+    gui::ButtonStyle buttonStyle;
+    buttonStyle.margin.left = 4.f;
+    buttonStyle.margin.bottom = headerStyle.padding.bottom;
+
     gui::Label(prettyName, headerStyle);
+    gui::SameLine();
+
+    if (gui::ButtonArrow("pin_preview", m_showPinPreview ? gui::ButtonDir::Up : gui::ButtonDir::Down, buttonStyle)) {
+        m_showPinPreview = !m_showPinPreview;
+    }
+
     auto headerRect = gui::EndHorizontal();
     m_headerWidth = headerRect.Width();
     m_headerBottom = headerRect.Bottom();
@@ -125,7 +135,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_inputPinsWidth = gui::EndVertical().Width();
 }
 
-void DrawNode::OnDrawPreview() {
+void DrawNode::OnDrawPinPreview() {
     float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
     if (dt <= 0) {
         return;

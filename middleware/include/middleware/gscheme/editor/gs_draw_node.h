@@ -18,13 +18,13 @@ public:
     void OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha);
     void OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
-    void OnDrawPreview();
+    void OnDrawPinPreview();
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
 
 private:
     uintptr_t m_nodeId = 0;
     uint8_t m_alpha = 0;
-    uintptr_t m_nodeId = 0;
+    bool m_showPinPreview = false;
 
 private:
     float m_headerWidth = 0.f;

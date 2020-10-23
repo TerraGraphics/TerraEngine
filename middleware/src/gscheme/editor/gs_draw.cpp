@@ -47,8 +47,8 @@ void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_node->OnDrawInputPins(pins);
 }
 
-void Draw::OnDrawPreview() {
-    m_node->OnDrawPreview();
+void Draw::OnDrawPinPreview() {
+    m_node->OnDrawPinPreview();
 }
 
 void Draw::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
