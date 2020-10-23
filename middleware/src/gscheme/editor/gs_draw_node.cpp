@@ -17,13 +17,12 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     m_alpha = alpha;
     m_nodeId = id;
 
-    ne::PushStyleVar(ne::StyleVar_NodePadding, gui::ToImGui(m_nodePadding));
     ne::BeginNode(ne::NodeId(id));
     gui::BeginVertical();
 
     gui::LabelStyle headerStyle;
     headerStyle.padding.left = 0;
-    headerStyle.padding.bottom += m_nodePadding.top;
+    headerStyle.padding.bottom += ne::GetStyle().NodePadding.y; // NodePadding.top;
     math::RectF headerRect;
     gui::Label(prettyName, headerStyle, &headerRect);
     m_headerWidth = headerRect.Width();
@@ -40,7 +39,7 @@ void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF t
         gui::LabelStyle footerStyle;
         footerStyle.horisontalAlign = gui::HorisontalAlign::Center;
         footerStyle.padding.left = 0;
-        footerStyle.padding.top += m_nodePadding.bottom;
+        footerStyle.padding.top += ne::GetStyle().NodePadding.w; // NodePadding.bottom;
         footerStyle.minSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
         math::RectF footerRect;
         gui::Label("Error", footerStyle, &footerRect);
@@ -50,7 +49,6 @@ void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF t
     gui::EndVertical();
 
     ne::EndNode();
-    ne::PopStyleVar(1);
     auto nodeRect = math::RectF(gui::ToPointF(ImGui::GetItemRectMin()), gui::ToPointF(ImGui::GetItemRectMax()));
 
     if (!ImGui::IsItemVisible()) {

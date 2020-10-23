@@ -4,6 +4,7 @@
 
 #include "imgui/imgui.h"
 #include "imgui/node_editor.h"
+#include "middleware/imgui/imgui_math.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/editor/gs_draw.h"
@@ -48,6 +49,15 @@ void Editor::Create() {
 void Editor::DrawGraph() {
     ne::SetCurrentEditor(m_context);
     ne::Begin(m_name.c_str());
+
+    ImGuiStyle& imStyle = ImGui::GetStyle();
+    ne::Style& neStyle = ne::GetStyle();
+    neStyle.NodePadding = gui::ToImGui(math::RectOffsetF(/* left */ 8, /* right */ 8, /* top */ 4, /* bottom */ 2));
+    neStyle.PinRounding = imStyle.FrameRounding;
+    neStyle.NodeBorderWidth = 0.f;
+    neStyle.HoveredNodeBorderWidth = 2.f;
+    neStyle.SelectedNodeBorderWidth = 2.f;
+    neStyle.Colors[ne::StyleColor_PinRect] = imStyle.Colors[ImGuiCol_ButtonHovered];
 
     m_graph->DrawGraph(m_draw.get());
 

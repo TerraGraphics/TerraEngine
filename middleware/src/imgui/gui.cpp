@@ -11,10 +11,12 @@
 #include "dg/device.h"
 #include "dg/context.h"
 #include "imgui/imgui.h"
+#include "core/math/types.h"
 #include "platforms/platforms.h"
 #include "middleware/imgui/font.h"
 #include "core/common/exception.h"
 #include "dg/shader_resource_binding.h"
+#include "middleware/imgui/imgui_math.h"
 #include "dg/shader_resource_variable.h"
 
 
@@ -141,7 +143,9 @@ void Gui::Create() {
 
     CreateFonts();
     CreateGraphics();
+    ApplyTheme();
 
+    // fixed theme varaibles
     ImGui::GetStyle().ItemSpacing.x = 0;
 }
 
@@ -407,6 +411,13 @@ void Gui::RenderFrame() {
         globalIdxOffset += cmdList->IdxBuffer.Size;
         globalVtxOffset += cmdList->VtxBuffer.Size;
     }
+}
+
+void Gui::ApplyTheme() {
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    style.FrameRounding = 4.0f;
+    style.Colors[ImGuiCol_ButtonHovered] = gui::ToImGui(math::Color4f(uint8_t(60u), 180u, 255u, 100u));
 }
 
 void Gui::CreateFonts() {

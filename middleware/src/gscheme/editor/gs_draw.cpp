@@ -25,14 +25,9 @@ Draw::~Draw() {
 
 void Draw::OnStartDrawGraph() {
     m_alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
-
-    ne::PushStyleVar(ne::StyleVar_NodeBorderWidth, 0.f);
-    ne::PushStyleVar(ne::StyleVar_HoveredNodeBorderWidth, 2.f);
-    ne::PushStyleVar(ne::StyleVar_SelectedNodeBorderWidth, 2.f);
 }
 
 void Draw::OnFinishDrawGraph() {
-    ne::PopStyleVar(3);
 }
 
 void Draw::OnStartDrawNode(uintptr_t id, std::string prettyName) {

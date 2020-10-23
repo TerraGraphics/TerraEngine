@@ -36,6 +36,10 @@ ImVec4 ToImGui(math::RectOffsetF value) {
     return ImVec4(value.left, value.top, value.right, value.bottom);
 }
 
+ImVec4 ToImGui(math::Color4f value) {
+    return ImVec4(value.red, value.green, value.blue, value.alpha);
+}
+
 math::PointU ToPointU(ImVec2 value) {
     return math::PointU(static_cast<uint32_t>(value.x), static_cast<uint32_t>(value.y));
 }

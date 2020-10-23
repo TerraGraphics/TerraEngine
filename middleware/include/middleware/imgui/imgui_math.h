@@ -15,6 +15,7 @@ ImVec2 ToImGui(math::SizeU value);
 ImVec2 ToImGui(math::SizeF value);
 ImRect ToImGui(math::RectF value);
 ImVec4 ToImGui(math::RectOffsetF value);
+ImVec4 ToImGui(math::Color4f value);
 
 math::PointU ToPointU(ImVec2 value);
 math::PointF ToPointF(ImVec2 value);

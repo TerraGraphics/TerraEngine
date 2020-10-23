@@ -25,6 +25,7 @@ public:
     void RenderFrame();
 
 private:
+    void ApplyTheme();
     void CreateFonts();
     void CreateGraphics();
     void CreateFontsTexture();
