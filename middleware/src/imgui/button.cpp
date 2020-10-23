@@ -3,27 +3,20 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"
-#include "core/math/constants.h"
 #include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {
 
-void RenderArrow(ImDrawList* drawList, math::PointF pos, float size, uint32_t color, ButtonDir dir) {
-    // h = sqrt(3) * 0.5 * size
-    const float r = sqrtf(3.f) * 0.25f * size;
-    const ImVec2 center = ToImGui(pos) + ImVec2(r, r);
+void RenderArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, ButtonDir dir) {
+    rect -= math::RectOffsetF(rect.h/8.f);
 
-    ImVec2 points[3];
-    float angle = (dir == ButtonDir::Up) ? 0 : PI<float>();
-    for (ImVec2& p: points) {
-        sincosf(angle, &p.x, &p.y);
-        p *= r;
-        p += center;
-        angle += OneThirdOfTwoPI<float>();
+    const float h = sqrtf(3.f) * 0.5f * rect.h;
+    if (dir == ButtonDir::Up) {
+        drawList->AddTriangleFilled(ToImGui(rect.LeftBottom()), ImVec2(rect.CenterX(), rect.Bottom() - h), ToImGui(rect.RightBottom()), color);
+    } else {
+        drawList->AddTriangleFilled(ToImGui(rect.RightTop()), ImVec2(rect.CenterX(), rect.Top() + h), ToImGui(rect.LeftTop()), color);
     }
-
-    drawList->AddTriangleFilled(points[0], points[1], points[2], color);
 }
 
 bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style, math::RectF* outWidgetRect) {
@@ -58,7 +51,7 @@ bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style
         ImGui::RenderFrame(ToImGui(widgetRect.Min()), ToImGui(widgetRect.Max()), bgColor, true, g.Style.FrameRounding);
     }
 
-    RenderArrow(window->DrawList, drawRect.LeftTop(), g.FontSize, ImGui::GetColorU32(ImGuiCol_Text), dir);
+    RenderArrow(window->DrawList, drawRect, ImGui::GetColorU32(ImGuiCol_Text), dir);
 
     return pressed;
 }
