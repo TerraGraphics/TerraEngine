@@ -2,9 +2,14 @@
 
 #include "core/math/types.h"
 
+struct ImGuiWindow;
 namespace gui {
 
 struct Style;
+
+ImGuiWindow* GetCurrentWindow();
+// fill outWidgetRect as empty if window is skipped
+ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect = nullptr);
 
 void ItemSize(math::SizeF widgetSize);
 bool ItemAdd(uint32_t id, math::RectF widgetRect);

@@ -8,6 +8,22 @@
 
 namespace gui {
 
+ImGuiWindow* GetCurrentWindow() {
+    return ImGui::GetCurrentWindow();
+}
+
+ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect) {
+    if (ImGuiWindow* window = ImGui::GetCurrentWindow(); !window->SkipItems) {
+        return window;
+    }
+
+    if (outWidgetRect != nullptr) {
+        *outWidgetRect = math::RectF();
+    }
+
+    return nullptr;
+}
+
 void ItemSize(math::SizeF widgetSize) {
     ImGui::ItemSize(ToImGui(widgetSize), 0);
 }

@@ -13,8 +13,8 @@ namespace gui {
 
 void SameLine() {
     ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
+    ImGuiWindow* window = GetCheckedCurrentWindow();
+    if (window == nullptr) {
         return;
     }
 
@@ -25,8 +25,8 @@ void SameLine() {
 }
 
 math::RectF Dummy(math::SizeF size) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
+    ImGuiWindow* window = GetCheckedCurrentWindow();
+    if (window == nullptr) {
         return math::RectF();
     }
 
@@ -41,7 +41,7 @@ math::RectF Dummy(math::SizeF size) {
 static std::stack<ImGuiLayoutType> layouts;
 
 void BeginGroup(bool horizontal) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow* window = GetCurrentWindow();
     layouts.push(window->DC.LayoutType);
     window->DC.LayoutType = horizontal ? ImGuiLayoutType_Horizontal : ImGuiLayoutType_Vertical;
 
@@ -49,7 +49,7 @@ void BeginGroup(bool horizontal) {
 }
 
 math::RectF EndGroup() {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow* window = GetCurrentWindow();
     window->DC.LayoutType = layouts.top();
     layouts.pop();
 

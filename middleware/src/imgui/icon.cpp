@@ -173,11 +173,8 @@ private:
 };
 
 void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
-        if (outWidgetRect != nullptr) {
-            *outWidgetRect = math::RectF();
-        }
+    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    if (window == nullptr) {
         return;
     }
 

@@ -20,11 +20,8 @@ void RenderArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, ButtonD
 }
 
 bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
-        if (outWidgetRect != nullptr) {
-            *outWidgetRect = math::RectF();
-        }
+    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    if (window == nullptr) {
         return false;
     }
 

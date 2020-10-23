@@ -9,7 +9,7 @@
 namespace gui {
 
 math::SizeF CalcTextSize(std::string_view text, float& wrapWidth) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow* window = GetCurrentWindow();
 
     const float wrapPosX = window->DC.TextWrapPos;
     const bool wrapEnabled = (wrapPosX >= 0.0f);
@@ -19,8 +19,8 @@ math::SizeF CalcTextSize(std::string_view text, float& wrapWidth) {
 }
 
 math::RectF LabelCalc(std::string_view text, const LabelStyle& style) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
+    ImGuiWindow* window = GetCheckedCurrentWindow();
+    if (window == nullptr) {
         return math::RectF();
     }
 
@@ -33,11 +33,8 @@ math::RectF LabelCalc(std::string_view text, const LabelStyle& style) {
 }
 
 void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
-        if (outWidgetRect != nullptr) {
-            *outWidgetRect = math::RectF();
-        }
+    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    if (window == nullptr) {
         return;
     }
 
