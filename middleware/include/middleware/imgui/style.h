@@ -20,12 +20,14 @@ enum class VerticalAlign : uint8_t {
 };
 
 struct Style {
-    math::SizeF minSize;
-    HorisontalAlign horisontalAlign = HorisontalAlign::Left;
-    VerticalAlign verticalAlign = VerticalAlign::Top;
+    math::RectOffsetF margin = DEFUALT_MARGIN;
     math::RectOffsetF padding = DEFUALT_PADDING;
+    math::SizeF minSize;
+    VerticalAlign verticalAlign = VerticalAlign::Top;
+    HorisontalAlign horisontalAlign = HorisontalAlign::Left;
 
-    constexpr static const math::RectOffsetF DEFUALT_PADDING = math::RectOffsetF(8.f, 0, 0, 0);
+    constexpr static const math::RectOffsetF DEFUALT_MARGIN = math::RectOffsetF(8.f, 0, 0, 0);
+    constexpr static const math::RectOffsetF DEFUALT_PADDING = math::RectOffsetF();
 };
 
 } // end namespace gui

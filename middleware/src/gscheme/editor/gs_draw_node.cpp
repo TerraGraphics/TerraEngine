@@ -14,17 +14,21 @@
 namespace gs {
 
 void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
-    m_alpha = alpha;
     m_nodeId = id;
+    m_alpha = alpha;
 
     ne::BeginNode(ne::NodeId(id));
     gui::BeginVertical();
 
+    gui::BeginHorizontal();
+
     gui::LabelStyle headerStyle;
-    headerStyle.padding.left = 0;
-    headerStyle.padding.bottom += ne::GetStyle().NodePadding.y; // NodePadding.top;
-    math::RectF headerRect;
-    gui::Label(prettyName, headerStyle, &headerRect);
+    headerStyle.margin.left = 0;
+    headerStyle.margin.right += 4.f;
+    headerStyle.margin.top = 0;
+    headerStyle.margin.bottom += ne::GetStyle().NodePadding.y; // NodePadding.top;
+    gui::Label(prettyName, headerStyle);
+    auto headerRect = gui::EndHorizontal();
     m_headerWidth = headerRect.Width();
     m_headerBottom = headerRect.Bottom();
 
@@ -100,14 +104,14 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
-    iconStyle.padding.left = 0;
-    iconStyle.padding.right = gui::Style::DEFUALT_PADDING.left;
+    iconStyle.margin.left = 0;
+    iconStyle.margin.right = gui::Style::DEFUALT_MARGIN.left;
 
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    labelStyle.padding.left = 0;
-    labelStyle.padding.right += 5.f;
+    labelStyle.margin.left = 0;
+    labelStyle.margin.right = gui::Style::DEFUALT_MARGIN.left;
     labelStyle.minSize = math::SizeF(0, m_iconSideSize);
 
     for (const auto& pin: pins) {
@@ -145,7 +149,6 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    labelStyle.padding.left += 5.f;
 
     float labelWidth = 0;
     for (const auto& pin: pins) {

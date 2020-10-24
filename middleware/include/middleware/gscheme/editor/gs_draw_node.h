@@ -22,6 +22,7 @@ public:
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
 
 private:
+    uintptr_t m_nodeId = 0;
     uint8_t m_alpha = 0;
     uintptr_t m_nodeId = 0;
 
@@ -30,6 +31,7 @@ private:
     float m_headerBottom = 0.f;
     float m_inputPinsWidth = 0.f;
     float m_outputPinsWidth = 0.f;
+
 private:
     static constexpr const float m_iconSideSize = 24.f;
 };
