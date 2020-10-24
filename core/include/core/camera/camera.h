@@ -19,7 +19,7 @@ public:
 	void SetNearPlane(float value);
 	void SetFarPlane(float value);
 	void SetViewParams(const dg::float3& position, const dg::float3& direction);
-	dg::double3 ScreenPointToRay(math::Point mousePos, math::Size screenSize) const;
+	dg::double3 ScreenPointToRay(math::PointF mousePos, math::SizeF screenSize) const;
 
 	float GetNearPlane() const noexcept {
 		return m_nearPlane;

@@ -22,7 +22,7 @@ class GraphNodeFactory;
 class GraphEditor : Fixed {
 public:
     GraphEditor() = delete;
-    GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory);
+    GraphEditor(const std::string& name, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory);
     ~GraphEditor();
 
     bool AddNode(GraphNode* node);

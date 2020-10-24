@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include "dg/dg.h"
 #include "core/math/types.h"
 #include "middleware/imgui/style.h"
 
@@ -28,5 +29,13 @@ struct IconStyle : Style {
 };
 
 void Icon(IconType type, bool filled, const IconStyle& style = IconStyle(), math::RectF* outWidgetRect = nullptr);
+
+struct ImageStyle : Style {
+    math::Color color = math::Color(255);
+    math::RectF uv = math::RectF(0, 0, 1.f, 1.f);
+};
+
+void Image(math::SizeF drawSize, const ImageStyle& style = ImageStyle(), math::RectF* outWidgetRect = nullptr);
+void Image(math::SizeF drawSize, TextureViewRaw texture, const ImageStyle& style = ImageStyle(), math::RectF* outWidgetRect = nullptr);
 
 } // end namespace gui

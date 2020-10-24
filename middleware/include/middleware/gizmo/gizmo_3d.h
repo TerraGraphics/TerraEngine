@@ -30,7 +30,7 @@ public:
 
 public:
     std::shared_ptr<TransformNode> Create();
-    void Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc);
+    void Update(const std::shared_ptr<Camera>& camera, math::RectF windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc);
     void SelectNode(const std::shared_ptr<TransformNode>& node);
 
     Type GetType() const noexcept { return m_type; }

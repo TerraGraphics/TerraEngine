@@ -7,6 +7,8 @@ namespace gui {
 
 struct Style;
 
+bool isOpenGL();
+
 ImGuiWindow* GetCurrentWindow();
 // fill outWidgetRect as empty if window is skipped
 ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect = nullptr);

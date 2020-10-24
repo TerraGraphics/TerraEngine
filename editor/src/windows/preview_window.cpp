@@ -7,6 +7,7 @@
 #include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "editor/preview_scene.h"
+#include "middleware/imgui/icon.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/gizmo/gizmo_3d.h"
 #include "middleware/imgui/imgui_math.h"
@@ -52,11 +53,17 @@ void PreviewWindow::Update(double deltaTime) {
     m_draw = ImGui::Begin("preview", pOpen, windowFlags);
     ImGui::PopStyleVar(1);
     if (m_draw) {
-        math::Rect rc = gui::Image(m_scene->GetColorTexture(), gui::ToSizeU(ImGui::GetContentRegionAvail()), m_isOpenGL);
+        math::RectF rc;
+        gui::ImageStyle style;
+        style.margin = math::RectOffsetF();
+        style.padding = math::RectOffsetF();
+        gui::Image(gui::ToSizeF(ImGui::GetContentRegionAvail()), m_scene->GetColorTexture(), style, &rc);
+        auto width = static_cast<uint32_t>(rc.Width());
+        auto height = static_cast<uint32_t>(rc.Height());
 
         bool mouseUnderWindow = (ImGui::IsWindowHovered() &&
                                  ImGui::IsMouseHoveringRect(gui::ToImGui(rc.Min()), gui::ToImGui(rc.Max())));
-        m_controller->Update(handler, rc.Width(), rc.Height(), static_cast<float>(deltaTime));
+        m_controller->Update(handler, width, height, static_cast<float>(deltaTime));
 
         GizmoFoundDesc foundDesc;
         m_gizmo->Update(m_camera, rc, mouseUnderWindow, foundDesc);
@@ -65,7 +72,7 @@ void PreviewWindow::Update(double deltaTime) {
             m_waitTextureCopy = true;
         }
 
-        m_scene->Update(rc.Width(), rc.Height());
+        m_scene->Update(width, height);
 
         if (m_waitTextureCopy) {
             std::shared_ptr<TransformNode> selectNode;

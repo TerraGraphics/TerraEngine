@@ -1,5 +1,7 @@
 #include "imgui/gui_helpers.h"
 
+#include "dg/device.h"
+#include "core/engine.h"
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "middleware/imgui/style.h"
@@ -7,6 +9,12 @@
 
 
 namespace gui {
+
+bool isOpenGL() {
+    bool isOpenGL = Engine::Get().GetDevice()->GetDeviceCaps().IsGLDevice();
+
+    return isOpenGL;
+}
 
 ImGuiWindow* GetCurrentWindow() {
     return ImGui::GetCurrentWindow();

@@ -13,7 +13,7 @@
 
 struct GraphPin;
 
-GraphEditor::GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
+GraphEditor::GraphEditor(const std::string& name, TexturePtr& texBackground, std::unique_ptr<GraphNodeFactory>&& factory)
     : m_name(name)
     , m_config(new ne::Config())
     , m_storage(new GraphStorage(texBackground))
@@ -21,7 +21,7 @@ GraphEditor::GraphEditor(const std::string& name, bool isGLDevice, TexturePtr& t
 
     m_config->SettingsFile = "";
     m_context = ne::CreateEditor(m_config);
-    m_selectedNode = std::make_shared<SelectedNode>(isGLDevice);
+    m_selectedNode = std::make_shared<SelectedNode>();
 }
 
 GraphEditor::~GraphEditor() {

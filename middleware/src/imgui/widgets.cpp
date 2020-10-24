@@ -219,34 +219,4 @@ void Text(std::string_view text) {
     ImGui::TextEx(text.cbegin(), text.cend(), ImGuiTextFlags_NoWidthForLargeClippedText);
 }
 
-math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL, math::PointF uv0, math::PointF uv1, math::Color tintCol, math::Color borderCol) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (window->SkipItems) {
-        return math::Rect();
-    }
-
-    ImRect bb(window->DC.CursorPos, window->DC.CursorPos + ToImGui(size));
-    if (borderCol.alpha > 0) {
-        bb.Max += ImVec2(2, 2);
-    }
-
-    ImGui::ItemSize(bb);
-    if (!ImGui::ItemAdd(bb, 0)) {
-        return math::Rect();
-    }
-
-    if (isOpenGL) {
-        std::swap(uv0.y, uv1.y);
-    }
-
-    if (borderCol.alpha > 0) {
-        window->DrawList->AddRect(bb.Min, bb.Max, borderCol.value, 0.0f);
-        window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min + ImVec2(1, 1), bb.Max - ImVec2(1, 1), ToImGui(uv0), ToImGui(uv1), tintCol.value);
-    } else {
-        window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), bb.Min, bb.Max, ToImGui(uv0), ToImGui(uv1), tintCol.value);
-    }
-
-    return math::Rect(ToPointU(bb.Min), ToPointU(bb.Max));
-}
-
 } // end namespace gui

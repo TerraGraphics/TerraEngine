@@ -8,14 +8,14 @@
 #include "imgui/imgui.h"
 #include "core/math/types.h"
 #include "dg/graphics_types.h"
+#include "middleware/imgui/icon.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/graph_editor/graph_node.h"
 #include "middleware/graph_editor/graph_node_preview.h"
 
 
-SelectedNode::SelectedNode(bool isOpenGL)
-    : m_isOpenGL(isOpenGL) {
+SelectedNode::SelectedNode() {
 
 }
 
@@ -68,7 +68,5 @@ void SelectedNode::Draw() {
 
     TextureViewPtr texView;
     texView = m_previewNode->GetTexture(math::Size(minDim, minDim))->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
-    gui::Image(texView.RawPtr(), math::Size(minDim + borderSize, minDim + borderSize), m_isOpenGL,
-        math::PointF(0, 0), math::PointF(1, 1),
-        math::Color(255), math::Color(16, 89, 0));
+    gui::Image(math::SizeF(static_cast<float>(minDim + borderSize), static_cast<float>(minDim + borderSize)), texView.RawPtr());
 }

@@ -3,6 +3,7 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"
+#include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {
@@ -225,6 +226,40 @@ void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWi
         drawer.DrawFlow();
         break;
     }
+}
+
+void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outWidgetRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    if (window == nullptr) {
+        return;
+    }
+
+    math::RectF drawRect;
+    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+        return;
+    }
+
+    window->DrawList->AddRectFilled(ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), style.color.value);
+}
+
+void Image(math::SizeF drawSize, TextureViewRaw texture, const ImageStyle& style, math::RectF* outWidgetRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    if (window == nullptr) {
+        return;
+    }
+
+    math::RectF drawRect;
+    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+        return;
+    }
+
+    auto uv0 = ToImGui(style.uv.Min());
+    auto uv1 = ToImGui(style.uv.Max());
+    if (isOpenGL()) {
+        std::swap(uv0.y, uv1.y);
+    }
+
+    window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), uv0, uv1, style.color.value);
 }
 
 } // end namespace gui

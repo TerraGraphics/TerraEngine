@@ -81,8 +81,4 @@ template<typename T, size_t N>
 
 void Text(std::string_view text);
 
-math::Rect Image(TextureViewRaw texture, math::Size size, bool isOpenGL,
-    math::PointF uv0 = math::PointF(0, 0), math::PointF uv1 = math::PointF(1, 1),
-    math::Color tintCol = math::Color(255), math::Color borderCol = math::Color(0));
-
 } // end namespace gui

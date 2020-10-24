@@ -46,7 +46,7 @@ std::shared_ptr<TransformNode> Gizmo3D::Create() {
     return m_rootNode;
 }
 
-void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc) {
+void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::RectF windowRect, bool mouseUnderWindow, GizmoFoundDesc& foundDesc) {
     if (!mouseUnderWindow) {
         return;
     }
@@ -55,13 +55,11 @@ void Gizmo3D::Update(const std::shared_ptr<Camera>& camera, math::Rect windowRec
 
     float absoluteMousePosX, absoluteMousePosY;
     m_eventHandler->GetCursorPosition(absoluteMousePosX, absoluteMousePosY);
-    auto mousePos = math::Point(
-            static_cast<uint32_t>(absoluteMousePosX) - windowRect.x,
-            static_cast<uint32_t>(absoluteMousePosY) - windowRect.y);
+    auto mousePos = math::PointF(absoluteMousePosX - windowRect.x, absoluteMousePosY - windowRect.y);
 
     foundDesc.needFound = false;
-    foundDesc.mouseX = mousePos.x;
-    foundDesc.mouseY = mousePos.y;
+    foundDesc.mouseX = static_cast<uint32_t>(mousePos.x);
+    foundDesc.mouseY = static_cast<uint32_t>(mousePos.y);
 
     if (!m_selectedObject) {
         if (mouseFirstRelease) {

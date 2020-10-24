@@ -8,8 +8,7 @@ class GraphNode;
 class INodePreview;
 class SelectedNode : Fixed {
 public:
-    SelectedNode() = delete;
-    SelectedNode(bool isOpenGL);
+    SelectedNode();
     ~SelectedNode();
 
     GraphNode* GetNode();
@@ -18,7 +17,6 @@ public:
     void Draw();
 
 private:
-    bool m_isOpenGL = false;
     dg::RefCntWeakPtr<GraphNode> m_node;
     dg::RefCntAutoPtr<INodePreview> m_previewNode;
 };

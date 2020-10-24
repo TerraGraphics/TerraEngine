@@ -34,7 +34,7 @@ void Camera::SetViewParams(const dg::float3& position, const dg::float3& directi
 	calcViewMatrix(direction);
 }
 
-dg::double3 Camera::ScreenPointToRay(math::Point mousePos, math::Size screenSize) const {
+dg::double3 Camera::ScreenPointToRay(math::PointF mousePos, math::SizeF screenSize) const {
 	// see: http://antongerdelan.net/opengl/raycasting.html
 	double posX = (2. * static_cast<double>(mousePos.x)) / static_cast<double>(screenSize.w) - 1.;
 	double posY = 1. - (2. * static_cast<double>(mousePos.y)) / static_cast<double>(screenSize.h);
