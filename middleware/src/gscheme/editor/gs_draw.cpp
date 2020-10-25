@@ -47,8 +47,8 @@ void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_node->OnDrawInputPins(pins);
 }
 
-void Draw::OnDrawPinPreview() {
-    m_node->OnDrawPinPreview();
+void Draw::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
+    m_node->OnDrawPinPreview(typeId, value);
 }
 
 void Draw::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {

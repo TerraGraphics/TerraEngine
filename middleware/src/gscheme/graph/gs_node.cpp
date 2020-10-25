@@ -486,7 +486,19 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawInputPins(pins);
 
-    drawer->OnDrawPinPreview();
+    if (OutputPinsCount() > 0) {
+        auto i = OutputPinsBeginIndex();
+        cpgf::GVariant value = m_pins[i].cachedValue;
+        if (IsUniversalTypeFromPinId(m_pins[i].id)) {
+            value = std::visit([](auto&& v) -> auto {
+                return cpgf::copyVariantFromCopyable(v);
+            }, cpgf::fromVariant<UniversalType>(value));
+        }
+
+        drawer->OnDrawPinPreview(ToBaseTypeId(GetPinType(i)), value);
+    } else {
+        throw EngineError("gs::Node::DrawGraph: not found output pins for draw node (id = {})", m_id);
+    }
 
     pins.clear();
     pins.reserve(OutputPinsCount());

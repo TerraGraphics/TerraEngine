@@ -8,6 +8,10 @@
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
+namespace cpgf {
+    class GVariant;
+}
+
 namespace gs {
 
 class DrawNode {
@@ -18,7 +22,7 @@ public:
     void OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha);
     void OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
-    void OnDrawPinPreview();
+    void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value);
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
 
 private:

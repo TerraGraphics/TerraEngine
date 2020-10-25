@@ -3,8 +3,11 @@
 #include <string>
 #include <algorithm>
 
+#include "eigen/core.h"
 #include "imgui/imgui.h"
+#include "cpgf/variant.h"
 #include "imgui/node_editor.h"
+#include "core/common/exception.h"
 #include "middleware/imgui/image.h"
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/button.h"
@@ -149,7 +152,11 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_inputPinsWidth = gui::EndVertical().Width();
 }
 
-void DrawNode::OnDrawPinPreview() {
+static uint8_t floatChannelToUint8(float v) {
+    return static_cast<uint8_t>(std::max(std::min(static_cast<int32_t>(v * 255.f), 255), 0));
+}
+
+void DrawNode::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
     float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
     if (!m_showPinPreview) {
         if (dt > 0) {
@@ -163,7 +170,29 @@ void DrawNode::OnDrawPinPreview() {
     gui::ImageStyle style;
     style.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
     style.padding = math::RectOffsetF();
-    style.color = math::Color(255, 0, 0);
+    style.color = math::Color(0, 0, 0, 255);
+
+    if (typeId == TypeId::Float) {
+        const auto tmp = cpgf::fromVariant<float>(value);
+        style.color.red = floatChannelToUint8(tmp);
+    } else if (typeId == TypeId::Vector2f) {
+        const auto tmp = cpgf::fromVariant<Eigen::Vector2f>(value);
+        style.color.red = floatChannelToUint8(tmp[0]);
+        style.color.green = floatChannelToUint8(tmp[1]);
+    } else if (typeId == TypeId::Vector3f) {
+        const auto tmp = cpgf::fromVariant<Eigen::Vector3f>(value);
+        style.color.red = floatChannelToUint8(tmp[0]);
+        style.color.green = floatChannelToUint8(tmp[1]);
+        style.color.blue = floatChannelToUint8(tmp[2]);
+    } else if (typeId == TypeId::Vector4f) {
+        const auto tmp = cpgf::fromVariant<Eigen::Vector4f>(value);
+        style.color.red = floatChannelToUint8(tmp[0]);
+        style.color.green = floatChannelToUint8(tmp[1]);
+        style.color.blue = floatChannelToUint8(tmp[2]);
+    } else {
+        throw EngineError("gs::DrawNode::OnDrawPinPreview: unknown value type (id = {})", typeId);
+    }
+
     gui::Image(m_pinPreviewSize, style);
 }
 
