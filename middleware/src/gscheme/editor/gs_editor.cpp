@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "imgui/imgui.h"
+#include "core/math/types.h"
 #include "imgui/node_editor.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/gscheme/graph/gs_id.h"

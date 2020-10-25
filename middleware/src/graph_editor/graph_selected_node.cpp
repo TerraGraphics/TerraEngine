@@ -6,9 +6,8 @@
 
 #include "dg/texture.h"
 #include "imgui/imgui.h"
-#include "core/math/types.h"
 #include "dg/graphics_types.h"
-#include "middleware/imgui/icon.h"
+#include "middleware/imgui/image.h"
 #include "middleware/imgui/widgets.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/graph_editor/graph_node.h"

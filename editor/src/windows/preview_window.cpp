@@ -1,14 +1,14 @@
 #include "editor/windows/preview_window.h"
 
+#include <cstdint>
+
 #include "dg/dg.h"
 #include "dg/device.h"
 #include "imgui/imgui.h"
 #include "core/engine.h"
-#include "core/math/types.h"
 #include "core/camera/camera.h"
 #include "editor/preview_scene.h"
-#include "middleware/imgui/icon.h"
-#include "middleware/imgui/widgets.h"
+#include "middleware/imgui/image.h"
 #include "middleware/gizmo/gizmo_3d.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/std_render/std_scene.h"

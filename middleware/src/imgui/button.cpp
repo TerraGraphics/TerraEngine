@@ -1,5 +1,8 @@
 #include "middleware/imgui/button.h"
 
+#include <cmath>
+#include <cstdint>
+
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"

@@ -1,4 +1,6 @@
 [
     { include: ["<bits/exception.h>", private, "<exception>", public] },
     { include: ["<exception>", public, "<stdexcept>", public] },
+
+    { symbol: ["std::istringstream", "public", "<sstream>", "public"] },
 ]

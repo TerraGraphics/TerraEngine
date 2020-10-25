@@ -5,10 +5,9 @@
 #include <ext/alloc_traits.h>
 
 #include "imgui/imgui.h"
-#include "core/math/types.h"
 #include "imgui/node_editor.h"
-#include "middleware/imgui/icon.h"
 #include "core/common/exception.h"
+#include "middleware/imgui/image.h"
 
 
 namespace {

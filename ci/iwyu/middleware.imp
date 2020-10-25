@@ -9,7 +9,8 @@
     { include: ['"middleware/generator/mesh/shape_builder.h"', public, '"middleware/generator/mesh_generator.h"', public] },
     { include: ['"middleware/generator/mesh/cylinder_shape.h"', public, '"middleware/generator/mesh_generator.h"', public] },
 
-    { include: ['"middleware/imgui/style.h"', public, '"middleware/imgui/icon.h"', public] },
+    { include: ['"core/math/types.h"', public, '"middleware/imgui/style.h"', public] },
+    { include: ['"middleware/imgui/style.h"', public, '"middleware/imgui/image.h"', public] },
     { include: ['"middleware/imgui/style.h"', public, '"middleware/imgui/label.h"', public] },
     { include: ['"middleware/imgui/style.h"', public, '"middleware/imgui/button.h"', public] },
 

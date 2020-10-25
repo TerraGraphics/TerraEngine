@@ -5,7 +5,7 @@
 
 #include "imgui/imgui.h"
 #include "imgui/node_editor.h"
-#include "middleware/imgui/icon.h"
+#include "middleware/imgui/image.h"
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/button.h"
 #include "middleware/imgui/layout.h"

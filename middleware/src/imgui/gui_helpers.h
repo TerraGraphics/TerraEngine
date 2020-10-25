@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include "core/math/types.h"
+
 
 struct ImGuiWindow;
 namespace gui {

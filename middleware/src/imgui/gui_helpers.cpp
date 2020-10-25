@@ -1,5 +1,6 @@
 #include "imgui/gui_helpers.h"
 
+#include "dg/dg.h"
 #include "dg/device.h"
 #include "core/engine.h"
 #include "imgui/imgui.h"

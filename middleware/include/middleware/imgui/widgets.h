@@ -5,10 +5,8 @@
 #include <variant>
 #include <cstddef>
 #include <cstdint>
+#include <algorithm>
 #include <string_view>
-
-#include "dg/dg.h"
-#include "core/math/types.h"
 
 
 namespace gui {

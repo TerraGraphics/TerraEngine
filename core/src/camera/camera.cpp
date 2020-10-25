@@ -1,6 +1,6 @@
 #include "core/camera/camera.h"
 
-#include <math.h>
+#include <cmath>
 
 
 Camera::Camera(float fovy, float nearPlane, float farPlane, bool isGL, bool isCoordSystemRH)
