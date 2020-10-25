@@ -21,26 +21,40 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     ne::BeginNode(ne::NodeId(id));
     gui::BeginVertical();
 
+    // draw header
     gui::BeginHorizontal();
 
+    math::RectF headerRect;
     gui::LabelStyle headerStyle;
     headerStyle.margin.left = 0;
     headerStyle.margin.bottom += ne::GetStyle().NodePadding.y; // NodePadding.top;
+    gui::Label(prettyName, headerStyle, &headerRect);
+    gui::SameLine();
 
+    math::RectF buttonRect;
     gui::ButtonStyle buttonStyle;
     buttonStyle.margin.left = 4.f;
     buttonStyle.margin.bottom = headerStyle.padding.bottom;
 
-    gui::Label(prettyName, headerStyle);
-    gui::SameLine();
+    float dt = m_inputPinsWidth + m_outputPinsWidth - headerRect.Width() - m_headerButtonWidth - buttonStyle.margin.Horizontal();
+    if (m_showPinPreview) {
+        dt += m_pinPreviewSize.w;
+    }
 
-    if (gui::ButtonArrow("pin_preview", m_showPinPreview ? gui::ButtonDir::Up : gui::ButtonDir::Down, buttonStyle)) {
+    if (dt > 0) {
+        buttonStyle.margin.left += dt;
+    }
+
+    std::string buttonId(std::to_string(id) + "##show_pin_preview");
+    auto dir = m_showPinPreview ? gui::ButtonDir::Up : gui::ButtonDir::Down;
+    if (gui::ButtonArrow(buttonId, dir, buttonStyle, &buttonRect)) {
         m_showPinPreview = !m_showPinPreview;
     }
 
-    auto headerRect = gui::EndHorizontal();
+    headerRect = gui::EndHorizontal();
     m_headerWidth = headerRect.Width();
     m_headerBottom = headerRect.Bottom();
+    m_headerButtonWidth = buttonRect.Width();
 
     gui::BeginHorizontal();
 }
@@ -137,11 +151,20 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
 
 void DrawNode::OnDrawPinPreview() {
     float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
-    if (dt <= 0) {
+    if (!m_showPinPreview) {
+        if (dt > 0) {
+            gui::Dummy(math::SizeF(dt, 0));
+        }
         return;
     }
 
-    gui::Dummy(math::SizeF(dt, 0));
+    dt = (dt - m_pinPreviewSize.w) * 0.5f;
+
+    gui::ImageStyle style;
+    style.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
+    style.padding = math::RectOffsetF();
+    style.color = math::Color(255, 0, 0);
+    gui::Image(m_pinPreviewSize, style);
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {

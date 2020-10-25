@@ -29,11 +29,13 @@ private:
 private:
     float m_headerWidth = 0.f;
     float m_headerBottom = 0.f;
+    float m_headerButtonWidth = 0.f;
     float m_inputPinsWidth = 0.f;
     float m_outputPinsWidth = 0.f;
 
 private:
     static constexpr const float m_iconSideSize = 24.f;
+    static constexpr const math::SizeF m_pinPreviewSize = math::SizeF(128.f);
 };
 
 }
