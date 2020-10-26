@@ -29,39 +29,3 @@ bool Noise2D::DetachInputImpl(uint8_t /* number */) {
 uint32_t Noise2D::OutputTypeID() {
     return static_cast<uint32_t>(TexturePinType::Noise2D);
 }
-
-PlaneProjection::PlaneProjection(dg::IReferenceCounters* refCounters)
-    : Noise2D(refCounters, GetName()) {
-
-}
-
-double PlaneProjection::GetCoordZ() const {
-    return m_coordZ;
-}
-
-void PlaneProjection::SetCoordZ(double value) {
-    m_coordZ = value;
-    StateChanged();
-}
-
-PlaneProjection* PlaneProjection::SetInputs(Noise3D* input) {
-    if (!AttachInput(0, input)) {
-        throw EngineError("PlaneProjection: can't set input number 0");
-    }
-
-    return this;
-}
-
-double PlaneProjection::Get(double u, double v) {
-    if (m_noiseNode == nullptr) {
-        throw EngineError("PlaneProjection: one of the inputs is empty");
-    }
-
-    return m_noiseNode->Get(u, v, m_coordZ);
-}
-
-void PlaneProjection::DrawGui() {
-    if (gui::InputScalar("Z coordinate", m_coordZ, 0.1, "{:.1f}")) {
-        StateChanged();
-    }
-}

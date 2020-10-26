@@ -9,10 +9,13 @@
 #include "middleware/std_render/std_scene.h"
 #include "middleware/std_render/std_material.h"
 #include "middleware/generator/mesh_generator.h"
+#include "middleware/generator/texture/chess_cube.h"
+#include "middleware/generator/texture/section_plane.h"
 #include "middleware/generator/texture/coherent_noise.h"
 #include "middleware/generator/texture/noise_pojection.h"
 #include "middleware/generator/texture/noise_rasterization.h"
 #include "middleware/generator/texture/texture_node_factory.h"
+#include "middleware/generator/texture/generator2d_to_texture.h"
 
 
 PreviewScene::PreviewScene() {
@@ -46,11 +49,13 @@ void PreviewScene::CreateTextures() {
         m_TextureCube = Tex->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
     }
 
-    auto factory = std::make_unique<TextureNodeFactory>();
-    auto* cNoise = factory->CreateCoherentNoise();
-    auto* planePr = factory->CreatePlaneProjection()->SetInputs(cNoise);
-    auto* texGen = factory->CreateNoiseToTexture()->SetInputs(planePr);
-    m_TextureNoise = texGen->Get()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+    auto cubeNoise = ChessCube();
+    auto sPlane = SectionPlaneX0Y();
+    sPlane.SetInput(cubeNoise.Result());
+    auto texGen = Generator2dToTexture();
+    texGen.SetGeneratorRect(math::RectF(0, 0, 10., 10.));
+    texGen.SetInput(sPlane.Result());
+    m_TextureNoise = texGen.Result()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 void PreviewScene::CreateMaterials() {

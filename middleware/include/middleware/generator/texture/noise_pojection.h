@@ -24,23 +24,3 @@ public:
 protected:
     Noise3D* m_noiseNode = nullptr;
 };
-
-class PlaneProjection : public Noise2D {
-public:
-    PlaneProjection() = delete;
-    PlaneProjection(dg::IReferenceCounters* refCounters);
-    static const char* GetName() { return "Plane projection"; }
-
-public:
-    double GetCoordZ() const;
-    void SetCoordZ(double value);
-
-    PlaneProjection* SetInputs(Noise3D* input);
-
-public:
-    double Get(double u, double v) override;
-    void DrawGui() override;
-
-private:
-    double m_coordZ = 0;
-};
