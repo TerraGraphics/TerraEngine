@@ -244,7 +244,7 @@ void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outWidget
     window->DrawList->AddRectFilled(ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), style.color.value);
 }
 
-void Image(math::SizeF drawSize, TextureViewRaw texture, const ImageStyle& style, math::RectF* outWidgetRect) {
+void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style, math::RectF* outWidgetRect) {
     ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
     if (window == nullptr) {
         return;
@@ -261,7 +261,7 @@ void Image(math::SizeF drawSize, TextureViewRaw texture, const ImageStyle& style
         std::swap(uv0.y, uv1.y);
     }
 
-    window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture), ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), uv0, uv1, style.color.value);
+    window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture.RawPtr()), ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), uv0, uv1, style.color.value);
 }
 
 } // end namespace gui

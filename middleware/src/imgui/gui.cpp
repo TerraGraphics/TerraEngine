@@ -356,7 +356,7 @@ void Gui::RenderFrame() {
     int globalVtxOffset = 0;
 
     m_numberUsedBindings = 0;
-    auto lastUsedTexture = m_fontTex;
+    TextureViewRaw lastUsedTexture = m_fontTex.RawPtr();
     ImVec2 clip_off = drawData->DisplayPos;
     for (int n = 0; n < drawData->CmdListsCount; ++n) {
         const ImDrawList* cmdList = drawData->CmdLists[n];
@@ -367,7 +367,7 @@ void Gui::RenderFrame() {
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == reinterpret_cast<ImDrawCallback>(-1) /* ImDrawCallback_ResetRenderState */) {
                     setupRenderState();
-                    lastUsedTexture = m_fontTex;
+                    lastUsedTexture = m_fontTex.RawPtr();
                 } else {
                     pcmd->UserCallback(cmdList, pcmd);
                 }

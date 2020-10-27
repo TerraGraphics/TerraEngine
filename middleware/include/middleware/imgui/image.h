@@ -36,6 +36,6 @@ struct ImageStyle : Style {
 };
 
 void Image(math::SizeF drawSize, const ImageStyle& style = ImageStyle(), math::RectF* outWidgetRect = nullptr);
-void Image(math::SizeF drawSize, TextureViewRaw texture, const ImageStyle& style = ImageStyle(), math::RectF* outWidgetRect = nullptr);
+void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style = ImageStyle(), math::RectF* outWidgetRect = nullptr);
 
 } // end namespace gui
