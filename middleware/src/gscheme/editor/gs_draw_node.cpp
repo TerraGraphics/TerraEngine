@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "eigen/core.h"
+#include "dg/texture.h"
 #include "imgui/imgui.h"
 #include "cpgf/variant.h"
 #include "imgui/node_editor.h"
@@ -12,10 +13,22 @@
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/button.h"
 #include "middleware/imgui/layout.h"
+#include "core/math/generator_type.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/generator/texture/section_plane.h"
+#include "middleware/generator/texture/generator2d_to_texture.h"
 
 
 namespace gs {
+
+DrawNode::~DrawNode() {
+    if (m_texture) {
+        m_texture->Release();
+    }
+    if (m_textureGenerator != nullptr) {
+        delete m_textureGenerator;
+    }
+}
 
 void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
     m_nodeId = id;
@@ -102,6 +115,7 @@ void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF t
     const auto headerRightBottom = gui::ToImGui(headerRect.RightBottom());
     const auto headerLeftBottom = gui::ToImGui(headerRect.LeftBottom());
 
+    // TODO: add OpenGL check
     const auto uvMin = ImVec2(0.0f, 0.0f);
     const auto uvMax = ImVec2(headerRect.w / texBackgroundSize.w, headerRect.h / texBackgroundSize.h);
 
@@ -170,30 +184,44 @@ void DrawNode::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
     gui::ImageStyle style;
     style.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
     style.padding = math::RectOffsetF();
-    style.color = math::Color(0, 0, 0, 255);
 
     if (typeId == TypeId::Float) {
         const auto tmp = cpgf::fromVariant<float>(value);
         style.color.red = floatChannelToUint8(tmp);
+        style.color.green = 0;
+        style.color.blue = 0;
+        gui::Image(m_pinPreviewSize, style);
     } else if (typeId == TypeId::Vector2f) {
         const auto tmp = cpgf::fromVariant<Eigen::Vector2f>(value);
         style.color.red = floatChannelToUint8(tmp[0]);
         style.color.green = floatChannelToUint8(tmp[1]);
+        style.color.blue = 0;
+        gui::Image(m_pinPreviewSize, style);
     } else if (typeId == TypeId::Vector3f) {
         const auto tmp = cpgf::fromVariant<Eigen::Vector3f>(value);
         style.color.red = floatChannelToUint8(tmp[0]);
         style.color.green = floatChannelToUint8(tmp[1]);
         style.color.blue = floatChannelToUint8(tmp[2]);
+        gui::Image(m_pinPreviewSize, style);
     } else if (typeId == TypeId::Vector4f) {
         const auto tmp = cpgf::fromVariant<Eigen::Vector4f>(value);
         style.color.red = floatChannelToUint8(tmp[0]);
         style.color.green = floatChannelToUint8(tmp[1]);
         style.color.blue = floatChannelToUint8(tmp[2]);
+        gui::Image(m_pinPreviewSize, style);
+    } else if (typeId == TypeId::Generator2d) {
+        const auto tmp = cpgf::fromVariant<math::Generator2d>(value);
+        FillTexture(tmp);
+        gui::Image(m_pinPreviewSize, m_texture, style);
+    } else if (typeId == TypeId::Generator3d) {
+        const auto tmp = cpgf::fromVariant<math::Generator3d>(value);
+        auto sPlane = SectionPlaneX0Y();
+        sPlane.SetInput(tmp);
+        FillTexture(sPlane.Result());
+        gui::Image(m_pinPreviewSize, m_texture, style);
     } else {
         throw EngineError("gs::DrawNode::OnDrawPinPreview: unknown value type (id = {})", typeId);
     }
-
-    gui::Image(m_pinPreviewSize, style);
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
@@ -228,6 +256,20 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     }
 
     m_outputPinsWidth = gui::EndVertical().Width();
+}
+
+void DrawNode::FillTexture(const math::Generator2d& v) {
+    if (m_frameNum++ != 0) {
+        m_frameNum %= 100;
+        return;
+    }
+
+    if (m_textureGenerator == nullptr) {
+        m_textureGenerator = new Generator2dToTexture();
+    }
+
+    m_textureGenerator->SetInput(v);
+    m_texture = m_textureGenerator->Result()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 }
