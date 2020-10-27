@@ -3,6 +3,7 @@
 #include "cpgf/metadefine.h"
 #include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
+#include "middleware/generator/texture/spheres.h"
 #include "middleware/generator/texture/chess_cubes.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
@@ -20,5 +21,15 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::PRETTY_NAME, "Result")
         ._property("Size", &ChessCubes::GetSize, &ChessCubes::SetSize)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::PRETTY_NAME, "Size")
+    ;
+
+    GDefineMetaClass<Spheres>
+        ::define("Spheres")
+            ._annotation(MetaNames::CLASS)._element(MetaNames::PRETTY_NAME, "Noise spheres")
+        ._constructor<void * ()>()
+        ._property("Result", &Spheres::Result, 0)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::PRETTY_NAME, "Result")
+        ._property("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::PRETTY_NAME, "Frequency")
     ;
 }
