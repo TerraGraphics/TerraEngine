@@ -118,26 +118,26 @@ TEST(GSTypesConvertStorage, ToGenerator3d) {
     ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Int32, gs::TypeId::Generator3d));
 
     auto floatToGenerator3d = storage.GetConvertFunc(gs::TypeId::Float, gs::TypeId::Generator3d);
-    ASSERT_DOUBLE_EQ(1., cpgf::fromVariant<math::Generator3d>(floatToGenerator3d(1.f))(1.2, 2.3, 3.4));
+    ASSERT_DOUBLE_EQ(1., cpgf::fromVariant<math::Generator3D>(floatToGenerator3d(1.f))(1.2, 2.3, 3.4));
 
     auto vector4fToGenerator3d = storage.GetConvertFunc(gs::TypeId::Vector4f, gs::TypeId::Generator3d);
-    ASSERT_DOUBLE_EQ(2., cpgf::fromVariant<math::Generator3d>(vector4fToGenerator3d(Eigen::Vector4f(2.f, 3.f, 4.f, 5.f)))(1.2, 2.3, 3.4));
+    ASSERT_DOUBLE_EQ(2., cpgf::fromVariant<math::Generator3D>(vector4fToGenerator3d(Eigen::Vector4f(2.f, 3.f, 4.f, 5.f)))(1.2, 2.3, 3.4));
 
-    auto generatorValue = math::Generator3d(3.f);
+    auto generatorValue = math::Generator3D(3.f);
     auto generator3dToGenerator3d = storage.GetConvertFunc(gs::TypeId::Generator3d, gs::TypeId::Generator3d);
-    ASSERT_DOUBLE_EQ(3., cpgf::fromVariant<math::Generator3d>(generator3dToGenerator3d(generatorValue))(1.2, 2.3, 3.4));
+    ASSERT_DOUBLE_EQ(3., cpgf::fromVariant<math::Generator3D>(generator3dToGenerator3d(generatorValue))(1.2, 2.3, 3.4));
 
     auto universalFloatValue = gs::UniversalType(4.f);
     auto universalFloatToGenerator3d = storage.GetConvertFunc(gs::TypeId::UniversalFloat, gs::TypeId::Generator3d);
-    ASSERT_DOUBLE_EQ(4., cpgf::fromVariant<math::Generator3d>(universalFloatToGenerator3d(universalFloatValue))(1.2, 2.3, 3.4));
+    ASSERT_DOUBLE_EQ(4., cpgf::fromVariant<math::Generator3D>(universalFloatToGenerator3d(universalFloatValue))(1.2, 2.3, 3.4));
 
     auto universalVector4fValue = gs::UniversalType(Eigen::Vector4f(5.f, 6.f, 7.f, 8.f));
     auto universalVector4fToGenerator3d = storage.GetConvertFunc(gs::TypeId::UniversalVector4f, gs::TypeId::Generator3d);
-    ASSERT_DOUBLE_EQ(5., cpgf::fromVariant<math::Generator3d>(universalVector4fToGenerator3d(universalVector4fValue))(1.2, 2.3, 3.4));
+    ASSERT_DOUBLE_EQ(5., cpgf::fromVariant<math::Generator3D>(universalVector4fToGenerator3d(universalVector4fValue))(1.2, 2.3, 3.4));
 
-    auto universalGeneratorValue = gs::UniversalType(math::Generator3d(6.f));
+    auto universalGeneratorValue = gs::UniversalType(math::Generator3D(6.f));
     auto universalGenerator3dToGenerator3d = storage.GetConvertFunc(gs::TypeId::UniversalGenerator3d, gs::TypeId::Generator3d);
-    ASSERT_DOUBLE_EQ(6., cpgf::fromVariant<math::Generator3d>(universalGenerator3dToGenerator3d(universalGeneratorValue))(1.2, 2.3, 3.4));
+    ASSERT_DOUBLE_EQ(6., cpgf::fromVariant<math::Generator3D>(universalGenerator3dToGenerator3d(universalGeneratorValue))(1.2, 2.3, 3.4));
 }
 
 TEST(GSTypesConvertStorage, ToUniversalType) {
@@ -164,10 +164,10 @@ TEST(GSTypesConvertStorage, ToUniversalType) {
     ASSERT_EQ(Eigen::Vector4f(1.f, 2.f, 3.f, 4.f),
         std::get<Eigen::Vector4f>(cpgf::fromVariant<gs::UniversalType>(vector4fToUniversalType(Eigen::Vector4f(1.f, 2.f, 3.f, 4.f)))));
 
-    auto generatorValue = math::Generator2d(2.f);
+    auto generatorValue = math::Generator2D(2.f);
     auto generator2dToUniversalType = storage.GetConvertFunc(gs::TypeId::Generator2d, gs::TypeId::UniversalType);
     ASSERT_DOUBLE_EQ(2.,
-        std::get<math::Generator2d>(cpgf::fromVariant<gs::UniversalType>(generator2dToUniversalType(generatorValue)))(1.1, 2.2));
+        std::get<math::Generator2D>(cpgf::fromVariant<gs::UniversalType>(generator2dToUniversalType(generatorValue)))(1.1, 2.2));
 
     auto universalFloatToUniversalType = storage.GetConvertFunc(gs::TypeId::UniversalFloat, gs::TypeId::UniversalType);
     ASSERT_FLOAT_EQ(3.f,
@@ -178,10 +178,10 @@ TEST(GSTypesConvertStorage, ToUniversalType) {
     ASSERT_EQ(Eigen::Vector4f(1.f, 2.f, 3.f, 4.f),
         std::get<Eigen::Vector4f>(cpgf::fromVariant<gs::UniversalType>(universalVector4fToUniversalType(universalVector4fValue))));
 
-    auto universalGeneratorValue = gs::UniversalType(math::Generator2d(2.f));
+    auto universalGeneratorValue = gs::UniversalType(math::Generator2D(2.f));
     auto universalGenerator2dToUniversalType = storage.GetConvertFunc(gs::TypeId::UniversalGenerator2d, gs::TypeId::UniversalType);
     ASSERT_DOUBLE_EQ(2.,
-        std::get<math::Generator2d>(cpgf::fromVariant<gs::UniversalType>(universalGenerator2dToUniversalType(universalGeneratorValue)))(1.1, 2.2));
+        std::get<math::Generator2D>(cpgf::fromVariant<gs::UniversalType>(universalGenerator2dToUniversalType(universalGeneratorValue)))(1.1, 2.2));
 }
 
 }

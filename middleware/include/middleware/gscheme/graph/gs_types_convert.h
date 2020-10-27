@@ -62,11 +62,11 @@ template <typename T>
     using ToVector4fT = decltype(ToVector4f<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T> || IsGenerator2d<T>>>
-    math::Generator2d ToGenerator2d(const T& value) {
+    math::Generator2D ToGenerator2d(const T& value) {
     if constexpr (IsGenerator2d<T>) {
         return value;
     } else if constexpr (IsFloat<T> || IsVector<T>) {
-        return math::Generator2d(value);
+        return math::Generator2D(value);
     }
 }
 
@@ -74,11 +74,11 @@ template <typename T>
     using ToGenerator2dT = decltype(ToGenerator2d<T>);
 
 template<typename T, typename Enable = std::enable_if_t<IsFloat<T> || IsVector<T> || IsGenerator3d<T>>>
-    math::Generator3d ToGenerator3d(const T& value) {
+    math::Generator3D ToGenerator3d(const T& value) {
     if constexpr (IsGenerator3d<T>) {
         return value;
     } else if constexpr (IsFloat<T> || IsVector<T>) {
-        return math::Generator3d(value);
+        return math::Generator3D(value);
     }
 }
 

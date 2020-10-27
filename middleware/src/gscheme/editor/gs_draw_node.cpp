@@ -210,11 +210,11 @@ void DrawNode::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
         style.color.blue = floatChannelToUint8(tmp[2]);
         gui::Image(m_pinPreviewSize, style);
     } else if (typeId == TypeId::Generator2d) {
-        const auto tmp = cpgf::fromVariant<math::Generator2d>(value);
+        const auto tmp = cpgf::fromVariant<math::Generator2D>(value);
         FillTexture(tmp);
         gui::Image(m_pinPreviewSize, m_texture, style);
     } else if (typeId == TypeId::Generator3d) {
-        const auto tmp = cpgf::fromVariant<math::Generator3d>(value);
+        const auto tmp = cpgf::fromVariant<math::Generator3D>(value);
         auto sPlane = SectionPlaneX0Y();
         sPlane.SetInput(tmp);
         FillTexture(sPlane.Result());
@@ -258,7 +258,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     m_outputPinsWidth = gui::EndVertical().Width();
 }
 
-void DrawNode::FillTexture(const math::Generator2d& v) {
+void DrawNode::FillTexture(const math::Generator2D& v) {
     if (m_frameNum++ != 0) {
         m_frameNum %= 100;
         return;

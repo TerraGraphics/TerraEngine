@@ -1,6 +1,7 @@
 #include "middleware/generator/gs_register.h"
 
 #include "cpgf/metadefine.h"
+#include "core/math/generator_type.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/generator/texture/chess_cubes.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"

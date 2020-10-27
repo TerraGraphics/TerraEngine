@@ -20,8 +20,8 @@ public:
     math::RectF GetGeneratorRect() const { return m_generatorRect; }
     void SetGeneratorRect(const math::RectF v);
 
-    math::Generator2d GetInput() const { return m_input; }
-    void SetInput(const math::Generator2d& v) { m_input = v; }
+    math::Generator2D GetInput() const { return m_input; }
+    void SetInput(const math::Generator2D& v) { m_input = v; }
 
 private:
     void FillTexture(dg::RefCntAutoPtr<DynamicTexture>& texture) const;
@@ -30,5 +30,5 @@ private:
     dg::RefCntAutoPtr<DynamicTexture> m_texture;
     math::Size m_textureSize = math::Size(128, 128);
     math::RectF m_generatorRect = math::RectF(0, 0, 128.f, 128.f);
-    math::Generator2d m_input;
+    math::Generator2D m_input;
 };

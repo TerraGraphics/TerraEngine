@@ -34,8 +34,8 @@ TypeId GetTypeId(const std::type_info& typeInfo) {
         { std::type_index(typeid(Eigen::Vector2f)), TypeId::Vector2f },
         { std::type_index(typeid(Eigen::Vector3f)), TypeId::Vector3f },
         { std::type_index(typeid(Eigen::Vector4f)), TypeId::Vector4f },
-        { std::type_index(typeid(math::Generator2d)), TypeId::Generator2d },
-        { std::type_index(typeid(math::Generator3d)), TypeId::Generator3d },
+        { std::type_index(typeid(math::Generator2D)), TypeId::Generator2d },
+        { std::type_index(typeid(math::Generator3D)), TypeId::Generator3d },
         { std::type_index(typeid(UniversalType)), TypeId::UniversalType },
     };
 

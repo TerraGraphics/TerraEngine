@@ -29,7 +29,7 @@ public:
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
 
 private:
-    void FillTexture(const math::Generator2d& v);
+    void FillTexture(const math::Generator2D& v);
 
 private:
     uintptr_t m_nodeId = 0;

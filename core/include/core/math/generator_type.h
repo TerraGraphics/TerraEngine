@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "core/common/meta.h"
+#include "core/math/generator_type_fwd.h"
 
 
 namespace math {
@@ -39,9 +40,6 @@ private:
     Functor m_functor = [](T, T) { return 0.f; };
 };
 
-using Generator2f = Generator2<float>;
-using Generator2d = Generator2<double>;
-
 template <typename T, typename Enable = GeneratorEnabledType<T>>
     class Generator3 {
 public:
@@ -69,8 +67,5 @@ public:
 private:
     Functor m_functor = [](T, T, T) { return 0.f; };
 };
-
-using Generator3f = Generator3<float>;
-using Generator3d = Generator3<double>;
 
 }
