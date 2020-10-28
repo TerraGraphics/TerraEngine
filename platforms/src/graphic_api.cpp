@@ -9,12 +9,14 @@ GraphicAPI::~GraphicAPI() {
 }
 
 void GraphicAPI::Destroy() {
-    if (m_context.RawPtr() != nullptr) {
-        m_context->Flush();
+    if (!m_context) {
+        return;
     }
+
+    m_context->Flush();
+    m_swapChain.Release();
     m_deferredContexts.clear();
     m_context.Release();
-    m_swapChain.Release();
     m_device.Release();
     m_engineFactory.Release();
 }

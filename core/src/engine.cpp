@@ -91,6 +91,9 @@ void Engine::Destroy() {
         m_application = nullptr;
     }
 
+    m_materialBuilder.reset();
+    m_textureManager.reset();
+
     if (m_gAPI) {
         m_device.Release();
         m_swapChain.Release();
@@ -105,4 +108,7 @@ void Engine::Destroy() {
         m_window = nullptr;
         m_eventHandler = nullptr;
     }
+
+    m_vDeclStorage.reset();
+    m_fileManager.reset();
 }

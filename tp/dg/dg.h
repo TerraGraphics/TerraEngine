@@ -42,6 +42,7 @@ using DeviceRaw = dg::IDeviceObject*;
 using ContextRaw = dg::IDeviceContext*;
 using TextureViewRaw = dg::ITextureView*;
 using PipelineStateRaw = dg::IPipelineState*;
+using ShaderResourceBindingRaw = dg::IShaderResourceBinding*;
 using ShaderResourceVariableRaw = dg::IShaderResourceVariable*;
 
 using FencePtr = dg::RefCntAutoPtr<dg::IFence>;

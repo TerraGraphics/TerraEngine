@@ -388,14 +388,16 @@ void Gui::RenderFrame() {
                     m_context->CommitShaderResources(m_fontBinding, dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 } else if (lastUsedTexture != texture) {
                     lastUsedTexture = texture;
-                    ShaderResourceBindingPtr binding = m_fontBinding;
+                    ShaderResourceBindingRaw binding = nullptr;
 
-                    if (texture != m_fontTex) {
+                    if (texture == m_fontTex) {
+                        binding = m_fontBinding.RawPtr();
+                    } else {
                         if (m_numberUsedBindings == m_bindings.size()) {
                             m_ps->CreateShaderResourceBinding(&binding, true);
-                            m_bindings.push_back(binding);
+                            m_bindings.push_back(ShaderResourceBindingPtr(binding));
                         } else {
-                            binding = m_bindings[m_numberUsedBindings];
+                            binding = m_bindings[m_numberUsedBindings].RawPtr();
                         }
                         ++m_numberUsedBindings;
                         binding->GetVariableByName(dg::SHADER_TYPE_PIXEL, "texBase")->Set(lastUsedTexture);
