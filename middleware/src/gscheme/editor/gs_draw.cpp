@@ -17,6 +17,7 @@ Draw::Draw(TexturePtr& texBackground)
 
     const auto& desc = texBackground->GetDesc();
     m_texBackgroundSize = math::SizeF(static_cast<float>(desc.Width), static_cast<float>(desc.Height));
+    m_nodes.resize(64);
 }
 
 Draw::~Draw() {
@@ -25,6 +26,9 @@ Draw::~Draw() {
 
 void Draw::OnStartDrawGraph() {
     m_alpha = static_cast<uint8_t>(ImGui::GetStyle().Alpha * 255.0f);
+    for (auto& node: m_nodes) {
+        node.OnStartDrawGraph();
+    }
 }
 
 void Draw::OnFinishDrawGraph() {

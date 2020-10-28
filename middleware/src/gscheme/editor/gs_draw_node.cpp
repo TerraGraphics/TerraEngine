@@ -21,6 +21,22 @@
 
 namespace gs {
 
+DrawNode::DrawNode(DrawNode&& o) noexcept {
+    std::swap(m_nodeId, o.m_nodeId);
+    std::swap(m_drawed, o.m_drawed);
+    std::swap(m_showPinPreview, o.m_showPinPreview);
+    std::swap(m_alpha, o.m_alpha);
+    std::swap(m_frameNum, o.m_frameNum);
+    std::swap(m_texture, o.m_texture);
+    std::swap(m_textureGenerator, o.m_textureGenerator);
+
+    std::swap(m_headerWidth, o.m_headerWidth);
+    std::swap(m_headerBottom, o.m_headerBottom);
+    std::swap(m_headerButtonWidth, o.m_headerButtonWidth);
+    std::swap(m_inputPinsWidth, o.m_inputPinsWidth);
+    std::swap(m_outputPinsWidth, o.m_outputPinsWidth);
+}
+
 DrawNode::~DrawNode() {
     if (m_texture) {
         m_texture->Release();
@@ -30,8 +46,27 @@ DrawNode::~DrawNode() {
     }
 }
 
+void DrawNode::OnStartDrawGraph() {
+    if (!m_drawed) {
+        m_showPinPreview = false;
+        m_frameNum = 0;
+        if (m_texture) {
+            m_texture->Release();
+        }
+
+        m_headerWidth = 0.f;
+        m_headerBottom = 0.f;
+        m_headerButtonWidth = 0.f;
+        m_inputPinsWidth = 0.f;
+        m_outputPinsWidth = 0.f;
+    }
+
+    m_drawed = false;
+}
+
 void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
     m_nodeId = id;
+    m_drawed = true;
     m_alpha = alpha;
 
     ne::BeginNode(ne::NodeId(id));
@@ -259,8 +294,8 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
 }
 
 void DrawNode::FillTexture(const math::Generator2D& v) {
-    if (m_frameNum++ != 0) {
-        m_frameNum %= 100;
+    m_frameNum = (m_frameNum + 1) % 100;
+    if (m_texture && m_frameNum != 0) {
         return;
     }
 
