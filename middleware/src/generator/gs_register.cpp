@@ -19,8 +19,8 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
         ._constructor<void * ()>()
         ._property("Result", &ChessCubes::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::PRETTY_NAME, "Result")
-        ._property("Size", &ChessCubes::GetSize, &ChessCubes::SetSize)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::PRETTY_NAME, "Size")
+        ._property("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::PRETTY_NAME, "Frequency")
     ;
 
     GDefineMetaClass<Spheres>

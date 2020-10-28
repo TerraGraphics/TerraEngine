@@ -11,9 +11,9 @@ public:
 
     math::Generator3D Result() const;
 
-    float GetSize() const { return m_size; }
-    void SetSize(const float v);
+    double GetFrequency() const { return m_frequency; }
+    void SetFrequency(const double v) { m_frequency = v; }
 
 private:
-    float m_size = 10.f;
+    double m_frequency = 0.5;
 };

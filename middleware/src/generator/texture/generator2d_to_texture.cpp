@@ -34,11 +34,11 @@ Generator2dToTexture::~Generator2dToTexture() {
 }
 
 TexturePtr Generator2dToTexture::Result() {
-    if (!m_texture) {
+    if (m_texture) {
+        m_texture->SetSize(m_textureSize.w, m_textureSize.h);
+    } else {
         m_texture = Engine::Get().GetTextureManager()->CreateDynamicTexture(
             dg::TEX_FORMAT_RGBA8_UNORM, m_textureSize.w, m_textureSize.h, "tex::Generator2dToTexture");
-    } else {
-        m_texture->SetSize(m_textureSize.w, m_textureSize.h);
     }
 
     FillTexture(m_texture);
