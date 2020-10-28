@@ -506,19 +506,25 @@ void Gui::CreateGraphics() {
     samplerDesc.AddressV = dg::TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = dg::TEXTURE_ADDRESS_WRAP;
 
-    dg::StaticSamplerDesc samplers[] = {
+    dg::ImmutableSamplerDesc samplers[] = {
         {dg::SHADER_TYPE_PIXEL, "texBase", samplerDesc}
     };
 
-    dg::PipelineStateDesc desc;
-    desc.Name = "imgui";
+    dg::GraphicsPipelineStateCreateInfo createInfo;
+    createInfo.PSODesc.Name = "imgui";
+    createInfo.PSODesc.PipelineType = dg::PIPELINE_TYPE_GRAPHICS;
 
-    auto& gp = desc.GraphicsPipeline;
+    auto& rl = createInfo.PSODesc.ResourceLayout;
+    rl.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+    rl.Variables = vars;
+    rl.NumVariables = _countof(vars);
+    rl.ImmutableSamplers = samplers;
+    rl.NumImmutableSamplers = _countof(samplers);
+
+    auto& gp = createInfo.GraphicsPipeline;
     gp.NumRenderTargets = 1;
     gp.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     gp.DepthStencilDesc.DepthEnable = false;
-    gp.pVS = vsShader;
-    gp.pPS = psShader;
     gp.InputLayout.LayoutElements = layoutElems;
     gp.InputLayout.NumElements = _countof(layoutElems);
     gp.RasterizerDesc.CullMode = dg::CULL_MODE_NONE;
@@ -536,15 +542,10 @@ void Gui::CreateGraphics() {
     rt.BlendOpAlpha = dg::BLEND_OPERATION_ADD;
     rt.RenderTargetWriteMask = dg::COLOR_MASK_ALL;
 
-    auto& rl = desc.ResourceLayout;
-    rl.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-    rl.Variables = vars;
-    rl.NumVariables = _countof(vars);
-    rl.StaticSamplers = samplers;
-    rl.NumStaticSamplers = _countof(samplers);
+    createInfo.pVS = vsShader;
+    createInfo.pPS = psShader;
 
-    dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
-    m_device->CreatePipelineState(createInfo, &m_ps);
+    m_device->CreateGraphicsPipelineState(createInfo, &m_ps);
 
     m_ps->GetStaticVariableByName(dg::SHADER_TYPE_VERTEX, "Camera")->Set(m_cameraCB);
     m_ps->CreateShaderResourceBinding(&m_fontBinding, true);
@@ -567,7 +568,7 @@ void Gui::CreateFontsTexture() {
     fontTexDesc.Height = static_cast<uint32_t>(height);
     fontTexDesc.Format = dg::TEX_FORMAT_RGBA8_UNORM;
     fontTexDesc.BindFlags = dg::BIND_SHADER_RESOURCE;
-    fontTexDesc.Usage = dg::USAGE_STATIC;
+    fontTexDesc.Usage = dg::USAGE_IMMUTABLE;
 
     dg::TextureSubResData subResources[] = {
         {pixels, fontTexDesc.Width * 4}

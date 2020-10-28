@@ -48,9 +48,9 @@ Material::Impl::Impl(Material* const material, const std::string& name, const st
 
     m_vars.number = 0;
 
-    m_desc.DepthStencilDesc.DepthEnable = true;
     m_desc.RasterizerDesc.CullMode = dg::CULL_MODE_BACK;
     m_desc.RasterizerDesc.FrontCounterClockwise = false;
+    m_desc.DepthStencilDesc.DepthEnable = true;
     m_desc.PrimitiveTopology = dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 }
 

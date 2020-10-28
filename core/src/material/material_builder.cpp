@@ -201,7 +201,7 @@ struct MaterialBuilder::Impl : Fixed {
     std::unordered_map<PipelineStateKey, PipelineStatePtr> m_pipelineStateCache;
 
     dg::ShaderResourceVariableDesc m_varsDescs[ShaderVars::max];
-    dg::StaticSamplerDesc m_samplers[ShaderVars::max];
+    dg::ImmutableSamplerDesc m_samplers[ShaderVars::max];
 
     DevicePtr m_device;
     SwapChainPtr m_swapChain;
@@ -325,14 +325,14 @@ void MaterialBuilder::Impl::FillVars(const ShaderVars& vars, dg::PipelineResourc
     desc.DefaultVariableType = dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     desc.Variables = m_varsDescs;
     desc.NumVariables = static_cast<uint32_t>(vars.number);
-    desc.StaticSamplers = m_samplers;
-    desc.NumStaticSamplers = 0;
+    desc.ImmutableSamplers = m_samplers;
+    desc.NumImmutableSamplers = 0;
     for(uint8_t i=0; i!=vars.number; ++i) {
         const auto& shaderVar = GetShaderVar(vars.vars[i]);
         m_varsDescs[i] = {shaderVar.shaderType, shaderVar.name.c_str(), shaderVar.type};
         if (shaderVar.samplerId != 0) {
             const auto& samplerDesc = GetSamplerDesc(shaderVar.samplerId);
-            m_samplers[desc.NumStaticSamplers++] = {shaderVar.shaderType, shaderVar.name.c_str(), samplerDesc};
+            m_samplers[desc.NumImmutableSamplers++] = {shaderVar.shaderType, shaderVar.name.c_str(), samplerDesc};
         }
     }
 }
@@ -350,22 +350,26 @@ PipelineStatePtr MaterialBuilder::Impl::Create(uint64_t mask, uint16_t targetsId
     const auto& layoutElements = m_vDeclStorage->GetLayoutElements(vDeclId);
     auto shaders = m_shaderBuilder->Build(src);
 
-    dg::PipelineStateDesc desc;
-    desc.Name = "material_builder";
+    dg::GraphicsPipelineStateCreateInfo createInfo;
 
-    gpDesc.pVS = shaders.vs;
-    gpDesc.pPS = shaders.ps;
-    gpDesc.pDS = nullptr;
-    gpDesc.pHS = nullptr;
-    gpDesc.pGS = shaders.gs;
+    createInfo.PSODesc.Name = "material_builder";
+    createInfo.PSODesc.PipelineType = dg::PIPELINE_TYPE_GRAPHICS;
+    FillVars(vars, createInfo.PSODesc.ResourceLayout);
+
     gpDesc.InputLayout = dg::InputLayoutDesc(layoutElements.data(), static_cast<uint32_t>(layoutElements.size()));
     FillTargetsFormat(targetsId, gpDesc);
-    desc.GraphicsPipeline = gpDesc;
-    FillVars(vars, desc.ResourceLayout);
+    createInfo.GraphicsPipeline = gpDesc;
+
+    createInfo.pVS = shaders.vs;
+    createInfo.pPS = shaders.ps;
+    createInfo.pDS = nullptr;
+    createInfo.pHS = nullptr;
+    createInfo.pGS = shaders.gs;
+    createInfo.pAS = nullptr;
+    createInfo.pMS = nullptr;
 
     PipelineStatePtr pipelineState;
-    dg::PipelineStateCreateInfo createInfo { desc, dg::PSO_CREATE_FLAG_NONE };
-    m_device->CreatePipelineState(createInfo, &pipelineState);
+    m_device->CreateGraphicsPipelineState(createInfo, &pipelineState);
     m_staticVarsStorage->SetVars(pipelineState);
     m_pipelineStateCache[key] = pipelineState;
 

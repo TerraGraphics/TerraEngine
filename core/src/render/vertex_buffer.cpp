@@ -8,7 +8,7 @@
 VertexBuffer::VertexBuffer(DevicePtr& device, const void* data, uint32_t size, const char* name) {
     dg::BufferDesc buffDesc;
     buffDesc.Name = name;
-    buffDesc.Usage = dg::USAGE_STATIC;
+    buffDesc.Usage = dg::USAGE_IMMUTABLE;
     buffDesc.BindFlags = dg::BIND_VERTEX_BUFFER;
     buffDesc.CPUAccessFlags = dg::CPU_ACCESS_NONE;
     buffDesc.uiSizeInBytes = size;
