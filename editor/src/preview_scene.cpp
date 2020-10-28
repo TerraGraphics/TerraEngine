@@ -11,10 +11,6 @@
 #include "middleware/generator/mesh_generator.h"
 #include "middleware/generator/texture/chess_cubes.h"
 #include "middleware/generator/texture/section_plane.h"
-#include "middleware/generator/texture/coherent_noise.h"
-#include "middleware/generator/texture/noise_pojection.h"
-#include "middleware/generator/texture/noise_rasterization.h"
-#include "middleware/generator/texture/texture_node_factory.h"
 #include "middleware/generator/texture/generator2d_to_texture.h"
 
 
