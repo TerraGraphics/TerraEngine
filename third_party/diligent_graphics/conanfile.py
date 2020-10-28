@@ -4,8 +4,8 @@ from conans import ConanFile, CMake, tools
 
 class DiligentGraphics(ConanFile):
     name = "diligent_graphics"
-    commit_core_sha = "cfaf74c"
-    commit_tools_sha = "6b7ae76"
+    commit_core_sha = "2f3a9f8"
+    commit_tools_sha = "9efe0f1"
     version = f"2.4.{commit_core_sha}.{commit_tools_sha}"
     license = "Apache License 2.0"
     url = "https://github.com/DiligentGraphics"
@@ -37,7 +37,7 @@ class DiligentGraphics(ConanFile):
     def _create_cmake(self):
         cmake = CMake(self)
         if self.options.development:
-            cmake.definitions["DEVELOPMENT"] = 1
+            cmake.definitions["DILIGENT_DEVELOPMENT"] = 1
         cmake.configure(source_folder="DiligentGraphics")
         return cmake
 
