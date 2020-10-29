@@ -6,6 +6,7 @@
 #include "eigen/core.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
+#include "middleware/gscheme/graph/gs_types_fmt.h"
 #include "middleware/gscheme/graph/gs_types_convert.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
@@ -51,7 +52,7 @@ template<typename T>
 template<typename TMin, typename TMax>
     static TMax TSumMinMax(const TMin& valMin, const TMax& valMax) {
         if constexpr (!CanConvert<TMax, TMin>) {
-            throw EngineError("gs::FuncAdd::Result: types are not compatible");
+            throw EngineError("types {} and {} are not compatible", GetTypeId<TMin>(), GetTypeId<TMax>());
         } else if constexpr (IsGenerator2d<TMax>) {
             return TSumGenerator2d(valMax, valMin);
         } else if constexpr (IsGenerator3d<TMax>) {
@@ -62,7 +63,6 @@ template<typename TMin, typename TMax>
             return TMax(ConvertTo<TMax, TMin>(valMin) + valMax);
         }
     }
-
 }
 
 UniversalType FuncAdd::Result() const {
