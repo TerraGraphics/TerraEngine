@@ -10,6 +10,7 @@
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
+#include "middleware/gscheme/graph/gs_types_fmt.h"
 #include "middleware/gscheme/graph/gs_class_type.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
@@ -195,11 +196,8 @@ void Class::NewInstance(void*& instance, void*& instanceType) {
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
             // inside the value is completely copied
             m_defaults[i] = m_props[i]->get(instance);
-        }
-
-        for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins + m_countOutputPins); ++i) {
             if (m_defaultTypeIds[i] == TypeId::UniversalType) {
-                m_defaultTypeIds[i] = m_classType->GetDefaultType(i);
+                m_defaultTypeIds[i] = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(m_defaults[i]));
             }
         }
     }

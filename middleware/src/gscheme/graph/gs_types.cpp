@@ -46,6 +46,13 @@ TypeId GetTypeId(const std::type_info& typeInfo) {
     return TypeId::Unknown;
 }
 
+TypeId GetUniversalTypeId(const UniversalType& v) {
+    return std::visit([](auto&& value) -> TypeId {
+        using T = std::remove_cvref_t<decltype(value)>;
+        return ToUniversalTypeId(GetTypeId<T>());
+    }, v);
+}
+
 bool IsValidEmbeddedPinType(const std::type_info& typeInfo) {
     auto typeId = GetTypeId(typeInfo);
 

@@ -100,6 +100,7 @@ template<typename T, typename Enable = std::enable_if_t<IsGsType<T>>>
 }
 
 TypeId GetTypeId(const std::type_info& typeInfo);
+TypeId GetUniversalTypeId(const UniversalType& v);
 
 bool IsValidEmbeddedPinType(const std::type_info& typeInfo);
 bool IsValidInputPinType(const std::type_info& typeInfo);
