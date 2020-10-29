@@ -132,8 +132,8 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
     ImGui::SameLine(0, 0);
     ImGui::BeginGroup();
-    auto systemDisplayOffsetY = g.Font->DisplayOffset.y;
-    g.Font->DisplayOffset.y = -5;
+    // auto systemGlyphOffsetY = g.Font->ConfigData->GlyphOffset.y;
+    // g.Font->ConfigData->GlyphOffset.y = -5;
     if (ImGui::ButtonEx(ICON_FA_ANGLE_UP, ImVec2(buttonSize, buttonSize / 2), buttonFlags)) {
         std::visit(ApplyOperation(true, step, minValue, maxValue), value);
         valueChanged = true;
@@ -142,7 +142,7 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
         std::visit(ApplyOperation(false, step, minValue, maxValue), value);
         valueChanged = true;
     }
-    g.Font->DisplayOffset.y = systemDisplayOffsetY;
+    // g.Font->ConfigData->GlyphOffset.y = systemGlyphOffsetY;
     ImGui::EndGroup();
     ImGui::PopStyleVar(1);
 

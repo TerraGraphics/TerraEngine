@@ -7,7 +7,7 @@ cpgf/1.6.1@terragraphics/stable
 libucl/0.8.1@terragraphics/stable
 fastnoise/0.4.faba444@terragraphics/stable
 boost_preprocessor/1.69.0@bincrafters/stable
-imgui/1.78.docking.05bc204@terragraphics/wip
+imgui/1.79.docking.6822493@terragraphics/wip
 imgui_node_editor/0.9.687a72f@terragraphics/wip
 diligent_graphics/2.4.2f3a9f8.9efe0f1@terragraphics/wip
 

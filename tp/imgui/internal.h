@@ -6,5 +6,6 @@
 #pragma GCC diagnostic ignored "-Wsign-promo"
 #endif
 #define IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #include <imgui_internal.h>
 #pragma GCC diagnostic pop
