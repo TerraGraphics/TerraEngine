@@ -43,10 +43,17 @@ class Node : Noncopyable {
         Updated = 3,
     };
 
+    enum ValidFlags : uint8_t {
+        Valid = 0,
+        ResultError = 1,
+        ConvertError = 2,
+        ResultAndConvertError = ResultError | ConvertError,
+    };
+
 public:
     Node() = default;
     Node(Node&& o) noexcept;
-    Node& operator=(Node&&) noexcept = delete;
+    Node& operator=(Node&& o) noexcept;
 
     void Init(uint16_t id) noexcept;
     void Create(Class* cls);
@@ -128,6 +135,10 @@ public:
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
 private:
+    bool ExistsConvertError() const noexcept;
+    void SetConvertError();
+    void RemoveConvertError();
+
     bool NeedConvertFunc(uint8_t inputPinIndex, TypeId attachedPinType) const noexcept;
     void RecalcOutputTypes();
     void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType);
@@ -145,7 +156,7 @@ private:
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
 
-    bool m_isValid = true;
+    ValidFlags m_validFlags = ValidFlags::Valid;
     ChangeState m_changeState = ChangeState::NotChanged;
 
     union {
@@ -160,6 +171,7 @@ private:
     Class* m_class = nullptr;
     void* m_instance = nullptr;
     void* m_instanceType = nullptr;
+    std::string m_lastResultError;
 };
 
 }
