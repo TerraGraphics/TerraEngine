@@ -35,7 +35,7 @@ struct Pin : Fixed {
 
 class IDraw;
 class Class;
-class Node : Fixed {
+class Node : Noncopyable {
     enum class ChangeState : uint8_t {
         NotChanged = 0,
         NeedUpdateInputs = 1,
@@ -45,8 +45,8 @@ class Node : Fixed {
 
 public:
     Node() = default;
-    Node(Node&& other) noexcept;
-    Node& operator=(Node&& other) noexcept;
+    Node(Node&& o) noexcept;
+    Node& operator=(Node&&) noexcept = delete;
 
     void Init(uint16_t id) noexcept;
     void Create(Class* cls);

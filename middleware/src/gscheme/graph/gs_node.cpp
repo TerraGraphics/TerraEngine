@@ -18,29 +18,19 @@ static_assert(sizeof(Pin) == 40, "sizeof(Pin) == 40 bytes");
 static_assert(sizeof(Node) == 48, "sizeof(Node) == 48 bytes");
 
 Node::Node(Node&& other) noexcept {
-    *this = std::move(other);
-}
-
-Node& Node::operator=(Node&& other) noexcept {
-    m_id = other.m_id;
-    m_countEmbeddedPins = other.m_countEmbeddedPins;
-    m_countInputPins = other.m_countInputPins;
-    m_countOutputPins = other.m_countOutputPins;
-    m_isValid = other.m_isValid;
-    m_changeState = other.m_changeState;
-    m_order = other.m_order;
-    m_nextIndex = other.m_nextIndex;
-    m_pins = other.m_pins;
-    m_class = other.m_class;
-    m_instance = other.m_instance;
-    m_instanceType = other.m_instanceType;
-
-    other.m_pins = nullptr;
-    other.m_class = nullptr;
-    other.m_instance = nullptr;
-    other.m_instanceType = nullptr;
-
-    return *this;
+    std::swap(m_id, other.m_id);
+    std::swap(m_countEmbeddedPins, other.m_countEmbeddedPins);
+    std::swap(m_countInputPins, other.m_countInputPins);
+    std::swap(m_countOutputPins, other.m_countOutputPins);
+    std::swap(m_isValid, other.m_isValid);
+    std::swap(m_changeState, other.m_changeState);
+    std::swap(m_order, other.m_order);
+    std::swap(m_nextIndex, other.m_nextIndex);
+    std::swap(m_pins, other.m_pins);
+    std::swap(m_class, other.m_class);
+    std::swap(m_instance, other.m_instance);
+    std::swap(m_instanceType, other.m_instanceType);
+    std::swap(m_lastError, other.m_lastError);
 }
 
 void Node::Init(uint16_t id) noexcept {
