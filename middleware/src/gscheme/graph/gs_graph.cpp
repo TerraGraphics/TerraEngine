@@ -210,7 +210,6 @@ void Graph::RemoveNode(uint16_t nodeId) {
     ++m_free;
 
     SortNodesByDependency();
-    UpdateTypes();
 }
 
 bool Graph::TestAddLink(uint32_t srcPinId, uint32_t dstPinId) const noexcept {
@@ -257,7 +256,6 @@ uint64_t Graph::AddLink(uint32_t srcPinId, uint32_t dstPinId) {
     m_nodes[srcNodeIndex].IncLinkForOutputPin(srcPinIndex);
 
     SortNodesByDependency();
-    UpdateTypes();
 
     return LinkId(srcPinId, dstPinId);
 }
@@ -306,8 +304,6 @@ void Graph::RemoveLink(uint64_t linkId) {
 
     m_nodes[dstNodeIndex].DetachFromInputPin(dstPinIndex);
     m_nodes[srcNodeIndex].DecLinkForOutputPin(srcPinIndex);
-
-    UpdateTypes();
 }
 
 void Graph::SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId) {
@@ -384,11 +380,6 @@ void Graph::SortNodesByDependency() {
         uint16_t lastIndexForPrevOrder = m_indeciesForOrder[order - 1 + m_capacity];
         uint16_t firstIndexForCurOrder = m_indeciesForOrder[order];
         m_nodes[lastIndexForPrevOrder].SetNextCalcIndex(firstIndexForCurOrder);
-    }
-}
-
-void Graph::UpdateTypes() {
-    for(uint16_t it = m_firstCalcIndex; it != INVALID_NODE_INDEX; it = m_nodes[it].UpdateTypes(m_nodes)) {
     }
 }
 

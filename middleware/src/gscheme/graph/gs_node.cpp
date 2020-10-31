@@ -85,8 +85,8 @@ void Node::Create(Class* cls) {
         m_pins[i].linksCount = 0;
         m_pins[i].cachedValue = m_class->GetValue(i, m_instance);
         if (HasUniversalBit(m_pins[i].typeId)) {
-            m_pins[i].typeId = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(m_pins[i].cachedValue));
             m_pins[i].id |= isUniversalTypeFlag;
+            m_pins[i].typeId = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(m_pins[i].cachedValue));
         }
     }
 }
@@ -268,70 +268,62 @@ void Node::ResetChangeState() noexcept {
 
 uint16_t Node::UpdateState(Node* nodes) {
     bool isChanged = false;
+    RemoveConvertError();
     for (uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
         const uint32_t attachedPinId = GetAttachedPinId(inputPinIndex);
-        if (attachedPinId != 0) {
-            const uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
-            if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
-                isChanged = m_isValid;
-                Pin& pin = m_pins[inputPinIndex];
-                const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
-                if (pin.convertFunc != nullptr) {
-                    m_class->SetValue(inputPinIndex, m_instance, pin.convertFunc(value));
-                } else if (m_isValid || !NeedConvertFunc(inputPinIndex, pin.typeId)) {
-                    m_class->SetValue(inputPinIndex, m_instance, value);
-                }
-            }
-        }
-    }
-
-    if (m_isValid && (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs))) {
-        for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
-            isChanged = true;
-            m_pins[outputPinIndex].cachedValue = m_class->GetValue(outputPinIndex, m_instance);
-        }
-    }
-
-    m_changeState = isChanged ? ChangeState::Updated : ChangeState::NotChanged;
-
-    return m_nextIndex;
-}
-
-uint16_t Node::UpdateTypes(Node* nodes) {
-    RemoveConvertError();
-    bool isExistsUniversalTypes = false;
-    for(uint8_t inputPinIndex=InputPinsBeginIndex(); inputPinIndex!=InputPinsEndIndex(); ++inputPinIndex) {
-        const uint32_t attachedPinID = GetAttachedPinId(inputPinIndex);
-        if (attachedPinID == 0) {
+        if (attachedPinId == 0) {
             continue;
         }
 
         Pin& pin = m_pins[inputPinIndex];
         const TypeId typeId = GetPinType(inputPinIndex);
-        const TypeId attachedTypeId = nodes[NodeIndexFromPinId(attachedPinID)].GetPinType(PinIndexFromPinId(attachedPinID));
-        if (IsUniversalTypeFromPinId(pin.id)) {
-            isExistsUniversalTypes = true;
-        }
+        const uint16_t attachedNodeIndex = NodeIndexFromPinId(attachedPinId);
+        const TypeId attachedTypeId = nodes[attachedNodeIndex].GetPinType(PinIndexFromPinId(attachedPinId));
+
         if (attachedTypeId == typeId) {
             if ((pin.convertFunc == nullptr) && NeedConvertFunc(inputPinIndex, attachedTypeId)) {
                 SetConvertError();
+                continue;
             }
-
-            continue;
+        } else {
+            pin.typeId = attachedTypeId;
+            if (NeedConvertFunc(inputPinIndex, attachedTypeId)) {
+                pin.convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedTypeId);
+                if (pin.convertFunc == nullptr) {
+                    SetConvertError();
+                    continue;
+                }
+            }
         }
 
-        pin.typeId = attachedTypeId;
-        if (NeedConvertFunc(inputPinIndex, attachedTypeId)) {
-            pin.convertFunc = m_class->GetFuncConvertToDefaultType(inputPinIndex, attachedTypeId);
-            if (pin.convertFunc == nullptr) {
-                SetConvertError();
+        if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
+            isChanged = true;
+            const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
+            if (pin.convertFunc != nullptr) {
+                m_class->SetValue(inputPinIndex, m_instance, pin.convertFunc(value));
+            } else {
+                m_class->SetValue(inputPinIndex, m_instance, value);
             }
-        }
-
-        if (IsUniversalTypeFromPinId(pin.id)) {
-            m_class->SetConcreteUniversalPinType(inputPinIndex, m_instanceType, ToUniversalTypeId(attachedTypeId));
         }
     }
+
+    if (!ExistsConvertError() && (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs))) {
+        for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
+            auto& pin = m_pins[outputPinIndex];
+            try {
+                pin.cachedValue = m_class->GetValue(outputPinIndex, m_instance);
+                isChanged = true;
+                if (HasUniversalBit(pin.typeId)) {
+                    pin.typeId = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(pin.cachedValue));
+                }
+                RemoveResultError();
+            } catch(const std::exception& e) {
+                SetResultError(e.what());
+            }
+        }
+    }
+
+    m_changeState = isChanged ? ChangeState::Updated : ChangeState::NotChanged;
 
     return m_nextIndex;
 }
@@ -405,8 +397,18 @@ bool Node::ExistsConvertError() const noexcept {
     return ((m_validFlags & ValidFlags::ConvertError) != 0);
 }
 
+void Node::SetResultError(const std::string& msg) {
+    m_validFlags = static_cast<ValidFlags>(m_validFlags | ValidFlags::ResultError);
+    m_lastResultError = msg;
+}
+
 void Node::SetConvertError() {
     m_validFlags = static_cast<ValidFlags>(m_validFlags | ValidFlags::ConvertError);
+}
+
+void Node::RemoveResultError() {
+    m_validFlags = static_cast<ValidFlags>(m_validFlags & ~ValidFlags::ResultError);
+    m_lastResultError.clear();
 }
 
 void Node::RemoveConvertError() {
@@ -420,16 +422,6 @@ bool Node::NeedConvertFunc(uint8_t inputPinIndex, TypeId attachedPinType) const 
     }
 
     return (defaultTypeId != attachedPinType);
-}
-
-void Node::RecalcOutputTypes() {
-    if (m_isValid) {
-        for(uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-            if (IsUniversalTypeFromPinId(m_pins[i].id)) {
-                m_pins[i].typeId = m_class->GetConcreteUniversalPinType(i, m_instanceType);
-            }
-        }
-    }
 }
 
 void Node::AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType) {
@@ -491,7 +483,7 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawOutputPins(pins);
 
-    drawer->OnFinishDrawNode(m_isValid);
+    drawer->OnFinishDrawNode(m_validFlags == ValidFlags::Valid);
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {

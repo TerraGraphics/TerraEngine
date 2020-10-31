@@ -119,8 +119,6 @@ public:
     void ResetChangeState() noexcept;
     // return next node index for update
     uint16_t UpdateState(Node* nodes);
-    // return next node index for update
-    uint16_t UpdateTypes(Node* nodes);
 
 public:
     const cpgf::GVariant& GetValue(uint8_t pinIndex) const;
@@ -136,11 +134,12 @@ public:
 
 private:
     bool ExistsConvertError() const noexcept;
+    void SetResultError(const std::string& msg);
     void SetConvertError();
+    void RemoveResultError();
     void RemoveConvertError();
 
     bool NeedConvertFunc(uint8_t inputPinIndex, TypeId attachedPinType) const noexcept;
-    void RecalcOutputTypes();
     void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType);
     void DetachFromInputPinCalcType(uint8_t inputPinIndex);
 

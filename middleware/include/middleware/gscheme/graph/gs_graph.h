@@ -69,8 +69,6 @@ private:
 
     void SortNodesByDependency();
 
-    void UpdateTypes();
-
     void CheckIsValidNodeId(uint16_t nodeId) const;
     void CheckIsValidEmbeddedPinId(uint32_t pinId) const;
     void CheckIsValidInputPinId(uint32_t pinId) const;
