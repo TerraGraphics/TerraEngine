@@ -78,18 +78,4 @@ UniversalType FuncAdd::Result() const {
     }, m_a, m_b);
 }
 
-TypeAdd::TypeAdd(const TypesConvertStorage* typesConvertStorage)
-    : m_typesConvertStorage(typesConvertStorage) {
-
-}
-
-TypeId TypeAdd::Result() const {
-    return MaxTypeId(m_a, m_b);
-}
-
-bool TypeAdd::IsValid() {
-    auto maxId = MaxTypeId(m_a, m_b);
-    return m_typesConvertStorage->CanConvert((maxId != m_a) ? m_a : m_b, maxId);
-}
-
 }

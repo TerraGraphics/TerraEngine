@@ -23,26 +23,4 @@ private:
     UniversalType m_b = 0.f;
 };
 
-class TypesConvertStorage;
-class TypeAdd : Fixed {
-public:
-    TypeAdd() = delete;
-    TypeAdd(const TypesConvertStorage* typesConvertStorage);
-    ~TypeAdd() = default;
-
-    TypeId Result() const;
-
-    TypeId GetA() const { return m_a; }
-    void SetA(const TypeId v) { m_a = v; }
-    TypeId GetB() const { return m_b; }
-    void SetB(const TypeId v) { m_b = v; }
-
-    bool IsValid();
-
-private:
-    TypeId m_a = TypeId::Float;
-    TypeId m_b = TypeId::Float;
-    const TypesConvertStorage* m_typesConvertStorage;
-};
-
 }
