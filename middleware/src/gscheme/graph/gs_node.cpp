@@ -451,12 +451,12 @@ void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
 }
 
 void Node::DrawGraph(IDraw* drawer) {
-    drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_class->GetPrettyName());
+    drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_class->GetDisplayName());
 
     std::vector<IDraw::Pin> pins;
     pins.reserve(InputPinsCount());
     for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
-        pins.emplace_back(IDraw::Pin{ static_cast<uintptr_t>(m_pins[i].id), IsConnectedPin(i), m_class->GetPinPrettyName(i) });
+        pins.emplace_back(IDraw::Pin{ static_cast<uintptr_t>(m_pins[i].id), IsConnectedPin(i), m_class->GetPinDisplayName(i) });
     }
     drawer->OnDrawInputPins(pins);
 
@@ -477,7 +477,7 @@ void Node::DrawGraph(IDraw* drawer) {
     pins.clear();
     pins.reserve(OutputPinsCount());
     for (uint8_t i=OutputPinsBeginIndex(); i!=OutputPinsEndIndex(); ++i) {
-        pins.emplace_back(IDraw::Pin{ static_cast<uintptr_t>(m_pins[i].id), IsConnectedPin(i), m_class->GetPinPrettyName(i) });
+        pins.emplace_back(IDraw::Pin{ static_cast<uintptr_t>(m_pins[i].id), IsConnectedPin(i), m_class->GetPinDisplayName(i) });
     }
     drawer->OnDrawOutputPins(pins);
 
@@ -485,12 +485,12 @@ void Node::DrawGraph(IDraw* drawer) {
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {
-    drawer->OnDrawEditingHeader(m_class->GetPrettyName());
+    drawer->OnDrawEditingHeader(m_class->GetDisplayName());
 
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         auto value = m_class->GetValue(i, m_instance);
         const TypeId drawTypeId = GetPinType(i);
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), false, drawTypeId, value);
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinDisplayName(i), false, drawTypeId, value);
         if (result == IDraw::EditResult::Changed) {
             SetValue(i, drawTypeId, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
@@ -506,7 +506,7 @@ void Node::DrawNodeProperty(IDraw* drawer) {
         }
 
         const TypeId drawTypeId = ToBaseTypeId(GetPinType(i));
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinPrettyName(i), IsConnectedPin(i), drawTypeId, value);
+        auto result = drawer->OnDrawEditingPin(m_class->GetPinDisplayName(i), IsConnectedPin(i), drawTypeId, value);
         if (result == IDraw::EditResult::Changed) {
             SetValue(i, drawTypeId, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {

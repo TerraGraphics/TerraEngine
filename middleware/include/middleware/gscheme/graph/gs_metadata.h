@@ -15,7 +15,7 @@ struct MetaNames {
     static constexpr const char* CLASS = "cls";
     static constexpr const char* PIN = "pin";
     static constexpr const char* PIN_TYPE = "ptype";
-    static constexpr const char* PRETTY_NAME = "pname";
+    static constexpr const char* DISPLAY_NAME = "dname";
 };
 
 }

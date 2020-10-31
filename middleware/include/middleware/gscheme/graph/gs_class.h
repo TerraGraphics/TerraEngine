@@ -29,12 +29,12 @@ public:
     // unique class name
     std::string_view GetName() const;
     // name for UI
-    std::string GetPrettyName() const;
+    std::string GetDisplayName() const;
 
     // unique pin name
     std::string_view GetPinName(uint8_t pinIndex) const;
     // pin name for UI
-    std::string GetPinPrettyName(uint8_t pinIndex) const;
+    std::string GetPinDisplayName(uint8_t pinIndex) const;
 
     uint8_t EmbeddedPinsCount() const noexcept { return m_countEmbeddedPins; }
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }

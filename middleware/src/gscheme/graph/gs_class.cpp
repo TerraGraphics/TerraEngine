@@ -87,11 +87,11 @@ std::string_view Class::GetName() const {
     return m_metaClass->getName();
 }
 
-std::string Class::GetPrettyName() const {
+std::string Class::GetDisplayName() const {
     const cpgf::GMetaAnnotation* clsAnnotation = m_metaClass->getAnnotation(gs::MetaNames::CLASS);
-    const cpgf::GAnnotationValue* clsPrettyNameValue = clsAnnotation->getValue(gs::MetaNames::PRETTY_NAME);
-    if (clsPrettyNameValue != nullptr) {
-        return clsPrettyNameValue->toString();
+    const cpgf::GAnnotationValue* clsDisplayNameValue = clsAnnotation->getValue(gs::MetaNames::DISPLAY_NAME);
+    if (clsDisplayNameValue != nullptr) {
+        return clsDisplayNameValue->toString();
     } else {
         return m_metaClass->getName();
     }
@@ -101,11 +101,11 @@ std::string_view Class::GetPinName(uint8_t pinIndex) const {
     return m_props[pinIndex]->getName();
 }
 
-std::string Class::GetPinPrettyName(uint8_t pinIndex) const {
+std::string Class::GetPinDisplayName(uint8_t pinIndex) const {
     const cpgf::GMetaAnnotation* pinAnnotation = m_props[pinIndex]->getAnnotation(gs::MetaNames::PIN);
-    const cpgf::GAnnotationValue* propPrettyNameValue = pinAnnotation->getValue(gs::MetaNames::PRETTY_NAME);
-    if (propPrettyNameValue != nullptr) {
-        return propPrettyNameValue->toString();
+    const cpgf::GAnnotationValue* propDisplayNameValue = pinAnnotation->getValue(gs::MetaNames::DISPLAY_NAME);
+    if (propDisplayNameValue != nullptr) {
+        return propDisplayNameValue->toString();
     } else {
         return m_props[pinIndex]->getName();
     }
@@ -194,9 +194,9 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
         throw EngineError("invalid metaClass (name = '{}'), has invalid annotation CLASS", clsName);
     }
 
-    const cpgf::GAnnotationValue* clsPrettyNameValue = clsAnnotation->getValue(gs::MetaNames::PRETTY_NAME);
-    if ((clsPrettyNameValue != nullptr) && (!clsPrettyNameValue->canToString())) {
-        throw EngineError("invalid metaClass (name = '{}'), has invalid annotation type for PRETTY_NAME, need std::string", clsName);
+    const cpgf::GAnnotationValue* clsDisplayNameValue = clsAnnotation->getValue(gs::MetaNames::DISPLAY_NAME);
+    if ((clsDisplayNameValue != nullptr) && (!clsDisplayNameValue->canToString())) {
+        throw EngineError("invalid metaClass (name = '{}'), has invalid annotation type for DISPLAY_NAME, need std::string", clsName);
     }
 
     if (metaClass->getPropertyCount() > static_cast<size_t>(MAX_PINS_COUNT)) {
@@ -220,10 +220,10 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
             throw EngineError("invalid metaClass (name = '{}'), has property (name = {}) with invalid annotation PIN", clsName, propName);
         }
 
-        const cpgf::GAnnotationValue* propPrettyNameValue = pinAnnotation->getValue(gs::MetaNames::PRETTY_NAME);
-        if ((propPrettyNameValue != nullptr) && (!propPrettyNameValue->canToString())) {
+        const cpgf::GAnnotationValue* propDisplayNameValue = pinAnnotation->getValue(gs::MetaNames::DISPLAY_NAME);
+        if ((propDisplayNameValue != nullptr) && (!propDisplayNameValue->canToString())) {
             throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) with invalid annotation type for PRETTY_NAME, need std::string",
+                "invalid metaClass (name = '{}'), has property (name = {}) with invalid annotation type for DISPLAY_NAME, need std::string",
                 clsName, propName);
         }
 

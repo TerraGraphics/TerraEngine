@@ -27,7 +27,7 @@ public:
 public:
     void OnStartDrawGraph() final;
     void OnFinishDrawGraph() final;
-    void OnStartDrawNode(uintptr_t id, std::string prettyName) final;
+    void OnStartDrawNode(uintptr_t id, std::string displayName) final;
     void OnFinishDrawNode(bool isValid) final;
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) final;
@@ -36,8 +36,8 @@ public:
 
 // Draw node edit GUI
 public:
-    void OnDrawEditingHeader(const std::string& prettyName) final;
-    EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, TypeId typeId, cpgf::GVariant& value) final;
+    void OnDrawEditingHeader(const std::string& displayName) final;
+    EditResult OnDrawEditingPin(const std::string& displayName, bool disabled, TypeId typeId, cpgf::GVariant& value) final;
 
 // tmp data for draw frame
 private:

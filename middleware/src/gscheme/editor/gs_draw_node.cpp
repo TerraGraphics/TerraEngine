@@ -195,7 +195,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
             gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);
         ne::EndPin();
         gui::SameLine();
-        gui::Label(pin.prettyName, labelStyle);
+        gui::Label(pin.displayName, labelStyle);
     }
 
     m_inputPinsWidth = gui::EndVertical().Width();
@@ -277,13 +277,13 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
 
     float labelWidth = 0;
     for (const auto& pin: pins) {
-        labelWidth = std::max(labelWidth, gui::LabelCalc(pin.prettyName, labelStyle).w);
+        labelWidth = std::max(labelWidth, gui::LabelCalc(pin.displayName, labelStyle).w);
     }
 
     labelStyle.minSize = math::SizeF(labelWidth, m_iconSideSize);
 
     for (const auto& pin: pins) {
-        gui::Label(pin.prettyName, labelStyle);
+        gui::Label(pin.displayName, labelStyle);
         gui::SameLine();
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Output);
             gui::Icon(gui::IconType::CircleTriangle, pin.isConnected, iconStyle);

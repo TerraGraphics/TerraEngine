@@ -147,7 +147,7 @@ void Editor::DrawNewNodeMenu(float x, float y) {
     if (ImGui::BeginMenu("All")) {
         uint16_t index = 0;
         for(const auto* it = m_classStorage->ClassesBegin(); it != m_classStorage->ClassesEnd(); ++it, ++index) {
-            if (ImGui::MenuItem(it->GetPrettyName().c_str())) {
+            if (ImGui::MenuItem(it->GetDisplayName().c_str())) {
                 newNodeClassIndex = index;
             }
 

@@ -20,14 +20,14 @@ public:
     struct Pin {
         uintptr_t id;
         bool isConnected;
-        std::string prettyName;
+        std::string displayName;
     };
 
 public:
     virtual void OnStartDrawGraph() = 0;
     virtual void OnFinishDrawGraph() = 0;
 
-    virtual void OnStartDrawNode(uintptr_t id, std::string prettyName) = 0;
+    virtual void OnStartDrawNode(uintptr_t id, std::string displayName) = 0;
     virtual void OnFinishDrawNode(bool isValid) = 0;
 
     virtual void OnDrawInputPins(const std::vector<Pin>& pins) = 0;

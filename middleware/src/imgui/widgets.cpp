@@ -114,7 +114,6 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
     char* buffer = formater.buffer.data();
     size_t bufferSize = formater.buffer.capacity();
 
-    ImGuiContext& g = *GImGui;
     const float buttonSize = ImGui::GetFrameHeight();
     const ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_NoMarkEdited;
     ImGuiButtonFlags buttonFlags = ImGuiButtonFlags_Repeat | ImGuiButtonFlags_DontClosePopups;
@@ -148,6 +147,7 @@ bool InputScalar(const char* label, NumberVariant& value, const NumberVariant& s
 
     const char* labelEnd = ImGui::FindRenderedTextEnd(label);
     if (label != labelEnd) {
+        ImGuiContext& g = *GImGui;
         ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
         ImGui::TextEx(label, labelEnd);
     }
