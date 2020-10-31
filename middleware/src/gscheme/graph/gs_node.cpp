@@ -307,8 +307,8 @@ uint16_t Node::UpdateState(Node* nodes) {
 
     if (!ExistsConvertError() && (isChanged || (m_changeState == ChangeState::NeedUpdateOutputs))) {
         for (uint8_t outputPinIndex=OutputPinsBeginIndex(); outputPinIndex!=OutputPinsEndIndex(); ++outputPinIndex) {
-            auto& pin = m_pins[outputPinIndex];
             try {
+                auto& pin = m_pins[outputPinIndex];
                 pin.cachedValue = m_class->GetValue(outputPinIndex, m_instance);
                 isChanged = true;
                 if (HasUniversalBit(pin.typeId)) {

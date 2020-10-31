@@ -11,7 +11,6 @@
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/graph/gs_types_fmt.h"
-#include "middleware/gscheme/graph/gs_class_type.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 

@@ -12,7 +12,6 @@
 #include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded.h" // IWYU pragma: keep
-#include "middleware/gscheme/graph/gs_class_type.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
@@ -24,7 +23,6 @@ struct ClassStorage::Impl {
 
     uint16_t m_countClasses = 0;
     Class* m_classes;
-    ClassType* m_classTypes;
     TypesConvertStorage m_typesConvertStorage;
     std::unordered_map<std::string_view, uint16_t> m_classesIndex;
 };
@@ -32,7 +30,6 @@ struct ClassStorage::Impl {
 ClassStorage::Impl::Impl() {
     const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();
 
-    uint16_t countClassTypes = 0;
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if (metaClass == nullptr) {
@@ -40,34 +37,15 @@ ClassStorage::Impl::Impl() {
         }
         if (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr) {
             ++m_countClasses;
-        } else if (metaClass->getAnnotation(gs::MetaNames::TYPE_CLASS) != nullptr) {
-            ++countClassTypes;
         }
     }
 
     uint16_t index = 0;
-    std::unordered_map<std::string_view, uint16_t> classTypesIndex;
-    m_classTypes = new ClassType[countClassTypes];
-    for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
-        const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
-        if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::TYPE_CLASS) != nullptr)) {
-            m_classTypes[index].Create(metaClass, &m_typesConvertStorage);
-            classTypesIndex[m_classTypes[index].GetImplName()] = index;
-            ++index;
-        }
-    }
-
-    index = 0;
     m_classes = new Class[m_countClasses];
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
-            auto it = classTypesIndex.find(std::string_view(metaClass->getName()));
-            if (it == classTypesIndex.cend()) {
-                m_classes[index].Create(metaClass, &m_typesConvertStorage);
-            } else {
-                m_classes[index].Create(metaClass, &m_typesConvertStorage);
-            }
+            m_classes[index].Create(metaClass, &m_typesConvertStorage);
             m_classesIndex[m_classes[index].GetName()] = index;
             ++index;
         }
@@ -78,9 +56,6 @@ ClassStorage::Impl::~Impl() {
     m_classesIndex.clear();
     if (m_classes != nullptr) {
         delete[] m_classes;
-    }
-    if (m_classTypes != nullptr) {
-        delete[] m_classTypes;
     }
 }
 
