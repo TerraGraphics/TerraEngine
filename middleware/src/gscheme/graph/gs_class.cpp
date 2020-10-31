@@ -17,7 +17,7 @@
 
 namespace gs {
 
-static_assert(sizeof(Class) == 56, "sizeof(Class) == 56 bytes");
+static_assert(sizeof(Class) == 48, "sizeof(Class) == 48 bytes");
 
 Class::~Class() {
     if (m_defaultTypeIds != nullptr) {
@@ -30,13 +30,12 @@ Class::~Class() {
         delete[] m_defaults;
     }
     m_metaClass = nullptr;
-    m_classType = nullptr;
     m_typesConvertStorage = nullptr;
 }
 
-void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType, const TypesConvertStorage* typesConvertStorage) {
+void Class::Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage* typesConvertStorage) {
     try {
-        CheckMetaClass(metaClass, classType);
+        CheckMetaClass(metaClass);
     } catch(const std::exception& e) {
         throw EngineError("gs::Class::Create: {}", e.what());
     }
@@ -63,7 +62,6 @@ void Class::Create(const cpgf::GMetaClass* metaClass, ClassType* classType, cons
     uint8_t outputIndex = inputIndex + m_countInputPins;
     m_typesConvertStorage = typesConvertStorage;
     m_metaClass = metaClass;
-    m_classType = classType;
     m_defaultTypeIds = new TypeId[metaClass->getPropertyCount()];
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
@@ -138,77 +136,26 @@ ConvertFunc Class::GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) 
     return nullptr;
 }
 
-void Class::SetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType, TypeId typeId) {
-    try {
-        CheckIsValidUniversalPinIndex(pinIndex, true);
-        if (!IsConcreteUniversalType(typeId)) {
-            throw EngineError("typeId = {} - invalid, operation is only available for concrete universal types", typeId);
-        }
-    } catch(const EngineError& e) {
-        throw EngineError("gs::Class::SetConcreteUniversalPinType (class name = '{}'): {}", GetName(), e.what());
-    }
-
-    m_classType->SetType(pinIndex, instanceType, typeId);
-}
-
-void Class::ResetUniversalPinTypeToDefault(uint8_t pinIndex, void* instanceType) {
-    try {
-        CheckIsValidUniversalPinIndex(pinIndex, true);
-    } catch(const EngineError& e) {
-        throw EngineError("gs::Class::ResetUniversalPinTypeToDefault (class name = '{}'): {}", GetName(), e.what());
-    }
-
-    m_classType->ResetToDefault(pinIndex, instanceType);
-}
-
-TypeId Class::GetConcreteUniversalPinType(uint8_t pinIndex, void* instanceType) {
-    try {
-        CheckIsValidUniversalPinIndex(pinIndex, false);
-    } catch(const EngineError& e) {
-        throw EngineError("gs::Class::GetConcreteUniversalPinType (class name = '{}'): {}", GetName(), e.what());
-    }
-
-    return m_classType->GetType(pinIndex, instanceType);
-}
-
-bool Class::CheckIsClassTypeValid(void* instanceType) const {
-    try {
-        if (m_classType == nullptr) {
-            throw EngineError("class does not contain universal types");
-        }
-    } catch(const EngineError& e) {
-        throw EngineError("gs::Class::CheckIsClassTypeValid (class name = '{}'): {}", GetName(), e.what());
-    }
-
-    return m_classType->CheckIsValid(instanceType);
-}
-
-void Class::NewInstance(void*& instance, void*& instanceType) {
-    instance = m_metaClass->createInstance();
-    if (m_classType != nullptr) {
-        instanceType = m_classType->NewInstance();
-    } else {
-        instanceType = nullptr;
-    }
+void* Class::NewInstance() {
+    void* instance = m_metaClass->createInstance();
 
     if (m_defaults == nullptr) {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
             // inside the value is completely copied
             m_defaults[i] = m_props[i]->get(instance);
-            if (m_defaultTypeIds[i] == TypeId::UniversalType) {
+            if (HasUniversalBit(m_defaultTypeIds[i])) {
                 m_defaultTypeIds[i] = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(m_defaults[i]));
             }
         }
     }
+
+    return instance;
 }
 
-void Class::DeleteInstance(void* instance, void* instanceType) {
+void Class::DeleteInstance(void* instance) {
     if (instance != nullptr) {
         m_metaClass->destroyInstance(instance);
-    }
-    if (m_classType != nullptr) {
-        m_classType->DeleteInstance(instanceType);
     }
 }
 
@@ -229,29 +176,7 @@ void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
     m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
 }
 
-void Class::CheckIsValidUniversalPinIndex(uint8_t pinIndex, bool inputPinNeed) {
-    if (m_classType == nullptr) {
-        throw EngineError("class does not contain universal types");
-    }
-    if (!HasUniversalBit(GetDefaultPinTypeId(pinIndex))) {
-        throw EngineError("pinIndex = {} - invalid, operation is only available for pins with universal type", pinIndex);
-    }
-    if (inputPinNeed) {
-        uint8_t minIndex = m_countEmbeddedPins;
-        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins;
-        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for input pins", pinIndex);
-        }
-    } else {
-        uint8_t minIndex = m_countEmbeddedPins + m_countInputPins;
-        uint8_t maxIndex = m_countEmbeddedPins + m_countInputPins + m_countOutputPins;
-        if ((pinIndex < minIndex) || (pinIndex >= maxIndex)) {
-            throw EngineError("pinIndex = {} - invalid, operation is only available for output pins", pinIndex);
-        }
-    }
-}
-
-void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classType) const {
+void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass) const {
     if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
         throw EngineError("double create");
     }
@@ -280,8 +205,6 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classTy
             clsName, MAX_PINS_COUNT, metaClass->getPropertyCount());
     }
 
-    bool universalTypeExists = false;
-    auto universalIndex = std::type_index(typeid(UniversalType));
     for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
         const cpgf::GMetaProperty* prop = metaClass->getPropertyAt(i);
         if (prop == nullptr) {
@@ -344,16 +267,6 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, ClassType* classTy
                 "invalid metaClass (name = '{}'), has property (name = {}) with unsupported type = '{}' for this pin type",
                 clsName, propName, meta::DemangleTypeName(typeInfo.name()));
         }
-
-        universalTypeExists |= (std::type_index(typeInfo) == universalIndex);
-    }
-
-    if (universalTypeExists && (classType == nullptr)) {
-        throw EngineError("invalid metaClass (name = '{}'), no class type found for it", clsName);
-    }
-
-    if ((!universalTypeExists) && (classType != nullptr)) {
-        throw EngineError("invalid metaClass (name = '{}'), class types is found, if there are no inversion types.", clsName);
     }
 }
 

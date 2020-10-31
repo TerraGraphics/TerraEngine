@@ -169,7 +169,6 @@ private:
     Pin* m_pins = nullptr;
     Class* m_class = nullptr;
     void* m_instance = nullptr;
-    void* m_instanceType = nullptr;
     std::string m_lastResultError;
 };
 
