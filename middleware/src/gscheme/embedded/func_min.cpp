@@ -94,10 +94,7 @@ template<typename TMin, typename TMax>
 
 UniversalType FuncMin::Result() const {
     return std::visit([](auto&& a, auto&& b) -> UniversalType {
-        using typeA = std::remove_cvref_t<decltype(a)>;
-        using typeB = std::remove_cvref_t<decltype(b)>;
-
-        if constexpr (GetTypeId<typeA>() <= GetTypeId<typeB>()) {
+        if constexpr (GetTypeId<std::remove_cvref_t<decltype(a)>>() <= GetTypeId<std::remove_cvref_t<decltype(b)>>()) {
             return UniversalType(TMinOfMinMax(a, b));
         } else {
             return UniversalType(TMinOfMinMax(b, a));
