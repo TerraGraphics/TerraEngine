@@ -3,6 +3,7 @@
 #include "cpgf/metadefine.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/embedded/func_add.h"
+#include "middleware/gscheme/embedded/func_min.h"
 #include "middleware/gscheme/embedded/func_constant.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
@@ -61,6 +62,18 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         ._property("A", &FuncAdd::GetA, &FuncAdd::SetA)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::DISPLAY_NAME, "A")
         ._property("B", &FuncAdd::GetB, &FuncAdd::SetB)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::DISPLAY_NAME, "B")
+    ;
+
+    GDefineMetaClass<FuncMin>
+        ::define("Min")
+            ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Min")
+        ._constructor<void * ()>()
+        ._property("Result", &FuncMin::Result, 0)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
+        ._property("A", &FuncMin::GetA, &FuncMin::SetA)
+            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::DISPLAY_NAME, "A")
+        ._property("B", &FuncMin::GetB, &FuncMin::SetB)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::INPUT)._element(MetaNames::DISPLAY_NAME, "B")
     ;
 }
