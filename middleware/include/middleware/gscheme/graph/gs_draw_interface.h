@@ -28,7 +28,7 @@ public:
     virtual void OnFinishDrawGraph() = 0;
 
     virtual void OnStartDrawNode(uintptr_t id, std::string displayName) = 0;
-    virtual void OnFinishDrawNode(bool isValid) = 0;
+    virtual void OnFinishDrawNode(bool isValid, std::string_view errorMessage) = 0;
 
     virtual void OnDrawInputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) = 0;

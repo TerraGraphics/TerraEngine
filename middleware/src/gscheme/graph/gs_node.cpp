@@ -391,6 +391,10 @@ void Node::DecLinkForOutputPin(uint8_t outputPinIndex) noexcept {
     m_pins[outputPinIndex].linksCount--;
 }
 
+bool Node::ExistsResultError() const noexcept {
+    return ((m_validFlags & ValidFlags::ResultError) != 0);
+}
+
 bool Node::ExistsConvertError() const noexcept {
     return ((m_validFlags & ValidFlags::ConvertError) != 0);
 }
@@ -481,7 +485,15 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawOutputPins(pins);
 
-    drawer->OnFinishDrawNode(m_validFlags == ValidFlags::Valid);
+    if (m_validFlags == ValidFlags::Valid) {
+        drawer->OnFinishDrawNode(true, std::string_view());
+    } else if (ExistsResultError()) {
+        drawer->OnFinishDrawNode(false, m_lastResultError);
+    } else if (ExistsConvertError()) {
+        drawer->OnFinishDrawNode(false, "connected pins are of incompatible types");
+    } else {
+        throw EngineError("gs::Node::DrawGraph: unknown value of m_validFlags");
+    }
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {

@@ -110,7 +110,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     gui::BeginHorizontal();
 }
 
-void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF texBackgroundSize) {
+void DrawNode::OnFinishDrawNode(bool isValid, std::string_view errorMessage, void* texBackground, math::SizeF texBackgroundSize) {
     auto nodePartWidht = gui::EndHorizontal().w;
 
     float footerRectTop = 0;
@@ -120,6 +120,7 @@ void DrawNode::OnFinishDrawNode(bool isValid, void* texBackground, math::SizeF t
         footerStyle.padding.left = 0;
         footerStyle.padding.top += ne::GetStyle().NodePadding.w; // NodePadding.bottom;
         footerStyle.minSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
+        footerStyle.tooltip = errorMessage;
         math::RectF footerRect;
         gui::Label("Error", footerStyle, &footerRect);
         footerRectTop = footerRect.Top();

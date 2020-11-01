@@ -46,8 +46,7 @@ class Node : Noncopyable {
     enum ValidFlags : uint8_t {
         Valid = 0,
         ResultError = 1,
-        ConvertError = 2,
-        ResultAndConvertError = ResultError | ConvertError,
+        ConvertError = 2
     };
 
 public:
@@ -133,6 +132,7 @@ public:
     void DecLinkForOutputPin(uint8_t outputPinIndex) noexcept;
 
 private:
+    bool ExistsResultError() const noexcept;
     bool ExistsConvertError() const noexcept;
     void SetResultError(const std::string& msg);
     void SetConvertError();

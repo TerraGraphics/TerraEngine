@@ -28,7 +28,7 @@ public:
     void OnStartDrawGraph() final;
     void OnFinishDrawGraph() final;
     void OnStartDrawNode(uintptr_t id, std::string displayName) final;
-    void OnFinishDrawNode(bool isValid) final;
+    void OnFinishDrawNode(bool isValid, std::string_view errorMessage) final;
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) final;
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
