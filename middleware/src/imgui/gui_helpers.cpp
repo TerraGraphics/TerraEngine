@@ -115,4 +115,14 @@ bool IsRectVisible(math::RectF rect) {
     return window->ClipRect.Overlaps(ToImGui(rect));
 }
 
+void DrawTooltip(const Style* style) {
+    if (!style->tooltip.empty() && ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(style->tooltip.cbegin(), style->tooltip.cend());
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
 } // end namespace gui

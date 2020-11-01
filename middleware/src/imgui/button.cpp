@@ -34,7 +34,7 @@ bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style
 
     math::RectF drawRect;
     math::RectF widgetRect;
-    bool res = PlaceWidget(id, static_cast<const Style*>(&style), drawSize, &drawRect, &widgetRect);
+    bool res = PlaceWidget(id, &style, drawSize, &drawRect, &widgetRect);
     if (outWidgetRect != nullptr) {
         *outWidgetRect = widgetRect;
     }
@@ -52,6 +52,7 @@ bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style
     }
 
     RenderArrow(window->DrawList, drawRect, ImGui::GetColorU32(ImGuiCol_Text), dir);
+    DrawTooltip(&style);
 
     return pressed;
 }

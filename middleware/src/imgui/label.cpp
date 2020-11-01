@@ -46,7 +46,7 @@ void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidge
     const math::SizeF drawSize = CalcTextSize(text, wrapWidth);
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
         return;
     }
 
@@ -54,6 +54,8 @@ void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidge
         ImGuiContext& g = *GImGui;
         window->DrawList->AddText(g.Font, g.FontSize, ToImGui(drawRect.Min()), ImGui::GetColorU32(ImGuiCol_Text), begin, end, wrapWidth);
     }
+
+    DrawTooltip(&style);
 }
 
 } // end namespace gui

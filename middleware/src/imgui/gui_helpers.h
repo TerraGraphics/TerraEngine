@@ -32,4 +32,6 @@ bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::Re
 
 bool IsRectVisible(math::RectF rect);
 
+void DrawTooltip(const Style* style);
+
 } // end namespace gui

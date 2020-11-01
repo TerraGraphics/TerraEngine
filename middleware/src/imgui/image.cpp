@@ -184,7 +184,7 @@ void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWi
     const math::SizeF drawSize(style.sideSize, style.sideSize);
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
         return;
     }
 
@@ -228,6 +228,7 @@ void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWi
         drawer.DrawFlow();
         break;
     }
+    DrawTooltip(&style);
 }
 
 void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outWidgetRect) {
@@ -237,11 +238,12 @@ void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outWidget
     }
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
         return;
     }
 
     window->DrawList->AddRectFilled(ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), style.color.value);
+    DrawTooltip(&style);
 }
 
 void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style, math::RectF* outWidgetRect) {
@@ -251,7 +253,7 @@ void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style
     }
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, static_cast<const Style*>(&style), drawSize, &drawRect, outWidgetRect)) {
+    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
         return;
     }
 
@@ -262,6 +264,7 @@ void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style
     }
 
     window->DrawList->AddImage(reinterpret_cast<ImTextureID>(texture.RawPtr()), ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), uv0, uv1, style.color.value);
+    DrawTooltip(&style);
 }
 
 } // end namespace gui
