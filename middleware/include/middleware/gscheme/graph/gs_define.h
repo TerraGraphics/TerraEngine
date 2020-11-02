@@ -10,14 +10,11 @@
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
 
-#include "cpgf/gmetaannotation.h"
-#include "cpgf/gmetaclass.h"
-#include "cpgf/gmetaenum.h"
-#include "cpgf/gmetafield.h"
-#include "cpgf/gmetamethod.h"
-#include "cpgf/gmetaproperty.h"
-#include "cpgf/gglobal.h"
 #include "cpgf/gpp.h"
+#include "cpgf/gglobal.h"
+#include "cpgf/gmetaclass.h"
+#include "cpgf/gmetaproperty.h"
+#include "cpgf/gmetaannotation.h"
 
 #pragma GCC diagnostic pop
 
@@ -30,7 +27,6 @@
 namespace cpgf {
 
 namespace meta_internal {
-
 
 #define CASE_SUPERLIST_ARG(N, unused) case N: superList->add<ClassType, typename TypeList_GetWithDefault<TList, N, void>::Result>(); break;
 
@@ -58,14 +54,13 @@ GMetaSuperList * doMakeSuperList() {
 
 typedef std::shared_ptr<GMetaClass> GSharedMetaClass;
 
-struct GSharedMetaClassDeleter
-{
+struct GSharedMetaClassDeleter {
 	explicit GSharedMetaClassDeleter(const bool freeIt = true)
 		: freeIt(freeIt)
 	{
 	}
 
-	void operator() (GMetaClass * p) const {
+	void operator() (GMetaClass* p) const {
 		if(freeIt) {
 			delete p;
 		}
@@ -74,13 +69,11 @@ struct GSharedMetaClassDeleter
 	bool freeIt;
 };
 
-inline GSharedMetaClass makeSharedMetaClass(GMetaClass * metaClass, const bool autoFreeIt = true)
-{
+inline GSharedMetaClass makeSharedMetaClass(GMetaClass* metaClass, const bool autoFreeIt = true) {
 	return GSharedMetaClass(metaClass, GSharedMetaClassDeleter(autoFreeIt));
 }
 
-inline GMetaClass * takeSharedMetaClass(GSharedMetaClass * metaClass)
-{
+inline GMetaClass* takeSharedMetaClass(GSharedMetaClass* metaClass) {
 	std::get_deleter<GSharedMetaClassDeleter>(*metaClass)->freeIt = false;
 	return metaClass->get();
 }
@@ -90,16 +83,15 @@ inline GMetaClass * takeSharedMetaClass(GSharedMetaClass * metaClass)
 
 
 template <typename BaseType>
-class GDefineMetaConstructor : public BaseType
-{
+class GDefineMetaConstructor : public BaseType {
 private:
 	typedef GDefineMetaConstructor<BaseType> ThisType;
 
 public:
-	GDefineMetaConstructor(meta_internal::GSharedMetaClass metaClass, GMetaConstructor * constructor) : BaseType(metaClass, constructor) {
+	GDefineMetaConstructor(meta_internal::GSharedMetaClass metaClass, GMetaConstructor* constructor) : BaseType(metaClass, constructor) {
 	}
 
-	ThisType _default(const GVariant & value) {
+	ThisType _default(const GVariant& value) {
 		gdynamic_cast<GMetaConstructor *>(this->currentItem)->addDefaultParam(value);
 
 		return *this;
@@ -107,49 +99,13 @@ public:
 };
 
 template <typename BaseType>
-class GDefineMetaMethod : public BaseType
-{
-private:
-	typedef GDefineMetaMethod<BaseType> ThisType;
-
+class GDefineMetaAnnotation : public BaseType {
 public:
-	GDefineMetaMethod(meta_internal::GSharedMetaClass metaClass, GMetaMethod * method) : BaseType(metaClass, method) {
-	}
-
-	ThisType _default(const GVariant & value) {
-		gdynamic_cast<GMetaMethod *>(this->currentItem)->addDefaultParam(value);
-
-		return *this;
-	}
-};
-
-template <typename BaseType>
-class GDefineMetaEnum : public BaseType
-{
-private:
-	typedef GDefineMetaEnum<BaseType> ThisType;
-
-public:
-	GDefineMetaEnum(meta_internal::GSharedMetaClass metaClass, GMetaEnum * metaEnum) : BaseType(metaClass, metaEnum) {
-	}
-
-	ThisType _element(const char * key, const GVariant & value) {
-		(*gdynamic_cast<GMetaEnum *>(this->currentItem))(key, value);
-
-		return *this;
-	}
-
-};
-
-template <typename BaseType>
-class GDefineMetaAnnotation : public BaseType
-{
-public:
-	GDefineMetaAnnotation(meta_internal::GSharedMetaClass metaClass, GMetaAnnotation * annotation) : BaseType(metaClass, annotation) {
+	GDefineMetaAnnotation(meta_internal::GSharedMetaClass metaClass, GMetaAnnotation* annotation) : BaseType(metaClass, annotation) {
 	}
 
 	template <typename T>
-	GDefineMetaAnnotation _element(const char * name, const T & value) {
+	GDefineMetaAnnotation _element(const char* name, const T& value) {
 		(*gdynamic_cast<GMetaAnnotation *>(this->currentItem))(name, value);
 
 		return *this;
@@ -158,19 +114,9 @@ public:
 };
 
 template <typename BaseType>
-class GDefineMetaField : public BaseType
-{
+class GDefineMetaProperty : public BaseType {
 public:
-	GDefineMetaField(meta_internal::GSharedMetaClass metaClass, GMetaField * field) : BaseType(metaClass, field) {
-	}
-
-};
-
-template <typename BaseType>
-class GDefineMetaProperty : public BaseType
-{
-public:
-	GDefineMetaProperty(meta_internal::GSharedMetaClass metaClass, GMetaProperty * prop) : BaseType(metaClass, prop) {
+	GDefineMetaProperty(meta_internal::GSharedMetaClass metaClass, GMetaProperty* prop) : BaseType(metaClass, prop) {
 	}
 
 };
@@ -179,8 +125,7 @@ template <typename ClassType GPP_REPEAT(MAX_BASE_COUNT, BASE_DEFAULT, GPP_EMPTY)
 class GDefineMetaClass;
 
 template <typename ClassT, typename DerivedType>
-class GDefineMetaCommon
-{
+class GDefineMetaCommon {
 public:
 	typedef ClassT ClassType;
 
@@ -188,56 +133,23 @@ private:
 	typedef GDefineMetaCommon<ClassType, DerivedType> ThisType;
 
 public:
-	GDefineMetaCommon(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem)
-		: metaClass(metaClass), dangling(false), currentItem(currentItem) {
+	GDefineMetaCommon(meta_internal::GSharedMetaClass metaClass, GMetaItem* currentItem)
+		: metaClass(metaClass), currentItem(currentItem) {
 	}
 
-	GDefineMetaCommon(const GDefineMetaCommon & other)
-		: metaClass(other.metaClass), dangling(other.dangling), currentItem(other.currentItem) {
+	GDefineMetaCommon(const GDefineMetaCommon& other)
+		: metaClass(other.metaClass), currentItem(other.currentItem) {
 	}
 
-	GDefineMetaCommon operator = (const GDefineMetaCommon & other) {
+	GDefineMetaCommon operator=(const GDefineMetaCommon& other) {
 		this->metaClass = other.metaClass;
-		this->dangling = other.dangling;
 		this->currentItem = other.currentItem;
 
 		return *this;
 	}
 
-	template <typename FT>
-	GDefineMetaMethod<DerivedType> _method(const char * name, FT func) {
-		return GDefineMetaMethod<DerivedType>(
-			this->metaClass,
-			this->metaClass->addMethod(GMetaMethod::newMethod<ClassType>(name, func, GMetaPolicyDefault()))
-		);
-	}
-
-	template <typename FT, typename Policy>
-	GDefineMetaMethod<DerivedType> _method(const char * name, FT func, const Policy & policy) {
-		return GDefineMetaMethod<DerivedType>(
-			this->metaClass,
-			this->metaClass->addMethod(GMetaMethod::newMethod<ClassType>(name, func, policy))
-		);
-	}
-
-	template <typename FT>
-	GDefineMetaField<DerivedType> _field(const char * name, FT field) {
-		return GDefineMetaField<DerivedType>(
-			this->metaClass,
-			this->metaClass->addField(new GMetaField(name, field, GMetaPolicyDefault()))
-		);
-	}
-
-	template <typename FT, typename Policy>
-	GDefineMetaField<DerivedType> _field(const char * name, FT field, const Policy & policy) {
-		return GDefineMetaField<DerivedType>(
-			this->metaClass,
-			this->metaClass->addField(new GMetaField(name, field, policy))
-		);
-	}
-
 	template <typename Getter, typename Setter>
-	GDefineMetaProperty<DerivedType> _property(const char * name, const Getter & getter, const Setter & setter) {
+	GDefineMetaProperty<DerivedType> _property(const char* name, const Getter& getter, const Setter& setter) {
 		return GDefineMetaProperty<DerivedType>(
 			this->metaClass,
 			this->metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()))
@@ -245,22 +157,14 @@ public:
 	}
 
 	template <typename Getter, typename Setter, typename Policy>
-	GDefineMetaProperty<DerivedType> _property(const char * name, const Getter & getter, const Setter & setter, const Policy & policy) {
+	GDefineMetaProperty<DerivedType> _property(const char* name, const Getter& getter, const Setter& setter, const Policy& policy) {
 		return GDefineMetaProperty<DerivedType>(
 			this->metaClass,
 			this->metaClass->addProperty(new GMetaProperty(name, getter, setter, policy))
 		);
 	}
 
-	template <typename T>
-	GDefineMetaEnum<DerivedType> _enum(const char * name) {
-		return GDefineMetaEnum<DerivedType>(
-			this->metaClass,
-			this->metaClass->addEnum(new GMetaEnum(name, createMetaType<T>()))
-		);
-	}
-
-	GDefineMetaAnnotation<DerivedType> _annotation(const char * name) {
+	GDefineMetaAnnotation<DerivedType> _annotation(const char* name) {
 		return GDefineMetaAnnotation<DerivedType>(
 			this->metaClass,
 			this->currentItem->addItemAnnotation(new GMetaAnnotation(name))
@@ -269,19 +173,17 @@ public:
 
 protected:
 	meta_internal::GSharedMetaClass metaClass;
-	bool dangling;
-	GMetaItem * currentItem;
+	GMetaItem* currentItem;
 };
 
 template <typename ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, typename BaseType)>
-class GDefineMetaClass : public GDefineMetaCommon<ClassType, GDefineMetaClass<ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, BaseType)> >
-{
+class GDefineMetaClass : public GDefineMetaCommon<ClassType, GDefineMetaClass<ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, BaseType)>> {
 private:
 	typedef GDefineMetaClass<ClassType GPP_REPEAT_TAIL_PARAMS(MAX_BASE_COUNT, BaseType)> ThisType;
-	typedef GDefineMetaCommon<ClassType, ThisType > super;
+	typedef GDefineMetaCommon<ClassType, ThisType> super;
 
 public:
-	static ThisType define(const char * className) {
+	static ThisType define(const char* className) {
 		ThisType c;
 		c.init(className);
 		return c;
@@ -291,54 +193,29 @@ protected:
 	GDefineMetaClass() : super(meta_internal::GSharedMetaClass(), nullptr) {
 	}
 
-	explicit GDefineMetaClass(GMetaClass * metaClass) : super(meta_internal::makeSharedMetaClass(metaClass), metaClass) {
+	explicit GDefineMetaClass(GMetaClass* metaClass) : super(meta_internal::makeSharedMetaClass(metaClass), metaClass) {
 		this->takeMetaClass();
 	}
 
-	GDefineMetaClass(GMetaClass * metaClass, GMetaItem * currentItem) : super(meta_internal::makeSharedMetaClass(metaClass), currentItem) {
+	GDefineMetaClass(GMetaClass* metaClass, GMetaItem* currentItem) : super(meta_internal::makeSharedMetaClass(metaClass), currentItem) {
 		this->takeMetaClass();
 	}
 
-	GDefineMetaClass(meta_internal::GSharedMetaClass metaClass, GMetaItem * currentItem) : super(metaClass, currentItem) {
+	GDefineMetaClass(meta_internal::GSharedMetaClass metaClass, GMetaItem* currentItem) : super(metaClass, currentItem) {
 	}
 
 public:
-	template <typename FT>
 	GDefineMetaConstructor<ThisType> _constructor() {
 		return GDefineMetaConstructor<ThisType>(
 			this->metaClass,
-			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(GMetaPolicyDefault()))
-		);
-	}
-
-	template <typename FT, typename Policy>
-	GDefineMetaConstructor<ThisType> _constructor(const Policy & policy) {
-		return GDefineMetaConstructor<ThisType>(
-			this->metaClass,
-			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(policy))
-		);
-	}
-
-	template <typename FT>
-	GDefineMetaConstructor<ThisType> _constructor(const FT & func) {
-		return GDefineMetaConstructor<ThisType>(
-			this->metaClass,
-			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(func, GMetaPolicyDefault()))
-		);
-	}
-
-	template <typename FT, typename Policy>
-	GDefineMetaConstructor<ThisType> _constructor(const FT & func, const Policy & policy) {
-		return GDefineMetaConstructor<ThisType>(
-			this->metaClass,
-			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, FT>(func, policy))
+			this->metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, void* ()>(GMetaPolicyDefault()))
 		);
 	}
 
 protected:
 	typedef typename cpgf::TypeList_Make<GPP_REPEAT_PARAMS(MAX_BASE_COUNT, BaseType)>::Result BaseListType;
 
-	void init(const char * className) {
+	void init(const char* className) {
 		GMetaClass* classToAdd = const_cast<GMetaClass *>(getGlobalMetaClass()->doGetClass(className));
 
 		if(classToAdd == nullptr) {

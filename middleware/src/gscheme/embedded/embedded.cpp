@@ -16,7 +16,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncConstant>
         ::define("Constant")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Constant")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncConstant::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Value", &FuncConstant::GetValue, &FuncConstant::SetValue)
@@ -26,7 +26,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncConstant2>
         ::define("Constant2")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Constant2")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncConstant2::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Value", &FuncConstant2::GetValue, &FuncConstant2::SetValue)
@@ -36,7 +36,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncConstant3>
         ::define("Constant3")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Constant3")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncConstant3::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Value", &FuncConstant3::GetValue, &FuncConstant3::SetValue)
@@ -46,7 +46,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncConstant4>
         ::define("Constant4")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Constant4")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncConstant4::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Value", &FuncConstant4::GetValue, &FuncConstant4::SetValue)
@@ -64,7 +64,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncAdd, FuncBinaryUniversal>
         ::define("Add")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Add")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncAdd::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
     ;
@@ -72,7 +72,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncMin, FuncBinaryUniversal>
         ::define("Min")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Min")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncMin::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
     ;
@@ -80,7 +80,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     GDefineMetaClass<FuncMax, FuncBinaryUniversal>
         ::define("Max")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Max")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &FuncMax::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
     ;

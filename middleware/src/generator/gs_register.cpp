@@ -15,7 +15,7 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
     GDefineMetaClass<ChessCubes>
         ::define("ChessCube")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Noise chess cubes")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &ChessCubes::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency)
@@ -25,7 +25,7 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
     GDefineMetaClass<Spheres>
         ::define("Spheres")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Noise spheres")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &Spheres::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency)
@@ -35,7 +35,7 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
     GDefineMetaClass<Cylinders>
         ::define("Cylinders")
             ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Noise cylinders")
-        ._constructor<void * ()>()
+        ._constructor()
         ._property("Result", &Cylinders::Result, 0)
             ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
         ._property("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency)
