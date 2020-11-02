@@ -13,32 +13,23 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
     using namespace cpgf;
 
     GDefineMetaClass<ChessCubes>
-        ::define("ChessCube")
-            ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Noise chess cubes")
+        ::define("ChessCube", "Noise chess cubes")
         ._constructor()
-        ._property("Result", &ChessCubes::Result, 0)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
-        ._property("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::DISPLAY_NAME, "Frequency")
+        .AddOutputPin("Result", &ChessCubes::Result, "Result")
+        .AddEmbeddedPin("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
     ;
 
     GDefineMetaClass<Spheres>
-        ::define("Spheres")
-            ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Noise spheres")
+        ::define("Spheres", "Noise spheres")
         ._constructor()
-        ._property("Result", &Spheres::Result, 0)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
-        ._property("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::DISPLAY_NAME, "Frequency")
+        .AddOutputPin("Result", &Spheres::Result, "Result")
+        .AddEmbeddedPin("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
     ;
 
     GDefineMetaClass<Cylinders>
-        ::define("Cylinders")
-            ._annotation(MetaNames::CLASS)._element(MetaNames::DISPLAY_NAME, "Noise cylinders")
+        ::define("Cylinders", "Noise cylinders")
         ._constructor()
-        ._property("Result", &Cylinders::Result, 0)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::OUTPUT)._element(MetaNames::DISPLAY_NAME, "Result")
-        ._property("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency)
-            ._annotation(MetaNames::PIN)._element(MetaNames::PIN_TYPE, PinTypes::EMBEDDED)._element(MetaNames::DISPLAY_NAME, "Frequency")
+        .AddOutputPin("Result", &Cylinders::Result, "Result")
+        .AddEmbeddedPin("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
     ;
 }

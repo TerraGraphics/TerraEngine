@@ -20,6 +20,8 @@
 
 #include <memory>
 
+#include "middleware/gscheme/graph/gs_metadata.h"
+
 // #define MAX_BASE_COUNT 20
 #define MAX_BASE_COUNT 1
 #define BASE_DEFAULT(N, unused) , typename GPP_CONCAT(BaseType, N) = void
@@ -113,14 +115,6 @@ public:
 
 };
 
-template <typename BaseType>
-class GDefineMetaProperty : public BaseType {
-public:
-	GDefineMetaProperty(meta_internal::GSharedMetaClass metaClass, GMetaProperty* prop) : BaseType(metaClass, prop) {
-	}
-
-};
-
 template <typename ClassType GPP_REPEAT(MAX_BASE_COUNT, BASE_DEFAULT, GPP_EMPTY)>
 class GDefineMetaClass;
 
@@ -149,18 +143,47 @@ public:
 	}
 
 	template <typename Getter, typename Setter>
-	GDefineMetaProperty<DerivedType> _property(const char* name, const Getter& getter, const Setter& setter) {
-		return GDefineMetaProperty<DerivedType>(
+	GDefineMetaCommon AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		GMetaProperty* prop = this->metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));
+		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
+		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::EMBEDDED);
+		if (displayName != nullptr) {
+			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
+		}
+
+		return GDefineMetaCommon(
 			this->metaClass,
-			this->metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()))
+			nullptr
 		);
 	}
 
-	template <typename Getter, typename Setter, typename Policy>
-	GDefineMetaProperty<DerivedType> _property(const char* name, const Getter& getter, const Setter& setter, const Policy& policy) {
-		return GDefineMetaProperty<DerivedType>(
+	template <typename Getter, typename Setter>
+	GDefineMetaCommon AddInputPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		GMetaProperty* prop = this->metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));
+		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
+		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::INPUT);
+		if (displayName != nullptr) {
+			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
+		}
+
+		return GDefineMetaCommon(
 			this->metaClass,
-			this->metaClass->addProperty(new GMetaProperty(name, getter, setter, policy))
+			nullptr
+		);
+	}
+
+	template <typename Getter>
+	GDefineMetaCommon AddOutputPin(const char* name, const Getter& getter, const char* displayName = nullptr) {
+		GMetaProperty* prop = this->metaClass->addProperty(new GMetaProperty(name, getter, 0, GMetaPolicyDefault()));
+		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
+		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::OUTPUT);
+		if (displayName != nullptr) {
+			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
+		}
+
+		return GDefineMetaCommon(
+			this->metaClass,
+			nullptr
 		);
 	}
 
@@ -169,6 +192,14 @@ public:
 			this->metaClass,
 			this->currentItem->addItemAnnotation(new GMetaAnnotation(name))
 		);
+	}
+
+protected:
+	void AddClassAnnotation(const char* displayName) {
+		GMetaAnnotation *annotation = this->metaClass->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::CLASS));
+		if (displayName != nullptr) {
+			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
+		}
 	}
 
 protected:
@@ -183,9 +214,16 @@ private:
 	typedef GDefineMetaCommon<ClassType, ThisType> super;
 
 public:
-	static ThisType define(const char* className) {
+	static ThisType base(const char* className) {
 		ThisType c;
 		c.init(className);
+		return c;
+	}
+
+	static ThisType define(const char* className, const char* displayName = nullptr) {
+		ThisType c;
+		c.init(className);
+		c.AddClassAnnotation(displayName);
 		return c;
 	}
 
