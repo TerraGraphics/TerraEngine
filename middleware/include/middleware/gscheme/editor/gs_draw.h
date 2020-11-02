@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <string_view>
 
 #include "dg/dg.h"
 #include "core/math/types.h"

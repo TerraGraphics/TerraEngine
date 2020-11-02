@@ -5,8 +5,8 @@
 #include "middleware/gscheme/embedded/func_add.h"
 #include "middleware/gscheme/embedded/func_min.h"
 #include "middleware/gscheme/embedded/func_max.h"
+#include "middleware/gscheme/embedded/func_base.h"
 #include "middleware/gscheme/embedded/func_constant.h"
-#include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
 REFLECTION_IMPL(gs::EmbeddedFuncs) {

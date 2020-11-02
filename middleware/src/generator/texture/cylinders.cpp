@@ -1,6 +1,7 @@
 #include "middleware/generator/texture/cylinders.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "core/math/generator_type.h"
 

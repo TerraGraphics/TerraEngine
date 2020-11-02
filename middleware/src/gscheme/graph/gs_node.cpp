@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <variant>
+#include <string_view>
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"

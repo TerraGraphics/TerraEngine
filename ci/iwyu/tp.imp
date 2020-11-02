@@ -94,10 +94,6 @@
     { symbol: ["Diligent::TEXTURE_ADDRESS_MODE", "private", '"dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"dg/dg.h"', "public"] },
 
-
-    { include: ['"cpgf/gmetadefine.h"', private, '"cpgf/metadefine.h"', public] },
-    { include: ['"cpgf/metaclass.h"', public, '"cpgf/metadefine.h"', public] },
-
     { include: ['"cpgf/gmetaclass.h"', private, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetaapi.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },

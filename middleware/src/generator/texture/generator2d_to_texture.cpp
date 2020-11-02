@@ -1,5 +1,9 @@
 #include "middleware/generator/texture/generator2d_to_texture.h"
 
+#include <memory>
+#include <cstdint>
+#include <algorithm>
+
 #include "dg/device.h"
 #include "core/engine.h"
 #include "core/common/exception.h"

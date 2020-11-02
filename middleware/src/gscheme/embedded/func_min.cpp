@@ -1,14 +1,14 @@
 #include "middleware/gscheme/embedded/func_min.h"
 
 #include <variant>
+#include <algorithm>
 #include <type_traits>
 
 #include "eigen/core.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
-#include "middleware/gscheme/graph/gs_types_fmt.h"
+#include "middleware/gscheme/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_types_convert.h"
-#include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
 namespace std {

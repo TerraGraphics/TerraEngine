@@ -1,10 +1,11 @@
 #include "middleware/gscheme/editor/gs_draw_node.h"
 
 #include <string>
+#include <utility>
 #include <algorithm>
 
+#include "dg/device.h"
 #include "eigen/core.h"
-#include "dg/texture.h"
 #include "imgui/imgui.h"
 #include "cpgf/variant.h"
 #include "imgui/node_editor.h"
@@ -13,7 +14,6 @@
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/button.h"
 #include "middleware/imgui/layout.h"
-#include "core/math/generator_type.h"
 #include "middleware/imgui/imgui_math.h"
 #include "middleware/generator/texture/section_plane.h"
 #include "middleware/generator/texture/generator2d_to_texture.h"

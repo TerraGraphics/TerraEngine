@@ -18,7 +18,6 @@ namespace cpgf {
 
 namespace gs {
 
-class ClassType;
 class TypesConvertStorage;
 class Class : Fixed {
 public:

@@ -2,7 +2,6 @@
 
 #include <cstdlib>
 #include <typeinfo>
-#include <typeindex>
 
 #include "cpgf/metaclass.h"
 #include "core/common/meta.h"
@@ -10,7 +9,7 @@
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_limits.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
-#include "middleware/gscheme/graph/gs_types_fmt.h"
+#include "middleware/gscheme/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 

@@ -1,6 +1,5 @@
 #include "middleware/gscheme/graph/gs_class_storage.h"
 
-#include <string>
 #include <utility>
 #include <cstddef>
 #include <unordered_map>

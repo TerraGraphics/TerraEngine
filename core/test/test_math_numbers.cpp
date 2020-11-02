@@ -1,3 +1,7 @@
+#include <limits>
+#include <memory>
+#include <cstdint>
+
 #include "test/test.h"
 #include "core/math/numbers.h"
 

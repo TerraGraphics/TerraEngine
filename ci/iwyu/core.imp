@@ -8,6 +8,8 @@
     { symbol: ["std::hash", public, '"core/common/hash.h"', public] },
     { symbol: ["std::size_t", public, '"core/common/hash.h"', public] },
 
+    { include: ['"core/math/generator_type_fwd.h"', public, '"core/math/generator_type.h"', public] },
+
     { include: ['"platforms/window.h"', private, '"platforms/platforms.h"', public] },
     { include: ['"platforms/graphic_api.h"', private, '"platforms/platforms.h"', public] },
     { include: ['"platforms/default_window_handler.h"', public, '"platforms/platforms.h"', public] },

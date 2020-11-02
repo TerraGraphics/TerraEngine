@@ -1,6 +1,7 @@
 #include "middleware/generator/texture/spheres.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "core/math/generator_type.h"
 

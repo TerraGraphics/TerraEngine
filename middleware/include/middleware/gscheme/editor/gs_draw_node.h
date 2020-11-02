@@ -8,6 +8,7 @@
 #include "core/math/types.h"
 #include "core/common/ctor.h"
 #include "core/math/generator_type_fwd.h"
+#include "middleware/gscheme/graph/gs_types_decl.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
