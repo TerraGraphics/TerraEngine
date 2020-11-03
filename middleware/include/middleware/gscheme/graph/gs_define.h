@@ -16,6 +16,10 @@
 
 #pragma GCC diagnostic pop
 
+#include <charconv>
+
+#include "fmt/fmt.h"
+#include "middleware/gscheme/meta/gs_meta_type.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 
 namespace cpgf {
@@ -118,3 +122,27 @@ protected:
 };
 
 } // namespace cpgf
+
+namespace gs {
+
+template<typename T>
+MetaType DefineType() {
+	return MetaType(
+		[](const cpgf::GVariant& v) -> std::string {
+			fmt::memory_buffer buffer;
+			fmt::format_to(buffer, "{}", cpgf::fromVariant<T>(v));
+			return buffer.data();
+		},
+		[](const std::string& in, cpgf::GVariant& out) -> bool {
+			T tmp;
+            if(auto [p, ec] = std::from_chars(in.data(), in.data() + in.size(), tmp); ec == std::errc()) {
+                out = tmp;
+                return true;
+            }
+
+            return false;
+		}
+	);
+}
+
+} // namespace gs
