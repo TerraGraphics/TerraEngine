@@ -134,13 +134,35 @@ MetaType DefineType() {
 			return buffer.data();
 		},
 		[](const std::string& in, cpgf::GVariant& out) -> bool {
-			T tmp;
-            if(auto [p, ec] = std::from_chars(in.data(), in.data() + in.size(), tmp); ec == std::errc()) {
-                out = tmp;
-                return true;
-            }
+			if constexpr (std::is_same_v<T, float>) {
+				try {
+					std::size_t pos;
+					out = std::stof(in, &pos);
+					return true;
+				} catch(const std::out_of_range&) {
+					return false;
+				} catch(const std::invalid_argument&) {
+					return false;
+				}
+			} else if constexpr (std::is_same_v<T, double>) {
+				try {
+					std::size_t pos;
+					out = std::stod(in, &pos);
+					return true;
+				} catch(const std::out_of_range&) {
+					return false;
+				} catch(const std::invalid_argument&) {
+					return false;
+				}
+			} else {
+				T tmp;
+				if(auto [p, ec] = std::from_chars(in.data(), in.data() + in.size(), tmp); ec == std::errc()) {
+					out = tmp;
+					return true;
+				}
 
-            return false;
+				return false;
+			}
 		}
 	);
 }

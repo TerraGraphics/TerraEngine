@@ -13,6 +13,17 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     using namespace gs;
     using namespace cpgf;
 
+    DefineType<int8_t>();
+    DefineType<uint8_t>();
+    DefineType<int16_t>();
+    DefineType<uint16_t>();
+    DefineType<int32_t>();
+    DefineType<uint32_t>();
+    DefineType<int64_t>();
+    DefineType<uint64_t>();
+    DefineType<float>();
+    DefineType<double>();
+
     GDefineMetaClass<FuncConstant>
         ::define("Constant", "Constant")
         .AddOutputPin("Result", &FuncConstant::Result, "Result")
