@@ -15,28 +15,24 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
 
     GDefineMetaClass<FuncConstant>
         ::define("Constant", "Constant")
-        ._constructor()
         .AddOutputPin("Result", &FuncConstant::Result, "Result")
         .AddEmbeddedPin("Value", &FuncConstant::GetValue, &FuncConstant::SetValue, "Value")
     ;
 
     GDefineMetaClass<FuncConstant2>
         ::define("Constant2", "Constant2")
-        ._constructor()
         .AddOutputPin("Result", &FuncConstant2::Result, "Result")
         .AddEmbeddedPin("Value", &FuncConstant2::GetValue, &FuncConstant2::SetValue, "Value")
     ;
 
     GDefineMetaClass<FuncConstant3>
         ::define("Constant3", "Constant3")
-        ._constructor()
         .AddOutputPin("Result", &FuncConstant3::Result, "Result")
         .AddEmbeddedPin("Value", &FuncConstant3::GetValue, &FuncConstant3::SetValue, "Value")
     ;
 
     GDefineMetaClass<FuncConstant4>
         ::define("Constant4", "Constant4")
-        ._constructor()
         .AddOutputPin("Result", &FuncConstant4::Result, "Result")
         .AddEmbeddedPin("Value", &FuncConstant4::GetValue, &FuncConstant4::SetValue, "Value")
     ;
@@ -49,19 +45,16 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
 
     GDefineMetaClass<FuncAdd, FuncBinaryUniversal>
         ::define("Add", "Add")
-        ._constructor()
         .AddOutputPin("Result", &FuncAdd::Result, "Result")
     ;
 
     GDefineMetaClass<FuncMin, FuncBinaryUniversal>
         ::define("Min", "Min")
-        ._constructor()
         .AddOutputPin("Result", &FuncMin::Result, "Result")
     ;
 
     GDefineMetaClass<FuncMax, FuncBinaryUniversal>
         ::define("Max", "Max")
-        ._constructor()
         .AddOutputPin("Result", &FuncMax::Result, "Result")
     ;
 }

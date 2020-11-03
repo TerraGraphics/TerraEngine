@@ -14,21 +14,18 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
 
     GDefineMetaClass<ChessCubes>
         ::define("ChessCube", "Noise chess cubes")
-        ._constructor()
         .AddOutputPin("Result", &ChessCubes::Result, "Result")
         .AddEmbeddedPin("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
     ;
 
     GDefineMetaClass<Spheres>
         ::define("Spheres", "Noise spheres")
-        ._constructor()
         .AddOutputPin("Result", &Spheres::Result, "Result")
         .AddEmbeddedPin("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
     ;
 
     GDefineMetaClass<Cylinders>
         ::define("Cylinders", "Noise cylinders")
-        ._constructor()
         .AddOutputPin("Result", &Cylinders::Result, "Result")
         .AddEmbeddedPin("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
     ;
