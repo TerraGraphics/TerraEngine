@@ -20,15 +20,12 @@ enum class VerticalAlign : uint8_t {
 };
 
 struct Style {
-    math::RectOffsetF margin = DEFUALT_MARGIN;
-    math::RectOffsetF padding = DEFUALT_PADDING;
+    math::RectOffsetF margin;
+    math::RectOffsetF padding;
     math::SizeF minWidgetSize;
     VerticalAlign verticalAlign = VerticalAlign::Top;
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;
     std::string_view tooltip;
-
-    constexpr static const math::RectOffsetF DEFUALT_MARGIN = math::RectOffsetF(8.f, 0, 0, 0);
-    constexpr static const math::RectOffsetF DEFUALT_PADDING = math::RectOffsetF();
 };
 
 } // end namespace gui

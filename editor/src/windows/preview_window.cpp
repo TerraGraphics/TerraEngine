@@ -55,8 +55,6 @@ void PreviewWindow::Update(double deltaTime) {
     if (m_draw) {
         math::RectF rc;
         gui::ImageStyle style;
-        style.margin = math::RectOffsetF();
-        style.padding = math::RectOffsetF();
         gui::Image(gui::ToSizeF(ImGui::GetContentRegionAvail()), m_scene->GetColorTexture(), style, &rc);
         auto width = static_cast<uint32_t>(rc.Width());
         auto height = static_cast<uint32_t>(rc.Height());
