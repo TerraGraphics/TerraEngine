@@ -28,7 +28,11 @@ ImVec2 ToImGui(math::SizeF value) {
     return ImVec2(value.w, value.h);
 }
 
-ImRect ToImGui(math::RectF value) {
+ImVec4 ToImGui(math::RectF value) {
+    return ImVec4(value.x, value.y, value.x + value.w, value.y + value.h);
+}
+
+ImRect ToImGuiRect(math::RectF value) {
     return ImRect(value.x, value.y, value.x + value.w, value.y + value.h);
 }
 
@@ -58,6 +62,10 @@ math::SizeF ToSizeF(ImVec2 value) {
 
 math::RectF ToRectF(ImRect value) {
     return math::RectF(value.Min.x, value.Min.y, value.GetWidth(), value.GetHeight());
+}
+
+math::RectF ToRectF(ImVec4 value) {
+    return math::RectF(value.x, value.y, value.z - value.x, value.w - value.y);
 }
 
 math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax) {

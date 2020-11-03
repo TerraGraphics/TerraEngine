@@ -709,4 +709,24 @@ math::SizeT<T> max(math::SizeT<T> first, math::SizeT<T> second) {
         std::max(first.h, second.h));
 }
 
+template<typename T>
+math::RectT<T> min(math::RectT<T> first, math::RectT<T> second) {
+    const auto left = std::max(first.Left(), second.Left());
+    const auto top = std::max(first.Top(), second.Top());
+    const auto right = std::min(first.Right(), second.Right());
+    const auto bottom = std::min(first.Bottom(), second.Bottom());
+
+    return math::RectT<T>(left, top, right - left, bottom - top);
+}
+
+template<typename T>
+math::RectT<T> max(math::RectT<T> first, math::RectT<T> second) {
+    const auto left = std::min(first.Left(), second.Left());
+    const auto top = std::min(first.Top(), second.Top());
+    const auto right = std::max(first.Right(), second.Right());
+    const auto bottom = std::max(first.Bottom(), second.Bottom());
+
+    return math::RectT<T>(left, top, right - left, bottom - top);
+}
+
 } // namespace std

@@ -43,8 +43,8 @@ bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style
     }
 
     bool hovered, held;
-    bool pressed = ImGui::ButtonBehavior(ToImGui(drawRect), id, &hovered, &held, ImGuiButtonFlags_None);
-    ImGui::RenderNavHighlight(ToImGui(widgetRect), id);
+    bool pressed = ImGui::ButtonBehavior(ToImGuiRect(drawRect), id, &hovered, &held, ImGuiButtonFlags_None);
+    ImGui::RenderNavHighlight(ToImGuiRect(widgetRect), id);
 
     if (held || hovered) {
         const uint32_t bgColor = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);

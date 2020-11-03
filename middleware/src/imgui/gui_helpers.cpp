@@ -40,7 +40,7 @@ void ItemSize(math::SizeF widgetSize) {
 }
 
 bool ItemAdd(uint32_t id, math::RectF widgetRect) {
-    return ImGui::ItemAdd(ToImGui(widgetRect), id);
+    return ImGui::ItemAdd(ToImGuiRect(widgetRect), id);
 }
 
 bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect) {
@@ -122,7 +122,7 @@ bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::Re
 
 bool IsRectVisible(math::RectF rect) {
     ImGuiWindow* window = GImGui->CurrentWindow;
-    return window->ClipRect.Overlaps(ToImGui(rect));
+    return window->ClipRect.Overlaps(ToImGuiRect(rect));
 }
 
 void DrawTooltip(const Style* style) {
