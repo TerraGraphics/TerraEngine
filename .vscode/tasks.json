@@ -15,6 +15,19 @@
             ]
         },
         {
+            "label": "Run Vulkan with stats",
+            "type": "shell",
+            "command": "VK_INSTANCE_LAYERS=VK_LAYER_MESA_overlay VK_LAYER_MESA_OVERLAY_CONFIG=position=bottom-right ./terra",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
             "label": "Run OpenGL",
             "type": "shell",
             "command": "./terra -opengl",

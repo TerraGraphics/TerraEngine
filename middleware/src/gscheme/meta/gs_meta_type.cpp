@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#include "core/common/exception.h"
+
 
 namespace gs {
 
@@ -44,6 +46,14 @@ MetaType::~MetaType() {
 }
 
 void MetaType::AddFieldByIndex(size_t index, std::string_view name, MetaType* metaType) {
+    for (const auto& field: impl->m_fields) {
+        if (field.index == index) {
+            throw EngineError("gs::MetaType::AddFieldByIndex: index = {} with name = {} already exists", index, name);
+        }
+        if (field.name == name) {
+            throw EngineError("gs::MetaType::AddFieldByIndex: name = {} with index = {} already exists", name, index);
+        }
+    }
     impl->m_fields.push_back(FieldByIndex{index, std::string(name), metaType});
 }
 
