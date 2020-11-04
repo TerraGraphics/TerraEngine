@@ -10,7 +10,8 @@
 namespace {
 
 struct BackupState {
-    BackupState(const ImGuiWindowTempData& dc)
+    BackupState() = delete;
+    explicit BackupState(const ImGuiWindowTempData& dc)
         : cursorPos(dc.CursorPos)
         , cursorPosPrevLine(dc.CursorPosPrevLine)
         , cursorStartPos(dc.CursorStartPos)

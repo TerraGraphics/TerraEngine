@@ -19,6 +19,7 @@
 #include <charconv>
 
 #include "fmt/fmt.h"
+#include "core/common/meta.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/meta/gs_meta_storage.h"
@@ -127,7 +128,39 @@ protected:
 
 namespace gs {
 
-template<typename T>
+
+namespace detail {
+
+class DefineArrayType : Fixed {
+public:
+	DefineArrayType() = delete;
+	DefineArrayType(MetaType* metaType)
+		: m_metaType(metaType) {
+
+	}
+
+	template<typename T>
+	DefineArrayType& FieldByIndex(size_t index, std::string_view name) {
+		m_metaType->AddFieldByIndex(index, name, MetaStorage::getInstance().GetType(std::type_index(typeid(T))));
+
+		return *this;
+	}
+
+private:
+	MetaType* m_metaType = nullptr;
+};
+
+}
+
+template<typename T, std::enable_if_t<meta::IsArrayLikeV<T>, int> = 0>
+detail::DefineArrayType DefineType() {
+	auto* metaType = new MetaType();
+	MetaStorage::getInstance().AddType(std::type_index(typeid(T)), metaType);
+
+	return detail::DefineArrayType(metaType);
+}
+
+template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0>
 void DefineType() {
 	auto* metaType = new MetaType(
 		[](const cpgf::GVariant& v) -> std::string {

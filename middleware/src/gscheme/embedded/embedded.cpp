@@ -24,6 +24,25 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     DefineType<float>();
     DefineType<double>();
 
+    DefineType<Eigen::Vector2f>()
+        .FieldByIndex<float>(0, "x")
+        .FieldByIndex<float>(1, "y")
+    ;
+
+    DefineType<Eigen::Vector3f>()
+        .FieldByIndex<float>(0, "x")
+        .FieldByIndex<float>(1, "y")
+        .FieldByIndex<float>(2, "z")
+    ;
+
+    DefineType<Eigen::Vector4f>()
+        .FieldByIndex<float>(0, "x")
+        .FieldByIndex<float>(1, "y")
+        .FieldByIndex<float>(2, "z")
+        .FieldByIndex<float>(3, "w")
+    ;
+
+
     GDefineMetaClass<FuncConstant>
         ::define("Constant", "Constant")
         .AddOutputPin("Result", &FuncConstant::Result, "Result")
