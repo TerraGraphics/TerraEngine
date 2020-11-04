@@ -345,6 +345,13 @@ struct SizeT {
         return *this;
     }
 
+    SizeT operator-(const SizeT& o) const noexcept { return SizeT(w - o.w, h - o.h); }
+    SizeT& operator-=(const SizeT& o) noexcept {
+        w -= o.w;
+        h -= o.h;
+        return *this;
+    }
+
 #pragma GCC diagnostic push
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wnested-anon-types"
@@ -373,6 +380,11 @@ struct RectOffsetT {
     constexpr RectOffsetT() noexcept = default;
     constexpr RectOffsetT(const RectOffsetT& o) noexcept : left(o.left), right(o.right), top(o.top), bottom(o.bottom) {}
     constexpr RectOffsetT(RectOffsetT&& o) noexcept : left(std::move(o.left)), right(std::move(o.right)), top(std::move(o.top)), bottom(std::move(o.bottom)) {}
+    constexpr RectOffsetT(const RectOffsetT& o, SizeT<T> maxSize) noexcept
+        : left(std::min(o.left, maxSize.w))
+        , right(std::min(o.right, maxSize.w - left))
+        , top(std::min(o.top, maxSize.h))
+        , bottom(std::min(o.bottom, maxSize.h - top)) {}
     constexpr explicit RectOffsetT(T left, T right, T top, T bottom) noexcept : left(left), right(right), top(top), bottom(bottom) {}
     constexpr explicit RectOffsetT(T v) noexcept : RectOffsetT(v, v, v, v) {}
 
@@ -482,7 +494,7 @@ struct RectT {
     T Width() const noexcept { return w; }
     T Height() const noexcept { return h; }
     SizeT<T> Size() const noexcept { return SizeT<T>(w, h); }
-    void Size(SizeT<T> value) noexcept { w = value.w, h = value.h; }
+    void Size(const SizeT<T>& value) noexcept { w = value.w; h = value.h; }
     template<typename U, typename EnableU = std::enable_if_t<std::is_arithmetic_v<U>>>
         SizeT<U> SizeCast() const noexcept { return SizeT<U>(static_cast<U>(w), static_cast<U>(h)); }
 

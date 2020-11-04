@@ -22,7 +22,7 @@ enum class VerticalAlign : uint8_t {
 struct Style {
     math::RectOffsetF margin = DEFUALT_MARGIN;
     math::RectOffsetF padding = DEFUALT_PADDING;
-    math::SizeF minSize;
+    math::SizeF minWidgetSize;
     VerticalAlign verticalAlign = VerticalAlign::Top;
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;
     std::string_view tooltip;

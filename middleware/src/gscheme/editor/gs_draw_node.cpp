@@ -119,7 +119,7 @@ void DrawNode::OnFinishDrawNode(bool isValid, std::string_view errorMessage, voi
         footerStyle.horisontalAlign = gui::HorisontalAlign::Center;
         footerStyle.padding.left = 0;
         footerStyle.padding.top += ne::GetStyle().NodePadding.w; // NodePadding.bottom;
-        footerStyle.minSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
+        footerStyle.minWidgetSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
         footerStyle.tooltip = errorMessage;
         math::RectF footerRect;
         gui::Label("Error", footerStyle, &footerRect);
@@ -189,7 +189,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
     labelStyle.margin.left = 0;
     labelStyle.margin.right = gui::Style::DEFUALT_MARGIN.left;
-    labelStyle.minSize = math::SizeF(0, m_iconSideSize);
+    labelStyle.minWidgetSize = math::SizeF(0, m_iconSideSize);
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
@@ -281,7 +281,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
         labelWidth = std::max(labelWidth, gui::LabelCalc(pin.displayName, labelStyle).w);
     }
 
-    labelStyle.minSize = math::SizeF(labelWidth, m_iconSideSize);
+    labelStyle.minWidgetSize = math::SizeF(labelWidth, m_iconSideSize);
 
     for (const auto& pin: pins) {
         gui::Label(pin.displayName, labelStyle);
