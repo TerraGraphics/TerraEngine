@@ -21,6 +21,8 @@
 #include "fmt/fmt.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
+#include "middleware/gscheme/meta/gs_meta_storage.h"
+
 
 namespace cpgf {
 
@@ -126,8 +128,8 @@ protected:
 namespace gs {
 
 template<typename T>
-MetaType DefineType() {
-	return MetaType(
+void DefineType() {
+	auto* metaType = new MetaType(
 		[](const cpgf::GVariant& v) -> std::string {
 			fmt::memory_buffer buffer;
 			fmt::format_to(buffer, "{}", cpgf::fromVariant<T>(v));
@@ -165,6 +167,8 @@ MetaType DefineType() {
 			}
 		}
 	);
+
+	MetaStorage::getInstance().AddType(std::type_index(typeid(T)), metaType);
 }
 
 } // namespace gs
