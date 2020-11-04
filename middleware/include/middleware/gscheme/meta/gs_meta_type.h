@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
 #include <functional>
+#include <string_view>
 
 #include "core/common/ctor.h"
+#include "core/common/pimpl.h"
 
 
 namespace cpgf {
@@ -18,12 +19,15 @@ public:
     using FuncFromString = std::function<bool (const std::string&, cpgf::GVariant&)>;
 
 public:
-    MetaType() = delete;
-    MetaType(FuncToString&& funcToString, FuncFromString&& funcFromString);
+    MetaType();
+    MetaType(FuncToString&& toString, FuncFromString&& fromString);
+    ~MetaType();
 
-public:
-    const FuncToString toString;
-    const FuncFromString fromString;
+    void AddFieldByIndex(size_t index, std::string_view name, MetaType* metaType);
+
+private:
+    struct Impl;
+    Pimpl<Impl, 88, 8> impl;
 };
 
 }
