@@ -10,22 +10,18 @@
 
 REFLECTION_IMPL(gs::GeneratorFuncs) {
     using namespace gs;
-    using namespace cpgf;
 
-    GDefineMetaClass<ChessCubes>
-        ::define("ChessCube", "Noise chess cubes")
+    DefineClass<ChessCubes>("ChessCube", "Noise chess cubes")
         .AddOutputPin("Result", &ChessCubes::Result, "Result")
         .AddEmbeddedPin("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
     ;
 
-    GDefineMetaClass<Spheres>
-        ::define("Spheres", "Noise spheres")
+    DefineClass<Spheres>("Spheres", "Noise spheres")
         .AddOutputPin("Result", &Spheres::Result, "Result")
         .AddEmbeddedPin("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
     ;
 
-    GDefineMetaClass<Cylinders>
-        ::define("Cylinders", "Noise cylinders")
+    DefineClass<Cylinders>("Cylinders", "Noise cylinders")
         .AddOutputPin("Result", &Cylinders::Result, "Result")
         .AddEmbeddedPin("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
     ;
