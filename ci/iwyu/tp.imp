@@ -94,13 +94,16 @@
     { symbol: ["Diligent::TEXTURE_ADDRESS_MODE", "private", '"dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"dg/dg.h"', "public"] },
 
+    { include: ['"cpgf/gmetaproperty.h"', private, '"cpgf/metaproperty.h"', public] },
+    { include: ['"cpgf/gmetaannotation.h"', private, '"cpgf/metaannotation.h"', public] },
+
     { include: ['"cpgf/gmetaclass.h"', private, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetaapi.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetapolicy.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetamethod.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/gmetaproperty.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/gmetaannotation.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/metaproperty.h"', public, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/metaannotation.h"', public, '"cpgf/metaclass.h"', public] },
 
     { include: ['"cpgf/gvariant.h"', private, '"cpgf/variant.h"', public] },
 

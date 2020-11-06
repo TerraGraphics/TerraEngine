@@ -8,5 +8,5 @@
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
-#include "cpgf/gmetaclass.h"
+#include <cpgf/gmetaclass.h>
 #pragma GCC diagnostic pop

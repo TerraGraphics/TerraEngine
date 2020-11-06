@@ -1,25 +1,13 @@
 #pragma once
-
 // based on cpgf/gmetadefine.h
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma GCC diagnostic ignored "-Wredundant-decls"
-#endif
-
-#include <cpgf/gmetaclass.h>
-#include <cpgf/gmetaproperty.h>
-#include <cpgf/gmetaannotation.h>
-
-#pragma GCC diagnostic pop
 
 #include <charconv>
 
 #include "fmt/fmt.h"
+#include "cpgf/metaclass.h"
 #include "core/common/meta.h"
+#include "cpgf/metaproperty.h"
+#include "cpgf/metaannotation.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"
 #include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/meta/gs_meta_storage.h"

@@ -1,7 +1,9 @@
 #include "middleware/gscheme/meta/gs_meta_storage.h"
 
+#include <utility>
 #include <unordered_map>
 
+#include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"
 
