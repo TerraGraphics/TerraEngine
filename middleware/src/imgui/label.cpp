@@ -54,7 +54,7 @@ void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidge
         ImGuiContext& g = *GImGui;
         const auto clipRect = ToImGui(drawRect);
         const auto startPos = ToImGui(drawRect.Min());
-        window->DrawList->AddText(g.Font, g.FontSize, startPos, ImGui::GetColorU32(ImGuiCol_Text), begin, end, wrapWidth, &clipRect);
+        window->DrawList->AddText(g.Font, g.FontSize, startPos, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), begin, end, wrapWidth, &clipRect);
     }
 
     DrawTooltip(&style);

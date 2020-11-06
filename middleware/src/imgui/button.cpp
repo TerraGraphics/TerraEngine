@@ -47,11 +47,12 @@ bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style
     ImGui::RenderNavHighlight(ToImGuiRect(widgetRect), id);
 
     if (held || hovered) {
-        const uint32_t bgColor = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+        ImGuiCol idx = (held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button;
+        const uint32_t bgColor = ImGui::GetColorU32(idx);
         ImGui::RenderFrame(ToImGui(widgetRect.Min()), ToImGui(widgetRect.Max()), bgColor, true, g.Style.FrameRounding);
     }
 
-    RenderArrow(window->DrawList, drawRect, ImGui::GetColorU32(ImGuiCol_Text), dir);
+    RenderArrow(window->DrawList, drawRect, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), dir);
     DrawTooltip(&style);
 
     return pressed;

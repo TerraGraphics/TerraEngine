@@ -38,7 +38,7 @@ DrawNode::DrawNode(DrawNode&& o) noexcept {
 }
 
 DrawNode::~DrawNode() {
-    if (m_texture) {
+    if (m_texture.RawPtr() != nullptr) {
         m_texture->Release();
     }
     if (m_textureGenerator != nullptr) {
@@ -48,12 +48,11 @@ DrawNode::~DrawNode() {
 
 void DrawNode::OnStartDrawGraph() {
     if (!m_drawed) {
-        m_showPinPreview = false;
-        m_frameNum = 0;
-        if (m_texture) {
+        if (m_texture.RawPtr() != nullptr) {
             m_texture->Release();
         }
-
+        m_showPinPreview = false;
+        m_frameNum = 0;
         m_headerWidth = 0.f;
         m_headerBottom = 0.f;
         m_headerButtonWidth = 0.f;
@@ -292,8 +291,8 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
 }
 
 void DrawNode::FillTexture(const math::Generator2D& v) {
-    m_frameNum = (m_frameNum + 1) % 100;
-    if (m_texture && m_frameNum != 0) {
+    m_frameNum = static_cast<uint8_t>((m_frameNum + 1) % 100);
+    if ((m_texture.RawPtr() != nullptr) && (m_frameNum != 0)) {
         return;
     }
 
