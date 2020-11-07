@@ -1,0 +1,102 @@
+#pragma once
+
+#include <limits>
+#include <charconv>
+#include <type_traits>
+
+#include "fmt/fmt.h"
+#include "cpgf/variant.h"
+#include "core/common/exception.h"
+#include "middleware/gscheme/meta/gs_meta_type_interface.h"
+
+
+namespace gs {
+
+template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
+class MetaPrimitiveType : final public IMetaPrimitiveType {
+public:
+    MetaPrimitiveType() = delete;
+    MetaPrimitiveType(MetaPrimitiveTypeProperty<T>* property)
+        : m_property(property) {
+
+    }
+
+    ~MetaPrimitiveType() override {
+        delete m_property;
+    }
+
+public:
+    void SetValue(const cpgf::GVariant& value) {
+        T tmp = cpgf::fromVariant<T>(value);
+        if (!SetIsValid(tmp)) {
+            throw EngineError("gs::MetaPrimitiveType::SetValue: arg {} is not valid by MetaPrimitiveTypeProperty", tmp);
+        }
+    }
+
+    cpgf::GVariant GetValue() {
+        return cpgf::createVariant<T>(m_value, true);
+    }
+
+public:
+    std::string ToString() const final {
+        fmt::memory_buffer buffer;
+        fmt::format_to(buffer, "{}", m_value);
+        return buffer.data();
+    }
+
+    bool FromString(const std::string& value) final {
+        if constexpr (std::is_same_v<T, float>) {
+            try {
+                std::size_t pos;
+                return SetIsValid(std::stof(in, &pos));
+            } catch(const std::out_of_range&) {
+                return false;
+            } catch(const std::invalid_argument&) {
+                return false;
+            }
+        } else if constexpr (std::is_same_v<T, double>) {
+            try {
+                std::size_t pos;
+                return SetIsValid(std::stod(in, &pos));
+            } catch(const std::out_of_range&) {
+                return false;
+            } catch(const std::invalid_argument&) {
+                return false;
+            }
+        } else {
+            T tmp;
+            if(auto [p, ec] = std::from_chars(in.data(), in.data() + in.size(), tmp); ec == std::errc()) {
+                return SetIsValid(tmp);
+            }
+
+            return false;
+        }
+    }
+
+private:
+    bool SetIsValid(T value) {
+        bool isValid = false;
+
+        if (m_property->m_checkFunc != nullptr) {
+            isValid = m_property->m_checkFunc(value);
+            if (isValid) {
+                m_value = value;
+            }
+
+            return isValid;
+        }
+
+        isValid = ((m_minValue <= value) && (value <= m_maxValue));
+        if (isValid) {
+            m_value = value;
+        }
+
+        return isValid;
+    }
+
+private:
+    T m_value = 0;
+    MetaPrimitiveTypeProperty<T>* m_property = nullptr;
+};
+
+}

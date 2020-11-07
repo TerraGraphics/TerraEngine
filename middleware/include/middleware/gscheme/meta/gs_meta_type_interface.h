@@ -8,6 +8,8 @@ namespace gs {
 
 class IMetaPrimitiveType {
 public:
+    virtual ~IMetaPrimitiveType() = default;
+
     virtual std::string ToString() const = 0;
     virtual bool FromString(const std::string& value) = 0;
 };
