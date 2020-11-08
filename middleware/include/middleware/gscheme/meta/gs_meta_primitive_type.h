@@ -26,7 +26,7 @@ public:
     }
 
 public:
-    bool IsChached() const final {
+    bool IsChanged() const final {
         return m_isChanged;
     }
 
