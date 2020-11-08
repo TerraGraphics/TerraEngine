@@ -13,7 +13,7 @@
 namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-class MetaPrimitiveType : final public IMetaPrimitiveType {
+class MetaPrimitiveType : final public IMetaPrimitiveTypeEdit {
 public:
     MetaPrimitiveType() = delete;
     MetaPrimitiveType(MetaPrimitiveTypeProperty<T>* property)
@@ -26,14 +26,19 @@ public:
     }
 
 public:
-    void SetValue(const cpgf::GVariant& value) {
+    bool IsChached() const final {
+        return m_isChanged;
+    }
+
+    void SetValue(const cpgf::GVariant& value) final {
         T tmp = cpgf::fromVariant<T>(value);
         if (!SetIsValid(tmp)) {
             throw EngineError("gs::MetaPrimitiveType::SetValue: arg {} is not valid by MetaPrimitiveTypeProperty", tmp);
         }
+        m_isChanged = false;
     }
 
-    cpgf::GVariant GetValue() {
+    cpgf::GVariant GetValue() const final {
         return cpgf::createVariant<T>(m_value, true);
     }
 
@@ -81,6 +86,7 @@ private:
             isValid = m_property->m_checkFunc(value);
             if (isValid) {
                 m_value = value;
+                m_isChanged = true;
             }
 
             return isValid;
@@ -89,6 +95,7 @@ private:
         isValid = ((m_minValue <= value) && (value <= m_maxValue));
         if (isValid) {
             m_value = value;
+            m_isChanged = true;
         }
 
         return isValid;
@@ -96,6 +103,7 @@ private:
 
 private:
     T m_value = 0;
+    bool m_isChanged = false;
     MetaPrimitiveTypeProperty<T>* m_property = nullptr;
 };
 
