@@ -15,17 +15,6 @@
 REFLECTION_IMPL(gs::EmbeddedFuncs) {
     using namespace gs;
 
-    DefineType<int8_t>();
-    DefineType<uint8_t>();
-    DefineType<int16_t>();
-    DefineType<uint16_t>();
-    DefineType<int32_t>();
-    DefineType<uint32_t>();
-    DefineType<int64_t>();
-    DefineType<uint64_t>();
-    DefineType<float>();
-    DefineType<double>();
-
     DefineType<Eigen::Vector2f>()
         .FieldByIndex<float>(0, "x")
         .FieldByIndex<float>(1, "y")

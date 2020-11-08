@@ -1,9 +1,6 @@
 #pragma once
 // based on cpgf/gmetadefine.h
 
-#include <charconv>
-
-#include "fmt/fmt.h"
 #include "cpgf/metaclass.h"
 #include "core/common/meta.h"
 #include "cpgf/metaproperty.h"
@@ -93,7 +90,7 @@ public:
 
 	template<typename T>
 	DefineArrayType& FieldByIndex(size_t index, std::string_view name) {
-		m_metaType->AddFieldByIndex(index, name, MetaStorage::getInstance().GetType(std::type_index(typeid(T))));
+		m_metaType->AddFieldByIndex(index, name, std::type_index(typeid(T)));
 
 		return *this;
 	}
@@ -120,50 +117,6 @@ detail::DefineArrayType DefineType() {
 	MetaStorage::getInstance().AddType(std::type_index(typeid(T)), metaType);
 
 	return detail::DefineArrayType(metaType);
-}
-
-template<typename T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0>
-void DefineType() {
-	auto* metaType = new MetaType(
-		[](const cpgf::GVariant& v) -> std::string {
-			fmt::memory_buffer buffer;
-			fmt::format_to(buffer, "{}", cpgf::fromVariant<T>(v));
-			return buffer.data();
-		},
-		[](const std::string& in, cpgf::GVariant& out) -> bool {
-			if constexpr (std::is_same_v<T, float>) {
-				try {
-					std::size_t pos;
-					out = std::stof(in, &pos);
-					return true;
-				} catch(const std::out_of_range&) {
-					return false;
-				} catch(const std::invalid_argument&) {
-					return false;
-				}
-			} else if constexpr (std::is_same_v<T, double>) {
-				try {
-					std::size_t pos;
-					out = std::stod(in, &pos);
-					return true;
-				} catch(const std::out_of_range&) {
-					return false;
-				} catch(const std::invalid_argument&) {
-					return false;
-				}
-			} else {
-				T tmp;
-				if(auto [p, ec] = std::from_chars(in.data(), in.data() + in.size(), tmp); ec == std::errc()) {
-					out = tmp;
-					return true;
-				}
-
-				return false;
-			}
-		}
-	);
-
-	MetaStorage::getInstance().AddType(std::type_index(typeid(T)), metaType);
 }
 
 template <typename ClassType, typename BaseType0 = void>
