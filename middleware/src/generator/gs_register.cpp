@@ -1,7 +1,7 @@
 #include "middleware/generator/gs_register.h"
 
 #include "core/math/generator_type.h" // IWYU pragma: keep
-#include "middleware/gscheme/graph/gs_define.h"
+#include "middleware/gscheme/meta/gs_define.h"
 #include "middleware/generator/texture/spheres.h"
 #include "middleware/generator/texture/cylinders.h"
 #include "middleware/generator/texture/chess_cubes.h"

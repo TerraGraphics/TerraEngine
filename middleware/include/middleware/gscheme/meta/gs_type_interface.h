@@ -10,23 +10,23 @@ namespace cpgf {
 
 namespace gs {
 
-struct IMetaPrimitiveType {
-    virtual ~IMetaPrimitiveType() = default;
+struct IPrimitiveType {
+    virtual ~IPrimitiveType() = default;
 
     virtual std::string ToString() const = 0;
     virtual bool FromString(const std::string& value) = 0;
 };
 
-struct IMetaPrimitiveTypeEdit : IMetaPrimitiveType {
-    ~IMetaPrimitiveTypeEdit() override = default;
+struct IPrimitiveTypeEdit : IPrimitiveType {
+    ~IPrimitiveTypeEdit() override = default;
 
     virtual bool IsChanged() const = 0;
     virtual void SetValue(const cpgf::GVariant& value) = 0;
     virtual cpgf::GVariant GetValue() const = 0;
 };
 
-struct IMetaCompositeType {
-    virtual ~IMetaCompositeType() = default;
+struct ICompositeType {
+    virtual ~ICompositeType() = default;
 
     virtual bool IsChanged() const = 0;
     virtual void SetValue(const cpgf::GVariant& value) = 0;
@@ -34,7 +34,7 @@ struct IMetaCompositeType {
 
     virtual size_t CountItem() const = 0;
     virtual std::string_view GetItemName(size_t index) const = 0;
-    virtual IMetaPrimitiveType* GetItemValue(size_t index) const = 0;
+    virtual IPrimitiveType* GetItemValue(size_t index) const = 0;
 };
 
 }

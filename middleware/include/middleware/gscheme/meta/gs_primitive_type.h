@@ -7,21 +7,21 @@
 #include "fmt/fmt.h"
 #include "cpgf/variant.h"
 #include "core/common/exception.h"
-#include "middleware/gscheme/meta/gs_meta_type_interface.h"
+#include "middleware/gscheme/meta/gs_type_interface.h"
 
 
 namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-class MetaPrimitiveType : final public IMetaPrimitiveTypeEdit {
+class PrimitiveType : final public IPrimitiveTypeEdit {
 public:
-    MetaPrimitiveType() = delete;
-    MetaPrimitiveType(MetaPrimitiveTypeProperty<T>* property)
+    PrimitiveType() = delete;
+    PrimitiveType(PrimitiveTypeProperty<T>* property)
         : m_property(property) {
 
     }
 
-    ~MetaPrimitiveType() final {
+    ~PrimitiveType() final {
         delete m_property;
     }
 
@@ -33,7 +33,7 @@ public:
     void SetValue(const cpgf::GVariant& value) final {
         T tmp = cpgf::fromVariant<T>(value);
         if (!SetIsValid(tmp)) {
-            throw EngineError("gs::MetaPrimitiveType::SetValue: arg {} is not valid by MetaPrimitiveTypeProperty", tmp);
+            throw EngineError("gs::PrimitiveType::SetValue: arg {} is not valid by PrimitiveTypeProperty", tmp);
         }
         m_isChanged = false;
     }
@@ -104,7 +104,7 @@ private:
 private:
     T m_value = 0;
     bool m_isChanged = false;
-    MetaPrimitiveTypeProperty<T>* m_property = nullptr;
+    PrimitiveTypeProperty<T>* m_property = nullptr;
 };
 
 }

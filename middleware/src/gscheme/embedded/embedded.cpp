@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #include "eigen/core.h"
-#include "middleware/gscheme/graph/gs_define.h"
+#include "middleware/gscheme/meta/gs_define.h"
 #include "middleware/gscheme/embedded/func_add.h"
 #include "middleware/gscheme/embedded/func_min.h"
 #include "middleware/gscheme/embedded/func_max.h"

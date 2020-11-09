@@ -7,7 +7,7 @@
 namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-struct MetaPrimitiveTypeProperty {
+struct PrimitiveTypeProperty {
     bool (*TCheckFunc)(T);
 
 public:
