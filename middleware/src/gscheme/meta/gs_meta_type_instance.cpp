@@ -16,32 +16,16 @@ MetaTypeInstance::MetaTypeInstance(IMetaCompositeType* compositeType)
 
 }
 
-bool MetaTypeInstance::IsChanged() const {
+MetaTypeInstance::~MetaTypeInstance() {
     if (IsPrimitiveType()) {
-        return m_primitiveType->IsChanged();
+        delete m_primitiveType;
+    } else {
+        delete m_compositeType;
     }
-
-    return m_compositeType->IsChanged();
 }
 
 bool MetaTypeInstance::IsPrimitiveType() const {
     return (m_primitiveType != nullptr);
-}
-
-void MetaTypeInstance::Init(const cpgf::GVariant& value) {
-    if (IsPrimitiveType()) {
-        m_primitiveType->SetValue(value);
-    } else {
-        m_compositeType->SetValue(value);
-    }
-}
-
-cpgf::GVariant MetaTypeInstance::Result() const {
-    if (IsPrimitiveType()) {
-        return m_primitiveType->GetValue();
-    }
-
-    return m_compositeType->GetValue();
 }
 
 size_t MetaTypeInstance::Count() const {
@@ -69,6 +53,40 @@ IMetaPrimitiveType* MetaTypeInstance::GetValue(size_t index) const {
     }
 
     return m_compositeType->GetItemValue(index);
+}
+
+MetaTypeInstanceEdit::MetaTypeInstanceEdit(IMetaPrimitiveTypeEdit* primitiveType)
+    : MetaTypeInstance(primitiveType) {
+
+}
+
+MetaTypeInstanceEdit::MetaTypeInstanceEdit(IMetaCompositeType* compositeType)
+    : MetaTypeInstance(compositeType) {
+
+}
+
+bool MetaTypeInstanceEdit::IsChanged() const {
+    if (IsPrimitiveType()) {
+        return m_primitiveType->IsChanged();
+    }
+
+    return m_compositeType->IsChanged();
+}
+
+void MetaTypeInstanceEdit::Init(const cpgf::GVariant& value) {
+    if (IsPrimitiveType()) {
+        m_primitiveType->SetValue(value);
+    } else {
+        m_compositeType->SetValue(value);
+    }
+}
+
+cpgf::GVariant MetaTypeInstanceEdit::Result() const {
+    if (IsPrimitiveType()) {
+        return m_primitiveType->GetValue();
+    }
+
+    return m_compositeType->GetValue();
 }
 
 }

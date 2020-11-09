@@ -26,6 +26,8 @@ struct IMetaPrimitiveTypeEdit : IMetaPrimitiveType {
 };
 
 struct IMetaCompositeType {
+    virtual ~IMetaCompositeType() = default;
+
     virtual bool IsChanged() const = 0;
     virtual void SetValue(const cpgf::GVariant& value) = 0;
     virtual cpgf::GVariant GetValue() const = 0;

@@ -12,7 +12,7 @@ public:
     MetaTypeInstance() = delete;
     MetaTypeInstance(IMetaPrimitiveTypeEdit* primitiveType);
     MetaTypeInstance(IMetaCompositeType* compositeType);
-    ~MetaTypeInstance() = default;
+    ~MetaTypeInstance();
 
     bool IsChanged() const;
     bool IsPrimitiveType() const;
@@ -24,9 +24,20 @@ public:
     std::string_view GetName(size_t index) const;
     IMetaPrimitiveType* GetValue(size_t index) const;
 
-private:
+protected:
     IMetaPrimitiveTypeEdit* m_primitiveType = nullptr;
     IMetaCompositeType* m_compositeType = nullptr;
+};
+
+class MetaTypeInstanceEdit : public MetaTypeInstance {
+public:
+    MetaTypeInstanceEdit(IMetaPrimitiveTypeEdit* primitiveType);
+    MetaTypeInstanceEdit(IMetaCompositeType* compositeType);
+
+    bool IsChanged() const;
+
+    void Init(const cpgf::GVariant& value);
+    cpgf::GVariant Result() const;
 };
 
 }

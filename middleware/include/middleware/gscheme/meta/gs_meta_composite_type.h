@@ -14,13 +14,14 @@
 namespace gs {
 
 template<typename T, typename ItemType = std::remove_cvref_t<decltype(T[0])>, typename Enable = std::enable_if_t<std::is_integral_v<ItemType> || std::is_floating_point_v<ItemType>>>
-class MetaCompositeType : final public IMetaCompositeType {
+class MetaCompositeType : final IMetaCompositeType {
 public:
     struct MetaCompositeTypeItem {
         size_t index;
         std::string name;
         IMetaPrimitiveTypeEdit* primitiveType;
     };
+
 public:
     MetaCompositeType() = delete;
     MetaCompositeType(std::vector<MetaCompositeTypeItem> properties)
