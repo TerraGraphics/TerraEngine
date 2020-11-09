@@ -21,7 +21,7 @@ public:
 
     }
 
-    ~MetaPrimitiveType() override {
+    ~MetaPrimitiveType() final {
         delete m_property;
     }
 
