@@ -9,8 +9,8 @@
 #include "core/common/exception.h"
 #include "middleware/generator/gs_register.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_class.h"
-#include "middleware/gscheme/graph/gs_metadata.h"
 #include "middleware/gscheme/embedded/embedded.h" // IWYU pragma: keep
+#include "middleware/gscheme/meta/gs_meta_consts.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 

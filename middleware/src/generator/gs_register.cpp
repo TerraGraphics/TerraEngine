@@ -5,6 +5,8 @@
 #include "middleware/generator/texture/spheres.h"
 #include "middleware/generator/texture/cylinders.h"
 #include "middleware/generator/texture/chess_cubes.h"
+#include "middleware/gscheme/meta/gs_primitive_type.h"
+#include "middleware/gscheme/meta/gs_primitive_type_property.h"
 
 
 REFLECTION_IMPL(gs::GeneratorFuncs) {

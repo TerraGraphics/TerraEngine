@@ -9,7 +9,10 @@
 #include "middleware/gscheme/embedded/func_min.h"
 #include "middleware/gscheme/embedded/func_max.h"
 #include "middleware/gscheme/embedded/func_base.h"
+#include "middleware/gscheme/meta/gs_primitive_type.h"
 #include "middleware/gscheme/embedded/func_constant.h"
+#include "middleware/gscheme/meta/gs_composite_type.h"
+#include "middleware/gscheme/meta/gs_primitive_type_property.h"
 
 
 REFLECTION_IMPL(gs::EmbeddedFuncs) {

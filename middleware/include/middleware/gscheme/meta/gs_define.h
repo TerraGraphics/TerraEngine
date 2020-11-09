@@ -6,8 +6,9 @@
 #include "cpgf/metaproperty.h"
 #include "cpgf/metaannotation.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"
-#include "middleware/gscheme/graph/gs_metadata.h"
+#include "middleware/gscheme/meta/gs_meta_consts.h"
 #include "middleware/gscheme/meta/gs_meta_storage.h"
+#include "middleware/gscheme/meta/gs_type_instance.h"
 
 
 namespace cpgf {
@@ -35,10 +36,11 @@ public:
 	}
 
 	template <typename Getter, typename Setter>
-	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, gs::TypeInstanceEdit* typeInstance, const char* displayName = nullptr) {
 		GMetaProperty* prop = m_metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));
 		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
 		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::EMBEDDED);
+		annotation->addItem(gs::MetaNames::TYPE_INSTANCE, typeInstance);
 		if (displayName != nullptr) {
 			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
 		}
@@ -89,7 +91,7 @@ public:
 	}
 
 	template<typename T>
-	DefineArrayType& FieldByIndex(size_t index, std::string_view name) {
+	DefineArrayType& FieldByIndex(ptrdiff_t index, std::string_view name) {
 		m_metaType->AddFieldByIndex(index, name, std::type_index(typeid(T)));
 
 		return *this;
