@@ -9,15 +9,7 @@
 
 namespace gs {
 
-MetaType::MetaType() {
-
-}
-
-MetaType::~MetaType() {
-
-}
-
-void MetaType::AddFieldByIndex(size_t index, std::string_view name, std::type_index id) {
+void MetaType::AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type_index id) {
     for (const auto& field: m_fields) {
         if (field.index == index) {
             throw EngineError("gs::MetaType::AddFieldByIndex: index = {} with name = {} already exists", index, name);

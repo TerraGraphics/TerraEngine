@@ -8,12 +8,13 @@
 #include "cpgf/variant.h"
 #include "core/common/exception.h"
 #include "middleware/gscheme/meta/gs_type_interface.h"
+#include "middleware/gscheme/meta/gs_primitive_type_property.h"
 
 
 namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-class PrimitiveType : final public IPrimitiveTypeEdit {
+class PrimitiveType final : public IPrimitiveTypeEdit {
 public:
     PrimitiveType() = delete;
     PrimitiveType(PrimitiveTypeProperty<T>* property)
@@ -53,7 +54,7 @@ public:
         if constexpr (std::is_same_v<T, float>) {
             try {
                 std::size_t pos;
-                return SetIsValid(std::stof(in, &pos));
+                return SetIsValid(std::stof(value, &pos));
             } catch(const std::out_of_range&) {
                 return false;
             } catch(const std::invalid_argument&) {
@@ -62,7 +63,7 @@ public:
         } else if constexpr (std::is_same_v<T, double>) {
             try {
                 std::size_t pos;
-                return SetIsValid(std::stod(in, &pos));
+                return SetIsValid(std::stod(value, &pos));
             } catch(const std::out_of_range&) {
                 return false;
             } catch(const std::invalid_argument&) {
@@ -70,7 +71,7 @@ public:
             }
         } else {
             T tmp;
-            if(auto [p, ec] = std::from_chars(in.data(), in.data() + in.size(), tmp); ec == std::errc()) {
+            if(auto [p, ec] = std::from_chars(value.data(), value.data() + value.size(), tmp); ec == std::errc()) {
                 return SetIsValid(tmp);
             }
 
@@ -92,7 +93,7 @@ private:
             return isValid;
         }
 
-        isValid = ((m_minValue <= value) && (value <= m_maxValue));
+        isValid = ((m_property->m_minValue <= value) && (value <= m_property->m_maxValue));
         if (isValid) {
             m_value = value;
             m_isChanged = true;

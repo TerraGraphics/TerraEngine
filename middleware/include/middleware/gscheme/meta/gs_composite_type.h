@@ -13,11 +13,11 @@
 
 namespace gs {
 
-template<typename T, typename ItemType = std::remove_cvref_t<decltype(T[0])>, typename Enable = std::enable_if_t<std::is_integral_v<ItemType> || std::is_floating_point_v<ItemType>>>
-class CompositeType : final ICompositeType {
+template<typename T, typename ItemType = std::remove_cvref_t<decltype(std::declval<T>()[0])>, typename Enable = std::enable_if_t<std::is_integral_v<ItemType> || std::is_floating_point_v<ItemType>>>
+class CompositeType final : public ICompositeType {
 public:
     struct CompositeTypeItem {
-        size_t index;
+        ptrdiff_t index;
         std::string name;
         IPrimitiveTypeEdit* primitiveType;
     };
@@ -54,9 +54,9 @@ public:
     }
 
     cpgf::GVariant GetValue() const final {
-        T tmp = cpgf::fromVariant<T>(value);
+        T tmp;
         for(const auto& property: m_properties) {
-            tmp[property.index] = property.primitiveType->GetValue();
+            tmp[property.index] = cpgf::fromVariant<ItemType>(property.primitiveType->GetValue());
         }
 
         return cpgf::createVariant<T>(tmp, true);

@@ -8,12 +8,12 @@
 namespace gs {
 
 class TypeInstance : Fixed {
-public:
+protected:
     TypeInstance() = delete;
-    TypeInstance(IPrimitiveTypeEdit* primitiveType);
-    TypeInstance(ICompositeType* compositeType);
+    TypeInstance(IPrimitiveTypeEdit* primitiveType, ICompositeType* compositeType);
     ~TypeInstance();
 
+public:
     bool IsChanged() const;
     bool IsPrimitiveType() const;
 

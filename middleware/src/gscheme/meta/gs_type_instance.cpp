@@ -6,13 +6,9 @@
 
 namespace gs {
 
-TypeInstance::TypeInstance(IPrimitiveTypeEdit* primitiveType)
-    : m_primitiveType(primitiveType) {
-
-}
-
-TypeInstance::TypeInstance(ICompositeType* compositeType)
-    : m_compositeType(compositeType) {
+TypeInstance::TypeInstance(IPrimitiveTypeEdit* primitiveType, ICompositeType* compositeType)
+    : m_primitiveType(primitiveType)
+    , m_compositeType(compositeType) {
 
 }
 
@@ -56,12 +52,12 @@ IPrimitiveType* TypeInstance::GetValue(size_t index) const {
 }
 
 TypeInstanceEdit::TypeInstanceEdit(IPrimitiveTypeEdit* primitiveType)
-    : TypeInstance(primitiveType) {
+    : TypeInstance(primitiveType, nullptr) {
 
 }
 
 TypeInstanceEdit::TypeInstanceEdit(ICompositeType* compositeType)
-    : TypeInstance(compositeType) {
+    : TypeInstance(nullptr, compositeType) {
 
 }
 

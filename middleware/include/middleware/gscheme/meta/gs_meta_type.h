@@ -14,16 +14,16 @@ namespace gs {
 class MetaType : Fixed {
 public:
     struct FieldByIndex {
-        size_t index;
+        ptrdiff_t index;
         std::string name;
         std::type_index id;
     };
 
 public:
-    MetaType();
-    ~MetaType();
+    MetaType() = default;
+    ~MetaType() = default;
 
-    void AddFieldByIndex(size_t index, std::string_view name, std::type_index id);
+    void AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type_index id);
 
 private:
     std::vector<FieldByIndex> m_fields;

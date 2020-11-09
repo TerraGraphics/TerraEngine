@@ -8,7 +8,7 @@ namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
 struct PrimitiveTypeProperty {
-    bool (*TCheckFunc)(T);
+    using TCheckFunc = bool(*)(T);
 
 public:
     void Max(T maxValue) {
@@ -19,7 +19,7 @@ public:
         m_minValue = minValue;
     }
 
-    void CheckFunc(const TCheckFunc& func) {
+    void CheckFunc(const TCheckFunc func) {
         m_checkFunc = func;
     }
 
