@@ -13,6 +13,7 @@ namespace cpgf {
 }
 namespace gs {
 
+class TypeInstance;
 class IDraw : Fixed {
 
 // Draw graph
@@ -42,9 +43,14 @@ public:
         Changed = 1,
         ResetToDefault = 2,
     };
-    virtual void OnDrawEditingHeader(const std::string& prettyName) = 0;
-    // need return true if value chanded
+    enum class ButtonsState : uint8_t {
+        None = 0,
+        ResetToDefault = 1,
+    };
+    virtual void OnStartDrawEditing(const std::string& prettyName) = 0;
+    virtual ButtonsState OnDrawEditingEmbeddedPin(const std::string& prettyName, TypeInstance* typeInstance) = 0;
     virtual EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, TypeId typeId, cpgf::GVariant& value) = 0;
+    virtual void OnFinishDrawEditing() = 0;
 };
 
 }

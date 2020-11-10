@@ -498,15 +498,14 @@ void Node::DrawGraph(IDraw* drawer) {
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {
-    drawer->OnDrawEditingHeader(m_class->GetDisplayName());
+    drawer->OnStartDrawEditing(m_class->GetDisplayName());
 
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
-        auto value = m_class->GetValue(i, m_instance);
-        const TypeId drawTypeId = GetPinType(i);
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinDisplayName(i), false, drawTypeId, value);
-        if (result == IDraw::EditResult::Changed) {
-            SetValue(i, drawTypeId, value);
-        } else if (result == IDraw::EditResult::ResetToDefault) {
+        auto* typeInstance = m_class->GetTypeInstanceForEmbedded(i, m_instance);
+        IDraw::ButtonsState buttonsState = drawer->OnDrawEditingEmbeddedPin(m_class->GetPinDisplayName(i), typeInstance);
+        if (m_class->ApplyTypeInstanceForEmbedded(i, m_instance)) {
+            m_changeState = ChangeState::NeedUpdateOutputs;
+        } else if (buttonsState == IDraw::ButtonsState::ResetToDefault) {
             ResetToDefault(i);
         }
     }
@@ -526,6 +525,8 @@ void Node::DrawNodeProperty(IDraw* drawer) {
             ResetToDefault(i);
         }
     }
+
+    drawer->OnFinishDrawGraph();
 }
 
 }

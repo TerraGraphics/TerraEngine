@@ -37,8 +37,10 @@ public:
 
 // Draw node edit GUI
 public:
-    void OnDrawEditingHeader(const std::string& displayName) final;
-    EditResult OnDrawEditingPin(const std::string& displayName, bool disabled, TypeId typeId, cpgf::GVariant& value) final;
+    void OnStartDrawEditing(const std::string& prettyName) final;
+    ButtonsState OnDrawEditingEmbeddedPin(const std::string& prettyName, TypeInstance* typeInstance) final;
+    EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, TypeId typeId, cpgf::GVariant& value) final;
+    void OnFinishDrawEditing() final;
 
 // tmp data for draw frame
 private:
