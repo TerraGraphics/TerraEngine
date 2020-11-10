@@ -17,9 +17,6 @@ public:
     bool IsChanged() const;
     bool IsPrimitiveType() const;
 
-    void Init(const cpgf::GVariant& value);
-    cpgf::GVariant Result() const;
-
     size_t Count() const;
     std::string_view GetName(size_t index) const;
     IPrimitiveType* GetValue(size_t index) const;

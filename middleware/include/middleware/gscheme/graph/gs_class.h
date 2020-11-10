@@ -18,6 +18,8 @@ namespace cpgf {
 
 namespace gs {
 
+class TypeInstance;
+class TypeInstanceEdit;
 class TypesConvertStorage;
 class Class : Fixed {
 public:
@@ -57,6 +59,8 @@ public:
     const cpgf::GVariant& GetDefaultValue(uint8_t pinIndex) const;
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
+    TypeInstance* GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* instance) const;
+
 private:
     void CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const;
 
@@ -65,6 +69,7 @@ private:
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
     TypeId* m_defaultTypeIds = nullptr;
+    TypeInstanceEdit** m_embeddedTypeInstances = nullptr;
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;
