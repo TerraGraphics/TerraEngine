@@ -14,7 +14,7 @@ struct IPrimitiveType {
     virtual ~IPrimitiveType() = default;
 
     virtual std::string ToString() const = 0;
-    virtual bool FromString(const std::string& value) = 0;
+    virtual void FromString(const std::string& value) = 0;
 };
 
 struct IPrimitiveTypeEdit : IPrimitiveType {

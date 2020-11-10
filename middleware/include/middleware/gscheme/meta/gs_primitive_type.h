@@ -6,7 +6,6 @@
 
 #include "fmt/fmt.h"
 #include "cpgf/variant.h"
-#include "core/common/exception.h"
 #include "middleware/gscheme/meta/gs_type_interface.h"
 #include "middleware/gscheme/meta/gs_primitive_type_property.h"
 
@@ -32,10 +31,7 @@ public:
     }
 
     void SetValue(const cpgf::GVariant& value) final {
-        T tmp = cpgf::fromVariant<T>(value);
-        if (!SetIsValid(tmp)) {
-            throw EngineError("gs::PrimitiveType::SetValue: arg {} is not valid by PrimitiveTypeProperty", tmp);
-        }
+        ApplyLimitsAndSet(cpgf::fromVariant<T>(value));
         m_isChanged = false;
     }
 
@@ -52,8 +48,9 @@ public:
             }
 
             uint8_t precision = 0;
+            auto absValue = std::abs(static_cast<double>(m_value));
             for (int i=maxExp; i>0; i--) {
-                if (static_cast<double>(m_value) >= std::pow(10., static_cast<double>(i))) {
+                if (absValue >= std::pow(10., static_cast<double>(i))) {
                     break;
                 }
                 ++precision;
@@ -66,56 +63,46 @@ public:
         return std::to_string(m_value);
     }
 
-    bool FromString(const std::string& value) final {
+    void FromString(const std::string& value) final {
         if constexpr (std::is_same_v<T, float>) {
             try {
                 std::size_t pos;
-                return SetIsValid(std::stof(value, &pos));
+                ApplyLimitsAndSet(std::stof(value, &pos));
             } catch(const std::out_of_range&) {
-                return false;
+                return;
             } catch(const std::invalid_argument&) {
-                return false;
+                return;
             }
         } else if constexpr (std::is_same_v<T, double>) {
             try {
                 std::size_t pos;
-                return SetIsValid(std::stod(value, &pos));
+                ApplyLimitsAndSet(std::stod(value, &pos));
             } catch(const std::out_of_range&) {
-                return false;
+                return;
             } catch(const std::invalid_argument&) {
-                return false;
+                return;
             }
         } else {
             T tmp;
             if(auto [p, ec] = std::from_chars(value.data(), value.data() + value.size(), tmp); ec == std::errc()) {
-                return SetIsValid(tmp);
+                ApplyLimitsAndSet(tmp);
             }
-
-            return false;
         }
     }
 
 private:
-    bool SetIsValid(T value) {
-        bool isValid = false;
+    void ApplyLimitsAndSet(T value) {
+        m_isChanged = true;
 
-        if (m_property->m_checkFunc != nullptr) {
-            isValid = m_property->m_checkFunc(value);
-            if (isValid) {
-                m_value = value;
-                m_isChanged = true;
-            }
-
-            return isValid;
-        }
-
-        isValid = ((m_property->m_minValue <= value) && (value <= m_property->m_maxValue));
-        if (isValid) {
+        if (m_property->m_limitFunc != nullptr) {
+            m_value = m_property->m_limitFunc(value);
+        } else if (m_property->m_minValue > value) {
+            m_value = m_property->m_minValue;
+        } else if (m_property->m_maxValue < value) {
+            m_value = m_property->m_maxValue;
+        } else {
             m_value = value;
-            m_isChanged = true;
         }
-
-        return isValid;
     }
 
 private:
