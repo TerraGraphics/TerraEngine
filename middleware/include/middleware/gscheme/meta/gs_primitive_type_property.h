@@ -11,12 +11,16 @@ struct PrimitiveTypeProperty {
     using TCheckFunc = bool(*)(T);
 
 public:
-    void Max(T maxValue) {
-        m_maxValue = maxValue;
+    void MaxPrecision(uint8_t value) {
+        m_maxPrecision = value;
     }
 
-    void Min(T minValue) {
-        m_minValue = minValue;
+    void Max(T value) {
+        m_maxValue = value;
+    }
+
+    void Min(T value) {
+        m_minValue = value;
     }
 
     void CheckFunc(const TCheckFunc func) {
@@ -24,8 +28,9 @@ public:
     }
 
 public:
+    uint8_t m_maxPrecision = 4;
     T m_maxValue = std::numeric_limits<T>::max();
-    T m_minValue = std::numeric_limits<T>::min();
+    T m_minValue = std::numeric_limits<T>::lowest();
     TCheckFunc m_checkFunc = nullptr;
 };
 

@@ -45,9 +45,25 @@ public:
 
 public:
     std::string ToString() const final {
-        fmt::memory_buffer buffer;
-        fmt::format_to(buffer, "{}", m_value);
-        return buffer.data();
+        if constexpr (std::is_floating_point_v<T>) {
+            int maxExp = 10;
+            if constexpr (std::is_same_v<T, float>) {
+                maxExp = 7;
+            }
+
+            uint8_t precision = 0;
+            for (int i=maxExp; i>0; i--) {
+                if (static_cast<double>(m_value) >= std::pow(10., static_cast<double>(i))) {
+                    break;
+                }
+                ++precision;
+            }
+
+            precision = std::min(precision, m_property->m_maxPrecision);
+            return fmt::format("{:." + std::to_string(precision) + "f}", m_value);
+        }
+
+        return std::to_string(m_value);
     }
 
     bool FromString(const std::string& value) final {
