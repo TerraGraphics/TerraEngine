@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <typeindex>
 #include <string_view>
 
 
@@ -20,6 +21,8 @@ struct IPrimitiveType {
 struct IPrimitiveTypeEdit : IPrimitiveType {
     ~IPrimitiveTypeEdit() override = default;
 
+    virtual std::type_index GetTypeIndex() const = 0;
+
     virtual bool IsChanged() const = 0;
     virtual void SetValue(const cpgf::GVariant& value) = 0;
     virtual cpgf::GVariant GetValue() const = 0;
@@ -27,6 +30,8 @@ struct IPrimitiveTypeEdit : IPrimitiveType {
 
 struct ICompositeType {
     virtual ~ICompositeType() = default;
+
+    virtual std::type_index GetTypeIndex() const = 0;
 
     virtual bool IsChanged() const = 0;
     virtual void SetValue(const cpgf::GVariant& value) = 0;

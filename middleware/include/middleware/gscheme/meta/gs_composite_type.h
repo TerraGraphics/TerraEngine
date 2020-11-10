@@ -36,6 +36,11 @@ public:
     }
 
 public:
+    std::type_index GetTypeIndex() const {
+        T tmp;
+        return std::type_index(typeid(tmp));
+    }
+
     bool IsChanged() const final {
         for(const auto& property: m_properties) {
             if (property.primitiveType->IsChanged()) {

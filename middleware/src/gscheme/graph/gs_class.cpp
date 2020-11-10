@@ -196,6 +196,14 @@ void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
     m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
 }
 
+std::type_index Class::GetTypeIndexForEmbedded(uint8_t pinIndex) const {
+    if (pinIndex >= m_countEmbeddedPins) {
+        throw EngineError("gs::Class::GetTypeIndexForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);
+    }
+
+    return m_embeddedTypeInstances[pinIndex]->GetTypeIndex();
+}
+
 TypeInstance* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* instance) const {
     if (pinIndex >= m_countEmbeddedPins) {
         throw EngineError("gs::Class::GetTypeInstanceForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);

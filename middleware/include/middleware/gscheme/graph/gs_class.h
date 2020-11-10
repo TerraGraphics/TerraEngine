@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <typeindex>
 #include <string_view>
 
 #include "core/common/ctor.h"
@@ -59,6 +60,7 @@ public:
     const cpgf::GVariant& GetDefaultValue(uint8_t pinIndex) const;
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
+    std::type_index GetTypeIndexForEmbedded(uint8_t pinIndex) const;
     TypeInstance* GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* instance) const;
     // return IsChanged
     bool ApplyTypeInstanceForEmbedded(uint8_t pinIndex, void* instance) const;

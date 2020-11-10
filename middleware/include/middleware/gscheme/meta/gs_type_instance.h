@@ -1,5 +1,6 @@
 #pragma once
 
+#include <typeindex>
 
 #include "core/common/ctor.h"
 #include "middleware/gscheme/meta/gs_type_interface.h"
@@ -16,6 +17,7 @@ protected:
 public:
     bool IsChanged() const;
     bool IsPrimitiveType() const;
+    std::type_index GetTypeIndex() const;
 
     size_t Count() const;
     std::string_view GetName(size_t index) const;
