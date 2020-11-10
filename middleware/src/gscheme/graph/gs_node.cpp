@@ -86,7 +86,7 @@ void Node::Create(Class* cls) {
         m_pins[i].cachedValue = m_class->GetValue(i, m_instance);
         if (HasUniversalBit(m_pins[i].typeId)) {
             m_pins[i].id |= isUniversalTypeFlag;
-            m_pins[i].typeId = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(m_pins[i].cachedValue));
+            m_pins[i].typeId = GetUniversalTypeId(cpgf::fromVariant<UniversalType>(m_pins[i].cachedValue));
         }
     }
 }
@@ -313,7 +313,7 @@ uint16_t Node::UpdateState(Node* nodes) {
                 pin.cachedValue = m_class->GetValue(outputPinIndex, m_instance);
                 isChanged = true;
                 if (HasUniversalBit(pin.typeId)) {
-                    pin.typeId = GetUniversalTypeId(cpgf::fromVariant<gs::UniversalType>(pin.cachedValue));
+                    pin.typeId = GetUniversalTypeId(cpgf::fromVariant<UniversalType>(pin.cachedValue));
                 }
                 RemoveResultError();
             } catch(const std::exception& e) {

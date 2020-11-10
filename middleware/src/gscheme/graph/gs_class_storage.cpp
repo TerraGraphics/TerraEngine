@@ -34,7 +34,7 @@ ClassStorage::Impl::Impl() {
         if (metaClass == nullptr) {
             continue;
         }
-        if (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr) {
+        if (metaClass->getAnnotation(MetaNames::CLASS) != nullptr) {
             ++m_countClasses;
         }
     }
@@ -43,7 +43,7 @@ ClassStorage::Impl::Impl() {
     m_classes = new Class[m_countClasses];
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
-        if ((metaClass != nullptr) && (metaClass->getAnnotation(gs::MetaNames::CLASS) != nullptr)) {
+        if ((metaClass != nullptr) && (metaClass->getAnnotation(MetaNames::CLASS) != nullptr)) {
             m_classes[index].Create(metaClass, &m_typesConvertStorage);
             m_classesIndex[m_classes[index].GetName()] = index;
             ++index;

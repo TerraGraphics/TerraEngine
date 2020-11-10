@@ -143,7 +143,7 @@ void Editor::DrawNodeProperty() {
 }
 
 void Editor::DrawNewNodeMenu(float x, float y) {
-    uint16_t newNodeClassIndex = gs::INVALID_CLASS_INDEX;
+    uint16_t newNodeClassIndex = INVALID_CLASS_INDEX;
     if (ImGui::BeginMenu("All")) {
         uint16_t index = 0;
         for(const auto* it = m_classStorage->ClassesBegin(); it != m_classStorage->ClassesEnd(); ++it, ++index) {
@@ -154,7 +154,7 @@ void Editor::DrawNewNodeMenu(float x, float y) {
         }
         ImGui::EndMenu();
     }
-    if (newNodeClassIndex != gs::INVALID_CLASS_INDEX) {
+    if (newNodeClassIndex != INVALID_CLASS_INDEX) {
         auto nodeId =  m_graph->AddNode(newNodeClassIndex);
         ne::SetNodePosition(ne::NodeId(nodeId), ImVec2(x, y));
     }
