@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <algorithm>
+#include <typeindex>
 
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"
@@ -306,24 +307,30 @@ void Graph::RemoveLink(uint64_t linkId) {
     m_nodes[srcNodeIndex].DecLinkForOutputPin(srcPinIndex);
 }
 
-void Graph::SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId) {
+void Graph::SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, const std::type_info& typeInfo) {
+    uint8_t pinIndex = 0;
+    uint16_t nodeIndex = 0;
+    auto typeIndex = std::type_index(typeInfo);
     try {
         CheckIsValidEmbeddedPinId(pinId);
+        pinIndex = PinIndexFromPinId(pinId);
+        nodeIndex = NodeIndexFromPinId(pinId);
+        m_nodes[nodeIndex].CheckIsValidEmbeddedPinType(pinIndex, typeIndex);
     } catch(const EngineError& e) {
         throw EngineError("gs::Graph::SetEmbeddedValue: wrong pinId, {}", e.what());
     }
 
-    m_nodes[NodeIndexFromPinId(pinId)].SetValue(PinIndexFromPinId(pinId), typeId, value);
+    m_nodes[nodeIndex].SetEmbeddedValue(pinIndex, value);
 }
 
-void Graph::SetEmbeddedValueImpl(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value, TypeId typeId) {
+void Graph::SetEmbeddedValueImpl(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value, const std::type_info& typeInfo) {
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
         throw EngineError("gs::Graph::SetEmbeddedValue: wrong nodeId, {}", e.what());
     }
 
-    SetEmbeddedValueImpl(m_nodes[nodeId - 1].GetEmbeddedPinId(embeddedPinOffset), value, typeId);
+    SetEmbeddedValueImpl(m_nodes[nodeId - 1].GetEmbeddedPinId(embeddedPinOffset), value, typeInfo);
 }
 
 void Graph::SetInputValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId) {

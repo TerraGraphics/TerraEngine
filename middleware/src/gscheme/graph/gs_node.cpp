@@ -145,6 +145,15 @@ void Node::CheckIsValidEmbeddedPinId(uint32_t pinId) const {
     }
 }
 
+void Node::CheckIsValidEmbeddedPinType(uint8_t pinIndex, std::type_index typeIndex) const {
+    auto pinTypeIndex = m_class->GetTypeIndexForEmbedded(pinIndex);
+    if (pinTypeIndex != typeIndex) {
+        throw EngineError("for pinIndex = {} type \"{}\" not applicable, type \"{}\" required", pinIndex,
+            meta::DemangleTypeName(typeIndex.name()),
+            meta::DemangleTypeName(pinTypeIndex.name()));
+    }
+}
+
 uint32_t Node::GetInputPinId(uint8_t offset) const noexcept {
     if (offset >= InputPinsCount()) {
         return 0;
@@ -350,6 +359,11 @@ void Node::SetValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value
     } else {
         m_class->SetValue(pinIndex, m_instance, value);
     }
+    m_changeState = ChangeState::NeedUpdateOutputs;
+}
+
+void Node::SetEmbeddedValue(uint8_t pinIndex, const cpgf::GVariant& value) {
+    m_class->SetValue(pinIndex, m_instance, value);
     m_changeState = ChangeState::NeedUpdateOutputs;
 }
 

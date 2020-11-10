@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstdint>
+#include <typeindex>
 
 #include "cpgf/variant.h"
 #include "core/common/ctor.h"
@@ -84,6 +85,7 @@ public:
     const Pin* EmbeddedPinsBegin() const noexcept { return &m_pins[EmbeddedPinsBeginIndex()]; }
     const Pin* EmbeddedPinsEnd() const noexcept { return &m_pins[EmbeddedPinsEndIndex()]; }
     void CheckIsValidEmbeddedPinId(uint32_t pinId) const;
+    void CheckIsValidEmbeddedPinType(uint8_t pinIndex, std::type_index typeIndex) const;
 
     uint32_t GetInputPinId(uint8_t offset) const noexcept;
     bool IsInputPinIndex(uint8_t index) const noexcept { return ((InputPinsBeginIndex() >= index) && (index < InputPinsEndIndex())); }
@@ -123,6 +125,7 @@ public:
 public:
     const cpgf::GVariant& GetValue(uint8_t pinIndex) const;
     void SetValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value);
+    void SetEmbeddedValue(uint8_t pinIndex, const cpgf::GVariant& value);
     void ResetToDefault(uint8_t pinIndex);
 
 public:

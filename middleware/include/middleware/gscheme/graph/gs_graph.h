@@ -30,13 +30,13 @@ public:
     const cpgf::GVariant& GetOutputValue(uint32_t pinId) const;
     const cpgf::GVariant& GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const;
 
-    template<typename T, typename Enable = std::enable_if_t<IsEmbedded<T>>>
+    template<typename T>
         void SetEmbeddedValue(uint32_t pinId, const T& value) {
-            SetEmbeddedValueImpl(pinId, cpgf::copyVariantFromCopyable(value), GetTypeId<T>());
+            SetEmbeddedValueImpl(pinId, cpgf::createVariant<T>(value, true), typeid(value));
         }
-    template<typename T, typename Enable = std::enable_if_t<IsEmbedded<T>>>
+    template<typename T>
         void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const T& value) {
-            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::copyVariantFromCopyable(value), GetTypeId<T>());
+            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::createVariant<T>(value, true), typeid(value));
         }
     template<typename T, typename Enable = std::enable_if_t<IsInput<T>>>
         void SetInputValue(uint32_t pinId, const T& value) {
@@ -62,8 +62,8 @@ public:
     void RemoveLink(uint64_t linkId);
 
 private:
-    void SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId);
-    void SetEmbeddedValueImpl(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value, TypeId typeId);
+    void SetEmbeddedValueImpl(uint32_t pinId, const cpgf::GVariant& value, const std::type_info& info);
+    void SetEmbeddedValueImpl(uint16_t nodeId, uint8_t embeddedPinOffset, const cpgf::GVariant& value, const std::type_info& info);
     void SetInputValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeId typeId);
     void SetInputValueImpl(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value, TypeId typeId);
 
