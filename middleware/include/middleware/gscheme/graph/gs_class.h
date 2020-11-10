@@ -60,6 +60,8 @@ public:
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
     TypeInstance* GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* instance) const;
+    // return IsChanged
+    bool ApplyTypeInstanceForEmbedded(uint8_t pinIndex, void* instance) const;
 
 private:
     void CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const;

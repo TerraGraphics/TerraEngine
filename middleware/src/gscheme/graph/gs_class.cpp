@@ -206,6 +206,20 @@ TypeInstance* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* in
     return static_cast<TypeInstance*>(typeInstance);
 }
 
+bool Class::ApplyTypeInstanceForEmbedded(uint8_t pinIndex, void* instance) const {
+    if (pinIndex >= m_countEmbeddedPins) {
+        throw EngineError("gs::Class::ApplyTypeInstanceForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);
+    }
+
+    auto* typeInstance = m_embeddedTypeInstances[pinIndex];
+    if (typeInstance->IsChanged()) {
+        SetValue(pinIndex, instance, typeInstance->Result());
+        return true;
+    }
+
+    return false;
+}
+
 void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const {
     if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
         throw EngineError("double create");
