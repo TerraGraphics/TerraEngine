@@ -14,31 +14,9 @@
 
 namespace {
 
-TEST(GSTypesConvertStorage, ToUint64) {
-    gs::TypesConvertStorage storage;
-
-    ASSERT_CONVERT_FALSE(Uint8, Uint64);
-    ASSERT_CONVERT_FALSE(Int16, Uint64);
-    ASSERT_CONVERT_FALSE(Uint32, Uint64);
-    ASSERT_CONVERT_FALSE(Int64, Uint64);
-    ASSERT_CONVERT_FALSE(Uint64, Uint64);
-    ASSERT_CONVERT_FALSE(Float, Uint64);
-    ASSERT_CONVERT_FALSE(Vector2f, Uint64);
-    ASSERT_CONVERT_FALSE(Generator2d, Uint64);
-
-    ASSERT_CONVERT_FALSE(UniversalFloat, Uint64);
-    ASSERT_CONVERT_FALSE(UniversalVector2f, Uint64);
-    ASSERT_CONVERT_FALSE(UniversalGenerator2d, Uint64);
-
-    ASSERT_CONVERT_FALSE(UniversalType, Uint64);
-
-    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Uint8, gs::TypeId::Uint64));
-}
-
 TEST(GSTypesConvertStorage, ToFloat) {
     gs::TypesConvertStorage storage;
 
-    ASSERT_CONVERT_FALSE(Uint8, Float);
     ASSERT_CONVERT_TRUE(Float, Float);
     ASSERT_CONVERT_TRUE(Vector2f, Float);
     ASSERT_CONVERT_FALSE(Generator2d, Float);
@@ -49,7 +27,7 @@ TEST(GSTypesConvertStorage, ToFloat) {
 
     ASSERT_CONVERT_FALSE(UniversalType, Float);
 
-    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Uint8, gs::TypeId::Float));
+    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::UniversalType, gs::TypeId::Float));
 
     auto floatToFloat = storage.GetConvertFunc(gs::TypeId::Float, gs::TypeId::Float);
     ASSERT_FLOAT_EQ(1.f, cpgf::fromVariant<float>(floatToFloat(1.f)));
@@ -69,7 +47,6 @@ TEST(GSTypesConvertStorage, ToFloat) {
 TEST(GSTypesConvertStorage, ToVector3f) {
     gs::TypesConvertStorage storage;
 
-    ASSERT_CONVERT_FALSE(Uint16, Vector3f);
     ASSERT_CONVERT_TRUE(Float, Vector3f);
     ASSERT_CONVERT_FALSE(Vector2f, Vector3f);
     ASSERT_CONVERT_TRUE(Vector3f, Vector3f);
@@ -82,7 +59,7 @@ TEST(GSTypesConvertStorage, ToVector3f) {
 
     ASSERT_CONVERT_FALSE(UniversalType, Vector3f);
 
-    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Uint16, gs::TypeId::Vector3f));
+    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::UniversalType, gs::TypeId::Vector3f));
 
     auto floatToVector3f = storage.GetConvertFunc(gs::TypeId::Float, gs::TypeId::Vector3f);
     ASSERT_EQ(Eigen::Vector3f(1.f, 1.f, 1.f), cpgf::fromVariant<Eigen::Vector3f>(floatToVector3f(1.f)));
@@ -102,7 +79,6 @@ TEST(GSTypesConvertStorage, ToVector3f) {
 TEST(GSTypesConvertStorage, ToGenerator3d) {
     gs::TypesConvertStorage storage;
 
-    ASSERT_CONVERT_FALSE(Int32, Generator3d);
     ASSERT_CONVERT_TRUE(Float, Generator3d);
     ASSERT_CONVERT_TRUE(Vector4f, Generator3d);
     ASSERT_CONVERT_FALSE(Generator2d, Generator3d);
@@ -115,7 +91,7 @@ TEST(GSTypesConvertStorage, ToGenerator3d) {
 
     ASSERT_CONVERT_FALSE(UniversalType, Generator3d);
 
-    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Int32, gs::TypeId::Generator3d));
+    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::UniversalType, gs::TypeId::Generator3d));
 
     auto floatToGenerator3d = storage.GetConvertFunc(gs::TypeId::Float, gs::TypeId::Generator3d);
     ASSERT_DOUBLE_EQ(1., cpgf::fromVariant<math::Generator3D>(floatToGenerator3d(1.f))(1.2, 2.3, 3.4));
@@ -143,7 +119,6 @@ TEST(GSTypesConvertStorage, ToGenerator3d) {
 TEST(GSTypesConvertStorage, ToUniversalType) {
     gs::TypesConvertStorage storage;
 
-    ASSERT_CONVERT_FALSE(Int64, UniversalType);
     ASSERT_CONVERT_TRUE(Float, UniversalType);
     ASSERT_CONVERT_TRUE(Vector4f, UniversalType);
     ASSERT_CONVERT_TRUE(Generator2d, UniversalType);
@@ -154,7 +129,7 @@ TEST(GSTypesConvertStorage, ToUniversalType) {
 
     ASSERT_CONVERT_FALSE(UniversalType, UniversalType);
 
-    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::Int64, gs::TypeId::UniversalType));
+    ASSERT_ANY_THROW(storage.GetConvertFunc(gs::TypeId::UniversalType, gs::TypeId::UniversalType));
 
     auto floatToUniversalType = storage.GetConvertFunc(gs::TypeId::Float, gs::TypeId::UniversalType);
     ASSERT_FLOAT_EQ(1.f,
