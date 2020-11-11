@@ -15,6 +15,34 @@
 
 namespace gs {
 
+static void DrawPropertyHeader(std::string_view label) {
+    gui::LabelStyle labelStyle;
+    labelStyle.margin.left = 5;
+    gui::Label(label, labelStyle);
+    ImGui::NextColumn();
+    ImGui::NextColumn();
+}
+
+static void DrawPropertyRow(std::string_view propertyName, std::string_view labelText, IPrimitiveType* value, bool withOffset) {
+    gui::LabelStyle labelStyle;
+    labelStyle.margin.left = withOffset ? 20 : 5;
+    gui::Label(labelText, labelStyle);
+    ImGui::NextColumn();
+
+    gui::NumberFieldStyle fieldStyle;
+    fieldStyle.margin.left = 5;
+    fieldStyle.margin.right = 5;
+    fieldStyle.width = 1000;
+    fieldStyle.isInteger = value->IsIntegerType();
+    std::string textValue = value->ToString();
+
+    std::string id = fmt::format("node.property.{}.{}", propertyName, labelText);
+    if (gui::NumberField(id, textValue, fieldStyle)) {
+        value->FromString(textValue);
+    }
+    ImGui::NextColumn();
+}
+
 Draw::Draw(TexturePtr& texBackground)
     : m_texBackground(texBackground->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE)) {
 
@@ -68,11 +96,26 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
 
 void Draw::OnStartDrawEditing(const std::string& prettyName) {
     gui::Text(prettyName + ":");
+    ImGui::Columns(2, "gs_node_property", true);
 }
 
+IDraw::ButtonsState Draw::OnDrawEditingEmbeddedPin(const std::string& prettyName, TypeInstance* typeInstance) {
+    if (typeInstance->IsPrimitiveType()) {
+        DrawPropertyRow("", prettyName, typeInstance->GetValue(0), false);
+        return IDraw::ButtonsState::None;
+    }
+
+    DrawPropertyHeader(prettyName);
+    for (size_t i=0; i!=typeInstance->Count(); ++i) {
+        DrawPropertyRow(prettyName, typeInstance->GetName(i), typeInstance->GetValue(i), true);
+    }
+
+    return IDraw::ButtonsState::None;
 }
 
 IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, TypeId typeId, cpgf::GVariant& value) {
+    ImGui::Columns(1);
+
     bool isChanded = false;
 
     if (typeId == TypeId::Float) {
