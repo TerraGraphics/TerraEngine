@@ -7,7 +7,6 @@
 #include "fmt/fmt.h"
 #include "cpgf/variant.h"
 #include "middleware/gscheme/meta/gs_type_interface.h"
-#include "middleware/gscheme/meta/gs_primitive_type_property.h"
 
 
 namespace gs {
@@ -15,14 +14,27 @@ namespace gs {
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
 class PrimitiveType final : public IPrimitiveTypeEdit {
 public:
-    PrimitiveType() = delete;
-    PrimitiveType(PrimitiveTypeProperty<T>* property)
-        : m_property(property) {
+    using TLimitFunc = T(*)(T);
 
+public:
+    PrimitiveType() = default;
+    ~PrimitiveType() final = default;
+
+public:
+    void MaxPrecision(uint8_t value) {
+        m_maxPrecision = value;
     }
 
-    ~PrimitiveType() final {
-        delete m_property;
+    void Max(T value) {
+        m_maxValue = value;
+    }
+
+    void Min(T value) {
+        m_minValue = value;
+    }
+
+    void LimitFunc(const TLimitFunc func) {
+        m_limitFunc = func;
     }
 
 public:
@@ -56,7 +68,7 @@ public:
                 ++precision;
             }
 
-            precision = std::min(precision, m_property->m_maxPrecision);
+            precision = std::min(precision, m_maxPrecision);
             return fmt::format("{:." + std::to_string(precision) + "f}", m_value);
         }
 
@@ -94,12 +106,12 @@ private:
     void ApplyLimitsAndSet(T value) {
         m_isChanged = true;
 
-        if (m_property->m_limitFunc != nullptr) {
-            m_value = m_property->m_limitFunc(value);
-        } else if (m_property->m_minValue > value) {
-            m_value = m_property->m_minValue;
-        } else if (m_property->m_maxValue < value) {
-            m_value = m_property->m_maxValue;
+        if (m_limitFunc != nullptr) {
+            m_value = m_limitFunc(value);
+        } else if (m_minValue > value) {
+            m_value = m_minValue;
+        } else if (m_maxValue < value) {
+            m_value = m_maxValue;
         } else {
             m_value = value;
         }
@@ -107,8 +119,11 @@ private:
 
 private:
     T m_value = 0;
+    T m_maxValue = std::numeric_limits<T>::max();
+    T m_minValue = std::numeric_limits<T>::lowest();
     bool m_isChanged = false;
-    PrimitiveTypeProperty<T>* m_property = nullptr;
+    uint8_t m_maxPrecision = 4;
+    TLimitFunc m_limitFunc = nullptr;
 };
 
 }
