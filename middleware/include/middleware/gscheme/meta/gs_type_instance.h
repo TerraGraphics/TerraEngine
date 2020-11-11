@@ -15,8 +15,8 @@ protected:
     ~TypeInstance();
 
 public:
-    bool IsChanged() const;
     bool IsPrimitiveType() const;
+    bool IsEnabledUI() const;
     std::type_index GetTypeIndex() const;
 
     size_t Count() const;

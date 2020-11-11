@@ -36,6 +36,15 @@ public:
     }
 
 public:
+    void DisableUI() {
+        m_enabledUI = false;
+    }
+
+public:
+    bool IsEnabledUI() const noexcept final {
+        return m_enabledUI;
+    }
+
     std::type_index GetTypeIndex() const {
         T tmp;
         return std::type_index(typeid(tmp));
@@ -88,6 +97,7 @@ public:
     }
 
 private:
+    bool m_enabledUI = true;
     std::vector<CompositeTypeItem> m_properties;
 };
 

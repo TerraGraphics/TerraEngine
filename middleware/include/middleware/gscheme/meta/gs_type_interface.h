@@ -14,6 +14,9 @@ namespace gs {
 struct IPrimitiveType {
     virtual ~IPrimitiveType() = default;
 
+    virtual bool IsIntegerType() const noexcept = 0;
+    virtual bool IsFloatingType() const noexcept = 0;
+
     virtual std::string ToString() const = 0;
     virtual void FromString(const std::string& value) = 0;
 };
@@ -21,6 +24,7 @@ struct IPrimitiveType {
 struct IPrimitiveTypeEdit : IPrimitiveType {
     ~IPrimitiveTypeEdit() override = default;
 
+    virtual bool IsEnabledUI() const noexcept = 0;
     virtual std::type_index GetTypeIndex() const = 0;
 
     virtual bool IsChanged() const = 0;
@@ -31,6 +35,7 @@ struct IPrimitiveTypeEdit : IPrimitiveType {
 struct ICompositeType {
     virtual ~ICompositeType() = default;
 
+    virtual bool IsEnabledUI() const noexcept = 0;
     virtual std::type_index GetTypeIndex() const = 0;
 
     virtual bool IsChanged() const = 0;

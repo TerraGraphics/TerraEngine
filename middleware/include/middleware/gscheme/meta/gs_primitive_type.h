@@ -21,10 +21,6 @@ public:
     ~PrimitiveType() final = default;
 
 public:
-    void MaxPrecision(uint8_t value) {
-        m_maxPrecision = value;
-    }
-
     void Max(T value) {
         m_maxValue = value;
     }
@@ -37,7 +33,19 @@ public:
         m_limitFunc = func;
     }
 
+    void MaxPrecision(uint8_t value) {
+        m_maxPrecision = value;
+    }
+
+    void DisableUI() {
+        m_enabledUI = false;
+    }
+
 public:
+    bool IsEnabledUI() const noexcept final {
+        return m_enabledUI;
+    }
+
     std::type_index GetTypeIndex() const {
         return std::type_index(typeid(m_value));
     }
@@ -56,6 +64,14 @@ public:
     }
 
 public:
+    bool IsIntegerType() const noexcept final {
+        return std::is_integral_v<T>;
+    }
+
+    bool IsFloatingType() const noexcept final {
+        return std::is_floating_point_v<T>;
+    }
+
     std::string ToString() const final {
         if constexpr (std::is_floating_point_v<T>) {
             int maxExp = 10;
@@ -119,8 +135,10 @@ private:
     T m_value = 0;
     T m_maxValue = std::numeric_limits<T>::max();
     T m_minValue = std::numeric_limits<T>::lowest();
-    bool m_isChanged = false;
+
     uint8_t m_maxPrecision = 4;
+    bool m_enabledUI = true;
+    bool m_isChanged = false;
     TLimitFunc m_limitFunc = nullptr;
 };
 
