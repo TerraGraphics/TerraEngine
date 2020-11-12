@@ -98,7 +98,7 @@ const cpgf::GVariant& Graph::GetOutputValue(uint32_t pinId) const {
         throw EngineError("gs::Graph::GetOutputValue: wrong pinId, {}", e.what());
     }
 
-    return m_nodes[NodeIndexFromPinId(pinId)].GetValue(PinIndexFromPinId(pinId));
+    return m_nodes[NodeIndexFromPinId(pinId)].GetOutputValue(PinIndexFromPinId(pinId));
 }
 
 const cpgf::GVariant& Graph::GetOutputValue(uint16_t nodeId, uint8_t outputPinOffset) const {
@@ -340,7 +340,7 @@ void Graph::SetInputValueImpl(uint32_t pinId, const cpgf::GVariant& value, TypeI
         throw EngineError("gs::Graph::SetInputValue: wrong pinId, {}", e.what());
     }
 
-    m_nodes[NodeIndexFromPinId(pinId)].SetValue(PinIndexFromPinId(pinId), typeId, value);
+    m_nodes[NodeIndexFromPinId(pinId)].SetInputValue(PinIndexFromPinId(pinId), typeId, value);
 }
 
 void Graph::SetInputValueImpl(uint16_t nodeId, uint8_t inputPinOffset, const cpgf::GVariant& value, TypeId typeId) {

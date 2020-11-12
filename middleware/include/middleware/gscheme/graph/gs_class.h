@@ -43,11 +43,13 @@ public:
     uint8_t InputPinsCount() const noexcept { return m_countInputPins; }
     uint8_t OutputPinsCount() const noexcept { return m_countOutputPins; }
 
-    // valid only for embedded and input pins, for output type returns decl type
+    // valid only input pins, for output pins returns decl type, for embedded pins returns Unknown
     TypeId GetDefaultPinTypeId(uint8_t pinIndex) const noexcept;
-    // valid for all pins
+    // valid for input and output pins, for embedded pins returns Unknown
     TypeId GetDeclPinTypeId(uint8_t pinIndex) const noexcept;
+    // valid for input and output pins
     bool CanConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
+    // valid for input and output pins
     // will return nullptr if convertation is not possible
     ConvertFunc GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
 

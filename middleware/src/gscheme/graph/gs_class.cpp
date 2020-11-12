@@ -88,7 +88,7 @@ void Class::Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage*
         auto pinType = pinAnnotation->getValue(MetaNames::PIN_TYPE)->toObject<PinTypes>();
         switch (pinType) {
         case PinTypes::EMBEDDED:
-            m_defaultTypeIds[embeddedIndex] = typeId;
+            m_defaultTypeIds[embeddedIndex] = TypeId::Unknown;
             m_embeddedTypeInstances[embeddedIndex] = pinAnnotation->getValue(MetaNames::TYPE_INSTANCE)->toObject<TypeInstanceEdit*>();
             m_props[embeddedIndex++] = prop;
             break;
@@ -145,10 +145,16 @@ TypeId Class::GetDefaultPinTypeId(uint8_t pinIndex) const noexcept {
 }
 
 bool Class::CanConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const {
+    if (pinIndex < m_countEmbeddedPins) {
+        throw EngineError("gs::Class::CanConvertToDefaultType: invalid pinIndex = {}, need not embedded index", pinIndex);
+    }
     return m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex));
 }
 
 ConvertFunc Class::GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const {
+    if (pinIndex < m_countEmbeddedPins) {
+        throw EngineError("gs::Class::CanConvertToDefaultType: invalid pinIndex = {}, need not embedded index", pinIndex);
+    }
     if (m_typesConvertStorage->CanConvert(typeId, GetDeclPinTypeId(pinIndex))) {
         return m_typesConvertStorage->GetConvertFunc(typeId, GetDeclPinTypeId(pinIndex));
     }
@@ -324,7 +330,7 @@ void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<
         const auto& typeInfo = prop->getItemType().getBaseType().getStdTypeInfo();
         bool isValidType = true;
         if (propPinType == PinTypes::EMBEDDED) {
-            isValidType = IsValidEmbeddedPinType(typeInfo);
+            isValidType = true;
         } else if (propPinType == PinTypes::INPUT) {
             isValidType = IsValidInputPinType(typeInfo);
         } else if (propPinType == PinTypes::OUTPUT) {

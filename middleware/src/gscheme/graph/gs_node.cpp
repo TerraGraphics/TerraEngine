@@ -306,7 +306,7 @@ uint16_t Node::UpdateState(Node* nodes) {
 
         if ((m_changeState == ChangeState::NeedUpdateInputs) || (nodes[attachedNodeIndex].m_changeState != ChangeState::NotChanged)) {
             isChanged = true;
-            const cpgf::GVariant& value = nodes[attachedNodeIndex].GetValue(PinIndexFromPinId(attachedPinId));
+            const cpgf::GVariant& value = nodes[attachedNodeIndex].GetOutputValue(PinIndexFromPinId(attachedPinId));
             if (pin.convertFunc != nullptr) {
                 m_class->SetValue(inputPinIndex, m_instance, pin.convertFunc(value));
             } else {
@@ -336,11 +336,11 @@ uint16_t Node::UpdateState(Node* nodes) {
     return m_nextIndex;
 }
 
-const cpgf::GVariant& Node::GetValue(uint8_t pinIndex) const {
+const cpgf::GVariant& Node::GetOutputValue(uint8_t pinIndex) const {
     return m_pins[pinIndex].cachedValue;
 }
 
-void Node::SetValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value) {
+void Node::SetInputValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value) {
     if (IsConnectedPin(pinIndex)) {
         throw EngineError("gs::Node::SetValue: trying to change the connected pin (pinId = {})", m_pins[pinIndex].id);
     }
@@ -534,7 +534,7 @@ void Node::DrawNodeProperty(IDraw* drawer) {
         const TypeId drawTypeId = ToBaseTypeId(GetPinType(i));
         auto result = drawer->OnDrawEditingPin(m_class->GetPinDisplayName(i), IsConnectedPin(i), drawTypeId, value);
         if (result == IDraw::EditResult::Changed) {
-            SetValue(i, drawTypeId, value);
+            SetInputValue(i, drawTypeId, value);
         } else if (result == IDraw::EditResult::ResetToDefault) {
             ResetToDefault(i);
         }

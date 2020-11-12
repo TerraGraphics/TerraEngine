@@ -7,7 +7,10 @@
 #include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
 #include "core/common/exception.h"
+#include "middleware/imgui/field.h"
+#include "middleware/imgui/label.h"
 #include "middleware/imgui/widgets.h"
+#include "middleware/gscheme/meta/gs_type_instance.h"
 
 
 namespace gs {
@@ -63,30 +66,25 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::OnDrawEditingHeader(const std::string& displayName) {
-    gui::Text(displayName + ":");
+void Draw::OnStartDrawEditing(const std::string& prettyName) {
+    gui::Text(prettyName + ":");
 }
 
-IDraw::EditResult Draw::OnDrawEditingPin(const std::string& displayName, bool /* disabled */, TypeId typeId, cpgf::GVariant& value) {
+}
+
+IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, TypeId typeId, cpgf::GVariant& value) {
     bool isChanded = false;
 
     if (typeId == TypeId::Float) {
         auto tmp = cpgf::fromVariant<float>(value);
-        isChanded |= gui::InputScalar<float>(displayName.c_str(), tmp, 0.0001f, "{:.4f}");
-
-        if (isChanded) {
-            value = cpgf::copyVariantFromCopyable(tmp);
-        }
-    } else if (typeId == TypeId::Double) {
-        auto tmp = cpgf::fromVariant<double>(value);
-        isChanded |= gui::InputScalar<double>(displayName.c_str(), tmp, 0.0001, "{:.4f}");
+        isChanded |= gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}");
 
         if (isChanded) {
             value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else if (typeId == TypeId::Vector2f) {
-        if (!displayName.empty()) {
-            gui::Text(displayName + ":");
+        if (!prettyName.empty()) {
+            gui::Text(prettyName + ":");
         }
         auto tmp = cpgf::fromVariant<Eigen::Vector2f>(value);
 
@@ -97,8 +95,8 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& displayName, bool /*
             value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else if (typeId == TypeId::Vector3f) {
-        if (!displayName.empty()) {
-            gui::Text(displayName + ":");
+        if (!prettyName.empty()) {
+            gui::Text(prettyName + ":");
         }
         auto tmp = cpgf::fromVariant<Eigen::Vector3f>(value);
 
@@ -110,8 +108,8 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& displayName, bool /*
             value = cpgf::copyVariantFromCopyable(tmp);
         }
     } else if (typeId == TypeId::Vector4f) {
-        if (!displayName.empty()) {
-            gui::Text(displayName + ":");
+        if (!prettyName.empty()) {
+            gui::Text(prettyName + ":");
         }
         auto tmp = cpgf::fromVariant<Eigen::Vector4f>(value);
 
@@ -128,6 +126,10 @@ IDraw::EditResult Draw::OnDrawEditingPin(const std::string& displayName, bool /*
     }
 
     return (isChanded ? IDraw::EditResult::Changed : IDraw::EditResult::NotChanged);
+}
+
+void Draw::OnFinishDrawEditing() {
+
 }
 
 }

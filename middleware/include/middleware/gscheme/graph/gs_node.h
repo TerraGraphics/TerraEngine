@@ -28,7 +28,8 @@ struct Pin : Fixed {
     ConvertFunc convertFunc = nullptr;
 
     // for output pins: real type
-    // for others pins: attached type
+    // for input pins: attached type
+    // for embedded pins: Unknown
     TypeId typeId = TypeId::Unknown;
 
     // cachedValue for output pin
@@ -70,7 +71,7 @@ public:
     // works for all pins type
     bool IsConnectedPin(uint8_t pinIndex) const noexcept { return (m_pins[pinIndex].linksCount != 0); }
 
-    // works for all pins type
+    // valid for input and putput pins type
     TypeId GetPinType(uint8_t pinIndex) const noexcept { return m_pins[pinIndex].typeId; }
 
     // valid for input pins
@@ -123,8 +124,8 @@ public:
     uint16_t UpdateState(Node* nodes);
 
 public:
-    const cpgf::GVariant& GetValue(uint8_t pinIndex) const;
-    void SetValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value);
+    const cpgf::GVariant& GetOutputValue(uint8_t pinIndex) const;
+    void SetInputValue(uint8_t pinIndex, TypeId typeId, const cpgf::GVariant& value);
     void SetEmbeddedValue(uint8_t pinIndex, const cpgf::GVariant& value);
     void ResetToDefault(uint8_t pinIndex);
 
