@@ -35,22 +35,22 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
 
     DefineClass<FuncConstant>("Constant", "Constant")
         .AddOutputPin("Result", &FuncConstant::Result, "Result")
-        .AddEmbeddedPin("Value", &FuncConstant::GetValue, &FuncConstant::SetValue, "Value")
+        .AddEmbeddedPinPrimitive("Value", &FuncConstant::GetValue, &FuncConstant::SetValue, "Value")
     ;
 
     DefineClass<FuncConstant2>("Constant2", "Constant2")
         .AddOutputPin("Result", &FuncConstant2::Result, "Result")
-        .AddEmbeddedPin("Value", &FuncConstant2::GetValue, &FuncConstant2::SetValue, "Value")
+        .AddEmbeddedPinArray("Value", &FuncConstant2::GetValue, &FuncConstant2::SetValue, "Value")
     ;
 
     DefineClass<FuncConstant3>("Constant3", "Constant3")
         .AddOutputPin("Result", &FuncConstant3::Result, "Result")
-        .AddEmbeddedPin("Value", &FuncConstant3::GetValue, &FuncConstant3::SetValue, "Value")
+        .AddEmbeddedPinArray("Value", &FuncConstant3::GetValue, &FuncConstant3::SetValue, "Value")
     ;
 
     DefineClass<FuncConstant4>("Constant4", "Constant4")
         .AddOutputPin("Result", &FuncConstant4::Result, "Result")
-        .AddEmbeddedPin("Value", &FuncConstant4::GetValue, &FuncConstant4::SetValue, "Value")
+        .AddEmbeddedPinArray("Value", &FuncConstant4::GetValue, &FuncConstant4::SetValue, "Value")
     ;
 
     DefineBaseClass<FuncBinaryUniversal>("Meta")

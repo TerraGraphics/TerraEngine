@@ -12,16 +12,16 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
 
     DefineClass<ChessCubes>("ChessCube", "Noise chess cubes")
         .AddOutputPin("Result", &ChessCubes::Result, "Result")
-        .AddEmbeddedPin("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
+        .AddEmbeddedPinPrimitive("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
     ;
 
     DefineClass<Spheres>("Spheres", "Noise spheres")
         .AddOutputPin("Result", &Spheres::Result, "Result")
-        .AddEmbeddedPin("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
+        .AddEmbeddedPinPrimitive("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
     ;
 
     DefineClass<Cylinders>("Cylinders", "Noise cylinders")
         .AddOutputPin("Result", &Cylinders::Result, "Result")
-        .AddEmbeddedPin("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
+        .AddEmbeddedPinPrimitive("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
     ;
 }

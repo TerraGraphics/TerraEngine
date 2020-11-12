@@ -3,7 +3,12 @@
 
 namespace gs::detail {
 
-DefineClassBase::DefineClassBase(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass) {
+DefineClass::DefineClass(cpgf::GMetaClass* metaClass)
+    : m_metaClass(metaClass) {
+
+}
+
+DefineClass::DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass) {
     m_metaClass = const_cast<cpgf::GMetaClass *>(cpgf::getGlobalMetaClass()->doGetClass(metaClass->getName().c_str()));
     if(m_metaClass == nullptr) {
         m_metaClass = metaClass;
@@ -22,7 +27,7 @@ DefineClassBase::DefineClassBase(cpgf::GMetaClass* metaClass, cpgf::GMetaConstru
     }
 }
 
-void DefineClassBase::RegisterPin(cpgf::GMetaProperty* property, gs::PinTypes pinType, const char* displayName, gs::TypeInstanceEdit* typeInstance) {
+void DefineClass::RegisterPin(cpgf::GMetaProperty* property, gs::PinTypes pinType, const char* displayName, gs::TypeInstanceEdit* typeInstance) {
     cpgf::GMetaProperty* prop = m_metaClass->addProperty(property);
     cpgf::GMetaAnnotation *annotation = m_accessor.AddItemAnnotation(prop, new cpgf::GMetaAnnotation(MetaNames::PIN));
     annotation->addItem(MetaNames::PIN_TYPE, pinType);

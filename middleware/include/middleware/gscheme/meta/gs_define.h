@@ -42,24 +42,52 @@ GMetaClass* createMetaClass(const char* className) {
 namespace gs {
 namespace detail {
 
-class DefineClassBase {
-protected:
-	DefineClassBase() = delete;
-	DefineClassBase(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass);
+template<typename T, typename TBase>
+class DefinePrimitiveTypePin : public TBase {
+public:
+	DefinePrimitiveTypePin() = delete;
+	DefinePrimitiveTypePin(cpgf::GMetaClass* metaClass, PrimitiveType<T>* primitiveType)
+		: TBase(metaClass)
+		, m_primitiveType(primitiveType) {
 
-protected:
-	void RegisterPin(cpgf::GMetaProperty* property, PinTypes pinType, const char* displayName, TypeInstanceEdit* typeInstance);
+	}
 
-protected:
-	cpgf::GMetaClass* m_metaClass = nullptr;
-	cpgf::GDefineMetaCommon<void, void> m_accessor;
+	DefinePrimitiveTypePin& Max(T value) {
+		m_primitiveType->Max(value);
+		return *this;
+    }
+
+    DefinePrimitiveTypePin& Min(T value) {
+		m_primitiveType->Min(value);
+		return *this;
+    }
+
+    DefinePrimitiveTypePin& LimitFunc(const typename PrimitiveType<T>::TLimitFunc func) {
+		m_primitiveType->TLimitFunc(func);
+		return *this;
+    }
+
+    DefinePrimitiveTypePin& MaxPrecision(uint8_t value) {
+		m_primitiveType->MaxPrecision(value);
+		return *this;
+    }
+
+    DefinePrimitiveTypePin& DisableUI() {
+		m_primitiveType->DisableUI();
+		return *this;
+    }
+
+private:
+	PrimitiveType<T>* m_primitiveType;
 };
 
-class DefineClass final : public DefineClassBase {
+class DefineClass {
+protected:
+	DefineClass(cpgf::GMetaClass* metaClass);
+
 public:
-	DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass)
-		: gs::detail::DefineClassBase(metaClass, ctor, displayName, isBaseClass) {
-	}
+	DefineClass() = delete;
+	DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass);
 
 public:
 	template <
@@ -67,36 +95,28 @@ public:
 		typename Setter,
 		typename T = typename meta::MemberFuncReturnType<Getter>::type,
 		std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0
-	>
-	DefineClass& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		>
+	DefinePrimitiveTypePin<T, DefineClass> AddEmbeddedPinPrimitive(
+		const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+
 		auto* primitiveType = new PrimitiveType<T>();
-    	auto* typeInstance = new TypeInstanceEdit(primitiveType);
+		auto* typeInstance = new TypeInstanceEdit(primitiveType);
 		auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
 		RegisterPin(metaPropoperty, PinTypes::EMBEDDED, displayName, typeInstance);
 
-		return *this;
+		return DefinePrimitiveTypePin<T, DefineClass>(m_metaClass, primitiveType);
 	}
 
 	template <
 		typename Getter,
 		typename Setter,
 		typename T = typename meta::MemberFuncReturnType<Getter>::type,
-		std::enable_if_t<!std::is_integral_v<T> && !std::is_floating_point_v<T>, int> = 0
-	>
-	DefineClass& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
-		using TCompositeType = CompositeType<T>;
-		using TProperty = typename TCompositeType::CompositeTypeItem;
-		using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
+		std::enable_if_t<meta::IsArrayLikeV<T>, int> = 0
+		>
+	DefineClass& AddEmbeddedPinArray(
+		const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
 
-		MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
-
-		std::vector<TProperty> properties;
-		for (const auto& metaField: metaType->GetFields()) {
-			properties.push_back(TProperty{metaField.index, metaField.name, new TPrimitiveType()});
-		}
-
-		auto* compositeType = new TCompositeType(properties);
-		auto* typeInstance = new TypeInstanceEdit(compositeType);
+		auto* typeInstance = CreateCompositeTypeInstance<T>();
 		auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
 		RegisterPin(metaPropoperty, PinTypes::EMBEDDED, displayName, typeInstance);
 
@@ -118,6 +138,30 @@ public:
 
 		return *this;
 	}
+
+private:
+	void RegisterPin(cpgf::GMetaProperty* property, PinTypes pinType, const char* displayName, TypeInstanceEdit* typeInstance);
+
+	template<typename T>
+	TypeInstanceEdit* CreateCompositeTypeInstance() {
+		using TCompositeType = CompositeType<T>;
+		using TProperty = typename TCompositeType::CompositeTypeItem;
+		using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
+
+		MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
+
+		std::vector<TProperty> properties;
+		for (const auto& metaField: metaType->GetFields()) {
+			properties.push_back(TProperty{metaField.index, metaField.name, new TPrimitiveType()});
+		}
+
+		auto* compositeType = new TCompositeType(properties);
+		return new TypeInstanceEdit(compositeType);
+	}
+
+private:
+	cpgf::GMetaClass* m_metaClass = nullptr;
+	cpgf::GDefineMetaCommon<void, void> m_accessor;
 };
 
 class DefineArrayType : Fixed {
