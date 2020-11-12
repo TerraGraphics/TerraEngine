@@ -4,8 +4,8 @@
 #include <charconv>
 #include <type_traits>
 
-#include "fmt/fmt.h"
 #include "cpgf/variant.h"
+#include "middleware/gscheme/meta/gs_format.h"
 #include "middleware/gscheme/meta/gs_type_interface.h"
 
 
@@ -63,20 +63,14 @@ public:
                 maxExp = 7;
             }
 
-            uint8_t precision = 0;
-            auto absValue = std::abs(static_cast<double>(m_value));
-            for (int i=maxExp; i>0; i--) {
-                if (absValue >= std::pow(10., static_cast<double>(i))) {
-                    break;
-                }
-                ++precision;
-            }
-
-            precision = std::min(precision, m_maxPrecision);
-            return fmt::format("{:." + std::to_string(precision) + "f}", m_value);
+            return gs::ToString(static_cast<double>(m_value), maxExp, m_maxPrecision);
         }
 
-        return std::to_string(m_value);
+        if (m_value >= 0) {
+            return gs::ToString(static_cast<uint64_t>(m_value));
+        }
+
+        return gs::ToString(static_cast<int64_t>(m_value));
     }
 
     void FromString(const std::string& value) final {
@@ -85,18 +79,18 @@ public:
                 std::size_t pos;
                 ApplyLimitsAndSet(std::stof(value, &pos));
             } catch(const std::out_of_range&) {
-                return;
+                // pass
             } catch(const std::invalid_argument&) {
-                return;
+                // pass
             }
         } else if constexpr (std::is_same_v<T, double>) {
             try {
                 std::size_t pos;
                 ApplyLimitsAndSet(std::stod(value, &pos));
             } catch(const std::out_of_range&) {
-                return;
+                // pass
             } catch(const std::invalid_argument&) {
-                return;
+                // pass
             }
         } else {
             T tmp;
