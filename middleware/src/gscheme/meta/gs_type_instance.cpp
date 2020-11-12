@@ -2,11 +2,12 @@
 
 #include "cpgf/variant.h"
 #include "core/common/exception.h"
+#include "middleware/gscheme/meta/gs_composite_type.h"
 
 
 namespace gs {
 
-TypeInstance::TypeInstance(IPrimitiveTypeEdit* primitiveType, ICompositeType* compositeType)
+TypeInstance::TypeInstance(IPrimitiveTypeEdit* primitiveType, CompositeType* compositeType)
     : m_primitiveType(primitiveType)
     , m_compositeType(compositeType) {
 
@@ -72,7 +73,7 @@ TypeInstanceEdit::TypeInstanceEdit(IPrimitiveTypeEdit* primitiveType)
 
 }
 
-TypeInstanceEdit::TypeInstanceEdit(ICompositeType* compositeType)
+TypeInstanceEdit::TypeInstanceEdit(CompositeType* compositeType)
     : TypeInstance(nullptr, compositeType) {
 
 }

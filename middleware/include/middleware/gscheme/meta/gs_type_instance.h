@@ -8,10 +8,11 @@
 
 namespace gs {
 
+class CompositeType;
 class TypeInstance : Fixed {
 protected:
     TypeInstance() = delete;
-    TypeInstance(IPrimitiveTypeEdit* primitiveType, ICompositeType* compositeType);
+    TypeInstance(IPrimitiveTypeEdit* primitiveType, CompositeType* compositeType);
     ~TypeInstance();
 
 public:
@@ -25,13 +26,13 @@ public:
 
 protected:
     IPrimitiveTypeEdit* m_primitiveType = nullptr;
-    ICompositeType* m_compositeType = nullptr;
+    CompositeType* m_compositeType = nullptr;
 };
 
 class TypeInstanceEdit : public TypeInstance {
 public:
     TypeInstanceEdit(IPrimitiveTypeEdit* primitiveType);
-    TypeInstanceEdit(ICompositeType* compositeType);
+    TypeInstanceEdit(CompositeType* compositeType);
 
     bool IsChanged() const;
 

@@ -144,7 +144,7 @@ private:
 
 	template<typename T>
 	TypeInstanceEdit* CreateCompositeTypeInstance() {
-		using TCompositeType = CompositeType<T>;
+		using TCompositeType = CompositeTypeT<T>;
 		using TProperty = typename TCompositeType::CompositeTypeItem;
 		using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
 
