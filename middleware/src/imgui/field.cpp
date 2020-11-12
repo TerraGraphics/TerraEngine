@@ -51,12 +51,34 @@ struct BackupState {
     const ImVec1 groupOffset;
 };
 
+struct FieldData {
+    bool integerFilter = false;
+    bool floatingFilter = false;
+    std::string* text = nullptr;
+};
+
 static int InputTextExCallback(ImGuiInputTextCallbackData* data) {
+    FieldData* fieldData = reinterpret_cast<FieldData*>(data->UserData);
+
     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
-        std::string* str = reinterpret_cast<std::string*>(data->UserData);
-        IM_ASSERT(data->Buf == str->c_str());
-        str->resize(static_cast<size_t>(data->BufTextLen));
-        data->Buf = str->data();
+        IM_ASSERT(data->Buf == fieldData->text->c_str());
+        fieldData->text->resize(static_cast<size_t>(data->BufTextLen));
+        data->Buf = fieldData->text->data();
+    } else if (data->EventFlag == ImGuiInputTextFlags_CallbackCharFilter) {
+        if ((!fieldData->integerFilter) && (!fieldData->floatingFilter)) {
+            return 0;
+        }
+
+        auto ch = data->EventChar;
+        bool isValidForInteger = ((ch >= '0' && ch <= '9') || (ch == '-') || (ch == '+'));
+
+        if (fieldData->integerFilter) {
+            return isValidForInteger ? 0 : 1;
+        }
+
+        ImGuiContext& g = *GImGui;
+        bool isDecimalPoint = (static_cast<decltype(ch)>(g.PlatformLocaleDecimalPoint) == ch);
+        return (isValidForInteger || isDecimalPoint) ? 0 : 1;
     }
 
     return 0;
@@ -66,7 +88,7 @@ static int InputTextExCallback(ImGuiInputTextCallbackData* data) {
 
 namespace gui {
 
-bool TextField(std::string_view strId, std::string& text, const FieldStyle& style, math::RectF* outWidgetRect) {
+bool TextFieldImpl(std::string_view strId, FieldData* fieldData, const FieldStyle* style, math::RectF* outWidgetRect) {
     bool changed = false;
 
     ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
@@ -75,24 +97,27 @@ bool TextField(std::string_view strId, std::string& text, const FieldStyle& styl
     }
 
     ImGuiContext& g = *GImGui;
-    const auto drawSize = math::SizeF(style.width, g.FontSize + g.Style.FramePadding.y * 2.0f);
+    const auto drawSize = math::SizeF(style->width, g.FontSize + g.Style.FramePadding.y * 2.0f);
 
     math::RectF fullRect;
     math::RectF drawRect;
     math::RectF widgetRect;
-    PlaceWidgetCalc(&style, drawSize, &drawRect, &widgetRect, &fullRect);
+    PlaceWidgetCalc(style, drawSize, &drawRect, &widgetRect, &fullRect);
     if (outWidgetRect != nullptr) {
         *outWidgetRect = widgetRect;
     }
 
     const char label[] = "";
     const char* hint = nullptr;
-    char* buf = text.data();
-    int bufSize = static_cast<int>(text.capacity()) + 1;
+    char* buf = fieldData->text->data();
+    int bufSize = static_cast<int>(fieldData->text->capacity()) + 1;
     const ImVec2 sizeArg = ImVec2(0, 0);
     ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
+    if (fieldData->integerFilter || fieldData->floatingFilter) {
+        flags |= ImGuiInputTextFlags_CallbackCharFilter;
+    }
     ImGuiInputTextCallback callback = InputTextExCallback;
-    void* callbackUserData = reinterpret_cast<void*>(&text);
+    void* callbackUserData = reinterpret_cast<void*>(fieldData);
 
     const auto backupState = BackupState(window->DC);
 
@@ -112,9 +137,25 @@ bool TextField(std::string_view strId, std::string& text, const FieldStyle& styl
         return changed;
     }
 
-    DrawTooltip(&style);
+    DrawTooltip(style);
 
     return changed;
+}
+
+bool TextField(std::string_view strId, std::string& text, const FieldStyle& style, math::RectF* outWidgetRect) {
+    auto fieldData = FieldData();
+    fieldData.text = &text;
+
+    return TextFieldImpl(strId, &fieldData, &style, outWidgetRect);
+}
+
+bool NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style, math::RectF* outWidgetRect) {
+    auto fieldData = FieldData();
+    fieldData.integerFilter = style.isInteger;
+    fieldData.floatingFilter = !style.isInteger;
+    fieldData.text = &text;
+
+    return TextFieldImpl(strId, &fieldData, &style, outWidgetRect);
 }
 
 } // end namespace gui
