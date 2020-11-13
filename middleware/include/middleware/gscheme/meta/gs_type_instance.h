@@ -21,7 +21,6 @@ public:
     std::type_index GetTypeIndex() const;
 
     size_t Count() const;
-    std::string_view GetName(size_t index) const;
     IPrimitiveType* GetValue(size_t index) const;
 
 protected:

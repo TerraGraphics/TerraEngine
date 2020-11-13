@@ -152,7 +152,9 @@ private:
 
 		std::vector<TProperty> properties;
 		for (const auto& metaField: metaType->GetFields()) {
-			properties.push_back(TProperty{metaField.index, metaField.name, new TPrimitiveType()});
+			auto* primitiveType = new TPrimitiveType();
+			primitiveType->SetPrettyName(metaField.name);
+			properties.push_back(TProperty{metaField.index, primitiveType});
 		}
 
 		auto* compositeType = new TCompositeType(properties);

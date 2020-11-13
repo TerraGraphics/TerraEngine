@@ -43,14 +43,6 @@ size_t CompositeType::CountItem() const {
     return m_properties.size();
 }
 
-std::string_view CompositeType::GetItemName(size_t index) const {
-    if (index >= m_properties.size()) {
-        throw EngineError("gs::CompositeType::GetItemName: index {} is not valid", index);
-    }
-
-    return m_properties[index].name;
-}
-
 IPrimitiveType* CompositeType::GetItemValue(size_t index) const {
     if (index >= m_properties.size()) {
         throw EngineError("gs::CompositeType::GetItemValue: index {} is not valid", index);

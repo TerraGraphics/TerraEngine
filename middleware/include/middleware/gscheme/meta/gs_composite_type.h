@@ -13,7 +13,6 @@ class CompositeType {
 public:
     struct CompositeTypeItem {
         ptrdiff_t index;
-        std::string name;
         IPrimitiveTypeEdit* primitiveType;
     };
 
@@ -32,7 +31,6 @@ public:
     virtual cpgf::GVariant GetValue() const = 0;
 
     size_t CountItem() const;
-    std::string_view GetItemName(size_t index) const;
     IPrimitiveType* GetItemValue(size_t index) const;
 
 protected:

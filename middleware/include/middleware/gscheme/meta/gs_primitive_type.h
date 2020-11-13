@@ -37,6 +37,10 @@ public:
         m_maxPrecision = value;
     }
 
+    void SetPrettyName(std::string_view prettyNama) {
+        m_prettyNama = prettyNama;
+    }
+
     void DisableUI() {
         m_enabledUI = false;
     }
@@ -70,6 +74,10 @@ public:
 
     bool IsFloatingType() const noexcept final {
         return std::is_floating_point_v<T>;
+    }
+
+    std::string_view GetPrettyName() const final {
+        return m_prettyNama;
     }
 
     std::string ToString() const final {
@@ -139,6 +147,7 @@ private:
     uint8_t m_maxPrecision = 4;
     bool m_enabledUI = true;
     bool m_isChanged = false;
+    std::string m_prettyNama;
     TLimitFunc m_limitFunc = nullptr;
 };
 

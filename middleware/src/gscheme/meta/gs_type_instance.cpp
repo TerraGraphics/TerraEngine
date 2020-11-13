@@ -49,18 +49,10 @@ size_t TypeInstance::Count() const {
     return m_compositeType->CountItem();
 }
 
-std::string_view TypeInstance::GetName(size_t index) const {
-    if (IsPrimitiveType()) {
-        throw EngineError("gs::TypeInstance::GetName: no field name specified for primitive type");
-    }
-
-    return m_compositeType->GetItemName(index);
-}
-
 IPrimitiveType* TypeInstance::GetValue(size_t index) const {
     if (IsPrimitiveType()) {
         if (index != 0) {
-            throw EngineError("gs::TypeInstance::GetName: no field with index higher than 0 is defined for primitive type");
+            throw EngineError("gs::TypeInstance::GetValue: no field with index higher than 0 is defined for primitive type");
         }
         return static_cast<IPrimitiveType*>(m_primitiveType);
     }

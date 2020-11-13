@@ -107,7 +107,8 @@ IDraw::ButtonsState Draw::OnDrawEditingEmbeddedPin(const std::string& prettyName
 
     DrawPropertyHeader(prettyName);
     for (size_t i=0; i!=typeInstance->Count(); ++i) {
-        DrawPropertyRow(prettyName, typeInstance->GetName(i), typeInstance->GetValue(i), true);
+        gs::IPrimitiveType* value = typeInstance->GetValue(i);
+        DrawPropertyRow(prettyName, value->GetPrettyName(), value, true);
     }
 
     return IDraw::ButtonsState::None;
