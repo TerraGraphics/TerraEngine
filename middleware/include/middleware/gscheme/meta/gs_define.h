@@ -15,26 +15,50 @@
 
 namespace cpgf {
 
-template <typename ClassType, typename DerivedType = void>
-class GDefineMetaCommon {
+template <typename ClassType, typename DerivedType> class GDefineMetaCommon;
+
+template <>
+class GDefineMetaCommon<void, void> {
 public:
-	GDefineMetaCommon(meta_internal::GMetaSuperList* superList, const char* className, const char* displayName, bool isBaseClass) {
-		m_metaClass = const_cast<GMetaClass *>(getGlobalMetaClass()->doGetClass(className));
-		if(m_metaClass == nullptr) {
-			ClassType* classType = nullptr;
-			const auto policy = GMetaPolicyDefault();
-			m_metaClass = new GMetaClass(classType, superList, className, nullptr, policy);
-			getGlobalMetaClass()->addClass(m_metaClass);
-		}
+	GMetaAnnotation* AddItemAnnotation(GMetaItem* item, GMetaAnnotation* annotation) {
+		return item->addItemAnnotation(annotation);
+	}
+};
 
-		if (!isBaseClass) {
-			m_metaClass->addConstructor(GMetaConstructor::newConstructor<ClassType, void* ()>(GMetaPolicyDefault()));
+template <typename ClassType, typename BaseType0>
+GMetaClass* createMetaClass(const char* className) {
+	auto* superList = new meta_internal::GMetaSuperList();
+	superList->add<ClassType, BaseType0>();
+	// superList->add<ClassType, BaseType1>();
+	// ...
 
-			GMetaAnnotation *annotation = m_metaClass->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::CLASS));
-			if (displayName != nullptr) {
-				annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
-			}
-		}
+	ClassType* classType = nullptr;
+	const auto policy = GMetaPolicyDefault();
+	return new GMetaClass(classType, superList, className, nullptr, policy);
+}
+
+}
+
+namespace gs {
+namespace detail {
+
+class DefineClassBase {
+protected:
+	DefineClassBase() = delete;
+	DefineClassBase(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass);
+
+protected:
+	void RegisterPin(cpgf::GMetaProperty* property, PinTypes pinType, const char* displayName, TypeInstanceEdit* typeInstance);
+
+protected:
+	cpgf::GMetaClass* m_metaClass = nullptr;
+	cpgf::GDefineMetaCommon<void, void> m_accessor;
+};
+
+class DefineClass final : public DefineClassBase {
+public:
+	DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass)
+		: gs::detail::DefineClassBase(metaClass, ctor, displayName, isBaseClass) {
 	}
 
 public:
@@ -44,10 +68,13 @@ public:
 		typename T = typename meta::MemberFuncReturnType<Getter>::type,
 		std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0
 	>
-	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
-		auto* primitiveType = new gs::PrimitiveType<T>();
-    	auto* typeInstance = new gs::TypeInstanceEdit(primitiveType);
-		return AddEmbeddedPinImpl(name, getter, setter, typeInstance, displayName);
+	DefineClass& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		auto* primitiveType = new PrimitiveType<T>();
+    	auto* typeInstance = new TypeInstanceEdit(primitiveType);
+		auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
+		RegisterPin(metaPropoperty, PinTypes::EMBEDDED, displayName, typeInstance);
+
+		return *this;
 	}
 
 	template <
@@ -56,12 +83,12 @@ public:
 		typename T = typename meta::MemberFuncReturnType<Getter>::type,
 		std::enable_if_t<!std::is_integral_v<T> && !std::is_floating_point_v<T>, int> = 0
 	>
-	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
-		using TCompositeType = gs::CompositeType<T>;
+	DefineClass& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		using TCompositeType = CompositeType<T>;
 		using TProperty = typename TCompositeType::CompositeTypeItem;
-		using TPrimitiveType = gs::PrimitiveType<typename TCompositeType::FieldType>;
+		using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
 
-		gs::MetaType* metaType = gs::MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
+		MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
 
 		std::vector<TProperty> properties;
 		for (const auto& metaField: metaType->GetFields()) {
@@ -69,65 +96,36 @@ public:
 		}
 
 		auto* compositeType = new TCompositeType(properties);
-		auto* typeInstance = new gs::TypeInstanceEdit(compositeType);
-		return AddEmbeddedPinImpl(name, getter, setter, typeInstance, displayName);
-	}
-
-private:
-	template <typename Getter, typename Setter>
-	GDefineMetaCommon& AddEmbeddedPinImpl(const char* name, const Getter& getter, const Setter& setter, gs::TypeInstanceEdit* typeInstance, const char* displayName = nullptr) {
-		GMetaProperty* prop = m_metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));
-		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
-		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::EMBEDDED);
-		annotation->addItem(gs::MetaNames::TYPE_INSTANCE, typeInstance);
-		if (displayName != nullptr) {
-			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
-		}
+		auto* typeInstance = new TypeInstanceEdit(compositeType);
+		auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
+		RegisterPin(metaPropoperty, PinTypes::EMBEDDED, displayName, typeInstance);
 
 		return *this;
 	}
 
-public:
 	template <typename Getter, typename Setter>
-	GDefineMetaCommon& AddInputPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
-		GMetaProperty* prop = m_metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));
-		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
-		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::INPUT);
-		if (displayName != nullptr) {
-			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
-		}
+	DefineClass& AddInputPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
+		RegisterPin(metaPropoperty, PinTypes::INPUT, displayName, nullptr);
 
 		return *this;
 	}
 
 	template <typename Getter>
-	GDefineMetaCommon& AddOutputPin(const char* name, const Getter& getter, const char* displayName = nullptr) {
-		GMetaProperty* prop = m_metaClass->addProperty(new GMetaProperty(name, getter, 0, GMetaPolicyDefault()));
-		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
-		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::OUTPUT);
-		if (displayName != nullptr) {
-			annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
-		}
+	DefineClass& AddOutputPin(const char* name, const Getter& getter, const char* displayName = nullptr) {
+		auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, 0, cpgf::GMetaPolicyDefault());
+		RegisterPin(metaPropoperty, PinTypes::OUTPUT, displayName, nullptr);
 
 		return *this;
 	}
-
-protected:
-	GMetaClass* m_metaClass = nullptr;
 };
-
-} // namespace cpgf
-
-namespace gs {
-
-namespace detail {
 
 class DefineArrayType : Fixed {
 public:
 	DefineArrayType() = delete;
-	DefineArrayType(MetaType* metaType)
-		: m_metaType(metaType) {
-
+	DefineArrayType(std::type_index typeIndex) {
+		m_metaType = new MetaType();
+		MetaStorage::getInstance().AddType(typeIndex, m_metaType);
 	}
 
 	template<typename T>
@@ -141,36 +139,22 @@ private:
 	MetaType* m_metaType = nullptr;
 };
 
-template <typename ClassType, typename BaseType0>
-cpgf::meta_internal::GMetaSuperList* createSuperList() {
-	cpgf::meta_internal::GMetaSuperList* superList = new cpgf::meta_internal::GMetaSuperList();
-	superList->add<ClassType, BaseType0>();
-	// superList->add<ClassType, BaseType1>();
-	// ...
-
-	return superList;
-}
-
 }
 
 template<typename T, std::enable_if_t<meta::IsArrayLikeV<T>, int> = 0>
 detail::DefineArrayType DefineType() {
-	auto* metaType = new MetaType();
-	MetaStorage::getInstance().AddType(std::type_index(typeid(T)), metaType);
-
-	return detail::DefineArrayType(metaType);
+	return detail::DefineArrayType(std::type_index(typeid(T)));
 }
 
 template <typename ClassType, typename BaseType0 = void>
-cpgf::GDefineMetaCommon<ClassType> DefineBaseClass(const char* className) {
-	auto* superList = detail::createSuperList<ClassType, BaseType0>();
-	return cpgf::GDefineMetaCommon<ClassType>(superList, className, nullptr, true);
+detail::DefineClass DefineBaseClass(const char* className) {
+	return detail::DefineClass(cpgf::createMetaClass<ClassType, BaseType0>(className), nullptr, nullptr, true);
 }
 
 template <typename ClassType, typename BaseType0 = void>
-cpgf::GDefineMetaCommon<ClassType> DefineClass(const char* className, const char* displayName = nullptr) {
-	auto* superList = detail::createSuperList<ClassType, BaseType0>();
-	return cpgf::GDefineMetaCommon<ClassType>(superList, className, displayName, false);
+detail::DefineClass DefineClass(const char* className, const char* displayName = nullptr) {
+	auto* ctor = cpgf::GMetaConstructor::newConstructor<ClassType, void* ()>(cpgf::GMetaPolicyDefault());
+	return detail::DefineClass(cpgf::createMetaClass<ClassType, BaseType0>(className), ctor, displayName, false);
 }
 
 } // namespace gs
