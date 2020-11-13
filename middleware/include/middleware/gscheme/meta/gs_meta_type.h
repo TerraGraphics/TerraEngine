@@ -24,6 +24,7 @@ public:
     ~MetaType() = default;
 
     void AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type_index id);
+    const std::vector<FieldByIndex>& GetFields() const { return m_fields; }
 
 private:
     std::vector<FieldByIndex> m_fields;

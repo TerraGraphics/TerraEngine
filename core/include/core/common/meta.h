@@ -61,6 +61,11 @@ template <typename R, class Class>
         using type = std::remove_cvref_t<R>;
     };
 
+template <typename R, class Class>
+    struct MemberFuncReturnType<R (Class::*)(void) const> {
+        using type = std::remove_cvref_t<R>;
+    };
+
 template<auto... Args>
     struct IsSorted : std::true_type {};
 

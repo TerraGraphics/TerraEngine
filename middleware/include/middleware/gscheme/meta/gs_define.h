@@ -9,6 +9,8 @@
 #include "middleware/gscheme/meta/gs_meta_consts.h"
 #include "middleware/gscheme/meta/gs_meta_storage.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
+#include "middleware/gscheme/meta/gs_composite_type.h"
+#include "middleware/gscheme/meta/gs_primitive_type.h"
 
 
 namespace cpgf {
@@ -35,8 +37,45 @@ public:
 		}
 	}
 
+public:
+	template <
+		typename Getter,
+		typename Setter,
+		typename T = typename meta::MemberFuncReturnType<Getter>::type,
+		std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0
+	>
+	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		auto* primitiveType = new gs::PrimitiveType<T>();
+    	auto* typeInstance = new gs::TypeInstanceEdit(primitiveType);
+		return AddEmbeddedPinImpl(name, getter, setter, typeInstance, displayName);
+	}
+
+	template <
+		typename Getter,
+		typename Setter,
+		typename T = typename meta::MemberFuncReturnType<Getter>::type,
+		std::enable_if_t<!std::is_integral_v<T> && !std::is_floating_point_v<T>, int> = 0
+	>
+	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+		using TCompositeType = gs::CompositeType<T>;
+		using TProperty = typename TCompositeType::CompositeTypeItem;
+		using TPrimitiveType = gs::PrimitiveType<typename TCompositeType::FieldType>;
+
+		gs::MetaType* metaType = gs::MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
+
+		std::vector<TProperty> properties;
+		for (const auto& metaField: metaType->GetFields()) {
+			properties.push_back(TProperty{metaField.index, metaField.name, new TPrimitiveType()});
+		}
+
+		auto* compositeType = new TCompositeType(properties);
+		auto* typeInstance = new gs::TypeInstanceEdit(compositeType);
+		return AddEmbeddedPinImpl(name, getter, setter, typeInstance, displayName);
+	}
+
+private:
 	template <typename Getter, typename Setter>
-	GDefineMetaCommon& AddEmbeddedPin(const char* name, const Getter& getter, const Setter& setter, gs::TypeInstanceEdit* typeInstance, const char* displayName = nullptr) {
+	GDefineMetaCommon& AddEmbeddedPinImpl(const char* name, const Getter& getter, const Setter& setter, gs::TypeInstanceEdit* typeInstance, const char* displayName = nullptr) {
 		GMetaProperty* prop = m_metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));
 		GMetaAnnotation *annotation = prop->addItemAnnotation(new GMetaAnnotation(gs::MetaNames::PIN));
 		annotation->addItem(gs::MetaNames::PIN_TYPE, gs::PinTypes::EMBEDDED);
@@ -48,6 +87,7 @@ public:
 		return *this;
 	}
 
+public:
 	template <typename Getter, typename Setter>
 	GDefineMetaCommon& AddInputPin(const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
 		GMetaProperty* prop = m_metaClass->addProperty(new GMetaProperty(name, getter, setter, GMetaPolicyDefault()));

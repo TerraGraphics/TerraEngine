@@ -47,7 +47,7 @@ public:
     }
 
     std::type_index GetTypeIndex() const {
-        return std::type_index(typeid(m_value));
+        return std::type_index(typeid(T));
     }
 
     bool IsChanged() const final {

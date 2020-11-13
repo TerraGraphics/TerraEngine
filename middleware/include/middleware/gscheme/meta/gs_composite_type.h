@@ -16,6 +16,8 @@ namespace gs {
 template<typename T, typename ItemType = std::remove_cvref_t<decltype(std::declval<T>()[0])>, typename Enable = std::enable_if_t<std::is_integral_v<ItemType> || std::is_floating_point_v<ItemType>>>
 class CompositeType final : public ICompositeType {
 public:
+    using FieldType = ItemType;
+
     struct CompositeTypeItem {
         ptrdiff_t index;
         std::string name;
@@ -46,8 +48,7 @@ public:
     }
 
     std::type_index GetTypeIndex() const {
-        T tmp;
-        return std::type_index(typeid(tmp));
+        return std::type_index(typeid(T));
     }
 
     bool IsChanged() const final {

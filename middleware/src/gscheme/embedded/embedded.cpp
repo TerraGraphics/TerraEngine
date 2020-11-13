@@ -9,10 +9,7 @@
 #include "middleware/gscheme/embedded/func_min.h"
 #include "middleware/gscheme/embedded/func_max.h"
 #include "middleware/gscheme/embedded/func_base.h"
-#include "middleware/gscheme/meta/gs_primitive_type.h"
 #include "middleware/gscheme/embedded/func_constant.h"
-#include "middleware/gscheme/meta/gs_composite_type.h"
-#include "middleware/gscheme/meta/gs_primitive_type_property.h"
 
 
 REFLECTION_IMPL(gs::EmbeddedFuncs) {
@@ -35,7 +32,6 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         .FieldByIndex<float>(2, "z")
         .FieldByIndex<float>(3, "w")
     ;
-
 
     DefineClass<FuncConstant>("Constant", "Constant")
         .AddOutputPin("Result", &FuncConstant::Result, "Result")

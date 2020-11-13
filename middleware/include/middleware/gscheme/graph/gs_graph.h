@@ -32,11 +32,11 @@ public:
 
     template<typename T>
         void SetEmbeddedValue(uint32_t pinId, const T& value) {
-            SetEmbeddedValueImpl(pinId, cpgf::createVariant<T>(value, true), typeid(value));
+            SetEmbeddedValueImpl(pinId, cpgf::createVariant<T>(value, true), typeid(T));
         }
     template<typename T>
         void SetEmbeddedValue(uint16_t nodeId, uint8_t embeddedPinOffset, const T& value) {
-            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::createVariant<T>(value, true), typeid(value));
+            SetEmbeddedValueImpl(nodeId, embeddedPinOffset, cpgf::createVariant<T>(value, true), typeid(T));
         }
     template<typename T, typename Enable = std::enable_if_t<IsInput<T>>>
         void SetInputValue(uint32_t pinId, const T& value) {
