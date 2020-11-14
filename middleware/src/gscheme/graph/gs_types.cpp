@@ -43,6 +43,22 @@ TypeId GetUniversalTypeId(const UniversalType& v) {
     }, v);
 }
 
+TypeId GetBeginBaseType() {
+    return TypeId::Float;
+}
+
+TypeId GetEndBaseType() {
+    return TypeId::Unknown;
+}
+
+TypeId GetNextBaseType(TypeId typeId) {
+    if ((typeId == TypeId::Unknown) || (typeId >= TypeId::Generator3d)) {
+        return TypeId::Unknown;
+    }
+
+    return static_cast<TypeId>(static_cast<uint8_t>(typeId) + 1);
+}
+
 bool IsValidInputPinType(const std::type_info& typeInfo) {
     auto typeId = GetTypeId(typeInfo);
     return (

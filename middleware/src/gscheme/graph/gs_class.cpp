@@ -16,13 +16,16 @@
 
 namespace gs {
 
-static_assert(sizeof(Class) == 56, "sizeof(Class) == 56 bytes");
+static_assert(sizeof(Class) == 64, "sizeof(Class) == 64 bytes");
 
 Class::~Class() {
     if (m_defaultTypeIds != nullptr) {
         delete[] m_defaultTypeIds;
     }
     if (m_embeddedTypeInstances != nullptr) {
+        for (int i=0; i!=m_countEmbeddedPins; ++i) {
+            delete m_embeddedTypeInstances[i];
+        }
         delete[] m_embeddedTypeInstances;
     }
     if (m_props != nullptr) {
@@ -35,7 +38,10 @@ Class::~Class() {
     m_typesConvertStorage = nullptr;
 }
 
-void Class::Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage* typesConvertStorage) {
+void Class::Create(const cpgf::GMetaClass* metaClass,
+    const TypesConvertStorage* typesConvertStorage, const std::unordered_map<TypeId, TypeInstanceEdit*>* freeTypeInstances) {
+
+    m_freeTypeInstances = freeTypeInstances;
     std::vector<const cpgf::GMetaProperty*> props;
 
     try {
@@ -210,28 +216,20 @@ std::type_index Class::GetTypeIndexForEmbedded(uint8_t pinIndex) const {
     return m_embeddedTypeInstances[pinIndex]->GetTypeIndex();
 }
 
-TypeInstance* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* instance) const {
+TypeInstanceEdit* Class::GetFreeTypeInstance(TypeId typeId) const {
+    if (auto it = m_freeTypeInstances->find(typeId); it != m_freeTypeInstances->cend()) {
+        return it->second;
+    }
+
+    throw EngineError("gs::Class::GetFreeTypeInstance: invalid typeId = {}, need typeId enabled for UI", typeId);
+}
+
+TypeInstanceEdit* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex) const {
     if (pinIndex >= m_countEmbeddedPins) {
         throw EngineError("gs::Class::GetTypeInstanceForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);
     }
 
-    auto* typeInstance = m_embeddedTypeInstances[pinIndex];
-    typeInstance->Init(GetValue(pinIndex, instance));
-    return static_cast<TypeInstance*>(typeInstance);
-}
-
-bool Class::ApplyTypeInstanceForEmbedded(uint8_t pinIndex, void* instance) const {
-    if (pinIndex >= m_countEmbeddedPins) {
-        throw EngineError("gs::Class::ApplyTypeInstanceForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);
-    }
-
-    auto* typeInstance = m_embeddedTypeInstances[pinIndex];
-    if (typeInstance->IsChanged()) {
-        SetValue(pinIndex, instance, typeInstance->Result());
-        return true;
-    }
-
-    return false;
+    return m_embeddedTypeInstances[pinIndex];
 }
 
 void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const {

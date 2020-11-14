@@ -8,9 +8,16 @@
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "middleware/generator/gs_register.h" // IWYU pragma: keep
+#include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_class.h"
+#include "middleware/gscheme/meta/gs_meta_type.h"
 #include "middleware/gscheme/embedded/embedded.h" // IWYU pragma: keep
+#include "middleware/gscheme/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gscheme/meta/gs_meta_consts.h"
+#include "middleware/gscheme/meta/gs_meta_storage.h"
+#include "middleware/gscheme/meta/gs_type_instance.h"
+#include "middleware/gscheme/meta/gs_composite_type.h"
+#include "middleware/gscheme/meta/gs_primitive_type.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
@@ -20,13 +27,18 @@ struct ClassStorage::Impl {
     Impl();
     ~Impl();
 
+    void GenerateTypeInstances();
+
     uint16_t m_countClasses = 0;
     Class* m_classes;
     TypesConvertStorage m_typesConvertStorage;
+    std::unordered_map<TypeId, TypeInstanceEdit*> m_typeInstances;
     std::unordered_map<std::string_view, uint16_t> m_classesIndex;
 };
 
 ClassStorage::Impl::Impl() {
+    GenerateTypeInstances();
+
     const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();
 
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
@@ -44,17 +56,63 @@ ClassStorage::Impl::Impl() {
     for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
         const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
         if ((metaClass != nullptr) && (metaClass->getAnnotation(MetaNames::CLASS) != nullptr)) {
-            m_classes[index].Create(metaClass, &m_typesConvertStorage);
+            m_classes[index].Create(metaClass, &m_typesConvertStorage, &m_typeInstances);
             m_classesIndex[m_classes[index].GetName()] = index;
             ++index;
         }
     }
 }
-
 ClassStorage::Impl::~Impl() {
     m_classesIndex.clear();
     if (m_classes != nullptr) {
         delete[] m_classes;
+    }
+    for (auto [_, typeInstance]: m_typeInstances) {
+        delete typeInstance;
+    }
+}
+
+template<typename T>
+TypeInstanceEdit* CreateCompositeTypeInstance() {
+    constexpr char prettyNames[] = "RGBA";
+    using TCompositeType = CompositeTypeT<T>;
+    using TProperty = typename TCompositeType::CompositeTypeItem;
+    using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
+
+    MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
+
+    std::vector<TProperty> properties;
+    for (const auto& metaField: metaType->GetFields()) {
+        auto* primitiveType = new TPrimitiveType();
+        if (metaField.index >= 4) {
+            throw EngineError("gs::ClassStorage: unknown metaField.index = {}, for generate TypeInstance", metaField.index);
+        }
+        primitiveType->SetPrettyName(std::string_view(&prettyNames[metaField.index], 1));
+        properties.push_back(TProperty{metaField.index, primitiveType});
+    }
+
+    auto* compositeType = new TCompositeType(properties);
+    return new TypeInstanceEdit(compositeType);
+}
+
+void ClassStorage::Impl::GenerateTypeInstances() {
+    for(TypeId typeId = GetBeginBaseType(); typeId != GetEndBaseType(); typeId = GetNextBaseType(typeId)) {
+        if (!IsEnableUI(typeId)) {
+            continue;
+        }
+        if (typeId == TypeId::Float) {
+            auto* primitiveType = new PrimitiveType<float>();
+            primitiveType->SetPrettyName("R");
+            m_typeInstances[typeId] = new TypeInstanceEdit(primitiveType);
+        } else if (typeId == TypeId::Vector2f) {
+            m_typeInstances[typeId] = CreateCompositeTypeInstance<Eigen::Vector2f>();
+        } else if (typeId == TypeId::Vector3f) {
+            m_typeInstances[typeId] = CreateCompositeTypeInstance<Eigen::Vector3f>();
+        } else if (typeId == TypeId::Vector4f) {
+            m_typeInstances[typeId] = CreateCompositeTypeInstance<Eigen::Vector4f>();
+        } else {
+            throw EngineError("gs::ClassStorage: unknown typeId = {}, for generate TypeInstance", typeId);
+        }
     }
 }
 

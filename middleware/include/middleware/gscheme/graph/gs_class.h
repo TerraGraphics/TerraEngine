@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <typeindex>
 #include <string_view>
+#include <unordered_map>
 
 #include "core/common/ctor.h"
 #include "middleware/gscheme/graph/gs_types_decl.h"
@@ -27,7 +28,8 @@ public:
     Class() = default;
     ~Class();
 
-    void Create(const cpgf::GMetaClass* metaClass, const TypesConvertStorage* typesConvertStorage);
+    void Create(const cpgf::GMetaClass* metaClass,
+        const TypesConvertStorage* typesConvertStorage, const std::unordered_map<TypeId, TypeInstanceEdit*>* freeTypeInstances);
 
     // unique class name
     std::string_view GetName() const;
@@ -63,9 +65,9 @@ public:
     void ResetToDefault(uint8_t pinIndex, void* instance) const;
 
     std::type_index GetTypeIndexForEmbedded(uint8_t pinIndex) const;
-    TypeInstance* GetTypeInstanceForEmbedded(uint8_t pinIndex, const void* instance) const;
-    // return IsChanged
-    bool ApplyTypeInstanceForEmbedded(uint8_t pinIndex, void* instance) const;
+
+    TypeInstanceEdit* GetFreeTypeInstance(TypeId typeId) const;
+    TypeInstanceEdit* GetTypeInstanceForEmbedded(uint8_t pinIndex) const;
 
 private:
     void CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const;
@@ -76,6 +78,7 @@ private:
     uint8_t m_countOutputPins = 0;
     TypeId* m_defaultTypeIds = nullptr;
     TypeInstanceEdit** m_embeddedTypeInstances = nullptr;
+    const std::unordered_map<TypeId, TypeInstanceEdit*>* m_freeTypeInstances;
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
     const cpgf::GMetaClass* m_metaClass = nullptr;

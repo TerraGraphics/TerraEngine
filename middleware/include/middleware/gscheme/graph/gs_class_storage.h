@@ -24,7 +24,7 @@ public:
 
 private:
     struct Impl;
-    Pimpl<Impl, 128, 8> impl;
+    Pimpl<Impl, 184, 8> impl;
 };
 
 }
