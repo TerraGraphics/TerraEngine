@@ -70,5 +70,6 @@ TypeId GetUniversalTypeId(const UniversalType& v);
 
 bool IsValidInputPinType(const std::type_info& typeInfo);
 bool IsValidOutputPinType(const std::type_info& typeInfo);
+bool IsEnableUI(TypeId typeId);
 
 }

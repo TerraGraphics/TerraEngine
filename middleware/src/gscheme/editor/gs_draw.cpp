@@ -24,6 +24,9 @@ static void DrawPropertyHeader(std::string_view label) {
 }
 
 static void DrawPropertyRow(std::string_view propertyName, std::string_view labelText, IPrimitiveType* value, bool withOffset) {
+    if (!value->IsEnabledUI()) {
+        return;
+    }
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = withOffset ? 20 : 5;
     gui::Label(labelText, labelStyle);

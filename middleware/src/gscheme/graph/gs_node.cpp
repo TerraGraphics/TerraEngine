@@ -10,6 +10,7 @@
 #include "middleware/gscheme/graph/gs_types.h"
 #include "middleware/gscheme/graph/gs_class.h"
 #include "middleware/gscheme/graph/gs_limits.h"
+#include "middleware/gscheme/meta/gs_type_instance.h"
 #include "middleware/gscheme/graph/gs_draw_interface.h"
 
 
@@ -516,6 +517,9 @@ void Node::DrawNodeProperty(IDraw* drawer) {
 
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         auto* typeInstance = m_class->GetTypeInstanceForEmbedded(i, m_instance);
+        if (!typeInstance->IsEnabledUI()) {
+            continue;
+        }
         IDraw::ButtonsState buttonsState = drawer->OnDrawEditingEmbeddedPin(m_class->GetPinDisplayName(i), typeInstance);
         if (m_class->ApplyTypeInstanceForEmbedded(i, m_instance)) {
             m_changeState = ChangeState::NeedUpdateOutputs;
@@ -524,6 +528,11 @@ void Node::DrawNodeProperty(IDraw* drawer) {
         }
     }
     for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
+        const TypeId drawTypeId = ToBaseTypeId(GetPinType(i));
+        if (!IsEnableUI(drawTypeId)) {
+            continue;
+        }
+
         cpgf::GVariant value = m_class->GetValue(i, m_instance);
         if (IsUniversalTypeFromPinId(m_pins[i].id)) {
             value = std::visit([](auto&& v) -> auto {
@@ -531,7 +540,6 @@ void Node::DrawNodeProperty(IDraw* drawer) {
             }, cpgf::fromVariant<UniversalType>(value));
         }
 
-        const TypeId drawTypeId = ToBaseTypeId(GetPinType(i));
         auto result = drawer->OnDrawEditingPin(m_class->GetPinDisplayName(i), IsConnectedPin(i), drawTypeId, value);
         if (result == IDraw::EditResult::Changed) {
             SetInputValue(i, drawTypeId, value);
