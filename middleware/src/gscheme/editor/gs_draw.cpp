@@ -9,7 +9,6 @@
 #include "core/common/exception.h"
 #include "middleware/imgui/field.h"
 #include "middleware/imgui/label.h"
-#include "middleware/imgui/widgets.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
 
 
@@ -98,7 +97,11 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
 }
 
 void Draw::OnStartDrawNodeProperty(const std::string& prettyName) {
-    gui::Text(prettyName + ":");
+    gui::LabelStyle labelStyle;
+    labelStyle.margin.left = 5;
+    labelStyle.margin.bottom = 10;
+    gui::Label(prettyName + ":", labelStyle);
+
     ImGui::Columns(2, "gs_node_property", true);
 }
 
