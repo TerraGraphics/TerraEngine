@@ -97,12 +97,12 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::OnStartDrawEditing(const std::string& prettyName) {
+void Draw::OnStartDrawNodeProperty(const std::string& prettyName) {
     gui::Text(prettyName + ":");
     ImGui::Columns(2, "gs_node_property", true);
 }
 
-IDraw::ButtonsState Draw::OnDrawEditingEmbeddedPin(const std::string& prettyName, TypeInstance* typeInstance) {
+IDraw::ButtonsState Draw::OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool /* disabled */) {
     if (typeInstance->IsPrimitiveType()) {
         DrawPropertyRow("", prettyName, typeInstance->GetValue(0), false);
         return IDraw::ButtonsState::None;
@@ -117,66 +117,8 @@ IDraw::ButtonsState Draw::OnDrawEditingEmbeddedPin(const std::string& prettyName
     return IDraw::ButtonsState::None;
 }
 
-IDraw::EditResult Draw::OnDrawEditingPin(const std::string& prettyName, bool /* disabled */, TypeId typeId, cpgf::GVariant& value) {
+void Draw::OnFinishDrawNodeProperty() {
     ImGui::Columns(1);
-
-    bool isChanded = false;
-
-    if (typeId == TypeId::Float) {
-        auto tmp = cpgf::fromVariant<float>(value);
-        isChanded |= gui::InputScalar<float>(prettyName.c_str(), tmp, 0.0001f, "{:.4f}");
-
-        if (isChanded) {
-            value = cpgf::copyVariantFromCopyable(tmp);
-        }
-    } else if (typeId == TypeId::Vector2f) {
-        if (!prettyName.empty()) {
-            gui::Text(prettyName + ":");
-        }
-        auto tmp = cpgf::fromVariant<Eigen::Vector2f>(value);
-
-        isChanded |= gui::InputScalar<float>("R", tmp[0], 0.0001f, "{:.4f}");
-        isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
-
-        if (isChanded) {
-            value = cpgf::copyVariantFromCopyable(tmp);
-        }
-    } else if (typeId == TypeId::Vector3f) {
-        if (!prettyName.empty()) {
-            gui::Text(prettyName + ":");
-        }
-        auto tmp = cpgf::fromVariant<Eigen::Vector3f>(value);
-
-        isChanded |= gui::InputScalar<float>("R", tmp[0], 0.0001f, "{:.4f}");
-        isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
-        isChanded |= gui::InputScalar<float>("B", tmp[2], 0.0001f, "{:.4f}");
-
-        if (isChanded) {
-            value = cpgf::copyVariantFromCopyable(tmp);
-        }
-    } else if (typeId == TypeId::Vector4f) {
-        if (!prettyName.empty()) {
-            gui::Text(prettyName + ":");
-        }
-        auto tmp = cpgf::fromVariant<Eigen::Vector4f>(value);
-
-        isChanded |= gui::InputScalar<float>("R", tmp[0], 0.0001f, "{:.4f}");
-        isChanded |= gui::InputScalar<float>("G", tmp[1], 0.0001f, "{:.4f}");
-        isChanded |= gui::InputScalar<float>("B", tmp[2], 0.0001f, "{:.4f}");
-        isChanded |= gui::InputScalar<float>("A", tmp[3], 0.0001f, "{:.4f}");
-
-        if (isChanded) {
-            value = cpgf::copyVariantFromCopyable(tmp);
-        }
-    } else {
-        throw EngineError("gs::Draw::OnDrawEditingPin: unknown value type (id = {})", typeId);
-    }
-
-    return (isChanded ? IDraw::EditResult::Changed : IDraw::EditResult::NotChanged);
-}
-
-void Draw::OnFinishDrawEditing() {
-
 }
 
 }

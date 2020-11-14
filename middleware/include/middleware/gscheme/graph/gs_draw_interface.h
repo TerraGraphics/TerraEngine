@@ -38,19 +38,13 @@ public:
 
 // Draw node edit GUI
 public:
-    enum class EditResult : uint8_t {
-        NotChanged = 0,
-        Changed = 1,
-        ResetToDefault = 2,
-    };
     enum class ButtonsState : uint8_t {
         None = 0,
         ResetToDefault = 1,
     };
-    virtual void OnStartDrawEditing(const std::string& prettyName) = 0;
-    virtual ButtonsState OnDrawEditingEmbeddedPin(const std::string& prettyName, TypeInstance* typeInstance) = 0;
-    virtual EditResult OnDrawEditingPin(const std::string& prettyName, bool disabled, TypeId typeId, cpgf::GVariant& value) = 0;
-    virtual void OnFinishDrawEditing() = 0;
+    virtual void OnStartDrawNodeProperty(const std::string& prettyName) = 0;
+    virtual ButtonsState OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool disabled) = 0;
+    virtual void OnFinishDrawNodeProperty() = 0;
 };
 
 }

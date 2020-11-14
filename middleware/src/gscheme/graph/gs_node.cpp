@@ -513,16 +513,18 @@ void Node::DrawGraph(IDraw* drawer) {
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {
-    drawer->OnStartDrawEditing(m_class->GetDisplayName());
+    drawer->OnStartDrawNodeProperty(m_class->GetDisplayName());
 
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
-        auto* typeInstance = m_class->GetTypeInstanceForEmbedded(i, m_instance);
+        TypeInstanceEdit* typeInstance = m_class->GetTypeInstanceForEmbedded(i);
         if (!typeInstance->IsEnabledUI()) {
             continue;
         }
-        IDraw::ButtonsState buttonsState = drawer->OnDrawEditingEmbeddedPin(m_class->GetPinDisplayName(i), typeInstance);
-        if (m_class->ApplyTypeInstanceForEmbedded(i, m_instance)) {
-            m_changeState = ChangeState::NeedUpdateOutputs;
+
+        typeInstance->Init(m_class->GetValue(i, m_instance));
+        IDraw::ButtonsState buttonsState = drawer->OnDrawPinProperty(m_class->GetPinDisplayName(i), typeInstance, false);
+        if (typeInstance->IsChanged()) {
+            SetEmbeddedValue(i, typeInstance->Result());
         } else if (buttonsState == IDraw::ButtonsState::ResetToDefault) {
             ResetToDefault(i);
         }
@@ -533,6 +535,11 @@ void Node::DrawNodeProperty(IDraw* drawer) {
             continue;
         }
 
+        TypeInstanceEdit* typeInstance = m_class->GetFreeTypeInstance(drawTypeId);
+        if (!typeInstance->IsEnabledUI()) {
+            continue;
+        }
+
         cpgf::GVariant value = m_class->GetValue(i, m_instance);
         if (IsUniversalTypeFromPinId(m_pins[i].id)) {
             value = std::visit([](auto&& v) -> auto {
@@ -540,15 +547,16 @@ void Node::DrawNodeProperty(IDraw* drawer) {
             }, cpgf::fromVariant<UniversalType>(value));
         }
 
-        auto result = drawer->OnDrawEditingPin(m_class->GetPinDisplayName(i), IsConnectedPin(i), drawTypeId, value);
-        if (result == IDraw::EditResult::Changed) {
-            SetInputValue(i, drawTypeId, value);
-        } else if (result == IDraw::EditResult::ResetToDefault) {
+        typeInstance->Init(value);
+        IDraw::ButtonsState buttonsState = drawer->OnDrawPinProperty(m_class->GetPinDisplayName(i), typeInstance, IsConnectedPin(i));
+        if (typeInstance->IsChanged()) {
+            SetInputValue(i, drawTypeId, typeInstance->Result());
+        } else if (buttonsState == IDraw::ButtonsState::ResetToDefault) {
             ResetToDefault(i);
         }
     }
 
-    drawer->OnFinishDrawGraph();
+    drawer->OnFinishDrawNodeProperty();
 }
 
 }
