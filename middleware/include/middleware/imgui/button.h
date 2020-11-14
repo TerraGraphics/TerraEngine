@@ -13,9 +13,16 @@ enum class ButtonDir {
     Down
 };
 
+enum class StepButtonAction {
+    None,
+    Up,
+    Down
+};
+
 struct ButtonStyle : Style {
 };
 
-bool ButtonArrow(std::string_view strId, ButtonDir dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
+bool ArrowButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
+StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
 
 } // end namespace gui

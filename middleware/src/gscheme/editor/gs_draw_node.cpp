@@ -96,7 +96,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
 
     std::string buttonId(std::to_string(id) + "##show_pin_preview");
     auto dir = m_showPinPreview ? gui::ButtonDir::Up : gui::ButtonDir::Down;
-    if (gui::ButtonArrow(buttonId, dir, buttonStyle, &buttonRect)) {
+    if (gui::ArrowButton(buttonId, dir, buttonStyle, &buttonRect)) {
         m_showPinPreview = !m_showPinPreview;
     }
 
