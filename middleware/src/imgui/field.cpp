@@ -5,6 +5,8 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"
+#include "middleware/imgui/button.h"
+#include "middleware/imgui/layout.h"
 
 
 namespace {
@@ -54,6 +56,7 @@ struct BackupState {
 struct FieldData {
     bool integerFilter = false;
     bool floatingFilter = false;
+    bool showStepButtons = false;
     std::string* text = nullptr;
 };
 
@@ -88,21 +91,38 @@ static int InputTextExCallback(ImGuiInputTextCallbackData* data) {
 
 namespace gui {
 
-bool TextFieldImpl(std::string_view strId, FieldData* fieldData, const FieldStyle* style, math::RectF* outWidgetRect) {
-    bool changed = false;
+NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, const FieldStyle* style, math::RectF* outWidgetRect) {
+    NumberFieldAction result = NumberFieldAction::None;
 
     ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
     if (window == nullptr) {
-        return changed;
+        return result;
     }
-
-    ImGuiContext& g = *GImGui;
-    const auto drawSize = math::SizeF(style->width, g.FontSize + g.Style.FramePadding.y * 2.0f);
 
     math::RectF fullRect;
     math::RectF drawRect;
     math::RectF widgetRect;
+    const auto drawSize = math::SizeF(style->width, GetDefaultFieldHeight());
     PlaceWidgetCalc(style, drawSize, &drawRect, &widgetRect, &fullRect);
+
+    ButtonStyle stepButtonsStyle;
+    if (fieldData->showStepButtons) {
+        stepButtonsStyle.margin = style->margin;
+        stepButtonsStyle.margin.left = 0;
+        stepButtonsStyle.padding = style->padding;
+        stepButtonsStyle.padding.left = 0;
+        stepButtonsStyle.minWidgetSize.h = drawRect.h;
+        stepButtonsStyle.minWidgetSize.w = GetStepButtonsWidth(drawRect.h);
+        stepButtonsStyle.verticalAlign = style->verticalAlign;
+        stepButtonsStyle.horisontalAlign = HorisontalAlign::Left;
+        stepButtonsStyle.tooltip = style->tooltip;
+
+        drawRect.w = std::max(drawRect.w - stepButtonsStyle.minWidgetSize.w, 0.f);
+        widgetRect.Right(drawRect.Right());
+        fullRect.Right(drawRect.Right());
+        BeginHorizontal();
+    }
+
     if (outWidgetRect != nullptr) {
         *outWidgetRect = widgetRect;
     }
@@ -127,32 +147,48 @@ bool TextFieldImpl(std::string_view strId, FieldData* fieldData, const FieldStyl
 
     ImGui::PushID(strId.cbegin(), strId.cend());
     auto id = window->GetID(label);
-    changed = ImGui::InputTextEx(label, hint, buf, bufSize, sizeArg, flags, callback, callbackUserData);
+    if (ImGui::InputTextEx(label, hint, buf, bufSize, sizeArg, flags, callback, callbackUserData)) {
+        result = NumberFieldAction::Changed;
+    }
     ImGui::PopID();
 
     backupState.Restore(window->DC);
 
     ItemSize(fullRect.Size());
     if (!ItemAdd(id, widgetRect)) {
-        return changed;
+        return result;
     }
 
     DrawTooltip(style);
 
-    return changed;
+    if (fieldData->showStepButtons) {
+        StepButtonAction action = StepButtons(std::string(strId) + ".step_buttons", stepButtonsStyle);
+        if (action == StepButtonAction::Up) {
+            result = NumberFieldAction::StepUp;
+        } else if (action == StepButtonAction::Down) {
+            result = NumberFieldAction::StepDown;
+        }
+        auto fullWidgetRect = EndHorizontal();
+        if (outWidgetRect != nullptr) {
+            *outWidgetRect = fullWidgetRect;
+        }
+    }
+
+    return result;
 }
 
 bool TextField(std::string_view strId, std::string& text, const FieldStyle& style, math::RectF* outWidgetRect) {
     auto fieldData = FieldData();
     fieldData.text = &text;
 
-    return TextFieldImpl(strId, &fieldData, &style, outWidgetRect);
+    return TextFieldImpl(strId, &fieldData, &style, outWidgetRect) != NumberFieldAction::None;
 }
 
-bool NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style, math::RectF* outWidgetRect) {
+NumberFieldAction NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style, math::RectF* outWidgetRect) {
     auto fieldData = FieldData();
     fieldData.integerFilter = style.isInteger;
     fieldData.floatingFilter = !style.isInteger;
+    fieldData.showStepButtons = style.showStepButtons;
     fieldData.text = &text;
 
     return TextFieldImpl(strId, &fieldData, &style, outWidgetRect);

@@ -8,12 +8,12 @@
 
 namespace gui {
 
-enum class ButtonDir {
+enum class ButtonDir : uint8_t {
     Up,
     Down
 };
 
-enum class StepButtonAction {
+enum class StepButtonAction : uint8_t {
     None,
     Up,
     Down

@@ -16,8 +16,16 @@ bool TextField(std::string_view strId, std::string& text, const FieldStyle& styl
 
 struct NumberFieldStyle : FieldStyle {
     bool isInteger = true;
+    bool showStepButtons = false;
 };
 
-bool NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style = NumberFieldStyle(), math::RectF* outWidgetRect = nullptr);
+enum class NumberFieldAction : uint8_t {
+    None,
+    StepUp,
+    StepDown,
+    Changed,
+};
+
+NumberFieldAction NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style = NumberFieldStyle(), math::RectF* outWidgetRect = nullptr);
 
 } // end namespace gui
