@@ -7,6 +7,7 @@
 #include "eigen/core.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
+#include "core/math/generator_type_operators.h"
 #include "middleware/gscheme/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gscheme/graph/gs_types_convert.h"
 
@@ -43,51 +44,33 @@ namespace gs {
 namespace {
 
 template<typename T>
-    static math::Generator2D TMaxGenerator2d(const math::Generator2D& generator, const T& value) {
+    static math::Generator2D MaxGeneratorT(const math::Generator2D& generator, const T& value) {
         if constexpr (IsFloat<T>) {
-            return math::Generator2D([generator, v = static_cast<double>(value)](double x, double y) -> double {
-                return std::max(generator(x, y), v);
-            });
+            return std::max(generator, value);
         } else if constexpr (IsVector<T>) {
-            return math::Generator2D([generator, v = static_cast<double>(value[0])](double x, double y) -> double {
-                return std::max(generator(x, y), v);
-            });
-        } else if constexpr (IsGenerator2d<T>) {
-            return math::Generator2D([generator, value](double x, double y) -> double {
-                return std::max(generator(x, y), value(x, y));
-            });
+            return std::max(generator, value[0]);
         }
     }
 
 template<typename T>
-    static math::Generator3D TMaxGenerator3d(const math::Generator3D& generator, const T& value) {
+    static math::Generator3D MaxGeneratorT(const math::Generator3D& generator, const T& value) {
         if constexpr (IsFloat<T>) {
-            return math::Generator3D([generator, v = static_cast<double>(value)](double x, double y, double z) -> double {
-                return std::max(generator(x, y, z), v);
-            });
+            return std::max(generator, value);
         } else if constexpr (IsVector<T>) {
-            return math::Generator3D([generator, v = static_cast<double>(value[0])](double x, double y, double z) -> double {
-                return std::max(generator(x, y, z), v);
-            });
-        } else if constexpr (IsGenerator3d<T>) {
-            return math::Generator3D([generator, value](double x, double y, double z) -> double {
-                return std::max(generator(x, y, z), value(x, y, z));
-            });
+            return std::max(generator, value[0]);
         }
     }
 
 template<typename TMin, typename TMax>
-    static TMax TMaxOfMinMax(const TMin& valMin, const TMax& valMax) {
+    static TMax MaxOfMinMaxT(const TMin& valMin, const TMax& valMax) {
         if constexpr (!CanConvert<TMax, TMin>) {
             throw EngineError("types {} and {} are not compatible", GetTypeId<TMin>(), GetTypeId<TMax>());
-        } else if constexpr (IsGenerator2d<TMax>) {
-            return TMaxGenerator2d(valMax, valMin);
-        } else if constexpr (IsGenerator3d<TMax>) {
-            return TMaxGenerator3d(valMax, valMin);
         } else if constexpr (std::is_same<TMin, TMax>::value) {
-            return std::max(valMin, valMax);
+            return std::max(valMax, valMin);
+        } else if constexpr (IsGenerator2d<TMax> || IsGenerator3d<TMax>) {
+            return MaxGeneratorT(valMax, valMin);
         } else {
-            return std::max(ConvertTo<TMax, TMin>(valMin), TMax(valMax));
+            return std::max(valMax, ConvertTo<TMax, TMin>(valMin));
         }
     }
 }
@@ -95,9 +78,9 @@ template<typename TMin, typename TMax>
 UniversalType FuncMax::Result() const {
     return std::visit([](auto&& a, auto&& b) -> UniversalType {
         if constexpr (GetTypeId<std::remove_cvref_t<decltype(a)>>() <= GetTypeId<std::remove_cvref_t<decltype(b)>>()) {
-            return UniversalType(TMaxOfMinMax(a, b));
+            return UniversalType(MaxOfMinMaxT(a, b));
         } else {
-            return UniversalType(TMaxOfMinMax(b, a));
+            return UniversalType(MaxOfMinMaxT(b, a));
         }
     }, m_a, m_b);
 }
