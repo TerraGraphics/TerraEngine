@@ -6,7 +6,6 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/gui_helpers.h"
-#include "middleware/imgui/field.h"
 #include "middleware/imgui/layout.h"
 #include "middleware/imgui/imgui_math.h"
 
@@ -25,20 +24,29 @@ void RenderArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, ButtonD
 }
 
 void RenderStepArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, ButtonDir dir) {
-    float heightOffset = rect.h/3.99f;
-    float widthOffset = rect.w/8.f;
+    float heightOffset = rect.h/4.f;
+    float widthOffset = rect.w/6.f;
     rect -= math::RectOffsetF(widthOffset, widthOffset, heightOffset, heightOffset);
 
+    ImVec2 left, right, center;
     if (dir == ButtonDir::Up) {
-        drawList->PathLineTo(ToImGui(rect.LeftBottom()));
-        drawList->PathLineTo(ImVec2(rect.CenterX(), rect.Top()));
-        drawList->PathLineTo(ToImGui(rect.RightBottom()));
+        left = ToImGui(rect.LeftBottom());
+        center = ImVec2(rect.CenterX(), rect.Top());
+        right = ToImGui(rect.RightBottom());
     } else {
-        drawList->PathLineTo(ToImGui(rect.RightTop()));
-        drawList->PathLineTo(ImVec2(rect.CenterX(), rect.Bottom()));
-        drawList->PathLineTo(ToImGui(rect.LeftTop()));
+        left = ToImGui(rect.LeftTop());
+        center = ImVec2(rect.CenterX(), rect.Bottom());
+        right = ToImGui(rect.RightTop());
     }
-    drawList->PathStroke(color, false, 2.f);
+
+    float thickness = 2.f;
+    auto dt = right - center;
+    dt /= dt.x * thickness;
+
+    drawList->PathLineTo(left);
+    drawList->PathLineTo(center);
+    drawList->PathLineTo(right + dt);
+    drawList->PathStroke(color, false, thickness);
 }
 
 bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF widgetRect) {
@@ -107,19 +115,28 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
         return result;
     }
 
-    float drawHeight = ((style.minWidgetSize.h <= 1.f) ? GetDefaultFieldHeight() : style.minWidgetSize.h) * 0.5f;
-    float drawWidht = (style.minWidgetSize.w <= 1.f) ? drawHeight * 1.618f : style.minWidgetSize.h;
+    float drawHeight = ((style.minWidgetSize.h <= 1.f) ? GetDefaultFieldHeight() : style.minWidgetSize.h);
+    float drawWidht = (style.minWidgetSize.w <= 1.f) ? GetStepButtonsWidth(drawHeight) : style.minWidgetSize.h;
 
     ButtonStyle halfStyle = style;
-    halfStyle.minWidgetSize.h = drawHeight;
+    halfStyle.minWidgetSize.h = drawHeight * 0.5f;
     halfStyle.minWidgetSize.w = drawWidht;
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
     BeginVertical();
 
+    float backupPosX = window->DC.CursorPos.x;
+    halfStyle.margin.bottom = 0;
+    halfStyle.padding.bottom = 0;
     if (StepButton(std::string(strId) + ".up", ButtonDir::Up, halfStyle)) {
         result = StepButtonAction::Up;
     }
+
+    window->DC.CursorPos.x = backupPosX;
+    halfStyle.margin.top = 0;
+    halfStyle.margin.bottom = style.margin.bottom;
+    halfStyle.padding.top = 0;
+    halfStyle.padding.bottom = style.padding.bottom;
     if (StepButton(std::string(strId) + ".down", ButtonDir::Down, halfStyle)) {
         result = StepButtonAction::Down;
     }

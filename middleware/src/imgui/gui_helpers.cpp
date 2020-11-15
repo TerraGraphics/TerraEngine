@@ -35,6 +35,15 @@ ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect) {
     return nullptr;
 }
 
+float GetDefaultFieldHeight() {
+    ImGuiContext& g = *GImGui;
+    return g.FontSize + g.Style.FramePadding.y * 2.0f;
+}
+
+float GetStepButtonsWidth(float height) {
+    return height * 0.5f * 1.618f;
+}
+
 void ItemSize(math::SizeF widgetSize) {
     ImGui::ItemSize(ToImGui(widgetSize), 0);
 }

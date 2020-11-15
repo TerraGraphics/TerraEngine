@@ -16,6 +16,9 @@ ImGuiWindow* GetCurrentWindow();
 // fill outWidgetRect as empty if window is skipped
 ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect = nullptr);
 
+float GetDefaultFieldHeight();
+float GetStepButtonsWidth(float height);
+
 void ItemSize(math::SizeF widgetSize);
 bool ItemAdd(uint32_t id, math::RectF widgetRect);
 
