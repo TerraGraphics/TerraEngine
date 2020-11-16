@@ -15,22 +15,43 @@ template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> ||
 class PrimitiveType final : public IPrimitiveTypeEdit {
 public:
     using TLimitFunc = T(*)(T);
+    using TStepFunc = T(*)(T, bool inc);
 
 public:
     PrimitiveType() = default;
     ~PrimitiveType() final = default;
 
 public:
+    void Step(T value) {
+        m_step = value;
+        m_stepChanged = true;
+    }
+
     void Max(T value) {
         m_maxValue = value;
+        m_minValue = std::min(m_minValue, m_maxValue);
+        if constexpr (std::is_floating_point_v<T>) {
+            T step = static_cast<T>((m_maxValue - m_minValue) / static_cast<T>(1000));
+            if (!m_stepChanged && (step <= 1.f))  {
+                m_step = step;
+            }
+        }
     }
 
     void Min(T value) {
         m_minValue = value;
+        m_maxValue = std::max(m_minValue, m_maxValue);
+        if constexpr (std::is_floating_point_v<T>) {
+            T step = static_cast<T>((m_maxValue - m_minValue) / static_cast<T>(1000));
+            if (!m_stepChanged && (step <= 1.f))  {
+                m_step = step;
+            }
+        }
     }
 
-    void LimitFunc(const TLimitFunc func) {
-        m_limitFunc = func;
+    void Funcs(const TLimitFunc limitFunc, const TStepFunc stepFunc) {
+        m_limitFunc = limitFunc;
+        m_stepFunc = stepFunc;
     }
 
     void MaxPrecision(uint8_t value) {
@@ -45,9 +66,17 @@ public:
         m_enabledUI = false;
     }
 
+    void DisableStepButtons() {
+        m_showStepButtons = false;
+    }
+
 public:
     bool IsEnabledUI() const noexcept final {
         return m_enabledUI;
+    }
+
+    bool IsEnabledShowStepButtons() const noexcept final {
+        return m_showStepButtons;
     }
 
     std::type_index GetTypeIndex() const {
@@ -78,6 +107,32 @@ public:
 
     std::string_view GetPrettyName() const final {
         return m_prettyNama;
+    }
+
+    void Inc() final {
+        T newValue = m_value;
+        if (m_stepFunc != nullptr) {
+            newValue = m_stepFunc(m_value, true);
+        } else if ((m_maxValue - m_step) <= m_value) {
+            newValue = m_maxValue;
+        } else {
+            newValue += m_step;
+        }
+
+        ApplyLimitsAndSet(newValue);
+    }
+
+    void Dec() final {
+        T newValue = m_value;
+        if (m_stepFunc != nullptr) {
+            newValue = m_stepFunc(m_value, false);
+        } else if ((m_minValue + m_step) >= m_value) {
+            newValue = m_minValue;
+        } else {
+            newValue -= m_step;
+        }
+
+        ApplyLimitsAndSet(newValue);
     }
 
     std::string ToString() const final {
@@ -141,14 +196,18 @@ private:
 
 private:
     T m_value = 0;
+    T m_step = static_cast<T>(1);
     T m_maxValue = std::numeric_limits<T>::max();
     T m_minValue = std::numeric_limits<T>::lowest();
 
     uint8_t m_maxPrecision = 4;
     bool m_enabledUI = true;
+    bool m_showStepButtons = true;
+    bool m_stepChanged = false;
     bool m_isChanged = false;
     std::string m_prettyNama;
     TLimitFunc m_limitFunc = nullptr;
+    TStepFunc m_stepFunc = nullptr;
 };
 
 }

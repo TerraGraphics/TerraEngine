@@ -17,8 +17,11 @@ struct IPrimitiveType {
     virtual bool IsIntegerType() const noexcept = 0;
     virtual bool IsFloatingType() const noexcept = 0;
     virtual bool IsEnabledUI() const noexcept = 0;
+    virtual bool IsEnabledShowStepButtons() const noexcept = 0;
     virtual std::string_view GetPrettyName() const = 0;
 
+    virtual void Inc() = 0;
+    virtual void Dec() = 0;
     virtual std::string ToString() const = 0;
     virtual void FromString(const std::string& value) = 0;
 };
