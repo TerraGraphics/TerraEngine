@@ -5,6 +5,7 @@
 #include <variant>
 #include <string_view>
 
+#include "core/common/meta.h"
 #include "core/common/exception.h"
 #include "middleware/gscheme/graph/gs_id.h"
 #include "middleware/gscheme/graph/gs_types.h"

@@ -1,8 +1,16 @@
 #pragma once
 // based on cpgf/gmetadefine.h
 
+#include <vector>
+#include <cstdint>
+#include <cstddef>
+#include <typeindex>
+#include <type_traits>
+#include <string_view>
+
 #include "cpgf/metaclass.h"
 #include "core/common/meta.h"
+#include "core/common/ctor.h"
 #include "cpgf/metaproperty.h"
 #include "cpgf/metaannotation.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"

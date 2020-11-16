@@ -18,6 +18,7 @@ namespace cpgf {
 
 namespace gs {
 
+class TypeInstance;
 class Draw final : public IDraw {
 public:
     Draw() = delete;

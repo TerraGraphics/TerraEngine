@@ -1,6 +1,7 @@
 #include "middleware/gscheme/graph/gs_class.h"
 
 #include <cstdlib>
+#include <utility>
 #include <typeinfo>
 
 #include "cpgf/metaclass.h"

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <limits>
+#include <cstdint>
 #include <charconv>
+#include <stdexcept>
 #include <type_traits>
 
 #include "cpgf/variant.h"

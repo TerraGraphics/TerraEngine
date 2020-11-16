@@ -1,9 +1,12 @@
 #include "middleware/gscheme/graph/gs_class_storage.h"
 
+#include <vector>
 #include <utility>
 #include <cstddef>
+#include <typeindex>
 #include <unordered_map>
 
+#include "eigen/core.h"
 #include "cpgf/metaclass.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"

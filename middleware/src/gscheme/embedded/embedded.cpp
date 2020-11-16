@@ -1,5 +1,6 @@
 #include "middleware/gscheme/embedded/embedded.h"
 
+#include <vector>
 #include <cstdint>
 #include <stdexcept>
 

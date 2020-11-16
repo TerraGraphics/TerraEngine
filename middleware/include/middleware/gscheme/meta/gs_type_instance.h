@@ -1,14 +1,20 @@
 #pragma once
 
+#include <cstddef>
 #include <typeindex>
 
 #include "core/common/ctor.h"
-#include "middleware/gscheme/meta/gs_type_interface.h"
 
+
+namespace cpgf {
+    class GVariant;
+}
 
 namespace gs {
 
 class CompositeType;
+struct IPrimitiveType;
+struct IPrimitiveTypeEdit;
 class TypeInstance : Fixed {
 protected:
     TypeInstance() = delete;

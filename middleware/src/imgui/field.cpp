@@ -1,6 +1,7 @@
 #include "middleware/imgui/field.h"
 
 #include <cstddef>
+#include <algorithm>
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"

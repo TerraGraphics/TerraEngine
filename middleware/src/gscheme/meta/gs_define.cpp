@@ -1,5 +1,7 @@
 #include "middleware/gscheme/meta/gs_define.h"
 
+#include <string>
+
 
 namespace gs::detail {
 

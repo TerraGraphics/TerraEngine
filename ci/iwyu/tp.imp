@@ -98,6 +98,7 @@
     { include: ['"cpgf/gmetaannotation.h"', private, '"cpgf/metaannotation.h"', public] },
 
     { include: ['"cpgf/gmetaclass.h"', private, '"cpgf/metaclass.h"', public] },
+    { include: ['"cpgf/private/gmetaclass_p.h"', private, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetaapi.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },
     { include: ['"cpgf/gmetapolicy.h"', public, '"cpgf/metaclass.h"', public] },

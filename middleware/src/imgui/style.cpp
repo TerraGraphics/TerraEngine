@@ -1,7 +1,5 @@
 #include "middleware/imgui/style.h"
 
-#include <cstddef>
-
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 

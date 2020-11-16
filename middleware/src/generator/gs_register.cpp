@@ -1,5 +1,8 @@
 #include "middleware/generator/gs_register.h"
 
+#include <cstdint>
+#include <stdexcept>
+
 #include "core/math/generator_type.h" // IWYU pragma: keep
 #include "middleware/gscheme/meta/gs_define.h"
 #include "middleware/generator/texture/spheres.h"

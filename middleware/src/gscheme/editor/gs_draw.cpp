@@ -1,15 +1,16 @@
 #include "middleware/gscheme/editor/gs_draw.h"
 
+#include <cstddef>
+
+#include "fmt/fmt.h"
 #include "dg/texture.h"
-#include "eigen/core.h"
 #include "imgui/imgui.h"
-#include "cpgf/variant.h"
 #include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
-#include "core/common/exception.h"
 #include "middleware/imgui/field.h"
 #include "middleware/imgui/label.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
+#include "middleware/gscheme/meta/gs_type_interface.h"
 
 
 namespace gs {

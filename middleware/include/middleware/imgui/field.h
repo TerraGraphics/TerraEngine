@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 #include <string_view>
 
 #include "middleware/imgui/style.h"

@@ -1,9 +1,6 @@
 #include "middleware/imgui/widgets.h"
 
-#include <memory>
-
 #include "imgui/imgui.h"
-#include "imgui/internal.h"
 
 
 namespace gui::detail {

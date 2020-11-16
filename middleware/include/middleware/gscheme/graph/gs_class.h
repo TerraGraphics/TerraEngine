@@ -20,7 +20,6 @@ namespace cpgf {
 
 namespace gs {
 
-class TypeInstance;
 class TypeInstanceEdit;
 class TypesConvertStorage;
 class Class : Fixed {

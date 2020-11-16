@@ -1,5 +1,4 @@
 #include <string>
-#include <cstdint>
 
 #include "test/test.h"
 #include "eigen/core.h"

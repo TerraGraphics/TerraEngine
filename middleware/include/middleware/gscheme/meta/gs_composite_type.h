@@ -1,14 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <cstddef>
+#include <typeindex>
 #include <type_traits>
 
 #include "cpgf/variant.h"
-#include "middleware/gscheme/meta/gs_type_interface.h"
 
 
 namespace gs {
 
+struct IPrimitiveType;
+struct IPrimitiveTypeEdit;
 class CompositeType {
 public:
     struct CompositeTypeItem {

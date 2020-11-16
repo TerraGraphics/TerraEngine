@@ -1,6 +1,9 @@
 #include "middleware/gscheme/meta/gs_composite_type.h"
 
+#include <memory>
+
 #include "core/common/exception.h"
+#include "middleware/gscheme/meta/gs_type_interface.h"
 
 
 namespace gs {

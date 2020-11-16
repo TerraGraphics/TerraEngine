@@ -1,6 +1,7 @@
 #include "middleware/gscheme/meta/gs_format.h"
 
 #include <cmath>
+#include <algorithm>
 
 #include "fmt/fmt.h"
 
