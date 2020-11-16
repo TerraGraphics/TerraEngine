@@ -116,16 +116,21 @@ void Draw::OnStartDrawNodeProperty(const std::string& prettyName) {
     ImGui::Columns(2, "gs_node_property", true);
 }
 
-IDraw::ButtonsState Draw::OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool /* disabled */) {
+IDraw::ButtonsState Draw::OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool disabled) {
+    if (disabled) {
+        gui::StartDisable();
+    }
     if (typeInstance->IsPrimitiveType()) {
         DrawPropertyRow("", prettyName, typeInstance->GetValue(0), false);
-        return IDraw::ButtonsState::None;
+    } else {
+        DrawPropertyHeader(prettyName);
+        for (size_t i=0; i!=typeInstance->Count(); ++i) {
+            gs::IPrimitiveType* value = typeInstance->GetValue(i);
+            DrawPropertyRow(prettyName, value->GetPrettyName(), value, true);
+        }
     }
-
-    DrawPropertyHeader(prettyName);
-    for (size_t i=0; i!=typeInstance->Count(); ++i) {
-        gs::IPrimitiveType* value = typeInstance->GetValue(i);
-        DrawPropertyRow(prettyName, value->GetPrettyName(), value, true);
+    if (disabled) {
+        gui::FinishDisable();
     }
 
     return IDraw::ButtonsState::None;

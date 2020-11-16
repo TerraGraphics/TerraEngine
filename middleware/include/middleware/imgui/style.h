@@ -28,4 +28,7 @@ struct Style {
     std::string_view tooltip;
 };
 
+void StartDisable();
+void FinishDisable();
+
 } // end namespace gui
