@@ -34,13 +34,24 @@ static void DrawPropertyRow(std::string_view propertyName, std::string_view labe
     gui::NumberFieldStyle fieldStyle;
     fieldStyle.margin.left = 5;
     fieldStyle.margin.right = 5;
-    fieldStyle.width = 1000;
+    fieldStyle.width = 10000;
     fieldStyle.isInteger = value->IsIntegerType();
+    fieldStyle.showStepButtons = value->IsEnabledShowStepButtons();
     std::string textValue = value->ToString();
 
     std::string id = fmt::format("node.property.{}.{}", propertyName, labelText);
-    if (gui::NumberField(id, textValue, fieldStyle)) {
+    switch (gui::NumberField(id, textValue, fieldStyle)) {
+    case gui::NumberFieldAction::StepUp:
+        value->Inc();
+        break;
+    case gui::NumberFieldAction::StepDown:
+        value->Dec();
+        break;
+    case gui::NumberFieldAction::Changed:
         value->FromString(textValue);
+        break;
+    case gui::NumberFieldAction::None:
+        break;
     }
     ImGui::NextColumn();
 }

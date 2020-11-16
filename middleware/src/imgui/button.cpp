@@ -49,9 +49,9 @@ void RenderStepArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, But
     drawList->PathStroke(color, false, thickness);
 }
 
-bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF widgetRect) {
+bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF widgetRect, ImGuiButtonFlags flags) {
     bool hovered, held;
-    bool pressed = ImGui::ButtonBehavior(ToImGuiRect(drawRect), id, &hovered, &held, ImGuiButtonFlags_None);
+    bool pressed = ImGui::ButtonBehavior(ToImGuiRect(drawRect), id, &hovered, &held, flags);
     ImGui::RenderNavHighlight(ToImGuiRect(widgetRect), id);
 
     if (held || hovered) {
@@ -84,7 +84,7 @@ bool ArrowButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style
         return false;
     }
 
-    bool pressed = RenderBaseButton(id, drawRect, widgetRect);
+    bool pressed = RenderBaseButton(id, drawRect, widgetRect, ImGuiButtonFlags_None);
     RenderArrow(window->DrawList, drawRect, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), dir);
     DrawTooltip(&style);
 
@@ -102,7 +102,7 @@ bool StepButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style)
         return false;
     }
 
-    bool pressed = RenderBaseButton(id, drawRect, widgetRect);
+    bool pressed = RenderBaseButton(id, drawRect, widgetRect, ImGuiButtonFlags_Repeat);
     RenderStepArrow(window->DrawList, drawRect, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), dir);
 
     return pressed;

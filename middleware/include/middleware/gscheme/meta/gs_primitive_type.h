@@ -13,6 +13,13 @@ namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
 class PrimitiveType final : public IPrimitiveTypeEdit {
+    enum StateFlags : uint8_t {
+        EnabledUI = 1,
+        ShowStepButtons = 2,
+        StepChanged = 4,
+        ValueChanged = 8,
+    };
+
 public:
     using TLimitFunc = T(*)(T);
     using TStepFunc = T(*)(T, bool inc);
@@ -24,29 +31,19 @@ public:
 public:
     void Step(T value) {
         m_step = value;
-        m_stepChanged = true;
+        m_state |= StateFlags::StepChanged;
     }
 
     void Max(T value) {
         m_maxValue = value;
         m_minValue = std::min(m_minValue, m_maxValue);
-        if constexpr (std::is_floating_point_v<T>) {
-            T step = static_cast<T>((m_maxValue - m_minValue) / static_cast<T>(1000));
-            if (!m_stepChanged && (step <= 1.f))  {
-                m_step = step;
-            }
-        }
+        RecalcStep();
     }
 
     void Min(T value) {
         m_minValue = value;
         m_maxValue = std::max(m_minValue, m_maxValue);
-        if constexpr (std::is_floating_point_v<T>) {
-            T step = static_cast<T>((m_maxValue - m_minValue) / static_cast<T>(1000));
-            if (!m_stepChanged && (step <= 1.f))  {
-                m_step = step;
-            }
-        }
+        RecalcStep();
     }
 
     void Funcs(const TLimitFunc limitFunc, const TStepFunc stepFunc) {
@@ -63,20 +60,20 @@ public:
     }
 
     void DisableUI() {
-        m_enabledUI = false;
+        m_state &= ~StateFlags::EnabledUI;
     }
 
     void DisableStepButtons() {
-        m_showStepButtons = false;
+        m_state &= ~StateFlags::ShowStepButtons;
     }
 
 public:
     bool IsEnabledUI() const noexcept final {
-        return m_enabledUI;
+        return (m_state & StateFlags::EnabledUI) != 0;
     }
 
     bool IsEnabledShowStepButtons() const noexcept final {
-        return m_showStepButtons;
+        return (m_state & StateFlags::ShowStepButtons) != 0;
     }
 
     std::type_index GetTypeIndex() const {
@@ -84,12 +81,12 @@ public:
     }
 
     bool IsChanged() const final {
-        return m_isChanged;
+        return (m_state & StateFlags::ValueChanged) != 0;
     }
 
     void SetValue(const cpgf::GVariant& value) final {
         ApplyLimitsAndSet(cpgf::fromVariant<T>(value));
-        m_isChanged = false;
+        m_state &= ~StateFlags::ValueChanged;
     }
 
     cpgf::GVariant GetValue() const final {
@@ -180,8 +177,17 @@ public:
     }
 
 private:
+    void RecalcStep() {
+        if constexpr (std::is_floating_point_v<T>) {
+            T step = static_cast<T>((m_maxValue - m_minValue) / static_cast<T>(1000));
+            if (((m_state & StateFlags::StepChanged) == 0) && (step <= 1.f))  {
+                m_step = step;
+            }
+        }
+    }
+
     void ApplyLimitsAndSet(T value) {
-        m_isChanged = true;
+        m_state |= StateFlags::ValueChanged;
 
         if (m_limitFunc != nullptr) {
             m_value = m_limitFunc(value);
@@ -201,10 +207,7 @@ private:
     T m_minValue = std::numeric_limits<T>::lowest();
 
     uint8_t m_maxPrecision = 4;
-    bool m_enabledUI = true;
-    bool m_showStepButtons = true;
-    bool m_stepChanged = false;
-    bool m_isChanged = false;
+    uint8_t m_state = StateFlags::EnabledUI | StateFlags::ShowStepButtons;
     std::string m_prettyNama;
     TLimitFunc m_limitFunc = nullptr;
     TStepFunc m_stepFunc = nullptr;

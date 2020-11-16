@@ -57,6 +57,7 @@ struct FieldData {
     bool integerFilter = false;
     bool floatingFilter = false;
     bool showStepButtons = false;
+    ImGuiInputTextFlags flags = 0;
     std::string* text = nullptr;
 };
 
@@ -132,7 +133,7 @@ NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, co
     char* buf = fieldData->text->data();
     int bufSize = static_cast<int>(fieldData->text->capacity()) + 1;
     const ImVec2 sizeArg = ImVec2(0, 0);
-    ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
+    ImGuiInputTextFlags flags = fieldData->flags | ImGuiInputTextFlags_CallbackResize;
     if (fieldData->integerFilter || fieldData->floatingFilter) {
         flags |= ImGuiInputTextFlags_CallbackCharFilter;
     }
@@ -189,6 +190,7 @@ NumberFieldAction NumberField(std::string_view strId, std::string& text, const N
     fieldData.integerFilter = style.isInteger;
     fieldData.floatingFilter = !style.isInteger;
     fieldData.showStepButtons = style.showStepButtons;
+    fieldData.flags = ImGuiInputTextFlags_AutoSelectAll;
     fieldData.text = &text;
 
     return TextFieldImpl(strId, &fieldData, &style, outWidgetRect);
