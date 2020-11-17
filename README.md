@@ -8,11 +8,9 @@
 
 ```console
 sudo pip install conan
-conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-conan remote add terragraphics https://api.bintray.com/conan/terragraphics/conan-packages
 ```
 
-### Additional packages installation
+### Optional packages installation
 
 #### Install "[include what you use](https://github.com/include-what-you-use/include-what-you-use)"
 

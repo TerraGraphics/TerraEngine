@@ -27,6 +27,16 @@ endif()
 include(${CMAKE_SOURCE_DIR}/build_utils.cmake)
 include(${CMAKE_SOURCE_DIR}/conan.cmake)
 set(CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR};${CMAKE_MODULE_PATH}")
+
+conan_add_remote(NAME terragraphics
+        URL https://api.bintray.com/conan/bincrafters/public-conan
+        INDEX 1
+        COMMAND conan)
+conan_add_remote(NAME bincrafters
+        URL https://api.bintray.com/conan/terragraphics/conan-packages
+        INDEX 1
+        COMMAND conan)
+
 conan_cmake_run(CONANFILE conanfile.txt
     BUILD_TYPE "Release"
     BUILD missing
