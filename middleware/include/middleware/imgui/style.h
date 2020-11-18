@@ -8,6 +8,11 @@
 
 namespace gui {
 
+enum class Direction : uint8_t {
+    Up,
+    Down
+};
+
 enum class HorisontalAlign : uint8_t {
     Left,
     Center,

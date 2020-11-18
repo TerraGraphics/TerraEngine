@@ -1,12 +1,19 @@
 #include "imgui/widget_draw.h"
 
-#include "imgui/imgui.h"
+#include "imgui/internal.h"
 #include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {
 
-void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, uint32_t color, Direction dir) {
+math::Color4 GetThemeColor(ImGuiCol_ idx) {
+    ImGuiStyle& style = GImGui->Style;
+    ImVec4 c = style.Colors[static_cast<size_t>(idx)];
+    c.w *= style.Alpha;
+    return ToColor4(c);
+}
+
+void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color, Direction dir) {
     float widthOffset = rect.w/5.f;
     float width = rect.w - widthOffset * 2.f;
     float height = width * 0.5f;
@@ -32,7 +39,7 @@ void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, uint32_t color, Dir
 
     float thickness = 2.f;
     const ImVec2 points[] = {left, center, right};
-    drawList->AddPolyline(points, 3, color, false, thickness);
+    drawList->AddPolyline(points, 3, color.value, false, thickness);
 }
 
 } // end namespace gui

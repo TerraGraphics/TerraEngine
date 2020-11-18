@@ -72,4 +72,8 @@ math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax) {
     return math::RectF(ToPointF(pointMin), ToPointF(pointMax));
 }
 
+math::Color4 ToColor4(ImVec4 value) {
+    return math::Color4(value.x, value.y, value.z, value.w);
+}
+
 } // namespace gui

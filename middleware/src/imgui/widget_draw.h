@@ -2,15 +2,15 @@
 
 #include <cstdint>
 
+#include "imgui/imgui.h"
 #include "core/math/types.h"
 #include "middleware/imgui/style.h"
 
 
-
-struct ImDrawList;
-
 namespace gui {
 
-void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, uint32_t color, Direction dir);
+math::Color4 GetThemeColor(ImGuiCol_ idx);
+
+void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color, Direction dir);
 
 } // end namespace gui

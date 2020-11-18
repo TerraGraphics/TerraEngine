@@ -25,5 +25,6 @@ math::SizeF ToSizeF(ImVec2 value);
 math::RectF ToRectF(ImRect value);
 math::RectF ToRectF(ImVec4 value);
 math::RectF ToRectF(ImVec2 pointMin, ImVec2 pointMax);
+math::Color4 ToColor4(ImVec4 value);
 
 }

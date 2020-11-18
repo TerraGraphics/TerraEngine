@@ -127,7 +127,12 @@ struct Color4 {
     constexpr Color4(const Color4& o) noexcept : red(o.red), green(o.green), blue(o.blue), alpha(o.alpha) {}
     constexpr Color4(Color4&& o) noexcept : red(std::move(o.red)), green(std::move(o.green)), blue(std::move(o.blue)), alpha(std::move(o.alpha)) {}
     constexpr explicit Color4(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) noexcept : red(r), green(g), blue(b), alpha(a) {}
+    constexpr explicit Color4(float r, float g, float b, float a = 1.0f) noexcept : red(ConvertComponent(r)), green(ConvertComponent(g)), blue(ConvertComponent(b)), alpha(ConvertComponent(a)) {}
     constexpr explicit Color4(uint8_t v) noexcept : Color4(v, v, v, v) {}
+
+    static constexpr uint8_t ConvertComponent(float v) {
+        return static_cast<uint8_t>(std::lround(std::clamp(v, 0.f, 1.f) * 255.f));
+    }
 
     Color4& operator=(Color4 o) noexcept {
         std::swap(red, o.red);
