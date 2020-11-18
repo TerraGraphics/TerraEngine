@@ -54,23 +54,20 @@ void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outD
 
     const math::SizeF maxFullSize(ToSizeF(ImGui::GetContentRegionAvail()));
     const math::SizeF maxWidgetSize(std::max(math::SizeF(0, 0), maxFullSize - style->margin.Size()));
-    const math::SizeF maxInnerSize(std::max(math::SizeF(0, 0), maxWidgetSize - style->padding.Size()));
 
-    const math::SizeF innerSize(std::min(maxInnerSize, std::max(drawSize, style->minWidgetSize - style->padding.Size())));
-    const math::SizeF widgetSize(std::min(maxWidgetSize, innerSize + style->padding.Size()));
+    const math::SizeF widgetSize(std::min(maxWidgetSize, std::max(drawSize, style->minWidgetSize)));
     const math::SizeF fullSize(std::min(maxFullSize, widgetSize + style->margin.Size()));
 
     const math::RectF fullRect(fullPos, fullSize);
     const math::RectF widgetRect(fullRect - math::RectOffsetF(style->margin, fullSize - widgetSize));
-    const math::RectF innerRect(widgetRect - math::RectOffsetF(style->padding, widgetSize - innerSize));
 
-    auto drawRect = math::RectF(innerRect.LeftTop(), std::min(drawSize, innerSize));
+    auto drawRect = math::RectF(widgetRect.LeftTop(), std::min(drawSize, widgetSize));
     switch (style->horisontalAlign) {
     case HorisontalAlign::Center:
-        drawRect.x += (innerRect.Width() - drawRect.w) / 2.f;
+        drawRect.x += (widgetRect.Width() - drawRect.w) / 2.f;
         break;
     case HorisontalAlign::Right:
-        drawRect.x += (innerRect.Width() - drawRect.w);
+        drawRect.x += (widgetRect.Width() - drawRect.w);
         break;
     default:
         break;
@@ -78,10 +75,10 @@ void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outD
 
     switch (style->verticalAlign) {
     case VerticalAlign::Center:
-        drawRect.y += (innerRect.Height() - drawRect.h) / 2.f;
+        drawRect.y += (widgetRect.Height() - drawRect.h) / 2.f;
         break;
     case VerticalAlign::Bottom:
-        drawRect.y += (innerRect.Height() - drawRect.h);
+        drawRect.y += (widgetRect.Height() - drawRect.h);
         break;
     default:
         break;

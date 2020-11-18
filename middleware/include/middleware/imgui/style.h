@@ -27,7 +27,6 @@ enum class VerticalAlign : uint8_t {
 
 struct Style {
     math::RectOffsetF margin;
-    math::RectOffsetF padding;
     math::SizeF minWidgetSize;
     VerticalAlign verticalAlign = VerticalAlign::Top;
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;

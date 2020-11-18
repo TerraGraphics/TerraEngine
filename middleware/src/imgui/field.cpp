@@ -112,8 +112,6 @@ NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, co
     if (fieldData->showStepButtons) {
         stepButtonsStyle.margin = style->margin;
         stepButtonsStyle.margin.left = 0;
-        stepButtonsStyle.padding = style->padding;
-        stepButtonsStyle.padding.left = 0;
         stepButtonsStyle.minWidgetSize.h = drawRect.h;
         stepButtonsStyle.minWidgetSize.w = GetStepButtonsWidth(drawRect.h);
         stepButtonsStyle.verticalAlign = style->verticalAlign;

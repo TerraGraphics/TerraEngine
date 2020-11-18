@@ -84,7 +84,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     math::RectF buttonRect;
     gui::ButtonStyle buttonStyle;
     buttonStyle.margin.left = 4.f;
-    buttonStyle.margin.bottom = headerStyle.padding.bottom;
+    buttonStyle.margin.bottom = headerStyle.margin.bottom;
 
     float dt = m_inputPinsWidth + m_outputPinsWidth - headerRect.Width() - m_headerButtonWidth - buttonStyle.margin.Horizontal();
     if (m_showPinPreview) {
@@ -179,12 +179,12 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     gui::IconStyle iconStyle;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
-    iconStyle.padding.right = 8.f;
+    iconStyle.margin.right = 8.f;
 
     gui::LabelStyle labelStyle;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
-    labelStyle.padding.right = 8.f;
+    labelStyle.margin.right = 8.f;
     labelStyle.minWidgetSize = math::SizeF(0, m_iconSideSize);
 
     for (const auto& pin: pins) {
@@ -264,12 +264,12 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     gui::BeginVertical();
 
     gui::IconStyle iconStyle;
-    iconStyle.padding.left = 8.f;
+    iconStyle.margin.left = 8.f;
     iconStyle.sideSize = m_iconSideSize;
     iconStyle.color = math::Color(0, 255, 0, m_alpha);
 
     gui::LabelStyle labelStyle;
-    labelStyle.padding.left = 8.f;
+    labelStyle.margin.left = 8.f;
     labelStyle.horisontalAlign = gui::HorisontalAlign::Right;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
 

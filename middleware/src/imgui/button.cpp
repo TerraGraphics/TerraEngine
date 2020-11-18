@@ -90,7 +90,6 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
 
     float backupPosX = window->DC.CursorPos.x;
     halfStyle.margin.bottom = 0;
-    halfStyle.padding.bottom = 0;
     if (StepButton(std::string(strId) + ".up", Direction::Up, halfStyle)) {
         result = StepButtonAction::Up;
     }
@@ -98,8 +97,6 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
     window->DC.CursorPos.x = backupPosX;
     halfStyle.margin.top = 0;
     halfStyle.margin.bottom = style.margin.bottom;
-    halfStyle.padding.top = 0;
-    halfStyle.padding.bottom = style.padding.bottom;
     if (StepButton(std::string(strId) + ".down", Direction::Down, halfStyle)) {
         result = StepButtonAction::Down;
     }
