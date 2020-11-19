@@ -9,11 +9,6 @@
 
 namespace gui {
 
-enum class ButtonDir : uint8_t {
-    Up,
-    Down
-};
-
 enum class StepButtonAction : uint8_t {
     None,
     Up,
@@ -23,7 +18,7 @@ enum class StepButtonAction : uint8_t {
 struct ButtonStyle : Style {
 };
 
-bool ArrowButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
+bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
 StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
 
 } // end namespace gui

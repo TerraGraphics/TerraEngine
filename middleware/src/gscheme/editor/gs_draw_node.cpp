@@ -76,6 +76,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
 
     math::RectF headerRect;
     gui::LabelStyle headerStyle;
+    headerStyle.margin.top = 2.f;
     headerStyle.margin.bottom = ne::GetStyle().NodePadding.y; // NodePadding.top;
     gui::Label(prettyName, headerStyle, &headerRect);
     gui::SameLine();
@@ -94,8 +95,8 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
         buttonStyle.margin.left += dt;
     }
 
-    std::string buttonId(std::to_string(id) + "##show_pin_preview");
-    auto dir = m_showPinPreview ? gui::ButtonDir::Up : gui::ButtonDir::Down;
+    std::string buttonId(std::to_string(id) + ".show_pin_preview");
+    auto dir = m_showPinPreview ? gui::Direction::Up : gui::Direction::Down;
     if (gui::ArrowButton(buttonId, dir, buttonStyle, &buttonRect)) {
         m_showPinPreview = !m_showPinPreview;
     }

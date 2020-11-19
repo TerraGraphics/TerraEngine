@@ -6,49 +6,13 @@
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
-#include "imgui/gui_helpers.h"
+#include "imgui/widget_draw.h"
+#include "imgui/widget_placement.h"
 #include "middleware/imgui/layout.h"
 #include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {
-
-void RenderArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, ButtonDir dir) {
-    rect -= math::RectOffsetF(rect.h/8.f);
-
-    const float h = sqrtf(3.f) * 0.5f * rect.h;
-    if (dir == ButtonDir::Up) {
-        drawList->AddTriangleFilled(ToImGui(rect.LeftBottom()), ImVec2(rect.CenterX(), rect.Bottom() - h), ToImGui(rect.RightBottom()), color);
-    } else {
-        drawList->AddTriangleFilled(ToImGui(rect.RightTop()), ImVec2(rect.CenterX(), rect.Top() + h), ToImGui(rect.LeftTop()), color);
-    }
-}
-
-void RenderStepArrow(ImDrawList* drawList, math::RectF rect, uint32_t color, ButtonDir dir) {
-    float heightOffset = rect.h/4.f;
-    float widthOffset = rect.w/6.f;
-    rect -= math::RectOffsetF(widthOffset, widthOffset, heightOffset, heightOffset);
-
-    ImVec2 left, right, center;
-    if (dir == ButtonDir::Up) {
-        left = ToImGui(rect.LeftBottom());
-        center = ImVec2(rect.CenterX(), rect.Top());
-        right = ToImGui(rect.RightBottom());
-    } else {
-        left = ToImGui(rect.LeftTop());
-        center = ImVec2(rect.CenterX(), rect.Bottom());
-        right = ToImGui(rect.RightTop());
-    }
-
-    float thickness = 2.f;
-    auto dt = right - center;
-    dt /= dt.x * thickness;
-
-    drawList->PathLineTo(left);
-    drawList->PathLineTo(center);
-    drawList->PathLineTo(right + dt);
-    drawList->PathStroke(color, false, thickness);
-}
 
 bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF widgetRect, ImGuiButtonFlags flags) {
     bool hovered, held;
@@ -56,24 +20,22 @@ bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF widget
     ImGui::RenderNavHighlight(ToImGuiRect(widgetRect), id);
 
     if (held || hovered) {
-        ImGuiCol idx = (held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button;
-        const uint32_t bgColor = ImGui::GetColorU32(idx);
-        ImGuiContext& g = *GImGui;
-        ImGui::RenderFrame(ToImGui(widgetRect.Min()), ToImGui(widgetRect.Max()), bgColor, true, g.Style.FrameRounding);
+        auto idx = (held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button;
+        const uint32_t bgColor = GetThemeColor(idx).value;
+        ImGui::RenderFrame(ToImGui(widgetRect.Min()), ToImGui(widgetRect.Max()), bgColor, true, GImGui->Style.FrameRounding);
     }
 
     return pressed;
 }
 
-bool ArrowButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style, math::RectF* outWidgetRect) {
+bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style, math::RectF* outWidgetRect) {
     ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
     if (window == nullptr) {
         return false;
     }
 
-    ImGuiContext& g = *GImGui;
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
-    const math::SizeF drawSize = math::SizeF(g.FontSize);
+    const math::SizeF drawSize = math::SizeF(GetDefaultFieldHeight());
 
     math::RectF drawRect;
     math::RectF widgetRect;
@@ -86,13 +48,13 @@ bool ArrowButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style
     }
 
     bool pressed = RenderBaseButton(id, drawRect, widgetRect, ImGuiButtonFlags_None);
-    RenderArrow(window->DrawList, drawRect, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), dir);
+    DrawArrowIcon(window->DrawList, drawRect, GetThemeColor(ImGuiCol_Text), dir);
     DrawTooltip(&style);
 
     return pressed;
 }
 
-bool StepButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style) {
+bool StepButton(std::string_view strId, Direction dir, const ButtonStyle& style) {
     ImGuiWindow* window = GetCurrentWindow();
 
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
@@ -104,7 +66,7 @@ bool StepButton(std::string_view strId, ButtonDir dir, const ButtonStyle& style)
     }
 
     bool pressed = RenderBaseButton(id, drawRect, widgetRect, ImGuiButtonFlags_Repeat);
-    RenderStepArrow(window->DrawList, drawRect, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), dir);
+    DrawArrowIcon(window->DrawList, drawRect, GetThemeColor(ImGuiCol_Text), dir);
 
     return pressed;
 }
@@ -129,7 +91,7 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
     float backupPosX = window->DC.CursorPos.x;
     halfStyle.margin.bottom = 0;
     halfStyle.padding.bottom = 0;
-    if (StepButton(std::string(strId) + ".up", ButtonDir::Up, halfStyle)) {
+    if (StepButton(std::string(strId) + ".up", Direction::Up, halfStyle)) {
         result = StepButtonAction::Up;
     }
 
@@ -138,7 +100,7 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
     halfStyle.margin.bottom = style.margin.bottom;
     halfStyle.padding.top = 0;
     halfStyle.padding.bottom = style.padding.bottom;
-    if (StepButton(std::string(strId) + ".down", ButtonDir::Down, halfStyle)) {
+    if (StepButton(std::string(strId) + ".down", Direction::Down, halfStyle)) {
         result = StepButtonAction::Down;
     }
     auto widgetRect = EndVertical();

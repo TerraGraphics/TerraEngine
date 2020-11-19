@@ -2,7 +2,8 @@
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
-#include "imgui/gui_helpers.h"
+#include "imgui/widget_draw.h"
+#include "imgui/widget_placement.h"
 #include "middleware/imgui/imgui_math.h"
 
 
@@ -54,7 +55,7 @@ void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidge
         ImGuiContext& g = *GImGui;
         const auto clipRect = ToImGui(drawRect);
         const auto startPos = ToImGui(drawRect.Min());
-        window->DrawList->AddText(g.Font, g.FontSize, startPos, ImGui::GetColorU32(static_cast<ImGuiCol>(ImGuiCol_Text)), begin, end, wrapWidth, &clipRect);
+        window->DrawList->AddText(g.Font, g.FontSize, startPos, GetThemeColor(ImGuiCol_Text).value, begin, end, wrapWidth, &clipRect);
     }
 
     DrawTooltip(&style);

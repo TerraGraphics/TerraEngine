@@ -19,8 +19,9 @@ function(set_common_project_properties TARGET IWYU_FILE_NAME)
             -Wctor-dtor-privacy
             -Woverloaded-virtual
 
-            # -ftime-report
+            # -H
             # -ftime-trace
+            # -ftime-report
     )
 
     set_target_properties(${TARGET} PROPERTIES
