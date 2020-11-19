@@ -37,19 +37,28 @@ bool ItemAdd(uint32_t id, math::RectF widgetRect) {
 math::RectF WidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outFullRect) {
     ImGuiWindow* window = GetCurrentWindow();
 
+    math::RectOffsetF margin = std::max(math::RectOffsetF(), style->margin);
+
     const math::PointF fullPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
     const math::SizeF maxFullSize(ToSizeF(ImGui::GetContentRegionAvail()));
     math::SizeF fullSize(std::min(maxFullSize, style->availableSize));
-    if (style->availableSize.w <= 0.f) {
+    if (isnan(style->availableSize.w)) {
+        fullSize.w = std::min(maxFullSize.w, drawSize.w + margin.Horizontal());
+    } else if (style->availableSize.w < 0.f) {
         fullSize.w = std::max(0.f, maxFullSize.w + style->availableSize.w);
     }
-    if (style->availableSize.h <= 0.f) {
+    if (isnan(style->availableSize.h)) {
+        fullSize.h = std::min(maxFullSize.h, drawSize.h + margin.Vertical());
+    } else if (style->availableSize.h < 0.f) {
         fullSize.h = std::max(0.f, maxFullSize.h + style->availableSize.h);
     }
     const math::RectF fullRect(fullPos, fullSize);
-    const math::RectF innerRect(fullRect - style->margin);
 
-    auto drawRect = math::RectF(innerRect.LeftTop(), std::min(drawSize, innerRect.Size()));
+    math::RectF innerRect(fullRect - style->margin);
+    innerRect.w = std::max(0.f, innerRect.w);
+    innerRect.h = std::max(0.f, innerRect.h);
+
+    auto drawRect = math::RectF(innerRect.LeftTop(), std::max(math::SizeF(), std::min(drawSize, innerRect.Size())));
     switch (style->horisontalAlign) {
     case HorisontalAlign::Center:
         drawRect.x += (innerRect.Width() - drawRect.w) / 2.f;
@@ -81,13 +90,22 @@ math::RectF WidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* ou
 
 bool WidgetPlace(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outFullRect) {
     math::RectF fullRect;
-    auto drawRect = WidgetCalc(style, drawSize, &fullRect);
+    math::RectF drawRect = WidgetCalc(style, drawSize, &fullRect);
+
+    if (fullRect.w < 1.f) {
+        drawRect = math::RectF();
+        fullRect = math::RectF();
+    }
 
     if (outDrawRect != nullptr) {
         *outDrawRect = drawRect;
     }
     if (outFullRect != nullptr) {
         *outFullRect = fullRect;
+    }
+
+    if (fullRect.w < 1.f) {
+        return false;
     }
 
     ItemSize(fullRect.Size());

@@ -715,6 +715,24 @@ math::SizeT<T> max(math::SizeT<T> first, math::SizeT<T> second) {
 }
 
 template<typename T>
+math::RectOffsetT<T> min(math::RectOffsetT<T> first, math::RectOffsetT<T> second) {
+    return math::RectOffsetT<T>(
+        std::min(first.left, second.left),
+        std::min(first.right, second.right),
+        std::min(first.top, second.top),
+        std::min(first.bottom, second.bottom));
+}
+
+template<typename T>
+math::RectOffsetT<T> max(math::RectOffsetT<T> first, math::RectOffsetT<T> second) {
+    return math::RectOffsetT<T>(
+        std::max(first.left, second.left),
+        std::max(first.right, second.right),
+        std::max(first.top, second.top),
+        std::max(first.bottom, second.bottom));
+}
+
+template<typename T>
 math::RectT<T> min(math::RectT<T> first, math::RectT<T> second) {
     const auto left = std::max(first.Left(), second.Left());
     const auto top = std::max(first.Top(), second.Top());

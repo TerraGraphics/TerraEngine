@@ -27,10 +27,13 @@ enum class VerticalAlign : uint8_t {
 
 struct Style {
     math::RectOffsetF margin;
-    math::SizeF availableSize;
+    math::SizeF availableSize = math::SizeF(MINIMUM_REQUIRED);
     VerticalAlign verticalAlign = VerticalAlign::Top;
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;
     std::string_view tooltip;
+
+    static constexpr float ALL_AVAILABLE = std::numeric_limits<float>::max();
+    static constexpr float MINIMUM_REQUIRED = std::numeric_limits<float>::quiet_NaN();
 };
 
 void StartDisable();
