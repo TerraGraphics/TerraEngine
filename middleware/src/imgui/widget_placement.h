@@ -10,14 +10,9 @@ namespace gui {
 
 struct Style;
 
-bool isOpenGL();
-
 ImGuiWindow* GetCurrentWindow();
 // fill outWidgetRect as empty if window is skipped
 ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect = nullptr);
-
-float GetDefaultFieldHeight();
-float GetStepButtonsWidth(float height);
 
 void ItemSize(math::SizeF widgetSize);
 bool ItemAdd(uint32_t id, math::RectF widgetRect);
@@ -35,7 +30,5 @@ void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outD
 bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect);
 
 bool IsRectVisible(math::RectF rect);
-
-void DrawTooltip(const Style* style);
 
 } // end namespace gui

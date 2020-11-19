@@ -1,10 +1,29 @@
 #include "imgui/widget_draw.h"
 
+#include "dg/dg.h"
+#include "dg/device.h"
+#include "core/engine.h"
 #include "imgui/internal.h"
 #include "middleware/imgui/imgui_math.h"
 
 
 namespace gui {
+
+bool isOpenGL() {
+    bool isOpenGL = Engine::Get().GetDevice()->GetDeviceCaps().IsGLDevice();
+
+    return isOpenGL;
+}
+
+float GetDefaultFieldHeight() {
+    ImGuiContext& g = *GImGui;
+    return g.FontSize + g.Style.FramePadding.y * 2.0f;
+}
+
+float GetStepButtonsWidth(float height) {
+    const float goldenRation = 1.618f;
+    return height * 0.5f * goldenRation;
+}
 
 math::Color4 GetThemeColor(ImGuiCol_ idx) {
     ImGuiStyle& style = GImGui->Style;
@@ -13,7 +32,7 @@ math::Color4 GetThemeColor(ImGuiCol_ idx) {
     return ToColor4(c);
 }
 
-void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color, Direction dir) {
+void DrawArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color, Direction dir) {
     float widthOffset = rect.w/5.f;
     float width = rect.w - widthOffset * 2.f;
     float height = width * 0.5f;
@@ -40,6 +59,16 @@ void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color,
     float thickness = 2.f;
     const ImVec2 points[] = {left, center, right};
     drawList->AddPolyline(points, 3, color.value, false, thickness);
+}
+
+void DrawTooltip(const Style* style) {
+    if (!style->tooltip.empty() && ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(style->tooltip.cbegin(), style->tooltip.cend());
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
 }
 
 } // end namespace gui

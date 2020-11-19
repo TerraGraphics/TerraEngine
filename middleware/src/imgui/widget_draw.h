@@ -9,8 +9,12 @@
 
 namespace gui {
 
+bool isOpenGL();
+float GetDefaultFieldHeight();
+float GetStepButtonsWidth(float height);
 math::Color4 GetThemeColor(ImGuiCol_ idx);
 
-void RenderArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color, Direction dir);
+void DrawTooltip(const Style* style);
+void DrawArrowIcon(ImDrawList* drawList, math::RectF rect, math::Color4 color, Direction dir);
 
 } // end namespace gui

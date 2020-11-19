@@ -1,10 +1,7 @@
-#include "imgui/gui_helpers.h"
+#include "imgui/widget_placement"
 
 #include <string_view>
 
-#include "dg/dg.h"
-#include "dg/device.h"
-#include "core/engine.h"
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "middleware/imgui/style.h"
@@ -12,12 +9,6 @@
 
 
 namespace gui {
-
-bool isOpenGL() {
-    bool isOpenGL = Engine::Get().GetDevice()->GetDeviceCaps().IsGLDevice();
-
-    return isOpenGL;
-}
 
 ImGuiWindow* GetCurrentWindow() {
     return ImGui::GetCurrentWindow();
@@ -35,15 +26,6 @@ ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect) {
     return nullptr;
 }
 
-float GetDefaultFieldHeight() {
-    ImGuiContext& g = *GImGui;
-    return g.FontSize + g.Style.FramePadding.y * 2.0f;
-}
-
-float GetStepButtonsWidth(float height) {
-    return height * 0.5f * 1.618f;
-}
-
 void ItemSize(math::SizeF widgetSize) {
     ImGui::ItemSize(ToImGui(widgetSize), 0);
 }
@@ -53,7 +35,7 @@ bool ItemAdd(uint32_t id, math::RectF widgetRect) {
 }
 
 bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow* window = GetCurrentWindow();
 
     const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
     const math::RectF widgetRect(widgetPos, widgetSize);
@@ -66,7 +48,7 @@ bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect
 }
 
 void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect, math::RectF* outFullRect) {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow* window = GetCurrentWindow();
 
     const math::PointF fullPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
 
@@ -132,16 +114,6 @@ bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::Re
 bool IsRectVisible(math::RectF rect) {
     ImGuiWindow* window = GImGui->CurrentWindow;
     return window->ClipRect.Overlaps(ToImGuiRect(rect));
-}
-
-void DrawTooltip(const Style* style) {
-    if (!style->tooltip.empty() && ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted(style->tooltip.cbegin(), style->tooltip.cend());
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
 }
 
 } // end namespace gui
