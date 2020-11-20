@@ -34,40 +34,28 @@ bool ItemAdd(uint32_t id, math::RectF widgetRect) {
     return ImGui::ItemAdd(ToImGuiRect(widgetRect), id);
 }
 
-bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = GetCurrentWindow();
-
-    const math::PointF widgetPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
-    const math::RectF widgetRect(widgetPos, widgetSize);
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
-    }
-
-    ItemSize(widgetSize);
-    return ItemAdd(id, widgetRect);
-}
-
-void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect, math::RectF* outFullRect) {
+math::RectF WidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outFullRect) {
     ImGuiWindow* window = GetCurrentWindow();
 
     const math::PointF fullPos(window->DC.CursorPos.x, window->DC.CursorPos.y /*+ window->DC.CurrLineTextBaseOffset*/);
-
     const math::SizeF maxFullSize(ToSizeF(ImGui::GetContentRegionAvail()));
-    const math::SizeF maxWidgetSize(std::max(math::SizeF(0, 0), maxFullSize - style->margin.Size()));
-
-    const math::SizeF widgetSize(std::min(maxWidgetSize, std::max(drawSize, style->minWidgetSize)));
-    const math::SizeF fullSize(std::min(maxFullSize, widgetSize + style->margin.Size()));
-
+    math::SizeF fullSize(std::min(maxFullSize, style->availableSize));
+    if (style->availableSize.w <= 0.f) {
+        fullSize.w = std::max(0.f, maxFullSize.w + style->availableSize.w);
+    }
+    if (style->availableSize.h <= 0.f) {
+        fullSize.h = std::max(0.f, maxFullSize.h + style->availableSize.h);
+    }
     const math::RectF fullRect(fullPos, fullSize);
-    const math::RectF widgetRect(fullRect - math::RectOffsetF(style->margin, fullSize - widgetSize));
+    const math::RectF innerRect(fullRect - style->margin);
 
-    auto drawRect = math::RectF(widgetRect.LeftTop(), std::min(drawSize, widgetSize));
+    auto drawRect = math::RectF(innerRect.LeftTop(), std::min(drawSize, innerRect.Size()));
     switch (style->horisontalAlign) {
     case HorisontalAlign::Center:
-        drawRect.x += (widgetRect.Width() - drawRect.w) / 2.f;
+        drawRect.x += (innerRect.Width() - drawRect.w) / 2.f;
         break;
     case HorisontalAlign::Right:
-        drawRect.x += (widgetRect.Width() - drawRect.w);
+        drawRect.x += (innerRect.Width() - drawRect.w);
         break;
     default:
         break;
@@ -75,37 +63,35 @@ void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outD
 
     switch (style->verticalAlign) {
     case VerticalAlign::Center:
-        drawRect.y += (widgetRect.Height() - drawRect.h) / 2.f;
+        drawRect.y += (innerRect.Height() - drawRect.h) / 2.f;
         break;
     case VerticalAlign::Bottom:
-        drawRect.y += (widgetRect.Height() - drawRect.h);
+        drawRect.y += (innerRect.Height() - drawRect.h);
         break;
     default:
         break;
     }
 
+    if (outFullRect != nullptr) {
+        *outFullRect = fullRect;
+    }
+
+    return drawRect;
+}
+
+bool WidgetPlace(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outFullRect) {
+    math::RectF fullRect;
+    auto drawRect = WidgetCalc(style, drawSize, &fullRect);
+
     if (outDrawRect != nullptr) {
         *outDrawRect = drawRect;
-    }
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
     }
     if (outFullRect != nullptr) {
         *outFullRect = fullRect;
     }
-}
-
-bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect) {
-    math::RectF fullRect;
-    math::RectF widgetRect;
-    PlaceWidgetCalc(style, drawSize, outDrawRect, &widgetRect, &fullRect);
-
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
-    }
 
     ItemSize(fullRect.Size());
-    return ItemAdd(id, widgetRect);
+    return ItemAdd(id, drawRect);
 }
 
 bool IsRectVisible(math::RectF rect) {

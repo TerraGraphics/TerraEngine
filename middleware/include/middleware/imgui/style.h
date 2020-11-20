@@ -27,7 +27,7 @@ enum class VerticalAlign : uint8_t {
 
 struct Style {
     math::RectOffsetF margin;
-    math::SizeF minWidgetSize;
+    math::SizeF availableSize;
     VerticalAlign verticalAlign = VerticalAlign::Top;
     HorisontalAlign horisontalAlign = HorisontalAlign::Left;
     std::string_view tooltip;

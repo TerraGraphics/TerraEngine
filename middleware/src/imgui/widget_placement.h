@@ -17,17 +17,9 @@ ImGuiWindow* GetCheckedCurrentWindow(math::RectF* outWidgetRect = nullptr);
 void ItemSize(math::SizeF widgetSize);
 bool ItemAdd(uint32_t id, math::RectF widgetRect);
 
-// padding is empty
-// margin is empty
-// verticalAlign == Top;
-// horisontalAlign == Left;
-bool PlaceWidget(uint32_t id, math::SizeF widgetSize, math::RectF* outWidgetRect);
-
-// outDrawRect::Size == drawSize
-// outWidgetRect::Size >= Style::minSize
-// outFullRect::Size >= outWidgetRect::Size >= outDrawRect::Size
-void PlaceWidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect, math::RectF* outFullRect);
-bool PlaceWidget(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outWidgetRect);
+// return draw rect
+math::RectF WidgetCalc(const Style* style, math::SizeF drawSize, math::RectF* outFullRect = nullptr);
+bool WidgetPlace(uint32_t id, const Style* style, math::SizeF drawSize, math::RectF* outDrawRect, math::RectF* outFullRect);
 
 bool IsRectVisible(math::RectF rect);
 
