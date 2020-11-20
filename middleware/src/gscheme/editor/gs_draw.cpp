@@ -35,7 +35,7 @@ static void DrawPropertyRow(std::string_view propertyName, std::string_view labe
     gui::NumberFieldStyle fieldStyle;
     fieldStyle.margin.left = 5;
     fieldStyle.margin.right = 5;
-    fieldStyle.width = 10000;
+    fieldStyle.width = gui::NumberFieldStyle::ALL_AVAILABLE;
     fieldStyle.isInteger = value->IsIntegerType();
     fieldStyle.showStepButtons = value->IsEnabledShowStepButtons();
     std::string textValue = value->ToString();

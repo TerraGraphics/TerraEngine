@@ -35,7 +35,13 @@ bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style
     }
 
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
-    const math::SizeF drawSize = GetDefaultButtonSize();
+    math::SizeF drawSize = style.drawSize;
+    if (std::fpclassify(drawSize.w) == FP_ZERO) {
+        drawSize.w = GetDefaultFieldHeight();
+    }
+    if (std::fpclassify(drawSize.h) == FP_ZERO) {
+        drawSize.h = GetDefaultFieldHeight();
+    }
 
     math::RectF drawRect;
     math::RectF fullRect;
@@ -60,12 +66,12 @@ bool StepButton(std::string_view strId, Direction dir, const ButtonStyle& style)
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
 
     math::RectF drawRect;
-    math::RectF widgetRect;
-    if (!PlaceWidget(id, &style, style.minWidgetSize, &drawRect, &widgetRect)) {
+    math::RectF fullRect;
+    if (!WidgetPlace(id, &style, style.drawSize, &drawRect, &fullRect)) {
         return false;
     }
 
-    bool pressed = RenderBaseButton(id, drawRect, widgetRect, ImGuiButtonFlags_Repeat);
+    bool pressed = RenderBaseButton(id, drawRect, fullRect, ImGuiButtonFlags_Repeat);
     DrawArrowIcon(window->DrawList, drawRect, GetThemeColor(ImGuiCol_Text), dir);
 
     return pressed;
@@ -73,17 +79,22 @@ bool StepButton(std::string_view strId, Direction dir, const ButtonStyle& style)
 
 StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, math::RectF* outRect) {
     StepButtonAction result = StepButtonAction::None;
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return result;
     }
 
-    float drawHeight = ((style.minWidgetSize.h <= 1.f) ? GetDefaultFieldHeight() : style.minWidgetSize.h);
-    float drawWidht = (style.minWidgetSize.w <= 1.f) ? GetStepButtonsWidth(drawHeight) : style.minWidgetSize.h;
+    math::SizeF drawSize = style.drawSize;
+    if (std::fpclassify(drawSize.h) == FP_ZERO) {
+        drawSize.h = GetDefaultFieldHeight();
+    }
+    if (std::fpclassify(drawSize.w) == FP_ZERO) {
+        drawSize.w = GetStepButtonsWidth(drawSize.h);
+    }
 
     ButtonStyle halfStyle = style;
-    halfStyle.minWidgetSize.h = drawHeight * 0.5f;
-    halfStyle.minWidgetSize.w = drawWidht;
+    halfStyle.drawSize.w = drawSize.w;
+    halfStyle.drawSize.h = drawSize.h * 0.5f;
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
     BeginVertical();
@@ -100,11 +111,11 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
     if (StepButton(std::string(strId) + ".down", Direction::Down, halfStyle)) {
         result = StepButtonAction::Down;
     }
-    auto widgetRect = EndVertical();
+    auto fullRect = EndVertical();
     ImGui::PopStyleVar(1);
 
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
+    if (outRect != nullptr) {
+        *outRect = fullRect;
     }
 
     DrawTooltip(&style);

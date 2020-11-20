@@ -16,6 +16,7 @@ enum class StepButtonAction : uint8_t {
 };
 
 struct ButtonStyle : Style {
+    math::SizeF drawSize;
 };
 
 bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outRect = nullptr);

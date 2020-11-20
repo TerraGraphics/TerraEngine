@@ -63,7 +63,7 @@ struct FieldData {
     std::string* text = nullptr;
 };
 
-static int InputTextExCallback(ImGuiInputTextCallbackData* data) {
+static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     FieldData* fieldData = reinterpret_cast<FieldData*>(data->UserData);
 
     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
@@ -94,38 +94,36 @@ static int InputTextExCallback(ImGuiInputTextCallbackData* data) {
 
 namespace gui {
 
-NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, const FieldStyle* style, math::RectF* outWidgetRect) {
+NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, const FieldStyle* style, math::RectF* outRect) {
     NumberFieldAction result = NumberFieldAction::None;
 
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return result;
     }
 
     math::RectF fullRect;
-    math::RectF drawRect;
-    math::RectF widgetRect;
     const auto drawSize = math::SizeF(style->width, GetDefaultFieldHeight());
-    PlaceWidgetCalc(style, drawSize, &drawRect, &widgetRect, &fullRect);
+    math::RectF drawRect = WidgetCalc(style, drawSize, &fullRect);
 
     ButtonStyle stepButtonsStyle;
     if (fieldData->showStepButtons) {
         stepButtonsStyle.margin = style->margin;
         stepButtonsStyle.margin.left = 0;
-        stepButtonsStyle.minWidgetSize.h = drawRect.h;
-        stepButtonsStyle.minWidgetSize.w = GetStepButtonsWidth(drawRect.h);
+        stepButtonsStyle.availableSize.h = fullRect.h;
+        stepButtonsStyle.drawSize.h = drawSize.h;
+        stepButtonsStyle.drawSize.w = GetStepButtonsWidth(drawRect.h);
         stepButtonsStyle.verticalAlign = style->verticalAlign;
         stepButtonsStyle.horisontalAlign = HorisontalAlign::Left;
         stepButtonsStyle.tooltip = style->tooltip;
 
-        drawRect.w = std::max(drawRect.w - stepButtonsStyle.minWidgetSize.w, 0.f);
-        widgetRect.Right(drawRect.Right());
+        drawRect.w = std::max(drawRect.w - stepButtonsStyle.drawSize.w, 0.f);
         fullRect.Right(drawRect.Right());
         BeginHorizontal();
     }
 
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
+    if (outRect != nullptr) {
+        *outRect = fullRect;
     }
 
     const char label[] = "";
@@ -137,7 +135,7 @@ NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, co
     if (fieldData->integerFilter || fieldData->floatingFilter) {
         flags |= ImGuiInputTextFlags_CallbackCharFilter;
     }
-    ImGuiInputTextCallback callback = InputTextExCallback;
+    ImGuiInputTextCallback callback = InputTextCallback;
     void* callbackUserData = reinterpret_cast<void*>(fieldData);
 
     const auto backupState = BackupState(window->DC);
@@ -156,7 +154,7 @@ NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, co
     backupState.Restore(window->DC);
 
     ItemSize(fullRect.Size());
-    if (!ItemAdd(id, widgetRect)) {
+    if (!ItemAdd(id, drawRect)) {
         return result;
     }
 
@@ -169,23 +167,23 @@ NumberFieldAction TextFieldImpl(std::string_view strId, FieldData* fieldData, co
         } else if (action == StepButtonAction::Down) {
             result = NumberFieldAction::StepDown;
         }
-        auto fullWidgetRect = EndHorizontal();
-        if (outWidgetRect != nullptr) {
-            *outWidgetRect = fullWidgetRect;
+        auto totalFullRect = EndHorizontal();
+        if (outRect != nullptr) {
+            *outRect = totalFullRect;
         }
     }
 
     return result;
 }
 
-bool TextField(std::string_view strId, std::string& text, const FieldStyle& style, math::RectF* outWidgetRect) {
+bool TextField(std::string_view strId, std::string& text, const FieldStyle& style, math::RectF* outRect) {
     auto fieldData = FieldData();
     fieldData.text = &text;
 
-    return TextFieldImpl(strId, &fieldData, &style, outWidgetRect) != NumberFieldAction::None;
+    return TextFieldImpl(strId, &fieldData, &style, outRect) != NumberFieldAction::None;
 }
 
-NumberFieldAction NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style, math::RectF* outWidgetRect) {
+NumberFieldAction NumberField(std::string_view strId, std::string& text, const NumberFieldStyle& style, math::RectF* outRect) {
     auto fieldData = FieldData();
     fieldData.integerFilter = style.isInteger;
     fieldData.floatingFilter = !style.isInteger;
@@ -193,7 +191,7 @@ NumberFieldAction NumberField(std::string_view strId, std::string& text, const N
     fieldData.flags = ImGuiInputTextFlags_AutoSelectAll;
     fieldData.text = &text;
 
-    return TextFieldImpl(strId, &fieldData, &style, outWidgetRect);
+    return TextFieldImpl(strId, &fieldData, &style, outRect);
 }
 
 } // end namespace gui

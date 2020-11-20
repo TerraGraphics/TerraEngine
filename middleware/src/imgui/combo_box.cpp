@@ -19,10 +19,10 @@ static float CalcMaxPopupHeightFromItemCount(uint8_t itemsCount) {
     return (g.FontSize + g.Style.ItemSpacing.y) * static_cast<float>(itemsCount) - g.Style.ItemSpacing.y + (g.Style.WindowPadding.y * 2);
 }
 
-bool ComboBox(std::string_view strId, size_t& index, const std::vector<std::string>& items, const ComboBoxStyle& style, math::RectF* outWidgetRect) {
+bool ComboBox(std::string_view strId, size_t& index, const std::vector<std::string>& items, const ComboBoxStyle& style, math::RectF* outRect) {
     bool changed = false;
 
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return changed;
     }
@@ -42,10 +42,10 @@ bool ComboBox(std::string_view strId, size_t& index, const std::vector<std::stri
     g.NextWindowData.Flags &= ~ImGuiNextWindowDataFlags_HasSizeConstraint;
 
     math::RectF drawRect;
-    math::RectF widgetRect;
-    bool res = PlaceWidget(id, &style, drawSize, &drawRect, &widgetRect);
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
+    math::RectF fullRect;
+    bool res = WidgetPlace(id, &style, drawSize, &drawRect, &fullRect);
+    if (outRect != nullptr) {
+        *outRect = fullRect;
     }
     if (!res) {
         return changed;

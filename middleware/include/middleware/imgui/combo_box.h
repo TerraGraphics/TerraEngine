@@ -14,6 +14,6 @@ struct ComboBoxStyle : Style {
     float width = 50.f;
 };
 
-bool ComboBox(std::string_view strId, size_t& index, const std::vector<std::string>& items, const ComboBoxStyle& style = ComboBoxStyle(), math::RectF* outWidgetRect = nullptr);
+bool ComboBox(std::string_view strId, size_t& index, const std::vector<std::string>& items, const ComboBoxStyle& style = ComboBoxStyle(), math::RectF* outRect = nullptr);
 
 } // end namespace gui

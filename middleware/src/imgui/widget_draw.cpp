@@ -20,10 +20,6 @@ float GetDefaultFieldHeight() {
     return g.FontSize + g.Style.FramePadding.y * 2.0f;
 }
 
-math::SizeF GetDefaultButtonSize() {
-    return math::SizeF(GetDefaultFieldHeight());
-}
-
 float GetStepButtonsWidth(float height) {
     const float goldenRation = 1.618f;
     return height * 0.5f * goldenRation;
