@@ -14,40 +14,40 @@
 
 namespace gui {
 
-bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF widgetRect, ImGuiButtonFlags flags) {
+bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF fullRect, ImGuiButtonFlags flags) {
     bool hovered, held;
     bool pressed = ImGui::ButtonBehavior(ToImGuiRect(drawRect), id, &hovered, &held, flags);
-    ImGui::RenderNavHighlight(ToImGuiRect(widgetRect), id);
+    ImGui::RenderNavHighlight(ToImGuiRect(fullRect), id);
 
     if (held || hovered) {
         auto idx = (held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button;
         const uint32_t bgColor = GetThemeColor(idx).value;
-        ImGui::RenderFrame(ToImGui(widgetRect.Min()), ToImGui(widgetRect.Max()), bgColor, true, GImGui->Style.FrameRounding);
+        ImGui::RenderFrame(ToImGui(fullRect.Min()), ToImGui(fullRect.Max()), bgColor, true, GImGui->Style.FrameRounding);
     }
 
     return pressed;
 }
 
-bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style, math::RectF* outRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return false;
     }
 
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
-    const math::SizeF drawSize = math::SizeF(GetDefaultFieldHeight());
+    const math::SizeF drawSize = GetDefaultButtonSize();
 
     math::RectF drawRect;
-    math::RectF widgetRect;
-    bool res = PlaceWidget(id, &style, drawSize, &drawRect, &widgetRect);
-    if (outWidgetRect != nullptr) {
-        *outWidgetRect = widgetRect;
+    math::RectF fullRect;
+    bool placeResult = WidgetPlace(id, &style, drawSize, &drawRect, &fullRect);
+    if (outRect != nullptr) {
+        *outRect = fullRect;
     }
-    if (!res) {
+    if (!placeResult) {
         return false;
     }
 
-    bool pressed = RenderBaseButton(id, drawRect, widgetRect, ImGuiButtonFlags_None);
+    bool pressed = RenderBaseButton(id, drawRect, fullRect, ImGuiButtonFlags_None);
     DrawArrowIcon(window->DrawList, drawRect, GetThemeColor(ImGuiCol_Text), dir);
     DrawTooltip(&style);
 
@@ -71,7 +71,7 @@ bool StepButton(std::string_view strId, Direction dir, const ButtonStyle& style)
     return pressed;
 }
 
-StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, math::RectF* outWidgetRect) {
+StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, math::RectF* outRect) {
     StepButtonAction result = StepButtonAction::None;
     ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
     if (window == nullptr) {

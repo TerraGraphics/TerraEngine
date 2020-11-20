@@ -18,7 +18,7 @@ enum class StepButtonAction : uint8_t {
 struct ButtonStyle : Style {
 };
 
-bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
-StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style = ButtonStyle(), math::RectF* outWidgetRect = nullptr);
+bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outRect = nullptr);
+StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style = ButtonStyle(), math::RectF* outRect = nullptr);
 
 } // end namespace gui

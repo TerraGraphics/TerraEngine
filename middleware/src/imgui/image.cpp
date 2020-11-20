@@ -176,8 +176,8 @@ private:
     const bool m_filled;
 };
 
-void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return;
     }
@@ -185,7 +185,7 @@ void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWi
     const math::SizeF drawSize(style.sideSize, style.sideSize);
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
+    if (!WidgetPlace(0, &style, drawSize, &drawRect, outRect)) {
         return;
     }
 
@@ -232,14 +232,14 @@ void Icon(IconType type, bool filled, const IconStyle& style, math::RectF* outWi
     DrawTooltip(&style);
 }
 
-void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return;
     }
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
+    if (!WidgetPlace(0, &style, drawSize, &drawRect, outRect)) {
         return;
     }
 
@@ -247,14 +247,14 @@ void Image(math::SizeF drawSize, const ImageStyle& style, math::RectF* outWidget
     DrawTooltip(&style);
 }
 
-void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+void Image(math::SizeF drawSize, TextureViewPtr texture, const ImageStyle& style, math::RectF* outRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return;
     }
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
+    if (!WidgetPlace(0, &style, drawSize, &drawRect, outRect)) {
         return;
     }
 

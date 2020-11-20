@@ -27,14 +27,13 @@ math::RectF LabelCalc(std::string_view text, const LabelStyle& style) {
 
     float wrapWidth;
     math::RectF fullRect;
-    math::RectF widgetRect;
-    PlaceWidgetCalc(static_cast<const Style*>(&style), CalcTextSize(text, wrapWidth), nullptr, &widgetRect, &fullRect);
+    WidgetCalc(&style, CalcTextSize(text, wrapWidth), &fullRect);
 
-    return widgetRect;
+    return fullRect;
 }
 
-void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidgetRect) {
-    ImGuiWindow* window = GetCheckedCurrentWindow(outWidgetRect);
+void Label(std::string_view text, const LabelStyle& style, math::RectF* outRect) {
+    ImGuiWindow* window = GetCheckedCurrentWindow(outRect);
     if (window == nullptr) {
         return;
     }
@@ -47,7 +46,7 @@ void Label(std::string_view text, const LabelStyle& style, math::RectF* outWidge
     const math::SizeF drawSize = CalcTextSize(text, wrapWidth);
 
     math::RectF drawRect;
-    if (!PlaceWidget(0, &style, drawSize, &drawRect, outWidgetRect)) {
+    if (!WidgetPlace(0, &style, drawSize, &drawRect, outRect)) {
         return;
     }
 

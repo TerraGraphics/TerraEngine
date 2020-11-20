@@ -12,6 +12,6 @@ struct LabelStyle : Style {
 };
 
 math::RectF LabelCalc(std::string_view text, const LabelStyle& style = LabelStyle());
-void Label(std::string_view text, const LabelStyle& style = LabelStyle(), math::RectF* outWidgetRect = nullptr);
+void Label(std::string_view text, const LabelStyle& style = LabelStyle(), math::RectF* outRect = nullptr);
 
 } // end namespace gui

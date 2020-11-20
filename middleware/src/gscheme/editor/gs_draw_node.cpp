@@ -86,7 +86,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     buttonStyle.margin.left = 4.f;
     buttonStyle.margin.bottom = headerStyle.margin.bottom;
 
-    float dt = m_inputPinsWidth + m_outputPinsWidth - headerRect.Width() - m_headerButtonWidth - buttonStyle.margin.Horizontal();
+    float dt = m_inputPinsWidth + m_outputPinsWidth - headerRect.Width() - m_headerButtonWidth;
     if (m_showPinPreview) {
         dt += m_pinPreviewSize.w;
     }
@@ -117,7 +117,7 @@ void DrawNode::OnFinishDrawNode(bool isValid, std::string_view errorMessage, voi
         gui::LabelStyle footerStyle;
         footerStyle.horisontalAlign = gui::HorisontalAlign::Center;
         footerStyle.margin.top = ne::GetStyle().NodePadding.w; // NodePadding.bottom;
-        footerStyle.minWidgetSize = math::SizeF(std::max(nodePartWidht, m_headerWidth), 0);
+        footerStyle.availableSize.w = std::max(nodePartWidht, m_headerWidth);
         footerStyle.tooltip = errorMessage;
         math::RectF footerRect;
         gui::Label("Error", footerStyle, &footerRect);
@@ -185,7 +185,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     labelStyle.horisontalAlign = gui::HorisontalAlign::Left;
     labelStyle.verticalAlign = gui::VerticalAlign::Center;
     labelStyle.margin.right = 8.f;
-    labelStyle.minWidgetSize = math::SizeF(0, m_iconSideSize);
+    labelStyle.availableSize.h = m_iconSideSize;
 
     for (const auto& pin: pins) {
         ne::BeginPin(ne::PinId(pin.id), ne::PinKind::Input);
@@ -278,7 +278,7 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
         labelWidth = std::max(labelWidth, gui::LabelCalc(pin.displayName, labelStyle).w);
     }
 
-    labelStyle.minWidgetSize = math::SizeF(labelWidth, m_iconSideSize);
+    labelStyle.availableSize = math::SizeF(labelWidth, m_iconSideSize);
 
     for (const auto& pin: pins) {
         gui::Label(pin.displayName, labelStyle);

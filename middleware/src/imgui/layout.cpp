@@ -5,6 +5,7 @@
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "core/math/types.h"
+#include "middleware/imgui/style.h"
 #include "imgui/widget_placement.h"
 #include "middleware/imgui/imgui_math.h"
 
@@ -30,12 +31,14 @@ math::RectF Dummy(math::SizeF size) {
         return math::RectF();
     }
 
-    math::RectF widgetRect;
-    if (!PlaceWidget(0, size, &widgetRect)) {
-        return widgetRect;
+    Style style;
+    math::RectF drawRect;
+    math::RectF fullRect;
+    if (!WidgetPlace(0, &style, size, &drawRect, &fullRect)) {
+        return math::RectF();
     }
 
-    return widgetRect;
+    return fullRect;
 }
 
 static std::stack<ImGuiLayoutType> layouts;

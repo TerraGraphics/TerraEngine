@@ -11,6 +11,7 @@ namespace gui {
 
 bool isOpenGL();
 float GetDefaultFieldHeight();
+math::SizeF GetDefaultButtonSize();
 float GetStepButtonsWidth(float height);
 math::Color4 GetThemeColor(ImGuiCol_ idx);
 
