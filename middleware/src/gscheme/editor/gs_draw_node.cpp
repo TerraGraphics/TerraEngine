@@ -32,7 +32,6 @@ DrawNode::DrawNode(DrawNode&& o) noexcept {
 
     std::swap(m_headerWidth, o.m_headerWidth);
     std::swap(m_headerBottom, o.m_headerBottom);
-    std::swap(m_headerButtonWidth, o.m_headerButtonWidth);
     std::swap(m_inputPinsWidth, o.m_inputPinsWidth);
     std::swap(m_outputPinsWidth, o.m_outputPinsWidth);
 }
@@ -55,7 +54,6 @@ void DrawNode::OnStartDrawGraph() {
         m_frameNum = 0;
         m_headerWidth = 0.f;
         m_headerBottom = 0.f;
-        m_headerButtonWidth = 0.f;
         m_inputPinsWidth = 0.f;
         m_outputPinsWidth = 0.f;
     }
@@ -74,37 +72,35 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     // draw header
     gui::BeginHorizontal();
 
-    math::RectF headerRect;
-    gui::LabelStyle headerStyle;
-    headerStyle.margin.top = 2.f;
-    headerStyle.margin.bottom = ne::GetStyle().NodePadding.y; // NodePadding.top;
-    gui::Label(prettyName, headerStyle, &headerRect);
+    math::RectF headerLabelRect;
+    gui::LabelStyle labelStyle;
+    labelStyle.margin.top = 2.f;
+    labelStyle.margin.bottom = ne::GetStyle().NodePadding.y; // NodePadding.top;
+    gui::Label(prettyName, labelStyle, &headerLabelRect);
     gui::SameLine();
 
-    math::RectF buttonRect;
-    gui::ButtonStyle buttonStyle;
-    buttonStyle.margin.left = 4.f;
-    buttonStyle.margin.bottom = headerStyle.margin.bottom;
-
-    float dt = m_inputPinsWidth + m_outputPinsWidth - headerRect.Width() - m_headerButtonWidth;
+    float requiredWidth = m_inputPinsWidth + m_outputPinsWidth;
     if (m_showPinPreview) {
-        dt += m_pinPreviewSize.w;
+        requiredWidth += m_pinPreviewSize.w;
     }
 
-    if (dt > 0) {
-        buttonStyle.margin.left += dt;
-    }
+    math::RectF headerButtonRect;
+    gui::ButtonStyle buttonStyle;
+    buttonStyle.horisontalAlign = gui::HorisontalAlign::Right;
+    buttonStyle.margin.left = 4.f;
+    buttonStyle.margin.bottom = 1.f;
+    buttonStyle.drawSize = math::SizeF(headerLabelRect.Height() + 0.f);
+    buttonStyle.availableSize.w = std::max(requiredWidth - headerLabelRect.Width(), buttonStyle.drawSize.w + buttonStyle.margin.Horizontal());
 
     std::string buttonId(std::to_string(id) + ".show_pin_preview");
     auto dir = m_showPinPreview ? gui::Direction::Up : gui::Direction::Down;
-    if (gui::ArrowButton(buttonId, dir, buttonStyle, &buttonRect)) {
+    if (gui::ArrowButton(buttonId, dir, buttonStyle, &headerButtonRect)) {
         m_showPinPreview = !m_showPinPreview;
     }
 
-    headerRect = gui::EndHorizontal();
+    const math::RectF headerRect = gui::EndHorizontal();
     m_headerWidth = headerRect.Width();
     m_headerBottom = headerRect.Bottom();
-    m_headerButtonWidth = buttonRect.Width();
 
     gui::BeginHorizontal();
 }

@@ -48,7 +48,6 @@ private:
 private:
     float m_headerWidth = 0.f;
     float m_headerBottom = 0.f;
-    float m_headerButtonWidth = 0.f;
     float m_inputPinsWidth = 0.f;
     float m_outputPinsWidth = 0.f;
 

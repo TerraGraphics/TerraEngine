@@ -14,15 +14,15 @@
 
 namespace gui {
 
-bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, math::RectF fullRect, ImGuiButtonFlags flags) {
+bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, ImGuiButtonFlags flags) {
     bool hovered, held;
     bool pressed = ImGui::ButtonBehavior(ToImGuiRect(drawRect), id, &hovered, &held, flags);
-    ImGui::RenderNavHighlight(ToImGuiRect(fullRect), id);
+    ImGui::RenderNavHighlight(ToImGuiRect(drawRect), id);
 
     if (held || hovered) {
         auto idx = (held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button;
         const uint32_t bgColor = GetThemeColor(idx).value;
-        ImGui::RenderFrame(ToImGui(fullRect.Min()), ToImGui(fullRect.Max()), bgColor, true, GImGui->Style.FrameRounding);
+        ImGui::RenderFrame(ToImGui(drawRect.Min()), ToImGui(drawRect.Max()), bgColor, true, GImGui->Style.FrameRounding);
     }
 
     return pressed;
@@ -44,16 +44,11 @@ bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style
     }
 
     math::RectF drawRect;
-    math::RectF fullRect;
-    bool placeResult = WidgetPlace(id, &style, drawSize, &drawRect, &fullRect);
-    if (outRect != nullptr) {
-        *outRect = fullRect;
-    }
-    if (!placeResult) {
+    if (!WidgetPlace(id, &style, drawSize, &drawRect, outRect)) {
         return false;
     }
 
-    bool pressed = RenderBaseButton(id, drawRect, fullRect, ImGuiButtonFlags_None);
+    bool pressed = RenderBaseButton(id, drawRect, ImGuiButtonFlags_None);
     DrawArrowIcon(window->DrawList, drawRect, GetThemeColor(ImGuiCol_Text), dir);
     DrawTooltip(&style);
 
@@ -66,12 +61,11 @@ bool StepButton(std::string_view strId, Direction dir, const ButtonStyle& style)
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
 
     math::RectF drawRect;
-    math::RectF fullRect;
-    if (!WidgetPlace(id, &style, style.drawSize, &drawRect, &fullRect)) {
+    if (!WidgetPlace(id, &style, style.drawSize, &drawRect, nullptr)) {
         return false;
     }
 
-    bool pressed = RenderBaseButton(id, drawRect, fullRect, ImGuiButtonFlags_Repeat);
+    bool pressed = RenderBaseButton(id, drawRect, ImGuiButtonFlags_Repeat);
     DrawArrowIcon(window->DrawList, drawRect, GetThemeColor(ImGuiCol_Text), dir);
 
     return pressed;
