@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <cstdint>
 #include <string_view>
 

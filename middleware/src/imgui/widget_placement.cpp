@@ -1,6 +1,7 @@
 #include "imgui/widget_placement.h"
 
-#include <string_view>
+#include <cmath>
+#include <algorithm>
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"

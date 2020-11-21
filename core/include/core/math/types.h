@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <utility>
+#include <algorithm>
 #include <type_traits>
 
 #include "dg/math.h"

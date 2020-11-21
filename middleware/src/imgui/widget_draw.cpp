@@ -1,5 +1,8 @@
 #include "imgui/widget_draw.h"
 
+#include <cstddef>
+#include <string_view>
+
 #include "dg/dg.h"
 #include "dg/device.h"
 #include "core/engine.h"

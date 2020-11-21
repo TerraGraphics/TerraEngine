@@ -1,5 +1,7 @@
 #include "core/material/texture_manager.h"
 
+#include <new>
+#include <utility>
 #include <type_traits>
 
 #include "dg/device.h"

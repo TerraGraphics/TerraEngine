@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <cstdint>
+#include <cstddef>
 #include <string_view>
 
 #include "middleware/imgui/style.h"

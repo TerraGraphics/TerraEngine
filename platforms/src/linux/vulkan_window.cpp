@@ -3,7 +3,8 @@
 #include <thread>
 #include <chrono>
 #include <cstring>
-#include <stdlib.h>
+#include <compare>
+#include <cstdlib>
 #include <stdexcept>
 
 #include <X11/X.h>

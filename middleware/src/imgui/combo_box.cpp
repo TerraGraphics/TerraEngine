@@ -1,14 +1,15 @@
 #include "middleware/imgui/combo_box.h"
 
+#include <cfloat>
+#include <memory>
 #include <cstddef>
-#include <algorithm>
+#include <cstdint>
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"
 #include "imgui/widget_draw.h"
 #include "core/common/exception.h"
 #include "imgui/widget_placement.h"
-#include "middleware/imgui/button.h"
 #include "middleware/imgui/imgui_math.h"
 
 

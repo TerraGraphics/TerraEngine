@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <chrono>
+#include <compare>
 #include <stdexcept>
 
 #include <GL/gl.h>

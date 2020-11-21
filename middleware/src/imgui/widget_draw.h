@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "imgui/imgui.h"
 #include "core/math/types.h"
 #include "middleware/imgui/style.h"
