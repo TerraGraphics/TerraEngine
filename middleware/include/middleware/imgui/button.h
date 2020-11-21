@@ -19,6 +19,7 @@ struct ButtonStyle : Style {
     math::SizeF drawSize;
 };
 
+bool CheckBox(std::string_view strId, bool& value, const ButtonStyle& style = ButtonStyle(), math::RectF* outRect = nullptr);
 bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style = ButtonStyle(), math::RectF* outRect = nullptr);
 StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style = ButtonStyle(), math::RectF* outRect = nullptr);
 
