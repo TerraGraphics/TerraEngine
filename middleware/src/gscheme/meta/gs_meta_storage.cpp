@@ -15,20 +15,22 @@ struct MetaStorage::Impl : Fixed {
     ~Impl();
 
     std::unordered_map<std::type_index, MetaType*> m_types;
+    std::unordered_map<std::type_index, MetaEnum*> m_enums;
 };
 
 MetaStorage::Impl::~Impl() {
     for (auto& [_, v]: m_types) {
         delete v;
     }
+    for (auto& [_, v]: m_enums) {
+        delete v;
+    }
 }
 
-MetaStorage::MetaStorage()
-    : impl() {
+MetaStorage::MetaStorage() {
 }
 
 MetaStorage::~MetaStorage() {
-
 }
 
 MetaType* MetaStorage::GetType(std::type_index id) {
@@ -45,6 +47,22 @@ void MetaStorage::AddType(std::type_index id, MetaType* metaType) {
     }
 
     impl->m_types[id] = metaType;
+}
+
+MetaEnum* MetaStorage::GetEnum(std::type_index id) {
+    if (auto it = impl->m_enums.find(id); it != impl->m_enums.cend()) {
+        return it->second;
+    }
+
+    throw EngineError("gs::MetaStorage::GetEnum: metaEnum with name = {} not found", id.name());
+}
+
+void MetaStorage::AddEnum(std::type_index id, MetaEnum* metaEnum) {
+    if (impl->m_enums.find(id) != impl->m_enums.cend()) {
+        throw EngineError("gs::MetaStorage::AddEnum: metaEnum with name = {} already exists", id.name());
+    }
+
+    impl->m_enums[id] = metaEnum;
 }
 
 }

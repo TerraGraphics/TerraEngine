@@ -20,4 +20,16 @@ void MetaType::AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type
     m_fields.push_back(FieldByIndex{index, std::string(name), id});
 }
 
+void MetaEnum::AddField(ptrdiff_t value, std::string_view name) {
+    for (const auto& field: m_fields) {
+        if (field.value == value) {
+            throw EngineError("gs::MetaType::MetaEnum: value = {} with name = {} already exists", value, name);
+        }
+        if (field.name == name) {
+            throw EngineError("gs::MetaType::MetaEnum: name = {} with value = {} already exists", name, value);
+        }
+    }
+    m_fields.push_back(Field{value, std::string(name)});
+}
+
 }
