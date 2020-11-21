@@ -13,7 +13,7 @@ namespace gs {
 
 class MetaType : Fixed {
 public:
-    struct FieldByIndex {
+    struct Field {
         ptrdiff_t index;
         std::string name;
         std::type_index id;
@@ -24,10 +24,10 @@ public:
     ~MetaType() = default;
 
     void AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type_index id);
-    const std::vector<FieldByIndex>& GetFields() const { return m_fields; }
+    const std::vector<Field>& GetFields() const { return m_fields; }
 
 private:
-    std::vector<FieldByIndex> m_fields;
+    std::vector<Field> m_fields;
 };
 
 class MetaEnum : Fixed {

@@ -17,7 +17,7 @@ void MetaType::AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type
             throw EngineError("gs::MetaType::AddFieldByIndex: name = {} with index = {} already exists", name, index);
         }
     }
-    m_fields.push_back(FieldByIndex{index, std::string(name), id});
+    m_fields.push_back(Field{index, std::string(name), id});
 }
 
 void MetaEnum::AddField(ptrdiff_t value, std::string_view name) {
