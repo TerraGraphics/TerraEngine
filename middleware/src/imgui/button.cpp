@@ -55,13 +55,11 @@ bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style
     return pressed;
 }
 
-bool StepButton(std::string_view strId, Direction dir, const ButtonStyle& style) {
+bool StepButton(std::string_view strId, Direction dir, math::RectF drawRect) {
     ImGuiWindow* window = GetCurrentWindow();
 
     const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
-
-    math::RectF drawRect;
-    if (!WidgetPlace(id, &style, style.drawSize, &drawRect, nullptr)) {
+    if (!ItemAdd(id, drawRect)) {
         return false;
     }
 
@@ -86,27 +84,19 @@ StepButtonAction StepButtons(std::string_view strId, const ButtonStyle& style, m
         drawSize.w = GetStepButtonsWidth(drawSize.h);
     }
 
-    ButtonStyle halfStyle = style;
-    halfStyle.drawSize.w = drawSize.w;
-    halfStyle.drawSize.h = drawSize.h * 0.5f;
+    math::RectF fullRect;
+    math::RectF drawRect = WidgetCalc(&style, drawSize, &fullRect);
+    ItemSize(fullRect.Size());
 
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-    BeginVertical();
-
-    float backupPosX = window->DC.CursorPos.x;
-    halfStyle.margin.bottom = 0;
-    if (StepButton(std::string(strId) + ".up", Direction::Up, halfStyle)) {
+    drawRect.h /= 2.f;
+    if (StepButton(std::string(strId) + ".up", Direction::Up, drawRect)) {
         result = StepButtonAction::Up;
     }
 
-    window->DC.CursorPos.x = backupPosX;
-    halfStyle.margin.top = 0;
-    halfStyle.margin.bottom = style.margin.bottom;
-    if (StepButton(std::string(strId) + ".down", Direction::Down, halfStyle)) {
+    drawRect.y += drawRect.h;
+    if (StepButton(std::string(strId) + ".down", Direction::Down, drawRect)) {
         result = StepButtonAction::Down;
     }
-    auto fullRect = EndVertical();
-    ImGui::PopStyleVar(1);
 
     if (outRect != nullptr) {
         *outRect = fullRect;
