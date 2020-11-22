@@ -57,8 +57,8 @@ public:
         m_maxPrecision = value;
     }
 
-    void SetPrettyName(std::string_view prettyNama) {
-        m_prettyNama = prettyNama;
+    void SetPrettyName(std::string_view prettyName) {
+        m_prettyName = prettyName;
     }
 
     void DisableUI() {
@@ -105,7 +105,7 @@ public:
     }
 
     std::string_view GetPrettyName() const final {
-        return m_prettyNama;
+        return m_prettyName;
     }
 
     void Inc() final {
@@ -210,7 +210,7 @@ private:
 
     uint8_t m_maxPrecision = 4;
     uint8_t m_state = StateFlags::EnabledUI | StateFlags::ShowStepButtons;
-    std::string m_prettyNama;
+    std::string m_prettyName;
     TLimitFunc m_limitFunc = nullptr;
     TStepFunc m_stepFunc = nullptr;
 };

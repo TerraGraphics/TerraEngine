@@ -33,8 +33,9 @@ private:
 class MetaEnum : Fixed {
 public:
     struct Field {
-        ptrdiff_t value;
+        uint64_t value;
         std::string name;
+        std::string prettyName;
     };
 
 public:
@@ -42,7 +43,7 @@ public:
     ~MetaEnum() = default;
 
 public:
-    void AddField(ptrdiff_t value, std::string_view name);
+    void AddField(uint64_t value, std::string_view name, std::string_view prettyName);
     const std::vector<Field>& GetFields() const { return m_fields; }
 
 private:

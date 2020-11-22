@@ -193,7 +193,7 @@ public:
     }
 
     template<typename T>
-    DefineArrayType& FieldByIndex(ptrdiff_t index, std::string_view name) {
+    DefineArrayType& AddFieldByIndex(ptrdiff_t index, std::string_view name) {
         m_metaType->AddFieldByIndex(index, name, std::type_index(typeid(T)));
 
         return *this;
@@ -203,11 +203,37 @@ private:
     MetaType* m_metaType = nullptr;
 };
 
+class DefineEnum : Fixed {
+public:
+    DefineEnum() = delete;
+    DefineEnum(std::type_index typeIndex) {
+        m_metaEnum = new MetaEnum();
+        MetaStorage::getInstance().AddEnum(typeIndex, m_metaEnum);
+    }
+
+    template<typename T>
+    DefineEnum& AddField(T value, std::string_view name, std::string_view prettyName = std::string_view()) {
+        m_metaEnum->AddField(static_cast<uint64_t>(value), name, prettyName);
+
+        return *this;
+    }
+
+private:
+    MetaEnum* m_metaEnum = nullptr;
+};
+
 }
 
 template<typename T, std::enable_if_t<meta::IsArrayLikeV<T>, int> = 0>
 detail::DefineArrayType DefineType() {
     return detail::DefineArrayType(std::type_index(typeid(T)));
+}
+
+template<typename T, std::enable_if_t<std::is_enum_v<T> &&
+    std::numeric_limits<std::underlying_type_t<T>>::max() <= std::numeric_limits<uint64_t>::max() &&
+    std::numeric_limits<std::underlying_type_t<T>>::min() >= 0, int> = 0>
+detail::DefineEnum DefineEnum() {
+    return detail::DefineEnum(std::type_index(typeid(T)));
 }
 
 template <typename ClassType, typename BaseType0 = void>

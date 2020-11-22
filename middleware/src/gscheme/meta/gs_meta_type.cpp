@@ -20,7 +20,7 @@ void MetaType::AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type
     m_fields.push_back(Field{index, std::string(name), id});
 }
 
-void MetaEnum::AddField(ptrdiff_t value, std::string_view name) {
+void MetaEnum::AddField(uint64_t value, std::string_view name, std::string_view prettyName) {
     for (const auto& field: m_fields) {
         if (field.value == value) {
             throw EngineError("gs::MetaType::MetaEnum: value = {} with name = {} already exists", value, name);
@@ -29,7 +29,12 @@ void MetaEnum::AddField(ptrdiff_t value, std::string_view name) {
             throw EngineError("gs::MetaType::MetaEnum: name = {} with value = {} already exists", name, value);
         }
     }
-    m_fields.push_back(Field{value, std::string(name)});
+
+    if (prettyName.empty()) {
+        m_fields.push_back(Field{value, std::string(name), std::string(name)});
+    } else {
+        m_fields.push_back(Field{value, std::string(name), std::string(prettyName)});
+    }
 }
 
 }
