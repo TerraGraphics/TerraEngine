@@ -13,6 +13,17 @@
 
 namespace gui {
 
+math::SizeF CalculateDrawSize(math::SizeF drawSize, math::SizeF defaultSize) {
+    if (std::fpclassify(drawSize.w) == FP_ZERO) {
+        drawSize.w = defaultSize.w;
+    }
+    if (std::fpclassify(drawSize.h) == FP_ZERO) {
+        drawSize.h = defaultSize.h;
+    }
+
+    return drawSize;
+}
+
 bool RenderBaseButton(const ImGuiID id, math::RectF drawRect, ImGuiButtonFlags flags, bool drawBg) {
     bool hovered, held;
     bool pressed = ImGui::ButtonBehavior(ToImGuiRect(drawRect), id, &hovered, &held, flags);
@@ -35,16 +46,9 @@ bool CheckBox(std::string_view strId, bool& value, const ButtonStyle& style, mat
         return false;
     }
 
-    const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
-    math::SizeF drawSize = style.drawSize;
-    if (std::fpclassify(drawSize.w) == FP_ZERO) {
-        drawSize.w = GetDefaultFieldHeight();
-    }
-    if (std::fpclassify(drawSize.h) == FP_ZERO) {
-        drawSize.h = GetDefaultFieldHeight();
-    }
-
     math::RectF drawRect;
+    const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
+    math::SizeF drawSize = CalculateDrawSize(style.drawSize, math::SizeF(GetDefaultFieldHeight()));
     if (!WidgetPlace(id, &style, drawSize, &drawRect, outRect)) {
         return false;
     }
@@ -59,6 +63,7 @@ bool CheckBox(std::string_view strId, bool& value, const ButtonStyle& style, mat
         const float pad = std::max(1.0f, std::floor(drawRect.h / 6.0f));
         ImGui::RenderCheckMark(window->DrawList, ToImGui(drawRect.Min()) + ImVec2(pad, pad), color, drawRect.h - pad * 2.0f);
     }
+    DrawTooltip(&style);
 
     return pressed;
 }
@@ -69,16 +74,9 @@ bool ArrowButton(std::string_view strId, Direction dir, const ButtonStyle& style
         return false;
     }
 
-    const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
-    math::SizeF drawSize = style.drawSize;
-    if (std::fpclassify(drawSize.w) == FP_ZERO) {
-        drawSize.w = GetDefaultFieldHeight();
-    }
-    if (std::fpclassify(drawSize.h) == FP_ZERO) {
-        drawSize.h = GetDefaultFieldHeight();
-    }
-
     math::RectF drawRect;
+    const ImGuiID id = window->GetID(strId.cbegin(), strId.cend());
+    math::SizeF drawSize = CalculateDrawSize(style.drawSize, math::SizeF(GetDefaultFieldHeight()));
     if (!WidgetPlace(id, &style, drawSize, &drawRect, outRect)) {
         return false;
     }
