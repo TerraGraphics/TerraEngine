@@ -17,21 +17,21 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
     using namespace gs;
 
     DefineType<Eigen::Vector2f>()
-        .FieldByIndex<float>(0, "x")
-        .FieldByIndex<float>(1, "y")
+        .AddFieldByIndex<float>(0, "x")
+        .AddFieldByIndex<float>(1, "y")
     ;
 
     DefineType<Eigen::Vector3f>()
-        .FieldByIndex<float>(0, "x")
-        .FieldByIndex<float>(1, "y")
-        .FieldByIndex<float>(2, "z")
+        .AddFieldByIndex<float>(0, "x")
+        .AddFieldByIndex<float>(1, "y")
+        .AddFieldByIndex<float>(2, "z")
     ;
 
     DefineType<Eigen::Vector4f>()
-        .FieldByIndex<float>(0, "x")
-        .FieldByIndex<float>(1, "y")
-        .FieldByIndex<float>(2, "z")
-        .FieldByIndex<float>(3, "w")
+        .AddFieldByIndex<float>(0, "x")
+        .AddFieldByIndex<float>(1, "y")
+        .AddFieldByIndex<float>(2, "z")
+        .AddFieldByIndex<float>(3, "w")
     ;
 
     DefineClass<FuncConstant>("Constant", "Constant")

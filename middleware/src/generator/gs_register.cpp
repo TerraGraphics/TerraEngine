@@ -7,11 +7,18 @@
 #include "middleware/gscheme/meta/gs_define.h"
 #include "middleware/generator/texture/spheres.h"
 #include "middleware/generator/texture/cylinders.h"
+#include "middleware/generator/texture/noise_types.h"
 #include "middleware/generator/texture/chess_cubes.h"
 
 
 REFLECTION_IMPL(gs::GeneratorFuncs) {
     using namespace gs;
+
+    DefineEnum<NoiseQuality>()
+        .AddField(NoiseQuality::BestSpeed, "BestSpeed")
+        .AddField(NoiseQuality::Default, "Default")
+        .AddField(NoiseQuality::BestQuality, "BestQuality")
+    ;
 
     DefineClass<ChessCubes>("ChessCube", "Noise chess cubes")
         .AddOutputPin("Result", &ChessCubes::Result, "Result")
