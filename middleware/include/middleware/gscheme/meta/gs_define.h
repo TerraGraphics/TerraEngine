@@ -14,6 +14,7 @@
 #include "cpgf/metaproperty.h"
 #include "cpgf/metaannotation.h"
 #include "middleware/gscheme/meta/gs_meta_type.h"
+#include "middleware/gscheme/meta/gs_enum_type.h"
 #include "middleware/gscheme/meta/gs_meta_consts.h"
 #include "middleware/gscheme/meta/gs_meta_storage.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
@@ -49,6 +50,25 @@ GMetaClass* createMetaClass(const char* className) {
 
 namespace gs {
 namespace detail {
+
+template<typename T, typename TBase>
+class DefineEnumTypePin : public TBase {
+public:
+    DefineEnumTypePin() = delete;
+    DefineEnumTypePin(cpgf::GMetaClass* metaClass, EnumType<T>* enumType)
+        : TBase(metaClass)
+        , m_enumType(enumType) {
+
+    }
+
+    DefineEnumTypePin& DisableUI() {
+        m_enumType->DisableUI();
+        return *this;
+    }
+
+private:
+    EnumType<T>* m_enumType;
+};
 
 template<typename T, typename TBase>
 class DefinePrimitiveTypePin : public TBase {
@@ -108,6 +128,24 @@ public:
     DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass);
 
 public:
+    template <
+        typename Getter,
+        typename Setter,
+        typename T = typename meta::MemberFuncReturnType<Getter>::type,
+        std::enable_if_t<std::is_enum_v<T>, int> = 0
+        >
+    DefineEnumTypePin<T, DefineClass> AddEmbeddedPinEnum(
+        const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
+
+        auto* metaEnum = MetaStorage::getInstance().GetEnum(std::type_index(typeid(T)));
+        auto* enumType = new EnumType<T>(metaEnum);
+        auto* typeInstance = new TypeInstanceEdit(enumType);
+        auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
+        RegisterPin(metaPropoperty, PinTypes::EMBEDDED, displayName, typeInstance);
+
+        return DefineEnumTypePin<T, DefineClass>(m_metaClass, enumType);
+    }
+
     template <
         typename Getter,
         typename Setter,
@@ -184,13 +222,27 @@ private:
     cpgf::GDefineMetaCommon<void, void> m_accessor;
 };
 
+class DefineEnum : Fixed {
+public:
+    DefineEnum() = delete;
+    DefineEnum(std::type_index typeIndex);
+    ~DefineEnum() noexcept(false);
+
+    template<typename T>
+    DefineEnum& AddField(T value, std::string_view name, std::string_view prettyName = std::string_view()) {
+        m_metaEnum->AddField(static_cast<MetaEnum::ValueType>(value), name, prettyName);
+
+        return *this;
+    }
+
+private:
+    MetaEnum* m_metaEnum = nullptr;
+};
+
 class DefineArrayType : Fixed {
 public:
     DefineArrayType() = delete;
-    DefineArrayType(std::type_index typeIndex) {
-        m_metaType = new MetaType();
-        MetaStorage::getInstance().AddType(typeIndex, m_metaType);
-    }
+    DefineArrayType(std::type_index typeIndex);
 
     template<typename T>
     DefineArrayType& AddFieldByIndex(ptrdiff_t index, std::string_view name) {
@@ -203,37 +255,18 @@ private:
     MetaType* m_metaType = nullptr;
 };
 
-class DefineEnum : Fixed {
-public:
-    DefineEnum() = delete;
-    DefineEnum(std::type_index typeIndex) {
-        m_metaEnum = new MetaEnum();
-        MetaStorage::getInstance().AddEnum(typeIndex, m_metaEnum);
-    }
+}
 
-    template<typename T>
-    DefineEnum& AddField(T value, std::string_view name, std::string_view prettyName = std::string_view()) {
-        m_metaEnum->AddField(static_cast<uint64_t>(value), name, prettyName);
-
-        return *this;
-    }
-
-private:
-    MetaEnum* m_metaEnum = nullptr;
-};
-
+template<typename T, std::enable_if_t<std::is_enum_v<T> &&
+    std::numeric_limits<std::underlying_type_t<T>>::max() <= std::numeric_limits<MetaEnum::ValueType>::max() &&
+    std::numeric_limits<std::underlying_type_t<T>>::min() >= std::numeric_limits<MetaEnum::ValueType>::min(), int> = 0>
+detail::DefineEnum DefineEnum() {
+    return detail::DefineEnum(std::type_index(typeid(T)));
 }
 
 template<typename T, std::enable_if_t<meta::IsArrayLikeV<T>, int> = 0>
 detail::DefineArrayType DefineType() {
     return detail::DefineArrayType(std::type_index(typeid(T)));
-}
-
-template<typename T, std::enable_if_t<std::is_enum_v<T> &&
-    std::numeric_limits<std::underlying_type_t<T>>::max() <= std::numeric_limits<uint64_t>::max() &&
-    std::numeric_limits<std::underlying_type_t<T>>::min() >= 0, int> = 0>
-detail::DefineEnum DefineEnum() {
-    return detail::DefineEnum(std::type_index(typeid(T)));
 }
 
 template <typename ClassType, typename BaseType0 = void>

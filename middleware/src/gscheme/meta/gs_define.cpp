@@ -1,6 +1,7 @@
 #include "middleware/gscheme/meta/gs_define.h"
 
 #include <string>
+#include "core/common/exception.h"
 
 
 namespace gs::detail {
@@ -39,6 +40,22 @@ void DefineClass::RegisterPin(cpgf::GMetaProperty* property, gs::PinTypes pinTyp
     if (displayName != nullptr) {
         annotation->addItem(MetaNames::DISPLAY_NAME, displayName);
     }
+}
+
+DefineEnum::DefineEnum(std::type_index typeIndex) {
+    m_metaEnum = new MetaEnum();
+    MetaStorage::getInstance().AddEnum(typeIndex, m_metaEnum);
+}
+
+DefineEnum::~DefineEnum() noexcept(false) {
+    if (m_metaEnum->GetFields().empty()) {
+        throw EngineError("gs::DefineEnum: enum without fields");
+    }
+}
+
+DefineArrayType::DefineArrayType(std::type_index typeIndex) {
+    m_metaType = new MetaType();
+    MetaStorage::getInstance().AddType(typeIndex, m_metaType);
 }
 
 }
