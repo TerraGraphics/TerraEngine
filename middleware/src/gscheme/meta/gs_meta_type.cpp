@@ -28,6 +28,9 @@ void MetaEnum::AddField(uint64_t value, std::string_view name, std::string_view 
         if (field.name == name) {
             throw EngineError("gs::MetaType::MetaEnum: name = {} with value = {} already exists", name, value);
         }
+        if (!prettyName.empty() && (field.prettyName == prettyName)) {
+            throw EngineError("gs::MetaType::MetaEnum: prettyName = {} with value = {} already exists", prettyName, value);
+        }
     }
 
     if (prettyName.empty()) {

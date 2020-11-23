@@ -96,6 +96,10 @@ public:
     }
 
 public:
+    bool IsEnumType() const noexcept final {
+        return false;
+    }
+
     bool IsIntegerType() const noexcept final {
         return std::is_integral_v<T>;
     }
@@ -106,6 +110,11 @@ public:
 
     std::string_view GetPrettyName() const final {
         return m_prettyName;
+    }
+
+    const std::vector<std::string>& GetItems() const final {
+        static std::vector<std::string> items;
+        return items;
     }
 
     void Inc() final {
