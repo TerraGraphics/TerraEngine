@@ -20,7 +20,7 @@
 #include "middleware/gscheme/meta/gs_meta_storage.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
 #include "middleware/gscheme/meta/gs_composite_type.h"
-#include "middleware/gscheme/meta/gs_primitive_type.h"
+#include "middleware/gscheme/meta/gs_arithmetic_type.h"
 #include "middleware/gscheme/graph/gs_types_convert_storage.h"
 
 
@@ -80,18 +80,18 @@ TypeInstanceEdit* CreateCompositeTypeInstance() {
     constexpr char prettyNames[] = "RGBA";
     using TCompositeType = CompositeTypeT<T>;
     using TProperty = typename TCompositeType::CompositeTypeItem;
-    using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
+    using TArithmeticType = ArithmeticType<typename TCompositeType::FieldType>;
 
     MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
 
     std::vector<TProperty> properties;
     for (const auto& metaField: metaType->GetFields()) {
-        auto* primitiveType = new TPrimitiveType();
+        auto* arithmeticType = new TArithmeticType();
         if (metaField.index >= 4) {
             throw EngineError("gs::ClassStorage: unknown metaField.index = {}, for generate TypeInstance", metaField.index);
         }
-        primitiveType->SetPrettyName(std::string_view(&prettyNames[metaField.index], 1));
-        properties.push_back(TProperty{metaField.index, primitiveType});
+        arithmeticType->SetPrettyName(std::string_view(&prettyNames[metaField.index], 1));
+        properties.push_back(TProperty{metaField.index, arithmeticType});
     }
 
     auto* compositeType = new TCompositeType(properties);
@@ -104,9 +104,9 @@ void ClassStorage::Impl::GenerateTypeInstances() {
             continue;
         }
         if (typeId == TypeId::Float) {
-            auto* primitiveType = new PrimitiveType<float>();
-            primitiveType->SetPrettyName("R");
-            m_typeInstances[typeId] = new TypeInstanceEdit(primitiveType);
+            auto* arithmeticType = new ArithmeticType<float>();
+            arithmeticType->SetPrettyName("R");
+            m_typeInstances[typeId] = new TypeInstanceEdit(arithmeticType);
         } else if (typeId == TypeId::Vector2f) {
             m_typeInstances[typeId] = CreateCompositeTypeInstance<Eigen::Vector2f>();
         } else if (typeId == TypeId::Vector3f) {

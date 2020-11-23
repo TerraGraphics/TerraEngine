@@ -23,7 +23,7 @@ class EnumType final : public IPrimitiveTypeEdit {
 public:
     EnumType() = delete;
     EnumType(const MetaEnum* metaEnum)
-        : m_value(m_metaEnum->GetFields()[0].value)
+        : m_value(metaEnum->GetFields()[0].value)
         , m_metaEnum(metaEnum)
         , m_items(metaEnum->GetPrettyNames()) {
 

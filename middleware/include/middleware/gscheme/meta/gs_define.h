@@ -19,7 +19,7 @@
 #include "middleware/gscheme/meta/gs_meta_storage.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
 #include "middleware/gscheme/meta/gs_composite_type.h"
-#include "middleware/gscheme/meta/gs_primitive_type.h"
+#include "middleware/gscheme/meta/gs_arithmetic_type.h"
 
 
 namespace cpgf {
@@ -71,52 +71,52 @@ private:
 };
 
 template<typename T, typename TBase>
-class DefinePrimitiveTypePin : public TBase {
+class DefineArithmeticTypePin : public TBase {
 public:
-    DefinePrimitiveTypePin() = delete;
-    DefinePrimitiveTypePin(cpgf::GMetaClass* metaClass, PrimitiveType<T>* primitiveType)
+    DefineArithmeticTypePin() = delete;
+    DefineArithmeticTypePin(cpgf::GMetaClass* metaClass, ArithmeticType<T>* arithmeticType)
         : TBase(metaClass)
-        , m_primitiveType(primitiveType) {
+        , m_arithmeticType(arithmeticType) {
 
     }
 
-    DefinePrimitiveTypePin& Step(T value) {
-        m_primitiveType->Step(value);
+    DefineArithmeticTypePin& Step(T value) {
+        m_arithmeticType->Step(value);
         return *this;
     }
 
-    DefinePrimitiveTypePin& Max(T value) {
-        m_primitiveType->Max(value);
+    DefineArithmeticTypePin& Max(T value) {
+        m_arithmeticType->Max(value);
         return *this;
     }
 
-    DefinePrimitiveTypePin& Min(T value) {
-        m_primitiveType->Min(value);
+    DefineArithmeticTypePin& Min(T value) {
+        m_arithmeticType->Min(value);
         return *this;
     }
 
-    DefinePrimitiveTypePin& LimitFunc(const typename PrimitiveType<T>::TLimitFunc limitFunc, const typename PrimitiveType<T>::TStepFunc stepFunc) {
-        m_primitiveType->Funcs(limitFunc, stepFunc);
+    DefineArithmeticTypePin& LimitFunc(const typename ArithmeticType<T>::TLimitFunc limitFunc, const typename ArithmeticType<T>::TStepFunc stepFunc) {
+        m_arithmeticType->Funcs(limitFunc, stepFunc);
         return *this;
     }
 
-    DefinePrimitiveTypePin& MaxPrecision(uint8_t value) {
-        m_primitiveType->MaxPrecision(value);
+    DefineArithmeticTypePin& MaxPrecision(uint8_t value) {
+        m_arithmeticType->MaxPrecision(value);
         return *this;
     }
 
-    DefinePrimitiveTypePin& DisableUI() {
-        m_primitiveType->DisableUI();
+    DefineArithmeticTypePin& DisableUI() {
+        m_arithmeticType->DisableUI();
         return *this;
     }
 
-    DefinePrimitiveTypePin& DisableStepButtons() {
-        m_primitiveType->DisableStepButtons();
+    DefineArithmeticTypePin& DisableStepButtons() {
+        m_arithmeticType->DisableStepButtons();
         return *this;
     }
 
 private:
-    PrimitiveType<T>* m_primitiveType;
+    ArithmeticType<T>* m_arithmeticType;
 };
 
 class DefineClass {
@@ -152,15 +152,15 @@ public:
         typename T = typename meta::MemberFuncReturnType<Getter>::type,
         std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0
         >
-    DefinePrimitiveTypePin<T, DefineClass> AddEmbeddedPinPrimitive(
+    DefineArithmeticTypePin<T, DefineClass> AddEmbeddedPinPrimitive(
         const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
 
-        auto* primitiveType = new PrimitiveType<T>();
-        auto* typeInstance = new TypeInstanceEdit(primitiveType);
+        auto* arithmeticType = new ArithmeticType<T>();
+        auto* typeInstance = new TypeInstanceEdit(arithmeticType);
         auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
         RegisterPin(metaPropoperty, PinTypes::EMBEDDED, displayName, typeInstance);
 
-        return DefinePrimitiveTypePin<T, DefineClass>(m_metaClass, primitiveType);
+        return DefineArithmeticTypePin<T, DefineClass>(m_metaClass, arithmeticType);
     }
 
     template <
@@ -202,15 +202,15 @@ private:
     TypeInstanceEdit* CreateCompositeTypeInstance() {
         using TCompositeType = CompositeTypeT<T>;
         using TProperty = typename TCompositeType::CompositeTypeItem;
-        using TPrimitiveType = PrimitiveType<typename TCompositeType::FieldType>;
+        using TArithmeticType = ArithmeticType<typename TCompositeType::FieldType>;
 
         MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
 
         std::vector<TProperty> properties;
         for (const auto& metaField: metaType->GetFields()) {
-            auto* primitiveType = new TPrimitiveType();
-            primitiveType->SetPrettyName(metaField.name);
-            properties.push_back(TProperty{metaField.index, primitiveType});
+            auto* arithmeticType = new TArithmeticType();
+            arithmeticType->SetPrettyName(metaField.name);
+            properties.push_back(TProperty{metaField.index, arithmeticType});
         }
 
         auto* compositeType = new TCompositeType(properties);

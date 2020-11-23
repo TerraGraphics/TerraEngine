@@ -14,7 +14,7 @@
 namespace gs {
 
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-class PrimitiveType final : public IPrimitiveTypeEdit {
+class ArithmeticType final : public IPrimitiveTypeEdit {
     enum StateFlags : uint8_t {
         EnabledUI = 1,
         ShowStepButtons = 2,
@@ -27,8 +27,8 @@ public:
     using TStepFunc = T(*)(T, bool inc);
 
 public:
-    PrimitiveType() = default;
-    ~PrimitiveType() final = default;
+    ArithmeticType() = default;
+    ~ArithmeticType() final = default;
 
 public:
     void Step(T value) {
