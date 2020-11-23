@@ -9,6 +9,7 @@
 #include "dg/graphics_types.h"
 #include "middleware/imgui/field.h"
 #include "middleware/imgui/label.h"
+#include "middleware/imgui/combo_box.h"
 #include "middleware/gscheme/meta/gs_type_instance.h"
 #include "middleware/gscheme/meta/gs_type_interface.h"
 
@@ -23,25 +24,37 @@ static void DrawPropertyHeader(std::string_view label) {
     ImGui::NextColumn();
 }
 
-static void DrawPropertyRow(std::string_view propertyName, std::string_view labelText, IPrimitiveType* value, bool withOffset) {
-    if (!value->IsEnabledUI()) {
-        return;
-    }
-    gui::LabelStyle labelStyle;
-    labelStyle.margin.left = withOffset ? 20 : 5;
-    gui::Label(labelText, labelStyle);
-    ImGui::NextColumn();
+static void DrawEnumType(std::string_view id, IPrimitiveType* value) {
+    gui::ComboBoxStyle style;
+    style.margin.left = 5;
+    style.margin.right = 5;
+    style.width = gui::ComboBoxStyle::ALL_AVAILABLE;
 
-    gui::NumberFieldStyle fieldStyle;
-    fieldStyle.margin.left = 5;
-    fieldStyle.margin.right = 5;
-    fieldStyle.width = gui::NumberFieldStyle::ALL_AVAILABLE;
-    fieldStyle.isInteger = value->IsIntegerType();
-    fieldStyle.showStepButtons = value->IsEnabledShowStepButtons();
+    std::string textValue = value->ToString();
+    const auto& items = value->GetItems();
+    size_t index = 0;
+    for (size_t i=0; i!=items.size(); ++i) {
+        if (items[i] == textValue) {
+            index = i;
+            break;
+        }
+    }
+
+    if (gui::ComboBox(id, index, items, style)) {
+        value->FromString(items[index]);
+    }
+}
+
+static void DrawArithmeticType(std::string_view id, IPrimitiveType* value) {
+    gui::NumberFieldStyle style;
+    style.margin.left = 5;
+    style.margin.right = 5;
+    style.width = gui::NumberFieldStyle::ALL_AVAILABLE;
+    style.isInteger = value->IsIntegerType();
+    style.showStepButtons = value->IsEnabledShowStepButtons();
     std::string textValue = value->ToString();
 
-    std::string id = fmt::format("node.property.{}.{}", propertyName, labelText);
-    switch (gui::NumberField(id, textValue, fieldStyle)) {
+    switch (gui::NumberField(id, textValue, style)) {
     case gui::NumberFieldAction::StepUp:
         value->Inc();
         break;
@@ -54,6 +67,24 @@ static void DrawPropertyRow(std::string_view propertyName, std::string_view labe
     case gui::NumberFieldAction::None:
         break;
     }
+}
+
+static void DrawPropertyRow(std::string_view propertyName, std::string_view labelText, IPrimitiveType* value, bool withOffset) {
+    if (!value->IsEnabledUI()) {
+        return;
+    }
+    gui::LabelStyle style;
+    style.margin.left = withOffset ? 20 : 5;
+    gui::Label(labelText, style);
+    ImGui::NextColumn();
+
+    std::string id = fmt::format("node.property.{}.{}", propertyName, labelText);
+    if (value->IsEnumType()) {
+        DrawEnumType(id, value);
+    } else {
+        DrawArithmeticType(id, value);
+    }
+
     ImGui::NextColumn();
 }
 
