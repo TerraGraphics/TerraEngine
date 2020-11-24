@@ -36,7 +36,7 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
 
     DefineClass<FuncConstant>("Constant", "Constant")
         .AddOutputPin("Result", &FuncConstant::Result, "Result")
-        .AddEmbeddedPinPrimitive("Value", &FuncConstant::GetValue, &FuncConstant::SetValue, "Value")
+        .AddEmbeddedPinArithmetic("Value", &FuncConstant::GetValue, &FuncConstant::SetValue, "Value")
     ;
 
     DefineClass<FuncConstant2>("Constant2", "Constant2")

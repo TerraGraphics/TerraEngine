@@ -152,7 +152,7 @@ public:
         typename T = typename meta::MemberFuncReturnType<Getter>::type,
         std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0
         >
-    DefineArithmeticTypePin<T, DefineClass> AddEmbeddedPinPrimitive(
+    DefineArithmeticTypePin<T, DefineClass> AddEmbeddedPinArithmetic(
         const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
 
         auto* arithmeticType = new ArithmeticType<T>();

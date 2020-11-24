@@ -23,21 +23,26 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
 
     DefineClass<ChessCubes>("ChessCube", "Chess cubes noise")
         .AddOutputPin("Result", &ChessCubes::Result, "Result")
-        .AddEmbeddedPinPrimitive("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
+        .AddEmbeddedPinArithmetic("Frequency", &ChessCubes::GetFrequency, &ChessCubes::SetFrequency, "Frequency")
     ;
 
     DefineClass<Spheres>("Spheres", "Spheres noise")
         .AddOutputPin("Result", &Spheres::Result, "Result")
-        .AddEmbeddedPinPrimitive("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
+        .AddEmbeddedPinArithmetic("Frequency", &Spheres::GetFrequency, &Spheres::SetFrequency, "Frequency")
     ;
 
     DefineClass<Cylinders>("Cylinders", "Cylinders noise")
         .AddOutputPin("Result", &Cylinders::Result, "Result")
-        .AddEmbeddedPinPrimitive("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
+        .AddEmbeddedPinArithmetic("Frequency", &Cylinders::GetFrequency, &Cylinders::SetFrequency, "Frequency")
     ;
 
     DefineClass<Perlin>("Perlin", "Perlin noise")
         .AddOutputPin("Result", &Perlin::Result, "Result")
-        .AddEmbeddedPinEnum("Quality", &Perlin::GetQuality, &Perlin::SetQuality, "Frequency")
+        .AddEmbeddedPinArithmetic("Frequency", &Perlin::GetFrequency, &Perlin::SetFrequency, "Frequency")
+        .AddEmbeddedPinArithmetic("Lacunarity", &Perlin::GetLacunarity, &Perlin::SetLacunarity, "Lacunarity")
+        .AddEmbeddedPinArithmetic("Persistence", &Perlin::GetPersistence, &Perlin::SetPersistence, "Persistence")
+        .AddEmbeddedPinArithmetic("OctaveCount", &Perlin::GetOctaveCount, &Perlin::SetOctaveCount, "OctaveCount").Min(1).Max(30)
+        .AddEmbeddedPinArithmetic("Seed", &Perlin::GetSeed, &Perlin::SetSeed, "Seed")
+        .AddEmbeddedPinEnum("Quality", &Perlin::GetQuality, &Perlin::SetQuality, "Quality")
     ;
 }
