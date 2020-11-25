@@ -103,28 +103,49 @@ void Editor::DrawGraph() {
             if (!m_graph->TestRemoveNode(nodeId)) {
                 ne::RejectDeletedItem();
             } else if (ne::AcceptDeletedItem()) {
-                if (m_selectedNodeId == nodeId) {
-                    m_selectedNodeId = 0;
-                }
-                m_graph->RemoveNode(nodeId);
+                RemoveNode(nodeId);
             }
         }
         ne::EndDelete();
     }
 
     auto currentCursorPosition = ImGui::GetMousePos();
-    static auto openPopupPosition = ImGui::GetMousePos();
 
     ne::Suspend();
 
-    if (ne::ShowBackgroundContextMenu()) {
-        ImGui::OpenPopup("Create New Node");
-        openPopupPosition = currentCursorPosition;
+    ne::PinId menuPin = 0;
+    ne::NodeId menuNode = 0;
+    ne::LinkId menuLink = 0;
+    bool needSavePosition = false;
+
+    if (ne::ShowPinContextMenu(&menuPin)) {
+        needSavePosition = true;
+        ImGui::OpenPopup("Pin menu");
+    } else if (ne::ShowNodeContextMenu(&menuNode)) {
+        needSavePosition = true;
+        m_menuNodeId = static_cast<uint16_t>(menuNode.Get());
+        ImGui::OpenPopup("Node menu");
+    } else if (ne::ShowLinkContextMenu(&menuLink)) {
+        needSavePosition = true;
+        ImGui::OpenPopup("Link menu");
+    } else if (ne::ShowBackgroundContextMenu()) {
+        needSavePosition = true;
+        ImGui::OpenPopup("Background menu");
+    }
+
+    if (needSavePosition) {
+        m_menuPopupX = currentCursorPosition.x;
+        m_menuPopupY = currentCursorPosition.y;
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
-    if (ImGui::BeginPopup("Create New Node")) {
-        DrawNewNodeMenu(openPopupPosition.x, openPopupPosition.y);
+    if (ImGui::BeginPopupContextItem("Node menu")) {
+        DrawNodeMenu(m_menuNodeId);
+        ImGui::EndPopup();
+    }
+
+    if (ImGui::BeginPopup("Background menu")) {
+        DrawNewNodeMenu(m_menuPopupX, m_menuPopupY);
         ImGui::EndPopup();
     }
     ImGui::PopStyleVar();
@@ -139,6 +160,21 @@ void Editor::DrawGraph() {
 void Editor::DrawNodeProperty() {
     if (m_selectedNodeId != 0) {
         m_graph->DrawNodeProperty(m_selectedNodeId, m_draw.get());
+    }
+}
+
+void Editor::RemoveNode(uint16_t nodeId) {
+    if (m_selectedNodeId == nodeId) {
+        m_selectedNodeId = 0;
+    }
+    m_graph->RemoveNode(nodeId);
+}
+
+void Editor::DrawNodeMenu(uint16_t nodeId) {
+    if (ImGui::MenuItem("Remove")) {
+        if (m_graph->TestRemoveNode(nodeId)) {
+            RemoveNode(nodeId);
+        }
     }
 }
 

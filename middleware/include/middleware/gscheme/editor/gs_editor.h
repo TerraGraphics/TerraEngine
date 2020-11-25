@@ -31,6 +31,8 @@ public:
     void DrawNodeProperty();
 
 private:
+    void RemoveNode(uint16_t nodeId);
+    void DrawNodeMenu(uint16_t nodeId);
     void DrawNewNodeMenu(float x, float y);
 
 private:
@@ -41,6 +43,11 @@ private:
     std::unique_ptr<Graph> m_graph;
     std::shared_ptr<ClassStorage> m_classStorage;
     uint16_t m_selectedNodeId = 0;
+
+private:
+    float m_menuPopupX = 0.f;
+    float m_menuPopupY = 0.f;
+    uint16_t m_menuNodeId = 0;
 };
 
 }
