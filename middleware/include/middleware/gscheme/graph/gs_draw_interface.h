@@ -36,6 +36,8 @@ public:
     virtual void OnDrawOutputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) = 0;
 
+    virtual void DrawNodePreview(const std::string& prettyName) = 0;
+
 // Draw node edit GUI
 public:
     enum class ButtonsState : uint8_t {

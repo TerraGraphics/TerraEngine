@@ -513,6 +513,10 @@ void Node::DrawGraph(IDraw* drawer) {
     }
 }
 
+void Node::DrawNodePreview(IDraw* drawer) {
+    drawer->DrawNodePreview(m_class->GetDisplayName());
+}
+
 void Node::DrawNodeProperty(IDraw* drawer) {
     drawer->OnStartDrawNodeProperty(m_class->GetDisplayName());
 

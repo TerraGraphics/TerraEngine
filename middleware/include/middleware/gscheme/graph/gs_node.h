@@ -150,6 +150,7 @@ private:
 
 public:
     void DrawGraph(IDraw* drawer);
+    void DrawNodePreview(IDraw* drawer);
     void DrawNodeProperty(IDraw* drawer);
 
 private:

@@ -24,6 +24,7 @@ public:
 
     void UpdateState();
     void DrawGraph(IDraw* drawer);
+    void DrawNodePreview(uint16_t nodeId, IDraw* drawer);
     void DrawNodeProperty(uint16_t nodeId, IDraw* drawer);
 
     uint16_t CountNodes() const noexcept { return m_capacity - m_free; }

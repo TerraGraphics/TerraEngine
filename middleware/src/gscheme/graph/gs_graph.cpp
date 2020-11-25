@@ -81,11 +81,21 @@ void Graph::DrawGraph(IDraw* drawer) {
     drawer->OnFinishDrawGraph();
 }
 
+void Graph::DrawNodePreview(uint16_t nodeId, IDraw* drawer) {
+    try {
+        CheckIsValidNodeId(nodeId);
+    } catch(const EngineError& e) {
+        throw EngineError("gs::Graph::DrawNodePreview: wrong nodeId, {}", e.what());
+    }
+
+    m_nodes[nodeId - 1].DrawNodePreview(drawer);
+}
+
 void Graph::DrawNodeProperty(uint16_t nodeId, IDraw* drawer) {
     try {
-        CheckRemoveNode(nodeId);
+        CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {
-        throw EngineError("gs::Graph::DrawNodeProperty: {}", e.what());
+        throw EngineError("gs::Graph::DrawNodeProperty: wrong nodeId, {}", e.what());
     }
 
     m_nodes[nodeId - 1].DrawNodeProperty(drawer);

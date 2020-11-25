@@ -35,6 +35,7 @@ public:
     void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) final;
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
+    void DrawNodePreview(const std::string& prettyName) final;
 
 // Draw node edit GUI
 public:

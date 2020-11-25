@@ -139,6 +139,13 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
+void Draw::DrawNodePreview(const std::string& prettyName) {
+    gui::LabelStyle labelStyle;
+    labelStyle.margin.left = 5;
+    labelStyle.margin.bottom = 10;
+    gui::Label(prettyName + ":", labelStyle);
+}
+
 void Draw::OnStartDrawNodeProperty(const std::string& prettyName) {
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = 5;
