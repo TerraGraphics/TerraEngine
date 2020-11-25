@@ -1,4 +1,4 @@
-#include "editor/windows/preview_window.h"
+#include "editor/windows/scene_window.h"
 
 #include <cstdint>
 
@@ -17,7 +17,7 @@
 
 class TransformNode;
 
-PreviewWindow::PreviewWindow()
+SceneWindow::SceneWindow()
     : m_scene(std::make_shared<StdScene>())
     , m_preview(new PreviewScene())
     , m_gizmo(new Gizmo3D())
@@ -25,13 +25,13 @@ PreviewWindow::PreviewWindow()
 
 }
 
-PreviewWindow::~PreviewWindow() {
+SceneWindow::~SceneWindow() {
     m_controller.reset();
     m_gizmo.reset();
     m_preview.reset();
 }
 
-void PreviewWindow::Create() {
+void SceneWindow::Create() {
     m_isOpenGL = Engine::Get().GetDevice()->GetDeviceCaps().IsGLDevice();
 
     m_scene->Create(true, dg::TEX_FORMAT_RGBA8_UNORM, math::Color4f(1.f));
@@ -43,7 +43,7 @@ void PreviewWindow::Create() {
     m_preview->AddChild(m_gizmo->Create());
 }
 
-void PreviewWindow::Update(double deltaTime) {
+void SceneWindow::Update(double deltaTime) {
     auto& engine = Engine::Get();
     auto& handler = engine.GetEventHandler();
 
@@ -84,7 +84,7 @@ void PreviewWindow::Update(double deltaTime) {
     }
 }
 
-void PreviewWindow::Draw() {
+void SceneWindow::Draw() {
     if (m_draw) {
         m_scene->Draw();
     }

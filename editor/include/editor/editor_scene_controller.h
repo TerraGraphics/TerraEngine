@@ -10,7 +10,7 @@ namespace gui {
 }
 class StdScene;
 class GSchemaWindow;
-class PreviewWindow;
+class SceneWindow;
 class PropertyWindow;
 class EditorSceneController : Fixed {
 public:
@@ -29,7 +29,7 @@ private:
 private:
     std::shared_ptr<gui::Gui> m_gui = nullptr;
     std::unique_ptr<StdScene> m_scene;
-    std::unique_ptr<GSchemaWindow> m_gsShemaWindow;
-    std::unique_ptr<PreviewWindow> m_previewWindow;
+    std::unique_ptr<SceneWindow> m_sceneWindow;
+    std::unique_ptr<GSchemaWindow> m_gsSchemaWindow;
     std::shared_ptr<PropertyWindow> m_propertyWindow;
 };

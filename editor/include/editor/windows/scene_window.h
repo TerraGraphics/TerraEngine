@@ -10,10 +10,10 @@ class Gizmo3D;
 class StdScene;
 class PreviewScene;
 class EditorCameraController;
-class PreviewWindow : Fixed {
+class SceneWindow : Fixed {
 public:
-    PreviewWindow();
-    ~PreviewWindow();
+    SceneWindow();
+    ~SceneWindow();
 
 public:
     void Create();

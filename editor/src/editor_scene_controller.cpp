@@ -7,7 +7,7 @@
 #include "imgui/internal.h"
 #include "core/math/types.h"
 #include "middleware/imgui/gui.h"
-#include "editor/windows/preview_window.h"
+#include "editor/windows/scene_window.h"
 #include "editor/windows/gschema_window.h"
 #include "editor/windows/property_window.h"
 #include "middleware/std_render/std_scene.h"
@@ -15,32 +15,32 @@
 
 EditorSceneController::EditorSceneController()
     : m_scene(new StdScene())
-    , m_gsShemaWindow(new GSchemaWindow())
-    , m_previewWindow(new PreviewWindow())
+    , m_sceneWindow(new SceneWindow())
+    , m_gsSchemaWindow(new GSchemaWindow())
     , m_propertyWindow(new PropertyWindow()) {
 
 }
 
 EditorSceneController::~EditorSceneController() {
     m_scene.reset();
-    m_gsShemaWindow.reset();
-    m_previewWindow.reset();
+    m_sceneWindow.reset();
+    m_gsSchemaWindow.reset();
     m_propertyWindow.reset();
 }
 
 void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
     m_gui = gui;
     m_propertyWindow->Create();
-    m_gsShemaWindow->Create(m_propertyWindow);
+    m_gsSchemaWindow->Create(m_propertyWindow);
     m_scene->Create(false, dg::TEXTURE_FORMAT(0), math::Color4f(1.f));
-    m_previewWindow->Create();
+    m_sceneWindow->Create();
 }
 
 void EditorSceneController::Update(double deltaTime) {
     m_gui->StartFrame();
     DockSpace();
-    m_previewWindow->Update(deltaTime);
-    m_gsShemaWindow->Draw();
+    m_sceneWindow->Update(deltaTime);
+    m_gsSchemaWindow->Draw();
 
     // draw after all
     m_propertyWindow->Draw();
@@ -51,7 +51,7 @@ void EditorSceneController::Update(double deltaTime) {
 }
 
 void EditorSceneController::Draw() {
-    m_previewWindow->Draw();
+    m_sceneWindow->Draw();
     m_scene->Draw();
     m_gui->RenderFrame();
 }
