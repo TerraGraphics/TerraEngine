@@ -5,9 +5,9 @@
 #include "test/test.h"
 #include "eigen/core.h"
 #include "cpgf/variant.h"
-#include "middleware/gscheme/graph/gs_types.h"
-#include "middleware/gscheme/graph/gs_graph.h"
-#include "middleware/gscheme/graph/gs_class_storage.h"
+#include "middleware/gschema/graph/gs_types.h"
+#include "middleware/gschema/graph/gs_graph.h"
+#include "middleware/gschema/graph/gs_class_storage.h"
 
 
 #define ASSERT_VARIANT_FLOAT(expected, actual) do { \

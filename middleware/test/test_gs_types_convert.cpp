@@ -4,8 +4,8 @@
 #include "test/test.h"
 #include "eigen/core.h"
 #include "core/math/generator_type.h"
-#include "middleware/gscheme/graph/gs_types.h"
-#include "middleware/gscheme/graph/gs_types_convert.h"
+#include "middleware/gschema/graph/gs_types.h"
+#include "middleware/gschema/graph/gs_types_convert.h"
 
 
 #define ASSERT_CONVERT_TRUE(From, To) ASSERT_TRUE((gs::CanConvert<To, From>))

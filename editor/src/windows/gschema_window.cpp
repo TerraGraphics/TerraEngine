@@ -5,8 +5,8 @@
 #include "core/engine.h"
 #include "dg/texture_utilities.h"
 #include "editor/windows/property_window.h"
-#include "middleware/gscheme/editor/gs_editor.h"
-#include "middleware/gscheme/graph/gs_class_storage.h"
+#include "middleware/gschema/editor/gs_editor.h"
+#include "middleware/gschema/graph/gs_class_storage.h"
 
 
 GSchemaWindow::GSchemaWindow() {

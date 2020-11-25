@@ -3,7 +3,7 @@
 #include "test/test.h"
 #include "eigen/core.h"
 #include "core/math/generator_type.h"
-#include "middleware/gscheme/graph/gs_types.h"
+#include "middleware/gschema/graph/gs_types.h"
 
 
 namespace {

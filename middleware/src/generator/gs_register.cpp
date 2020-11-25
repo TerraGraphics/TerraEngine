@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 #include "core/math/generator_type.h" // IWYU pragma: keep
-#include "middleware/gscheme/meta/gs_define.h"
+#include "middleware/gschema/meta/gs_define.h"
 #include "middleware/generator/texture/perlin.h"
 #include "middleware/generator/texture/spheres.h"
 #include "middleware/generator/texture/cylinders.h"

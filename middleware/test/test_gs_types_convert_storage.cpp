@@ -5,8 +5,8 @@
 #include "eigen/core.h"
 #include "cpgf/variant.h"
 #include "core/math/generator_type.h"
-#include "middleware/gscheme/graph/gs_types.h"
-#include "middleware/gscheme/graph/gs_types_convert_storage.h"
+#include "middleware/gschema/graph/gs_types.h"
+#include "middleware/gschema/graph/gs_types_convert_storage.h"
 
 
 #define ASSERT_CONVERT_TRUE(From, To) ASSERT_TRUE(storage.CanConvert(gs::TypeId::From, gs::TypeId::To))

@@ -4,7 +4,7 @@
 
 
 namespace gs {
-    struct GeneratorFuncs {};
+    struct EmbeddedFuncs {};
 }
 
-REFLECTION_DECL(gs::GeneratorFuncs);
+REFLECTION_DECL(gs::EmbeddedFuncs);

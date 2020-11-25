@@ -3,7 +3,7 @@
 
 #include "test/test.h"
 #include "eigen/core.h"
-#include "middleware/gscheme/embedded/func_add.h"
+#include "middleware/gschema/embedded/func_add.h"
 
 
 namespace {
