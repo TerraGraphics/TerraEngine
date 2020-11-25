@@ -28,6 +28,7 @@ public:
 
     void Create();
     void DrawGraph();
+    void DrawNodePreview();
     void DrawNodeProperty();
 
 private:
@@ -42,6 +43,7 @@ private:
     std::unique_ptr<Draw> m_draw;
     std::unique_ptr<Graph> m_graph;
     std::shared_ptr<ClassStorage> m_classStorage;
+    uint16_t m_previewNodeId = 0;
     uint16_t m_selectedNodeId = 0;
 
 private:

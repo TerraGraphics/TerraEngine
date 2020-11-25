@@ -157,6 +157,12 @@ void Editor::DrawGraph() {
     ne::End();
 }
 
+void Editor::DrawNodePreview() {
+    if (m_previewNodeId != 0) {
+        m_graph->DrawNodePreview(m_previewNodeId, m_draw.get());
+    }
+}
+
 void Editor::DrawNodeProperty() {
     if (m_selectedNodeId != 0) {
         m_graph->DrawNodeProperty(m_selectedNodeId, m_draw.get());
@@ -164,6 +170,9 @@ void Editor::DrawNodeProperty() {
 }
 
 void Editor::RemoveNode(uint16_t nodeId) {
+    if (m_previewNodeId == nodeId) {
+        m_previewNodeId = 0;
+    }
     if (m_selectedNodeId == nodeId) {
         m_selectedNodeId = 0;
     }
@@ -171,6 +180,16 @@ void Editor::RemoveNode(uint16_t nodeId) {
 }
 
 void Editor::DrawNodeMenu(uint16_t nodeId) {
+    if (m_previewNodeId == nodeId) {
+        if (ImGui::MenuItem("Stop previewing node")) {
+            m_previewNodeId = 0;
+        }
+    } else {
+        if (ImGui::MenuItem("Start previewing node")) {
+            m_previewNodeId = nodeId;
+        }
+    }
+
     if (ImGui::MenuItem("Remove")) {
         if (m_graph->TestRemoveNode(nodeId)) {
             RemoveNode(nodeId);
