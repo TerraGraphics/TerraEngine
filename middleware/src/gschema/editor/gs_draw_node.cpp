@@ -15,6 +15,7 @@
 #include "middleware/imgui/button.h"
 #include "middleware/imgui/layout.h"
 #include "middleware/imgui/imgui_math.h"
+#include "middleware/gschema/editor/gs_draw_preview.h"
 #include "middleware/generator/texture/section_plane.h"
 #include "middleware/generator/texture/generator2d_to_texture.h"
 
@@ -26,10 +27,7 @@ DrawNode::DrawNode(DrawNode&& o) noexcept {
     std::swap(m_drawed, o.m_drawed);
     std::swap(m_showMiniPreview, o.m_showMiniPreview);
     std::swap(m_alpha, o.m_alpha);
-    std::swap(m_miniPreviewVersion, o.m_miniPreviewVersion);
-    std::swap(m_miniPreviewFrameCounter, o.m_miniPreviewFrameCounter);
-    std::swap(m_miniPreviewTexture, o.m_miniPreviewTexture);
-    std::swap(m_miniPreviewGenerator, o.m_miniPreviewGenerator);
+    std::swap(m_miniPreview, o.m_miniPreview);
 
     std::swap(m_headerWidth, o.m_headerWidth);
     std::swap(m_headerBottom, o.m_headerBottom);
@@ -38,22 +36,17 @@ DrawNode::DrawNode(DrawNode&& o) noexcept {
 }
 
 DrawNode::~DrawNode() {
-    if (m_miniPreviewTexture.RawPtr() != nullptr) {
-        m_miniPreviewTexture->Release();
-    }
-    if (m_miniPreviewGenerator != nullptr) {
-        delete m_miniPreviewGenerator;
+    if (m_miniPreview != nullptr) {
+        delete m_miniPreview;
     }
 }
 
 void DrawNode::OnStartDrawGraph() {
     if (!m_drawed) {
-        if (m_miniPreviewTexture.RawPtr() != nullptr) {
-            m_miniPreviewTexture->Release();
+        if (m_miniPreview != nullptr) {
+            m_miniPreview->Reset();
         }
         m_showMiniPreview = false;
-        m_miniPreviewVersion = 0;
-        m_miniPreviewFrameCounter = 0;
         m_headerWidth = 0.f;
         m_headerBottom = 0.f;
         m_inputPinsWidth = 0.f;
@@ -83,7 +76,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8
 
     float requiredWidth = m_inputPinsWidth + m_outputPinsWidth;
     if (m_showMiniPreview) {
-        requiredWidth += m_pinPreviewSize.w;
+        requiredWidth += m_miniPreviewSize.w;
     }
 
     math::RectF headerButtonRect;
@@ -196,11 +189,7 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_inputPinsWidth = gui::EndVertical().Width();
 }
 
-static uint8_t floatChannelToUint8(float v) {
-    return static_cast<uint8_t>(std::max(std::min(static_cast<int32_t>(v * 255.f), 255), 0));
-}
-
-void DrawNode::OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) {
+void DrawNode::OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
     float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
     if (!m_showMiniPreview) {
         if (dt > 0) {
@@ -209,52 +198,13 @@ void DrawNode::OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uin
         return;
     }
 
-    dt = (dt - m_pinPreviewSize.w) * 0.5f;
+    dt = (dt - m_miniPreviewSize.w) * 0.5f;
+    auto margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
 
-    gui::ImageStyle style;
-    style.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
-
-    if (typeId == TypeId::Float) {
-        const auto tmp = cpgf::fromVariant<float>(value);
-        style.color.red = floatChannelToUint8(tmp);
-        style.color.green = 0;
-        style.color.blue = 0;
-        gui::Image(m_pinPreviewSize, style);
-    } else if (typeId == TypeId::Vector2f) {
-        const auto tmp = cpgf::fromVariant<Eigen::Vector2f>(value);
-        style.color.red = floatChannelToUint8(tmp[0]);
-        style.color.green = floatChannelToUint8(tmp[1]);
-        style.color.blue = 0;
-        gui::Image(m_pinPreviewSize, style);
-    } else if (typeId == TypeId::Vector3f) {
-        const auto tmp = cpgf::fromVariant<Eigen::Vector3f>(value);
-        style.color.red = floatChannelToUint8(tmp[0]);
-        style.color.green = floatChannelToUint8(tmp[1]);
-        style.color.blue = floatChannelToUint8(tmp[2]);
-        gui::Image(m_pinPreviewSize, style);
-    } else if (typeId == TypeId::Vector4f) {
-        const auto tmp = cpgf::fromVariant<Eigen::Vector4f>(value);
-        style.color.red = floatChannelToUint8(tmp[0]);
-        style.color.green = floatChannelToUint8(tmp[1]);
-        style.color.blue = floatChannelToUint8(tmp[2]);
-        gui::Image(m_pinPreviewSize, style);
-    } else if (typeId == TypeId::Generator2d) {
-        if (IsNeedUpdateMiniPreview(valueVersion)) {
-            const auto tmp = cpgf::fromVariant<math::Generator2D>(value);
-            FillMiniPreviewTexture(tmp);
-        }
-        gui::Image(m_pinPreviewSize, m_miniPreviewTexture, style);
-    } else if (typeId == TypeId::Generator3d) {
-        if (IsNeedUpdateMiniPreview(valueVersion)) {
-            const auto tmp = cpgf::fromVariant<math::Generator3D>(value);
-            auto sPlane = SectionPlaneX0Y();
-            sPlane.SetInput(tmp);
-            FillMiniPreviewTexture(sPlane.Result());
-        }
-        gui::Image(m_pinPreviewSize, m_miniPreviewTexture, style);
-    } else {
-        throw EngineError("gs::DrawNode::OnDrawPinPreview: unknown value type (id = {})", typeId);
+    if (m_miniPreview == nullptr) {
+        m_miniPreview = new DrawPreview();
     }
+    m_miniPreview->Draw(valueTypeId, value, valueVersion, margin, m_miniPreviewSize);
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
@@ -291,36 +241,6 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     }
 
     m_outputPinsWidth = gui::EndVertical().Width();
-}
-
-bool DrawNode::IsNeedUpdateMiniPreview(uint8_t valueVersion) {
-    if (m_miniPreviewTexture.RawPtr() == nullptr) {
-        m_miniPreviewVersion = valueVersion;
-        m_miniPreviewFrameCounter = 0;
-        return true;
-    }
-
-    if (valueVersion == m_miniPreviewVersion) {
-        return false;
-    }
-
-    ++m_miniPreviewFrameCounter;
-    if (m_miniPreviewFrameCounter == 50) {
-        m_miniPreviewVersion = valueVersion;
-        m_miniPreviewFrameCounter = 0;
-        return true;
-    }
-
-    return false;
-}
-
-void DrawNode::FillMiniPreviewTexture(const math::Generator2D& v) {
-    if (m_miniPreviewGenerator == nullptr) {
-        m_miniPreviewGenerator = new Generator2dToTexture();
-    }
-
-    m_miniPreviewGenerator->SetInput(v);
-    m_miniPreviewTexture = m_miniPreviewGenerator->Result()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 }

@@ -19,6 +19,7 @@ namespace cpgf {
 class Generator2dToTexture;
 namespace gs {
 
+class DrawPreview;
 class DrawNode : Noncopyable {
 public:
     DrawNode() = default;
@@ -30,24 +31,15 @@ public:
     void OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8_t alpha);
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
-    void OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion);
+    void OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion);
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
-
-private:
-    bool IsNeedUpdateMiniPreview(uint8_t valueVersion);
-    void FillMiniPreviewTexture(const math::Generator2D& v);
 
 private:
     uintptr_t m_nodeId = 0;
     bool m_drawed = false;
     bool m_showMiniPreview = false;
     uint8_t m_alpha = 0;
-
-private: // Mini preview
-    uint8_t m_miniPreviewVersion = 0;
-    uint8_t m_miniPreviewFrameCounter = 0;
-    TextureViewPtr m_miniPreviewTexture;
-    Generator2dToTexture* m_miniPreviewGenerator = nullptr;
+    DrawPreview* m_miniPreview = nullptr;
 
 private:
     float m_headerWidth = 0.f;
@@ -57,7 +49,7 @@ private:
 
 private:
     static constexpr const float m_iconSideSize = 24.f;
-    static constexpr const math::SizeF m_pinPreviewSize = math::SizeF(128.f);
+    static constexpr const math::SizeF m_miniPreviewSize = math::SizeF(128.f);
 };
 
 }
