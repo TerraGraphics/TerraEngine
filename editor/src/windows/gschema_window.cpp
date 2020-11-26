@@ -4,7 +4,7 @@
 #include "imgui/imgui.h"
 #include "core/engine.h"
 #include "dg/texture_utilities.h"
-#include "editor/windows/property_window.h"
+#include "editor/windows/panel_window.h"
 #include "middleware/gschema/editor/gs_editor.h"
 #include "middleware/gschema/graph/gs_class_storage.h"
 
@@ -17,11 +17,11 @@ GSchemaWindow::~GSchemaWindow() {
 
 }
 
-void GSchemaWindow::Create(const std::shared_ptr<PropertyWindow>& propertyWindow) {
+void GSchemaWindow::Create(const std::shared_ptr<PanelWindow>& propertyPanel) {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
 
-    m_propertyWindow = propertyWindow;
+    m_propertyPanel = propertyPanel;
 
     TexturePtr texBackground;
     dg::TextureLoadInfo loadInfo;
@@ -40,7 +40,7 @@ void GSchemaWindow::Draw() {
         m_editor->DrawGraph();
         ImGui::End();
 
-        m_propertyWindow->SetProperties({
+        m_propertyPanel->SetProperties({
             Property([editor = m_editor]() {
                 editor->DrawNodeProperty();
             })

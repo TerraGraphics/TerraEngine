@@ -1,4 +1,4 @@
-#include "editor/windows/property_window.h"
+#include "editor/windows/panel_window.h"
 
 #include <utility>
 
@@ -17,23 +17,23 @@ void Property::Draw() {
 }
 
 
-PropertyWindow::PropertyWindow() {
+PanelWindow::PanelWindow() {
 
 }
 
-PropertyWindow::~PropertyWindow() {
+PanelWindow::~PanelWindow() {
 
 }
 
-void PropertyWindow::Create() {
+void PanelWindow::Create() {
 
 }
 
-void PropertyWindow::SetProperties(std::initializer_list<Property> properties) {
+void PanelWindow::SetProperties(std::initializer_list<Property> properties) {
     m_properties = properties;
 }
 
-void PropertyWindow::Draw() {
+void PanelWindow::Draw() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
     if (ImGui::Begin("Property", pOpen, windowFlags)) {

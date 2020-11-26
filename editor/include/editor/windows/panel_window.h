@@ -19,10 +19,10 @@ private:
     Callback m_drawCallback;
 };
 
-class PropertyWindow : Fixed {
+class PanelWindow : Fixed {
 public:
-    PropertyWindow();
-    ~PropertyWindow();
+    PanelWindow();
+    ~PanelWindow();
 
 public:
     void Create();

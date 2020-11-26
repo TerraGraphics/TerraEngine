@@ -11,7 +11,7 @@ namespace gui {
 class StdScene;
 class GSchemaWindow;
 class SceneWindow;
-class PropertyWindow;
+class PanelWindow;
 class EditorSceneController : Fixed {
 public:
     EditorSceneController();
@@ -31,5 +31,5 @@ private:
     std::unique_ptr<StdScene> m_scene;
     std::unique_ptr<SceneWindow> m_sceneWindow;
     std::unique_ptr<GSchemaWindow> m_gsSchemaWindow;
-    std::shared_ptr<PropertyWindow> m_propertyWindow;
+    std::shared_ptr<PanelWindow> m_propertyPanel;
 };

@@ -8,17 +8,17 @@
 namespace gs {
     class Editor;
 }
-class PropertyWindow;
+class PanelWindow;
 class GSchemaWindow : Fixed {
 public:
     GSchemaWindow();
     ~GSchemaWindow();
 
 public:
-    void Create(const std::shared_ptr<PropertyWindow>& propertyWindow);
+    void Create(const std::shared_ptr<PanelWindow>& propertyPanel);
     void Draw();
 
 private:
     std::shared_ptr<gs::Editor> m_editor;
-    std::shared_ptr<PropertyWindow> m_propertyWindow;
+    std::shared_ptr<PanelWindow> m_propertyPanel;
 };
