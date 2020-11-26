@@ -17,10 +17,11 @@ GSchemaWindow::~GSchemaWindow() {
 
 }
 
-void GSchemaWindow::Create(const std::shared_ptr<PanelWindow>& propertyPanel) {
+void GSchemaWindow::Create(const std::shared_ptr<PanelWindow>& previewPanel, const std::shared_ptr<PanelWindow>& propertyPanel) {
     auto& engine = Engine::Get();
     auto& device = engine.GetDevice();
 
+    m_previewPanel = previewPanel;
     m_propertyPanel = propertyPanel;
 
     TexturePtr texBackground;
@@ -40,6 +41,11 @@ void GSchemaWindow::Draw() {
         m_editor->DrawGraph();
         ImGui::End();
 
+        m_previewPanel->SetProperties({
+            Property([editor = m_editor]() {
+                editor->DrawNodePreview();
+            })
+        });
         m_propertyPanel->SetProperties({
             Property([editor = m_editor]() {
                 editor->DrawNodeProperty();

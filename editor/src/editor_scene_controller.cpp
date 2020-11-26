@@ -39,7 +39,7 @@ void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
     m_previewPanel->Create();
     m_propertyPanel->Create();
 
-    m_gschemaWindow->Create(m_propertyPanel);
+    m_gschemaWindow->Create(m_previewPanel, m_propertyPanel);
     m_scene->Create(false, dg::TEXTURE_FORMAT(0), math::Color4f(1.f));
     m_sceneWindow->Create();
 }
