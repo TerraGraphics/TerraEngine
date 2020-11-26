@@ -57,8 +57,8 @@ public:
         m_maxPrecision = value;
     }
 
-    void SetPrettyName(std::string_view prettyName) {
-        m_prettyName = prettyName;
+    void SetDisplayName(std::string_view displayName) {
+        m_displayName = displayName;
     }
 
     void DisableUI() {
@@ -108,8 +108,8 @@ public:
         return std::is_floating_point_v<T>;
     }
 
-    std::string_view GetPrettyName() const final {
-        return m_prettyName;
+    std::string_view GetDisplayName() const final {
+        return m_displayName;
     }
 
     const std::vector<std::string>& GetItems() const final {
@@ -219,7 +219,7 @@ private:
 
     uint8_t m_maxPrecision = 4;
     uint8_t m_state = StateFlags::EnabledUI | StateFlags::ShowStepButtons;
-    std::string m_prettyName;
+    std::string m_displayName;
     TLimitFunc m_limitFunc = nullptr;
     TStepFunc m_stepFunc = nullptr;
 };

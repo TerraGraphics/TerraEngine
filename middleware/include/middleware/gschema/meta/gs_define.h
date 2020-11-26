@@ -209,7 +209,7 @@ private:
         std::vector<TProperty> properties;
         for (const auto& metaField: metaType->GetFields()) {
             auto* arithmeticType = new TArithmeticType();
-            arithmeticType->SetPrettyName(metaField.name);
+            arithmeticType->SetDisplayName(metaField.name);
             properties.push_back(TProperty{metaField.index, arithmeticType});
         }
 
@@ -229,8 +229,8 @@ public:
     ~DefineEnum() noexcept(false);
 
     template<typename T>
-    DefineEnum& AddField(T value, std::string_view name, std::string_view prettyName = std::string_view()) {
-        m_metaEnum->AddField(static_cast<MetaEnum::ValueType>(value), name, prettyName);
+    DefineEnum& AddField(T value, std::string_view name, std::string_view displayName = std::string_view()) {
+        m_metaEnum->AddField(static_cast<MetaEnum::ValueType>(value), name, displayName);
 
         return *this;
     }

@@ -36,7 +36,7 @@ public:
     virtual void OnDrawOutputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) = 0;
 
-    virtual void OnDrawFullPreview(const std::string& prettyName) = 0;
+    virtual void OnDrawFullPreview(const std::string& displayName) = 0;
 
 // Draw node edit GUI
 public:
@@ -44,8 +44,8 @@ public:
         None = 0,
         ResetToDefault = 1,
     };
-    virtual void OnStartDrawNodeProperty(const std::string& prettyName) = 0;
-    virtual ButtonsState OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool disabled) = 0;
+    virtual void OnStartDrawNodeProperty(const std::string& displayName) = 0;
+    virtual ButtonsState OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) = 0;
     virtual void OnFinishDrawNodeProperty() = 0;
 };
 

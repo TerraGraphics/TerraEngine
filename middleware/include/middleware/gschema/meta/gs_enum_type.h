@@ -25,14 +25,14 @@ public:
     EnumType(const MetaEnum* metaEnum)
         : m_value(metaEnum->GetFields()[0].value)
         , m_metaEnum(metaEnum)
-        , m_items(metaEnum->GetPrettyNames()) {
+        , m_items(metaEnum->GetDisplayNames()) {
 
     }
     ~EnumType() final = default;
 
 public:
-    void SetPrettyName(std::string_view prettyName) {
-        m_prettyName = prettyName;
+    void SetDisplayName(std::string_view displayName) {
+        m_displayName = displayName;
     }
 
     void DisableUI() {
@@ -78,8 +78,8 @@ public:
         return false;
     }
 
-    std::string_view GetPrettyName() const final {
-        return m_prettyName;
+    std::string_view GetDisplayName() const final {
+        return m_displayName;
     }
 
     const std::vector<std::string>& GetItems() const final {
@@ -93,11 +93,11 @@ public:
     }
 
     std::string ToString() const final {
-        return m_metaEnum->GetPrettyNameByValue(m_value);
+        return m_metaEnum->GetDisplayNameByValue(m_value);
     }
 
     void FromString(const std::string& value) final {
-        m_value = m_metaEnum->GetValueByPrettyName(value);
+        m_value = m_metaEnum->GetValueByDisplayName(value);
         m_state |= StateFlags::ValueChanged;
     }
 
@@ -107,7 +107,7 @@ private:
     uint8_t m_state = StateFlags::EnabledUI;
     const MetaEnum* m_metaEnum = nullptr;
     const std::vector<std::string>& m_items;
-    std::string m_prettyName;
+    std::string m_displayName;
 };
 
 }

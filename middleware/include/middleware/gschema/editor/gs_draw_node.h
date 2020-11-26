@@ -27,7 +27,7 @@ public:
     ~DrawNode();
 
     void OnStartDrawGraph();
-    void OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha);
+    void OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8_t alpha);
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
     void OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion);

@@ -110,13 +110,13 @@ void Draw::OnStartDrawGraph() {
 void Draw::OnFinishDrawGraph() {
 }
 
-void Draw::OnStartDrawNode(uintptr_t id, std::string prettyName) {
+void Draw::OnStartDrawNode(uintptr_t id, std::string displayName) {
     auto nodeIndex = id - 1;
     if (nodeIndex >= m_nodes.size()) {
         m_nodes.resize(nodeIndex + 1);
     }
     m_node = &m_nodes[nodeIndex];
-    m_node->OnStartDrawNode(id, prettyName, m_alpha);
+    m_node->OnStartDrawNode(id, displayName, m_alpha);
 }
 
 void Draw::OnFinishDrawNode(bool isValid, std::string_view errorMessage) {
@@ -139,33 +139,33 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::OnDrawFullPreview(const std::string& prettyName) {
+void Draw::OnDrawFullPreview(const std::string& displayName) {
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = 5;
     labelStyle.margin.bottom = 10;
-    gui::Label(prettyName + ":", labelStyle);
+    gui::Label(displayName + ":", labelStyle);
 }
 
-void Draw::OnStartDrawNodeProperty(const std::string& prettyName) {
+void Draw::OnStartDrawNodeProperty(const std::string& displayName) {
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = 5;
     labelStyle.margin.bottom = 10;
-    gui::Label(prettyName + ":", labelStyle);
+    gui::Label(displayName + ":", labelStyle);
 
     ImGui::Columns(2, "gs_node_property", true);
 }
 
-IDraw::ButtonsState Draw::OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool disabled) {
+IDraw::ButtonsState Draw::OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) {
     if (disabled) {
         gui::StartDisable();
     }
     if (typeInstance->IsPrimitiveType()) {
-        DrawPropertyRow("", prettyName, typeInstance->GetValue(0), false);
+        DrawPropertyRow("", displayName, typeInstance->GetValue(0), false);
     } else {
-        DrawPropertyHeader(prettyName);
+        DrawPropertyHeader(displayName);
         for (size_t i=0; i!=typeInstance->Count(); ++i) {
             gs::IPrimitiveType* value = typeInstance->GetValue(i);
-            DrawPropertyRow(prettyName, value->GetPrettyName(), value, true);
+            DrawPropertyRow(displayName, value->GetDisplayName(), value, true);
         }
     }
     if (disabled) {

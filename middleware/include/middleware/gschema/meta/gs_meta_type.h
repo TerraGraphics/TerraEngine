@@ -36,7 +36,7 @@ public:
     struct Field {
         ValueType value;
         std::string name;
-        std::string prettyName;
+        std::string displayName;
     };
 
 public:
@@ -44,15 +44,15 @@ public:
     ~MetaEnum() = default;
 
 public:
-    void AddField(ValueType value, std::string_view name, std::string_view prettyName);
-    std::string GetPrettyNameByValue(ValueType value) const;
-    ValueType GetValueByPrettyName(const std::string& prettyName) const;
+    void AddField(ValueType value, std::string_view name, std::string_view displayName);
+    std::string GetDisplayNameByValue(ValueType value) const;
+    ValueType GetValueByDisplayName(const std::string& displayName) const;
     const std::vector<Field>& GetFields() const { return m_fields; }
-    const std::vector<std::string>& GetPrettyNames() const { return m_prettyNames; }
+    const std::vector<std::string>& GetDisplayNames() const { return m_displayNames; }
 
 private:
     std::vector<Field> m_fields;
-    std::vector<std::string> m_prettyNames;
+    std::vector<std::string> m_displayNames;
 };
 
 }

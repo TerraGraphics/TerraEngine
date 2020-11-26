@@ -38,12 +38,12 @@ public:
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
 
-    void OnDrawFullPreview(const std::string& prettyName) final;
+    void OnDrawFullPreview(const std::string& displayName) final;
 
 // Draw node edit GUI
 public:
-    void OnStartDrawNodeProperty(const std::string& prettyName) final;
-    ButtonsState OnDrawPinProperty(const std::string& prettyName, TypeInstance* typeInstance, bool disabled) final;
+    void OnStartDrawNodeProperty(const std::string& displayName) final;
+    ButtonsState OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) final;
     void OnFinishDrawNodeProperty() final;
 
 // tmp data for draw frame

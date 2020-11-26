@@ -77,7 +77,7 @@ ClassStorage::Impl::~Impl() {
 
 template<typename T>
 TypeInstanceEdit* CreateCompositeTypeInstance() {
-    constexpr char prettyNames[] = "RGBA";
+    constexpr char displayNames[] = "RGBA";
     using TCompositeType = CompositeTypeT<T>;
     using TProperty = typename TCompositeType::CompositeTypeItem;
     using TArithmeticType = ArithmeticType<typename TCompositeType::FieldType>;
@@ -90,7 +90,7 @@ TypeInstanceEdit* CreateCompositeTypeInstance() {
         if (metaField.index >= 4) {
             throw EngineError("gs::ClassStorage: unknown metaField.index = {}, for generate TypeInstance", metaField.index);
         }
-        arithmeticType->SetPrettyName(std::string_view(&prettyNames[metaField.index], 1));
+        arithmeticType->SetDisplayName(std::string_view(&displayNames[metaField.index], 1));
         properties.push_back(TProperty{metaField.index, arithmeticType});
     }
 
@@ -105,7 +105,7 @@ void ClassStorage::Impl::GenerateTypeInstances() {
         }
         if (typeId == TypeId::Float) {
             auto* arithmeticType = new ArithmeticType<float>();
-            arithmeticType->SetPrettyName("R");
+            arithmeticType->SetDisplayName("R");
             m_typeInstances[typeId] = new TypeInstanceEdit(arithmeticType);
         } else if (typeId == TypeId::Vector2f) {
             m_typeInstances[typeId] = CreateCompositeTypeInstance<Eigen::Vector2f>();

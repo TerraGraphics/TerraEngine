@@ -19,7 +19,7 @@ struct IPrimitiveType {
     virtual bool IsFloatingType() const noexcept = 0;
     virtual bool IsEnabledUI() const noexcept = 0;
     virtual bool IsEnabledShowStepButtons() const noexcept = 0;
-    virtual std::string_view GetPrettyName() const = 0;
+    virtual std::string_view GetDisplayName() const = 0;
     virtual const std::vector<std::string>& GetItems() const = 0;
 
     virtual void Inc() = 0;

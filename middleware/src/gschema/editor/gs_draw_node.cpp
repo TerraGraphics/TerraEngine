@@ -63,7 +63,7 @@ void DrawNode::OnStartDrawGraph() {
     m_drawed = false;
 }
 
-void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha) {
+void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8_t alpha) {
     m_nodeId = id;
     m_drawed = true;
     m_alpha = alpha;
@@ -78,7 +78,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     gui::LabelStyle labelStyle;
     labelStyle.margin.top = 2.f;
     labelStyle.margin.bottom = ne::GetStyle().NodePadding.y; // NodePadding.top;
-    gui::Label(prettyName, labelStyle, &headerLabelRect);
+    gui::Label(displayName, labelStyle, &headerLabelRect);
     gui::SameLine();
 
     float requiredWidth = m_inputPinsWidth + m_outputPinsWidth;

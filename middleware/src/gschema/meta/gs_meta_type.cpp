@@ -20,7 +20,7 @@ void MetaType::AddFieldByIndex(ptrdiff_t index, std::string_view name, std::type
     m_fields.push_back(Field{index, std::string(name), id});
 }
 
-void MetaEnum::AddField(ValueType value, std::string_view name, std::string_view prettyName) {
+void MetaEnum::AddField(ValueType value, std::string_view name, std::string_view displayName) {
     for (const auto& field: m_fields) {
         if (field.value == value) {
             throw EngineError("gs::MetaType::MetaEnum: value = {} with name = {} already exists", value, name);
@@ -28,38 +28,38 @@ void MetaEnum::AddField(ValueType value, std::string_view name, std::string_view
         if (field.name == name) {
             throw EngineError("gs::MetaType::MetaEnum: name = {} with value = {} already exists", name, value);
         }
-        if (!prettyName.empty() && (field.prettyName == prettyName)) {
-            throw EngineError("gs::MetaType::MetaEnum: prettyName = {} with value = {} already exists", prettyName, value);
+        if (!displayName.empty() && (field.displayName == displayName)) {
+            throw EngineError("gs::MetaType::MetaEnum: displayName = {} with value = {} already exists", displayName, value);
         }
     }
 
-    if (prettyName.empty()) {
+    if (displayName.empty()) {
         m_fields.push_back(Field{value, std::string(name), std::string(name)});
-        m_prettyNames.push_back(std::string(name));
+        m_displayNames.push_back(std::string(name));
     } else {
-        m_fields.push_back(Field{value, std::string(name), std::string(prettyName)});
-        m_prettyNames.push_back(std::string(prettyName));
+        m_fields.push_back(Field{value, std::string(name), std::string(displayName)});
+        m_displayNames.push_back(std::string(displayName));
     }
 }
 
-std::string MetaEnum::GetPrettyNameByValue(ValueType value) const {
+std::string MetaEnum::GetDisplayNameByValue(ValueType value) const {
     for (const auto& field: m_fields) {
         if (field.value == value) {
-            return field.prettyName;
+            return field.displayName;
         }
     }
 
-    throw EngineError("gs::MetaType::GetPrettyNameByValue: value = {} not exists", value);
+    throw EngineError("gs::MetaType::GetDisplayNameByValue: value = {} not exists", value);
 }
 
-MetaEnum::ValueType MetaEnum::GetValueByPrettyName(const std::string& prettyName) const {
+MetaEnum::ValueType MetaEnum::GetValueByDisplayName(const std::string& displayName) const {
     for (const auto& field: m_fields) {
-        if (field.prettyName == prettyName) {
+        if (field.displayName == displayName) {
             return field.value;
         }
     }
 
-    throw EngineError("gs::MetaType::GetValueByPrettyName: prettyName = {} not exists", prettyName);
+    throw EngineError("gs::MetaType::GetValueByDisplayName: displayName = {} not exists", displayName);
 }
 
 }
