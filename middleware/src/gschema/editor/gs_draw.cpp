@@ -127,8 +127,8 @@ void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_node->OnDrawInputPins(pins);
 }
 
-void Draw::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
-    m_node->OnDrawPinPreview(typeId, value);
+void Draw::OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) {
+    m_node->OnDrawMiniPreview(typeId, value, valueVersion);
 }
 
 void Draw::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
@@ -139,7 +139,7 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::DrawNodePreview(const std::string& prettyName) {
+void Draw::OnDrawFullPreview(const std::string& prettyName) {
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = 5;
     labelStyle.margin.bottom = 10;

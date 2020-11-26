@@ -30,20 +30,24 @@ public:
     void OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_t alpha);
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
-    void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value);
+    void OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion);
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
 
 private:
-    void FillTexture(const math::Generator2D& v);
+    bool IsNeedUpdateMiniPreview(uint8_t valueVersion);
+    void FillMiniPreviewTexture(const math::Generator2D& v);
 
 private:
     uintptr_t m_nodeId = 0;
     bool m_drawed = false;
-    bool m_showPinPreview = false;
+    bool m_showMiniPreview = false;
     uint8_t m_alpha = 0;
-    uint8_t m_frameNum = 0;
-    TextureViewPtr m_texture;
-    Generator2dToTexture* m_textureGenerator = nullptr;
+
+private: // Mini preview
+    uint8_t m_miniPreviewVersion = 0;
+    uint8_t m_miniPreviewFrameCounter = 0;
+    TextureViewPtr m_miniPreviewTexture;
+    Generator2dToTexture* m_miniPreviewGenerator = nullptr;
 
 private:
     float m_headerWidth = 0.f;

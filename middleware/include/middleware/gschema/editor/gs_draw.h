@@ -29,13 +29,16 @@ public:
 public:
     void OnStartDrawGraph() final;
     void OnFinishDrawGraph() final;
+
     void OnStartDrawNode(uintptr_t id, std::string displayName) final;
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage) final;
+
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
-    void OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) final;
+    void OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) final;
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
-    void DrawNodePreview(const std::string& prettyName) final;
+
+    void OnDrawFullPreview(const std::string& prettyName) final;
 
 // Draw node edit GUI
 public:

@@ -29,6 +29,7 @@ Node& Node::operator=(Node&& o) noexcept {
     std::swap(m_countEmbeddedPins, o.m_countEmbeddedPins);
     std::swap(m_countInputPins, o.m_countInputPins);
     std::swap(m_countOutputPins, o.m_countOutputPins);
+    std::swap(m_outputValueVersion, o.m_outputValueVersion);
     std::swap(m_validFlags, o.m_validFlags);
     std::swap(m_changeState, o.m_changeState);
     std::swap(m_order, o.m_order);
@@ -54,6 +55,7 @@ void Node::Create(Class* cls) {
     m_countEmbeddedPins = m_class->EmbeddedPinsCount();
     m_countInputPins = m_class->InputPinsCount();
     m_countOutputPins = m_class->OutputPinsCount();
+    m_outputValueVersion = 0;
     m_lastResultError.clear();
     m_validFlags = ValidFlags::Valid;
     m_changeState = ChangeState::NotChanged;
@@ -323,6 +325,7 @@ uint16_t Node::UpdateState(Node* nodes) {
                 auto& pin = m_pins[outputPinIndex];
                 pin.cachedValue = m_class->GetValue(outputPinIndex, m_instance);
                 isChanged = true;
+                ++m_outputValueVersion;
                 if (HasUniversalBit(pin.typeId)) {
                     pin.typeId = GetUniversalTypeId(cpgf::fromVariant<UniversalType>(pin.cachedValue));
                 }
@@ -490,7 +493,7 @@ void Node::DrawGraph(IDraw* drawer) {
             }, cpgf::fromVariant<UniversalType>(value));
         }
 
-        drawer->OnDrawPinPreview(ToBaseTypeId(GetPinType(i)), value);
+        drawer->OnDrawMiniPreview(ToBaseTypeId(GetPinType(i)), value, m_outputValueVersion);
     } else {
         throw EngineError("gs::Node::DrawGraph: not found output pins for draw node (id = {})", m_id);
     }
@@ -514,7 +517,7 @@ void Node::DrawGraph(IDraw* drawer) {
 }
 
 void Node::DrawNodePreview(IDraw* drawer) {
-    drawer->DrawNodePreview(m_class->GetDisplayName());
+    drawer->OnDrawFullPreview(m_class->GetDisplayName());
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {

@@ -24,11 +24,12 @@ namespace gs {
 DrawNode::DrawNode(DrawNode&& o) noexcept {
     std::swap(m_nodeId, o.m_nodeId);
     std::swap(m_drawed, o.m_drawed);
-    std::swap(m_showPinPreview, o.m_showPinPreview);
+    std::swap(m_showMiniPreview, o.m_showMiniPreview);
     std::swap(m_alpha, o.m_alpha);
-    std::swap(m_frameNum, o.m_frameNum);
-    std::swap(m_texture, o.m_texture);
-    std::swap(m_textureGenerator, o.m_textureGenerator);
+    std::swap(m_miniPreviewVersion, o.m_miniPreviewVersion);
+    std::swap(m_miniPreviewFrameCounter, o.m_miniPreviewFrameCounter);
+    std::swap(m_miniPreviewTexture, o.m_miniPreviewTexture);
+    std::swap(m_miniPreviewGenerator, o.m_miniPreviewGenerator);
 
     std::swap(m_headerWidth, o.m_headerWidth);
     std::swap(m_headerBottom, o.m_headerBottom);
@@ -37,21 +38,22 @@ DrawNode::DrawNode(DrawNode&& o) noexcept {
 }
 
 DrawNode::~DrawNode() {
-    if (m_texture.RawPtr() != nullptr) {
-        m_texture->Release();
+    if (m_miniPreviewTexture.RawPtr() != nullptr) {
+        m_miniPreviewTexture->Release();
     }
-    if (m_textureGenerator != nullptr) {
-        delete m_textureGenerator;
+    if (m_miniPreviewGenerator != nullptr) {
+        delete m_miniPreviewGenerator;
     }
 }
 
 void DrawNode::OnStartDrawGraph() {
     if (!m_drawed) {
-        if (m_texture.RawPtr() != nullptr) {
-            m_texture->Release();
+        if (m_miniPreviewTexture.RawPtr() != nullptr) {
+            m_miniPreviewTexture->Release();
         }
-        m_showPinPreview = false;
-        m_frameNum = 0;
+        m_showMiniPreview = false;
+        m_miniPreviewVersion = 0;
+        m_miniPreviewFrameCounter = 0;
         m_headerWidth = 0.f;
         m_headerBottom = 0.f;
         m_inputPinsWidth = 0.f;
@@ -80,7 +82,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     gui::SameLine();
 
     float requiredWidth = m_inputPinsWidth + m_outputPinsWidth;
-    if (m_showPinPreview) {
+    if (m_showMiniPreview) {
         requiredWidth += m_pinPreviewSize.w;
     }
 
@@ -93,9 +95,9 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view prettyName, uint8_
     buttonStyle.availableSize.w = std::max(requiredWidth - headerLabelRect.Width(), buttonStyle.drawSize.w + buttonStyle.margin.Horizontal());
 
     std::string buttonId(std::to_string(id) + ".show_pin_preview");
-    auto dir = m_showPinPreview ? gui::Direction::Up : gui::Direction::Down;
+    auto dir = m_showMiniPreview ? gui::Direction::Up : gui::Direction::Down;
     if (gui::ArrowButton(buttonId, dir, buttonStyle, &headerButtonRect)) {
-        m_showPinPreview = !m_showPinPreview;
+        m_showMiniPreview = !m_showMiniPreview;
     }
 
     const math::RectF headerRect = gui::EndHorizontal();
@@ -198,9 +200,9 @@ static uint8_t floatChannelToUint8(float v) {
     return static_cast<uint8_t>(std::max(std::min(static_cast<int32_t>(v * 255.f), 255), 0));
 }
 
-void DrawNode::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
+void DrawNode::OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) {
     float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
-    if (!m_showPinPreview) {
+    if (!m_showMiniPreview) {
         if (dt > 0) {
             gui::Dummy(math::SizeF(dt, 0));
         }
@@ -237,15 +239,19 @@ void DrawNode::OnDrawPinPreview(TypeId typeId, const cpgf::GVariant& value) {
         style.color.blue = floatChannelToUint8(tmp[2]);
         gui::Image(m_pinPreviewSize, style);
     } else if (typeId == TypeId::Generator2d) {
-        const auto tmp = cpgf::fromVariant<math::Generator2D>(value);
-        FillTexture(tmp);
-        gui::Image(m_pinPreviewSize, m_texture, style);
+        if (IsNeedUpdateMiniPreview(valueVersion)) {
+            const auto tmp = cpgf::fromVariant<math::Generator2D>(value);
+            FillMiniPreviewTexture(tmp);
+        }
+        gui::Image(m_pinPreviewSize, m_miniPreviewTexture, style);
     } else if (typeId == TypeId::Generator3d) {
-        const auto tmp = cpgf::fromVariant<math::Generator3D>(value);
-        auto sPlane = SectionPlaneX0Y();
-        sPlane.SetInput(tmp);
-        FillTexture(sPlane.Result());
-        gui::Image(m_pinPreviewSize, m_texture, style);
+        if (IsNeedUpdateMiniPreview(valueVersion)) {
+            const auto tmp = cpgf::fromVariant<math::Generator3D>(value);
+            auto sPlane = SectionPlaneX0Y();
+            sPlane.SetInput(tmp);
+            FillMiniPreviewTexture(sPlane.Result());
+        }
+        gui::Image(m_pinPreviewSize, m_miniPreviewTexture, style);
     } else {
         throw EngineError("gs::DrawNode::OnDrawPinPreview: unknown value type (id = {})", typeId);
     }
@@ -287,18 +293,34 @@ void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
     m_outputPinsWidth = gui::EndVertical().Width();
 }
 
-void DrawNode::FillTexture(const math::Generator2D& v) {
-    m_frameNum = static_cast<uint8_t>((m_frameNum + 1) % 100);
-    if ((m_texture.RawPtr() != nullptr) && (m_frameNum != 0)) {
-        return;
+bool DrawNode::IsNeedUpdateMiniPreview(uint8_t valueVersion) {
+    if (m_miniPreviewTexture.RawPtr() == nullptr) {
+        m_miniPreviewVersion = valueVersion;
+        m_miniPreviewFrameCounter = 0;
+        return true;
     }
 
-    if (m_textureGenerator == nullptr) {
-        m_textureGenerator = new Generator2dToTexture();
+    if (valueVersion == m_miniPreviewVersion) {
+        return false;
     }
 
-    m_textureGenerator->SetInput(v);
-    m_texture = m_textureGenerator->Result()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
+    ++m_miniPreviewFrameCounter;
+    if (m_miniPreviewFrameCounter == 50) {
+        m_miniPreviewVersion = valueVersion;
+        m_miniPreviewFrameCounter = 0;
+        return true;
+    }
+
+    return false;
+}
+
+void DrawNode::FillMiniPreviewTexture(const math::Generator2D& v) {
+    if (m_miniPreviewGenerator == nullptr) {
+        m_miniPreviewGenerator = new Generator2dToTexture();
+    }
+
+    m_miniPreviewGenerator->SetInput(v);
+    m_miniPreviewTexture = m_miniPreviewGenerator->Result()->GetDefaultView(dg::TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
 }

@@ -160,6 +160,7 @@ private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;
     uint8_t m_countOutputPins = 0;
+    uint8_t m_outputValueVersion = 0;
 
     ValidFlags m_validFlags = ValidFlags::Valid;
     ChangeState m_changeState = ChangeState::NotChanged;
