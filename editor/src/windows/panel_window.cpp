@@ -17,7 +17,8 @@ void Property::Draw() {
 }
 
 
-PanelWindow::PanelWindow() {
+PanelWindow::PanelWindow(const std::string& name)
+    : m_name(name) {
 
 }
 
@@ -36,7 +37,7 @@ void PanelWindow::SetProperties(std::initializer_list<Property> properties) {
 void PanelWindow::Draw() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
-    if (ImGui::Begin("Property", pOpen, windowFlags)) {
+    if (ImGui::Begin(m_name.c_str(), pOpen, windowFlags)) {
         for (auto& property: m_properties) {
             property.Draw();
         }

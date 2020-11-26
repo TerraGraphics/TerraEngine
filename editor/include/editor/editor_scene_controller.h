@@ -24,12 +24,14 @@ public:
 
 private:
     void DockSpace();
-    void FooterWindow();
 
 private:
+    bool m_needInitDockspace = true;
     std::shared_ptr<gui::Gui> m_gui = nullptr;
     std::unique_ptr<StdScene> m_scene;
     std::unique_ptr<SceneWindow> m_sceneWindow;
-    std::unique_ptr<GSchemaWindow> m_gsSchemaWindow;
+    std::unique_ptr<GSchemaWindow> m_gschemaWindow;
+    std::shared_ptr<PanelWindow> m_footerPanel;
+    std::shared_ptr<PanelWindow> m_previewPanel;
     std::shared_ptr<PanelWindow> m_propertyPanel;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <functional>
 #include <initializer_list>
@@ -21,7 +22,8 @@ private:
 
 class PanelWindow : Fixed {
 public:
-    PanelWindow();
+    PanelWindow() = delete;
+    PanelWindow(const std::string& name);
     ~PanelWindow();
 
 public:
@@ -30,5 +32,6 @@ public:
     void Draw();
 
 private:
+    std::string m_name;
     std::vector<Property> m_properties;
 };

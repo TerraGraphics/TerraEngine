@@ -36,7 +36,7 @@ void GSchemaWindow::Create(const std::shared_ptr<PanelWindow>& propertyPanel) {
 void GSchemaWindow::Draw() {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
-    if (ImGui::Begin("gseditor", pOpen, windowFlags)) {
+    if (ImGui::Begin("GSchema", pOpen, windowFlags)) {
         m_editor->DrawGraph();
         ImGui::End();
 

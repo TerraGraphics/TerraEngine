@@ -50,7 +50,7 @@ void SceneWindow::Update(double deltaTime) {
     bool* pOpen = nullptr;
     ImGuiWindowFlags windowFlags = 0;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    m_draw = ImGui::Begin("preview", pOpen, windowFlags);
+    m_draw = ImGui::Begin("Scene", pOpen, windowFlags);
     ImGui::PopStyleVar(1);
     if (m_draw) {
         math::RectF rc;

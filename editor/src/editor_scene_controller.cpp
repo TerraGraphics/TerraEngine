@@ -16,22 +16,30 @@
 EditorSceneController::EditorSceneController()
     : m_scene(new StdScene())
     , m_sceneWindow(new SceneWindow())
-    , m_gsSchemaWindow(new GSchemaWindow())
-    , m_propertyPanel(new PanelWindow()) {
+    , m_gschemaWindow(new GSchemaWindow())
+    , m_footerPanel(new PanelWindow("Footer"))
+    , m_previewPanel(new PanelWindow("Preview"))
+    , m_propertyPanel(new PanelWindow("Property")) {
 
 }
 
 EditorSceneController::~EditorSceneController() {
     m_scene.reset();
     m_sceneWindow.reset();
-    m_gsSchemaWindow.reset();
+    m_gschemaWindow.reset();
+    m_footerPanel.reset();
+    m_previewPanel.reset();
     m_propertyPanel.reset();
 }
 
 void EditorSceneController::Create(const std::shared_ptr<gui::Gui>& gui) {
     m_gui = gui;
+
+    m_footerPanel->Create();
+    m_previewPanel->Create();
     m_propertyPanel->Create();
-    m_gsSchemaWindow->Create(m_propertyPanel);
+
+    m_gschemaWindow->Create(m_propertyPanel);
     m_scene->Create(false, dg::TEXTURE_FORMAT(0), math::Color4f(1.f));
     m_sceneWindow->Create();
 }
@@ -40,11 +48,12 @@ void EditorSceneController::Update(double deltaTime) {
     m_gui->StartFrame();
     DockSpace();
     m_sceneWindow->Update(deltaTime);
-    m_gsSchemaWindow->Draw();
+    m_gschemaWindow->Draw();
 
-    // draw after all
+    m_footerPanel->Draw();
+    m_previewPanel->Draw();
     m_propertyPanel->Draw();
-    FooterWindow();
+
     // ImGui::ShowDemoWindow(nullptr);
 
     m_scene->Update();
@@ -72,34 +81,31 @@ void EditorSceneController::DockSpace() {
     ImGui::Begin("Root", pOpen, windowFlags);
     ImGui::PopStyleVar(3);
 
-    static bool first = true;
     auto dockspaceID = ImGui::GetID("RootSpace");
-    if (first) {
-        first = false;
+    if (m_needInitDockspace) {
+        m_needInitDockspace = false;
         ImGui::DockBuilderRemoveNode(dockspaceID);
         ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_None);
         ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->Size);
 
         ImGuiID dockCentral = dockspaceID;
-        ImGuiID dockRight = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Right, 0.20f, NULL, &dockCentral);
-        ImGuiID dockBottom = ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Down, 0.20f, NULL, &dockCentral);
+        ImGuiID dockLeft, dockLeftTop, dockLeftBottom, dockBottom;
+        ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Left, 0.20f, &dockLeft, &dockCentral);
+        ImGui::DockBuilderSplitNode(dockCentral, ImGuiDir_Down, 0.20f, &dockBottom, &dockCentral);
+        ImGui::DockBuilderSplitNode(dockLeft, ImGuiDir_Up, 0.40f, &dockLeftTop, &dockLeftBottom);
 
-        ImGui::DockBuilderDockWindow("graph", dockCentral);
-        ImGui::DockBuilderDockWindow("gseditor", dockCentral);
-        ImGui::DockBuilderDockWindow("preview", dockCentral);
-        ImGui::DockBuilderDockWindow("Property", dockRight);
+        // Main window
+        ImGui::DockBuilderDockWindow("GSchema", dockCentral);
+        ImGui::DockBuilderDockWindow("Scene", dockCentral);
+
+        // Panel
         ImGui::DockBuilderDockWindow("Footer", dockBottom);
+        ImGui::DockBuilderDockWindow("Preview", dockLeftTop);
+        ImGui::DockBuilderDockWindow("Property", dockLeftBottom);
+
         ImGui::DockBuilderFinish(dockspaceID);
     }
 
     ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
     ImGui::End();
-}
-
-void EditorSceneController::FooterWindow() {
-    bool* pOpen = nullptr;
-    ImGuiWindowFlags windowFlags = 0;
-    if (ImGui::Begin("Footer", pOpen, windowFlags)) {
-        ImGui::End();
-    }
 }
