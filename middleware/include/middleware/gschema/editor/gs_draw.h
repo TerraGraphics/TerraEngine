@@ -18,6 +18,7 @@ namespace cpgf {
 
 namespace gs {
 
+class DrawPreview;
 class TypeInstance;
 class Draw final : public IDraw {
 public:
@@ -34,11 +35,11 @@ public:
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage) final;
 
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
-    void OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) final;
+    void OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) final;
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) final;
     void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) final;
 
-    void OnDrawFullPreview(const std::string& displayName) final;
+    void OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) final;
 
 // Draw node edit GUI
 public:
@@ -49,6 +50,7 @@ public:
 // tmp data for draw frame
 private:
     uint8_t m_alpha = 0;
+    uint16_t m_previewNodeId = 0;
     DrawNode* m_node = nullptr;
 
 // persistent data
@@ -57,6 +59,7 @@ private:
     std::vector<DrawNode> m_nodes;
     math::SizeF m_texBackgroundSize;
     TextureViewPtr m_texBackground;
+    DrawPreview* m_preview = nullptr;
 };
 
 }

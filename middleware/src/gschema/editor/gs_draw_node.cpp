@@ -193,12 +193,14 @@ void DrawNode::OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value
     }
 
     dt = (dt - m_miniPreviewSize.w) * 0.5f;
-    auto margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
+
+    gui::ImageStyle previewStyle;
+    previewStyle.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
 
     if (m_miniPreview == nullptr) {
         m_miniPreview = new DrawPreview();
     }
-    m_miniPreview->Draw(valueTypeId, value, valueVersion, margin, m_miniPreviewSize);
+    m_miniPreview->Draw(valueTypeId, value, valueVersion, previewStyle, m_miniPreviewSize);
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {

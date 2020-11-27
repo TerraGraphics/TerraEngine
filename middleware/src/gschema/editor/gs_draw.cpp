@@ -8,11 +8,14 @@
 #include "imgui/imgui.h"
 #include "imgui/node_editor.h"
 #include "dg/graphics_types.h"
+#include "middleware/imgui/image.h"
 #include "middleware/imgui/field.h"
 #include "middleware/imgui/label.h"
 #include "middleware/imgui/combo_box.h"
+#include "middleware/imgui/imgui_math.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
 #include "middleware/gschema/meta/gs_type_interface.h"
+#include "middleware/gschema/editor/gs_draw_preview.h"
 
 
 namespace gs {
@@ -98,7 +101,9 @@ Draw::Draw(TexturePtr& texBackground)
 }
 
 Draw::~Draw() {
-
+    if (m_preview != nullptr) {
+        delete m_preview;
+    }
 }
 
 void Draw::OnStartDrawGraph() {
@@ -128,8 +133,8 @@ void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_node->OnDrawInputPins(pins);
 }
 
-void Draw::OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) {
-    m_node->OnDrawMiniPreview(typeId, value, valueVersion);
+void Draw::OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
+    m_node->OnDrawMiniPreview(valueTypeId, value, valueVersion);
 }
 
 void Draw::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
@@ -140,11 +145,27 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::OnDrawFullPreview(const std::string& displayName) {
+void Draw::OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = 5;
     labelStyle.margin.bottom = 10;
     gui::Label(displayName + ":", labelStyle);
+
+    const math::SizeF maxSize(gui::ToSizeF(ImGui::GetContentRegionAvail()));
+    const math::SizeF drawSize(std::min(maxSize.w, maxSize.h));
+
+    gui::ImageStyle previewStyle;
+    previewStyle.availableSize = math::SizeF(gui::ImageStyle::ALL_AVAILABLE);
+    previewStyle.horisontalAlign = gui::HorisontalAlign::Center;
+    if (m_preview == nullptr) {
+        m_preview = new DrawPreview();
+    }
+
+    if (m_previewNodeId != nodeId) {
+        m_preview->Reset();
+        m_previewNodeId = nodeId;
+    }
+    m_preview->Draw(valueTypeId, value, valueVersion, previewStyle, drawSize);
 }
 
 void Draw::OnStartDrawNodeProperty(const std::string& displayName) {

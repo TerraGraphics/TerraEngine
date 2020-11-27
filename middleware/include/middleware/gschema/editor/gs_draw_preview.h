@@ -12,6 +12,9 @@
 namespace cpgf {
     class GVariant;
 }
+namespace gui {
+    struct ImageStyle;
+}
 
 class Generator2dToTexture;
 namespace gs {
@@ -22,7 +25,7 @@ public:
     ~DrawPreview();
 
     void Reset();
-    void Draw(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion, math::RectOffsetF margin, math::SizeF drawSize);
+    void Draw(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion, gui::ImageStyle& style, math::SizeF drawSize);
 
 private:
     bool IsNeedUpdateTexture(uint8_t valueVersion);

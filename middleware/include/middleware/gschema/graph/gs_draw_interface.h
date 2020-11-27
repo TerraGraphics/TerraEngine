@@ -32,11 +32,11 @@ public:
     virtual void OnFinishDrawNode(bool isValid, std::string_view errorMessage) = 0;
 
     virtual void OnDrawInputPins(const std::vector<Pin>& pins) = 0;
-    virtual void OnDrawMiniPreview(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion) = 0;
+    virtual void OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) = 0;
     virtual void OnDrawOutputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) = 0;
 
-    virtual void OnDrawFullPreview(const std::string& displayName) = 0;
+    virtual void OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) = 0;
 
 // Draw node edit GUI
 public:

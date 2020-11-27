@@ -474,6 +474,21 @@ void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
     }
 }
 
+TypeId Node::GetValueForPreview(cpgf::GVariant& value) {
+    if (OutputPinsCount() > 0) {
+        auto index = OutputPinsBeginIndex();
+        value = m_pins[index].cachedValue;
+        if (IsUniversalTypeFromPinId(m_pins[index].id)) {
+            value = std::visit([](auto&& v) -> auto {
+                return cpgf::copyVariantFromCopyable(v);
+            }, cpgf::fromVariant<UniversalType>(value));
+        }
+        return ToBaseTypeId(GetPinType(index));
+    } else {
+        throw EngineError("gs::Node::GetValueForPreview: not found output pins for draw node (id = {})", m_id);
+    }
+}
+
 void Node::DrawGraph(IDraw* drawer) {
     drawer->OnStartDrawNode(static_cast<uintptr_t>(m_id), m_class->GetDisplayName());
 
@@ -484,19 +499,9 @@ void Node::DrawGraph(IDraw* drawer) {
     }
     drawer->OnDrawInputPins(pins);
 
-    if (OutputPinsCount() > 0) {
-        auto i = OutputPinsBeginIndex();
-        cpgf::GVariant value = m_pins[i].cachedValue;
-        if (IsUniversalTypeFromPinId(m_pins[i].id)) {
-            value = std::visit([](auto&& v) -> auto {
-                return cpgf::copyVariantFromCopyable(v);
-            }, cpgf::fromVariant<UniversalType>(value));
-        }
-
-        drawer->OnDrawMiniPreview(ToBaseTypeId(GetPinType(i)), value, m_outputValueVersion);
-    } else {
-        throw EngineError("gs::Node::DrawGraph: not found output pins for draw node (id = {})", m_id);
-    }
+    cpgf::GVariant value;
+    TypeId valueTypeId = GetValueForPreview(value);
+    drawer->OnDrawMiniPreview(valueTypeId, value, m_outputValueVersion);
 
     pins.clear();
     pins.reserve(OutputPinsCount());
@@ -517,7 +522,9 @@ void Node::DrawGraph(IDraw* drawer) {
 }
 
 void Node::DrawNodePreview(IDraw* drawer) {
-    drawer->OnDrawFullPreview(m_class->GetDisplayName());
+    cpgf::GVariant value;
+    TypeId valueTypeId = GetValueForPreview(value);
+    drawer->OnDrawFullPreview(m_class->GetDisplayName(), m_id, valueTypeId, value, m_outputValueVersion);
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {

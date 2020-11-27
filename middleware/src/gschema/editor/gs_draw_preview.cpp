@@ -17,7 +17,7 @@ DrawPreview::DrawPreview() {
 
 DrawPreview::~DrawPreview() {
     if (m_texture.RawPtr() != nullptr) {
-        m_texture->Release();
+        m_texture.Release();
     }
     if (m_generator != nullptr) {
         delete m_generator;
@@ -28,15 +28,12 @@ void DrawPreview::Reset() {
     m_frameCounter = 0;
     m_valueVersion = 0;
     if (m_texture.RawPtr() != nullptr) {
-        m_texture->Release();
+        m_texture.Release();
     }
 }
 
 
-void DrawPreview::Draw(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion, math::RectOffsetF margin, math::SizeF drawSize) {
-    gui::ImageStyle style;
-    style.margin = margin;
-
+void DrawPreview::Draw(TypeId typeId, const cpgf::GVariant& value, uint8_t valueVersion, gui::ImageStyle& style, math::SizeF drawSize) {
     if (typeId == TypeId::Float) {
         const auto tmp = cpgf::fromVariant<float>(value);
         style.color.red = math::Color4::ConvertComponent(tmp);

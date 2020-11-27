@@ -149,6 +149,7 @@ private:
     void DetachFromInputPinCalcType(uint8_t inputPinIndex);
 
 public:
+    TypeId GetValueForPreview(cpgf::GVariant& value);
     void DrawGraph(IDraw* drawer);
     void DrawNodePreview(IDraw* drawer);
     void DrawNodeProperty(IDraw* drawer);
