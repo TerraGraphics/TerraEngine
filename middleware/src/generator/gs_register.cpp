@@ -1,5 +1,6 @@
 #include "middleware/generator/gs_register.h"
 
+#include <vector>
 #include <cstdint>
 #include <stdexcept>
 

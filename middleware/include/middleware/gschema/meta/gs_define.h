@@ -1,6 +1,7 @@
 #pragma once
 // based on cpgf/gmetadefine.h
 
+#include <limits>
 #include <vector>
 #include <cstdint>
 #include <cstddef>

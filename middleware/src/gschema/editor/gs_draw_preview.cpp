@@ -1,25 +1,19 @@
 #include "middleware/gschema/editor/gs_draw_preview.h"
 
-#include <string>
-#include <utility>
-#include <algorithm>
-
 #include "dg/device.h"
 #include "eigen/core.h"
-#include "imgui/imgui.h"
 #include "cpgf/variant.h"
-#include "imgui/node_editor.h"
 #include "core/common/exception.h"
 #include "middleware/imgui/image.h"
-#include "middleware/imgui/label.h"
-#include "middleware/imgui/button.h"
-#include "middleware/imgui/layout.h"
-#include "middleware/imgui/imgui_math.h"
 #include "middleware/generator/texture/section_plane.h"
 #include "middleware/generator/texture/generator2d_to_texture.h"
 
 
 namespace gs {
+
+DrawPreview::DrawPreview() {
+
+}
 
 DrawPreview::~DrawPreview() {
     if (m_texture.RawPtr() != nullptr) {

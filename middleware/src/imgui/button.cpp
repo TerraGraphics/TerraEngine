@@ -3,6 +3,7 @@
 #include <cmath>
 #include <string>
 #include <cstdint>
+#include <algorithm>
 
 #include "imgui/imgui.h"
 #include "imgui/internal.h"

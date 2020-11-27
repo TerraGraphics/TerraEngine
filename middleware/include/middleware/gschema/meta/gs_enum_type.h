@@ -1,6 +1,7 @@
 #pragma once
 
 #include <limits>
+#include <vector>
 #include <cstdint>
 #include <charconv>
 #include <stdexcept>

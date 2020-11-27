@@ -1,6 +1,7 @@
 #include "middleware/gschema/editor/gs_draw.h"
 
 #include <cstddef>
+#include <ext/alloc_traits.h>
 
 #include "fmt/fmt.h"
 #include "dg/texture.h"

@@ -1,7 +1,5 @@
 #include "editor/editor_scene_controller.h"
 
-#include <cstddef>
-
 #include "dg/dg.h"
 #include "imgui/imgui.h"
 #include "imgui/internal.h"

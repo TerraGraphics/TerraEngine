@@ -1,8 +1,8 @@
 #include "middleware/generator/texture/perlin.h"
 
+#include <cmath>
 #include <algorithm>
 
-#include "core/math/numbers.h"
 #include "core/math/generator_type.h"
 
 

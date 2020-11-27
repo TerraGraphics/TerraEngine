@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
-#include <string_view>
 
 #include "dg/dg.h"
 #include "core/math/types.h"
@@ -20,7 +18,7 @@ namespace gs {
 
 class DrawPreview : Fixed {
 public:
-    DrawPreview() = default;
+    DrawPreview();
     ~DrawPreview();
 
     void Reset();
