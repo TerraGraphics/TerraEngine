@@ -145,18 +145,7 @@ void Draw::OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) 
     ne::Link(ne::LinkId(linkId), ne::PinId(srcPinId), ne::PinId(dstPinId));
 }
 
-void Draw::OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
-    gui::LabelStyle labelStyle;
-    labelStyle.margin.left = 5;
-    labelStyle.margin.bottom = 10;
-    gui::Label(displayName + ":", labelStyle);
-
-    const math::SizeF maxSize(gui::ToSizeF(ImGui::GetContentRegionAvail()));
-    const math::SizeF drawSize(std::min(maxSize.w, maxSize.h));
-
-    gui::ImageStyle previewStyle;
-    previewStyle.availableSize = math::SizeF(gui::ImageStyle::ALL_AVAILABLE);
-    previewStyle.horisontalAlign = gui::HorisontalAlign::Center;
+void Draw::OnDrawFullPreview(uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
     if (m_preview == nullptr) {
         m_preview = new DrawPreview(true);
     }
@@ -165,6 +154,17 @@ void Draw::OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, Ty
         m_preview->Reset();
         m_previewNodeId = nodeId;
     }
+
+    if (nodeId == 0) {
+        return;
+    }
+
+    const math::SizeF maxSize(gui::ToSizeF(ImGui::GetContentRegionAvail()));
+    const math::SizeF drawSize(std::min(maxSize.w, maxSize.h));
+
+    gui::ImageStyle previewStyle;
+    previewStyle.availableSize = math::SizeF(gui::ImageStyle::ALL_AVAILABLE);
+    previewStyle.horisontalAlign = gui::HorisontalAlign::Center;
     m_preview->Draw(valueTypeId, value, valueVersion, previewStyle, drawSize);
 }
 

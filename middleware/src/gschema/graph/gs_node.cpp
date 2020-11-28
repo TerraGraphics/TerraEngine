@@ -524,7 +524,7 @@ void Node::DrawGraph(IDraw* drawer) {
 void Node::DrawNodePreview(IDraw* drawer) {
     cpgf::GVariant value;
     TypeId valueTypeId = GetValueForPreview(value);
-    drawer->OnDrawFullPreview(m_class->GetDisplayName(), m_id, valueTypeId, value, m_outputValueVersion);
+    drawer->OnDrawFullPreview(m_id, valueTypeId, value, m_outputValueVersion);
 }
 
 void Node::DrawNodeProperty(IDraw* drawer) {

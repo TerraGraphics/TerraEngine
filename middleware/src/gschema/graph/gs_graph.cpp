@@ -82,6 +82,12 @@ void Graph::DrawGraph(IDraw* drawer) {
 }
 
 void Graph::DrawNodePreview(uint16_t nodeId, IDraw* drawer) {
+    if (nodeId == 0) {
+        static const auto empty = cpgf::GVariant();
+        drawer->OnDrawFullPreview(nodeId, TypeId::Unknown, empty, 0);
+        return;
+    }
+
     try {
         CheckIsValidNodeId(nodeId);
     } catch(const EngineError& e) {

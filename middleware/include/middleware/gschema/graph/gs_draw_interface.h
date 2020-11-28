@@ -36,7 +36,8 @@ public:
     virtual void OnDrawOutputPins(const std::vector<Pin>& pins) = 0;
     virtual void OnDrawLink(uintptr_t linkId, uintptr_t srcPinId, uintptr_t dstPinId) = 0;
 
-    virtual void OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) = 0;
+    // nodeId == 0 for disable preview
+    virtual void OnDrawFullPreview(uint16_t nodeId, TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) = 0;
 
 // Draw node edit GUI
 public:

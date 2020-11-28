@@ -158,9 +158,7 @@ void Editor::DrawGraph() {
 }
 
 void Editor::DrawNodePreview() {
-    if (m_previewNodeId != 0) {
-        m_graph->DrawNodePreview(m_previewNodeId, m_draw.get());
-    }
+    m_graph->DrawNodePreview(m_previewNodeId, m_draw.get());
 }
 
 void Editor::DrawNodeProperty() {
