@@ -11,7 +11,8 @@
 
 namespace gs {
 
-DrawPreview::DrawPreview() {
+DrawPreview::DrawPreview(bool full)
+    : m_fullPreview(full) {
 
 }
 
@@ -101,6 +102,7 @@ bool DrawPreview::IsNeedUpdateTexture(uint8_t valueVersion) {
 void DrawPreview::FillTexture(const math::Generator2D& v) {
     if (m_generator == nullptr) {
         m_generator = new Generator2dToTexture();
+        m_generator->SetTextureSize(math::Size(m_fullPreview ? 512 : 128));
     }
 
     m_generator->SetInput(v);

@@ -21,7 +21,8 @@ namespace gs {
 
 class DrawPreview : Fixed {
 public:
-    DrawPreview();
+    DrawPreview() = delete;
+    DrawPreview(bool full);
     ~DrawPreview();
 
     void Reset();
@@ -32,6 +33,7 @@ private:
     void FillTexture(const math::Generator2D& v);
 
 private:
+    bool m_fullPreview = false;
     uint8_t m_frameCounter = 0;
     uint8_t m_valueVersion = 0;
     TextureViewPtr m_texture;

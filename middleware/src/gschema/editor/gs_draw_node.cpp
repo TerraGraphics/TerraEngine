@@ -198,7 +198,7 @@ void DrawNode::OnDrawPreview(TypeId valueTypeId, const cpgf::GVariant& value, ui
     previewStyle.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
 
     if (m_preview == nullptr) {
-        m_preview = new DrawPreview();
+        m_preview = new DrawPreview(false);
     }
     m_preview->Draw(valueTypeId, value, valueVersion, previewStyle, m_previewSize);
 }

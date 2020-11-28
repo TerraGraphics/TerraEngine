@@ -28,7 +28,7 @@ private:
 
 private:
     dg::RefCntAutoPtr<DynamicTexture> m_texture;
-    math::Size m_textureSize = math::Size(128, 128);
+    math::Size m_textureSize = math::Size(128);
     math::RectF m_generatorRect = math::RectF(-16.f, -16.f, 32.f, 32.f);
     math::Generator2D m_input;
 };

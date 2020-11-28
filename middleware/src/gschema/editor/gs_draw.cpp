@@ -158,7 +158,7 @@ void Draw::OnDrawFullPreview(const std::string& displayName, uint16_t nodeId, Ty
     previewStyle.availableSize = math::SizeF(gui::ImageStyle::ALL_AVAILABLE);
     previewStyle.horisontalAlign = gui::HorisontalAlign::Center;
     if (m_preview == nullptr) {
-        m_preview = new DrawPreview();
+        m_preview = new DrawPreview(true);
     }
 
     if (m_previewNodeId != nodeId) {
