@@ -16,7 +16,7 @@ private:
     ~MetaStorage();
 
 public:
-    static MetaStorage& getInstance() {
+    static MetaStorage& GetInstance() {
         static MetaStorage instance;
 
         return instance;

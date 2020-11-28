@@ -1,4 +1,4 @@
-#include "middleware/generator/gs_register.h"
+#include "middleware/generator/generator_register.h"
 
 #include <vector>
 #include <cstdint>

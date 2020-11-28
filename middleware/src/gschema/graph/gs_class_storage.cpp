@@ -10,13 +10,13 @@
 #include "cpgf/metaclass.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
-#include "middleware/generator/gs_register.h" // IWYU pragma: keep
 #include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/graph/gs_class.h"
 #include "middleware/gschema/meta/gs_meta_type.h"
 #include "middleware/gschema/embedded/embedded.h" // IWYU pragma: keep
 #include "middleware/gschema/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gschema/meta/gs_meta_consts.h"
+#include "middleware/generator/generator_register.h" // IWYU pragma: keep
 #include "middleware/gschema/meta/gs_meta_storage.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
 #include "middleware/gschema/meta/gs_composite_type.h"
@@ -40,7 +40,7 @@ struct ClassStorage::Impl {
 };
 
 ClassStorage::Impl::Impl() {
-    gs::MetaStorage::getInstance().RunDefineCallbacks();
+    gs::MetaStorage::GetInstance().RunDefineCallbacks();
     GenerateTypeInstances();
 
     const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();
@@ -83,7 +83,7 @@ TypeInstanceEdit* CreateCompositeTypeInstance() {
     using TProperty = typename TCompositeType::CompositeTypeItem;
     using TArithmeticType = ArithmeticType<typename TCompositeType::FieldType>;
 
-    MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
+    MetaType* metaType = MetaStorage::GetInstance().GetType(std::type_index(typeid(T)));
 
     std::vector<TProperty> properties;
     for (const auto& metaField: metaType->GetFields()) {

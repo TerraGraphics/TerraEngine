@@ -23,6 +23,9 @@
 #include "middleware/gschema/meta/gs_arithmetic_type.h"
 
 
+#define DEFINE_TYPES_IMPL(cls) template <> void GSAutoRegisterTypesFuncT<cls>()
+#define DEFINE_CLASSES_IMPL(cls) template <> void GSAutoRegisterClassesFuncT<cls>()
+
 namespace cpgf {
 
 template <typename ClassType, typename DerivedType> class GDefineMetaCommon;
@@ -138,7 +141,7 @@ public:
     DefineEnumTypePin<T, DefineClass> AddEmbeddedPinEnum(
         const char* name, const Getter& getter, const Setter& setter, const char* displayName = nullptr) {
 
-        auto* metaEnum = MetaStorage::getInstance().GetEnum(std::type_index(typeid(T)));
+        auto* metaEnum = MetaStorage::GetInstance().GetEnum(std::type_index(typeid(T)));
         auto* enumType = new EnumType<T>(metaEnum);
         auto* typeInstance = new TypeInstanceEdit(enumType);
         auto* metaPropoperty = new cpgf::GMetaProperty(name, getter, setter, cpgf::GMetaPolicyDefault());
@@ -205,7 +208,7 @@ private:
         using TProperty = typename TCompositeType::CompositeTypeItem;
         using TArithmeticType = ArithmeticType<typename TCompositeType::FieldType>;
 
-        MetaType* metaType = MetaStorage::getInstance().GetType(std::type_index(typeid(T)));
+        MetaType* metaType = MetaStorage::GetInstance().GetType(std::type_index(typeid(T)));
 
         std::vector<TProperty> properties;
         for (const auto& metaField: metaType->GetFields()) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "middleware/gschema/graph/gs_register.h"
+#include "middleware/gschema/meta/gs_define_decl.h"
 
 
 namespace detail {

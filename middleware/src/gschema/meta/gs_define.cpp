@@ -1,10 +1,18 @@
 #include "middleware/gschema/meta/gs_define.h"
+#include "middleware/gschema/meta/gs_define_decl.h"
 
 #include <string>
 #include "core/common/exception.h"
 
 
 namespace gs::detail {
+
+int RegisterCallbacksImpl(void(*types)(), void(*classes)()) {
+    MetaStorage::GetInstance().AddDefineTypesCallback(types);
+	MetaStorage::GetInstance().AddDefineClassesCallback(classes);
+
+    return 0;
+}
 
 DefineClass::DefineClass(cpgf::GMetaClass* metaClass)
     : m_metaClass(metaClass) {
@@ -44,7 +52,7 @@ void DefineClass::RegisterPin(cpgf::GMetaProperty* property, gs::PinTypes pinTyp
 
 DefineEnum::DefineEnum(std::type_index typeIndex) {
     m_metaEnum = new MetaEnum();
-    MetaStorage::getInstance().AddEnum(typeIndex, m_metaEnum);
+    MetaStorage::GetInstance().AddEnum(typeIndex, m_metaEnum);
 }
 
 DefineEnum::~DefineEnum() noexcept(false) {
@@ -55,7 +63,7 @@ DefineEnum::~DefineEnum() noexcept(false) {
 
 DefineArrayType::DefineArrayType(std::type_index typeIndex) {
     m_metaType = new MetaType();
-    MetaStorage::getInstance().AddType(typeIndex, m_metaType);
+    MetaStorage::GetInstance().AddType(typeIndex, m_metaType);
 }
 
 }
