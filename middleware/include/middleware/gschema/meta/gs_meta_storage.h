@@ -23,6 +23,13 @@ public:
     }
 
 public:
+    using TDefineCallback = void(*)();
+
+    void AddDefineTypesCallback(TDefineCallback func);
+    void AddDefineClassesCallback(TDefineCallback func);
+    void RunDefineCallbacks();
+
+public:
     MetaType* GetType(std::type_index id);
     void AddType(std::type_index id, MetaType* metaType);
 
@@ -31,7 +38,7 @@ public:
 
 private:
     struct Impl;
-    Pimpl<Impl, 112, 8> impl;
+    Pimpl<Impl, 160, 8> impl;
 };
 
 }

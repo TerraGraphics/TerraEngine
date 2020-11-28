@@ -13,7 +13,7 @@
 #include "middleware/gschema/embedded/func_constant.h"
 
 
-REFLECTION_IMPL(gs::EmbeddedFuncs) {
+DEFINE_TYPES_IMPL(detail::EmbeddedFuncs) {
     using namespace gs;
 
     DefineType<Eigen::Vector2f>()
@@ -33,6 +33,10 @@ REFLECTION_IMPL(gs::EmbeddedFuncs) {
         .AddFieldByIndex<float>(2, "z")
         .AddFieldByIndex<float>(3, "w")
     ;
+}
+
+DEFINE_CLASSES_IMPL(detail::EmbeddedFuncs) {
+    using namespace gs;
 
     DefineClass<FuncConstant>("Constant", "Constant")
         .AddOutputPin("Result", &FuncConstant::Result, "Result")

@@ -3,8 +3,8 @@
 #include "middleware/gschema/graph/gs_register.h"
 
 
-namespace gs {
+namespace detail {
     struct GeneratorFuncs {};
 }
 
-REFLECTION_DECL(gs::GeneratorFuncs);
+DEFINE_DECL(detail::GeneratorFuncs);

@@ -14,6 +14,8 @@ struct MetaStorage::Impl : Fixed {
     Impl() = default;
     ~Impl();
 
+    std::vector<TDefineCallback> m_defineTypesFuncs;
+    std::vector<TDefineCallback> m_defineClassesFuncs;
     std::unordered_map<std::type_index, MetaType*> m_types;
     std::unordered_map<std::type_index, MetaEnum*> m_enums;
 };
@@ -31,6 +33,25 @@ MetaStorage::MetaStorage() {
 }
 
 MetaStorage::~MetaStorage() {
+}
+
+void MetaStorage::AddDefineTypesCallback(TDefineCallback func) {
+    impl->m_defineTypesFuncs.push_back(func);
+}
+
+void MetaStorage::AddDefineClassesCallback(TDefineCallback func) {
+    impl->m_defineClassesFuncs.push_back(func);
+}
+
+void MetaStorage::RunDefineCallbacks() {
+    for (auto& func: impl->m_defineTypesFuncs) {
+        func();
+    }
+    for (auto& func: impl->m_defineClassesFuncs) {
+        func();
+    }
+    impl->m_defineTypesFuncs.clear();
+    impl->m_defineClassesFuncs.clear();
 }
 
 MetaType* MetaStorage::GetType(std::type_index id) {

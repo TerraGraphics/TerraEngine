@@ -40,6 +40,7 @@ struct ClassStorage::Impl {
 };
 
 ClassStorage::Impl::Impl() {
+    gs::MetaStorage::getInstance().RunDefineCallbacks();
     GenerateTypeInstances();
 
     const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();

@@ -1,27 +1,29 @@
 #pragma once
 
 #include "core/common/macros.h"
+#include "middleware/gschema/meta/gs_meta_storage.h"
 
 
-namespace gs {
-namespace detail {
+namespace gs::detail {
 
-template <typename T> inline int GetReg(void (*f)()) {
-	static const int s = [&f]() {
-		f();
+template <typename T> inline int RegisterCallbacks(void (*types)(), void (*classes)()) {
+	static const int s = [&types, &classes]() {
+		MetaStorage::getInstance().AddDefineTypesCallback(types);
+		MetaStorage::getInstance().AddDefineClassesCallback(classes);
 		return 0;
 	}();
 	return s;
 }
 
 }
-}
 
-#define REFLECTION_DECL(cls)                                                      \
-	template <typename T> extern void gs_auto_register_reflection_function_t(); \
-	template <> void gs_auto_register_reflection_function_t<cls>();             \
-	static const int UNIQUE_VAR(auto_register__) =                                \
-		gs::detail::GetReg<cls>(&gs_auto_register_reflection_function_t<cls>)
+#define DEFINE_DECL(cls)                                            \
+	template <typename T> extern void GSAutoRegisterTypesFuncT();   \
+	template <> void GSAutoRegisterTypesFuncT<cls>();               \
+	template <typename T> extern void GSAutoRegisterClassesFuncT(); \
+	template <> void GSAutoRegisterClassesFuncT<cls>();             \
+	static const int UNIQUE_VAR(auto_register__) =                  \
+		gs::detail::RegisterCallbacks<cls>(&GSAutoRegisterTypesFuncT<cls>, &GSAutoRegisterClassesFuncT<cls>)
 
-
-#define REFLECTION_IMPL(cls) template <> void gs_auto_register_reflection_function_t<cls>()
+#define DEFINE_TYPES_IMPL(cls) template <> void GSAutoRegisterTypesFuncT<cls>()
+#define DEFINE_CLASSES_IMPL(cls) template <> void GSAutoRegisterClassesFuncT<cls>()

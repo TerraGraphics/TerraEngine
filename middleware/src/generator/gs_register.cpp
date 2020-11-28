@@ -13,7 +13,7 @@
 #include "middleware/generator/texture/chess_cubes.h"
 
 
-REFLECTION_IMPL(gs::GeneratorFuncs) {
+DEFINE_TYPES_IMPL(detail::GeneratorFuncs) {
     using namespace gs;
 
     DefineEnum<NoiseQuality>()
@@ -21,6 +21,10 @@ REFLECTION_IMPL(gs::GeneratorFuncs) {
         .AddField(NoiseQuality::Default, "Default")
         .AddField(NoiseQuality::BestQuality, "BestQuality")
     ;
+}
+
+DEFINE_CLASSES_IMPL(detail::GeneratorFuncs) {
+    using namespace gs;
 
     DefineClass<ChessCubes>("ChessCube", "Chess cubes noise")
         .AddOutputPin("Result", &ChessCubes::Result, "Result")

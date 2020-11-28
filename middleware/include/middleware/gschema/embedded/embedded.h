@@ -3,8 +3,8 @@
 #include "middleware/gschema/graph/gs_register.h"
 
 
-namespace gs {
+namespace detail {
     struct EmbeddedFuncs {};
 }
 
-REFLECTION_DECL(gs::EmbeddedFuncs);
+DEFINE_DECL(detail::EmbeddedFuncs);
