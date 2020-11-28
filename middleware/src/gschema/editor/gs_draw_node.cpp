@@ -19,9 +19,9 @@ namespace gs {
 DrawNode::DrawNode(DrawNode&& o) noexcept {
     std::swap(m_nodeId, o.m_nodeId);
     std::swap(m_drawed, o.m_drawed);
-    std::swap(m_showMiniPreview, o.m_showMiniPreview);
+    std::swap(m_showPreview, o.m_showPreview);
     std::swap(m_alpha, o.m_alpha);
-    std::swap(m_miniPreview, o.m_miniPreview);
+    std::swap(m_preview, o.m_preview);
 
     std::swap(m_headerWidth, o.m_headerWidth);
     std::swap(m_headerBottom, o.m_headerBottom);
@@ -30,17 +30,17 @@ DrawNode::DrawNode(DrawNode&& o) noexcept {
 }
 
 DrawNode::~DrawNode() {
-    if (m_miniPreview != nullptr) {
-        delete m_miniPreview;
+    if (m_preview != nullptr) {
+        delete m_preview;
     }
 }
 
 void DrawNode::OnStartDrawGraph() {
     if (!m_drawed) {
-        if (m_miniPreview != nullptr) {
-            m_miniPreview->Reset();
+        if (m_preview != nullptr) {
+            m_preview->Reset();
         }
-        m_showMiniPreview = false;
+        m_showPreview = false;
         m_headerWidth = 0.f;
         m_headerBottom = 0.f;
         m_inputPinsWidth = 0.f;
@@ -69,8 +69,8 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8
     gui::SameLine();
 
     float requiredWidth = m_inputPinsWidth + m_outputPinsWidth;
-    if (m_showMiniPreview) {
-        requiredWidth += m_miniPreviewSize.w;
+    if (m_showPreview) {
+        requiredWidth += m_previewSize.w;
     }
 
     math::RectF headerButtonRect;
@@ -82,9 +82,9 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8
     buttonStyle.availableSize.w = std::max(requiredWidth - headerLabelRect.Width(), buttonStyle.drawSize.w + buttonStyle.margin.Horizontal());
 
     std::string buttonId(std::to_string(id) + ".show_pin_preview");
-    auto dir = m_showMiniPreview ? gui::Direction::Up : gui::Direction::Down;
+    auto dir = m_showPreview ? gui::Direction::Up : gui::Direction::Down;
     if (gui::ArrowButton(buttonId, dir, buttonStyle, &headerButtonRect)) {
-        m_showMiniPreview = !m_showMiniPreview;
+        m_showPreview = !m_showPreview;
     }
 
     const math::RectF headerRect = gui::EndHorizontal();
@@ -183,24 +183,24 @@ void DrawNode::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
     m_inputPinsWidth = gui::EndVertical().Width();
 }
 
-void DrawNode::OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
+void DrawNode::OnDrawPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
     float dt = m_headerWidth - m_inputPinsWidth - m_outputPinsWidth;
-    if (!m_showMiniPreview) {
+    if (!m_showPreview) {
         if (dt > 0) {
             gui::Dummy(math::SizeF(dt, 0));
         }
         return;
     }
 
-    dt = (dt - m_miniPreviewSize.w) * 0.5f;
+    dt = (dt - m_previewSize.w) * 0.5f;
 
     gui::ImageStyle previewStyle;
     previewStyle.margin = (dt > 0) ? math::RectOffsetF(dt, dt, 0, 0) : math::RectOffsetF();
 
-    if (m_miniPreview == nullptr) {
-        m_miniPreview = new DrawPreview();
+    if (m_preview == nullptr) {
+        m_preview = new DrawPreview();
     }
-    m_miniPreview->Draw(valueTypeId, value, valueVersion, previewStyle, m_miniPreviewSize);
+    m_preview->Draw(valueTypeId, value, valueVersion, previewStyle, m_previewSize);
 }
 
 void DrawNode::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {

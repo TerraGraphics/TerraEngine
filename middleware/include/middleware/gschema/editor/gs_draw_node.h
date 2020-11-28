@@ -28,15 +28,15 @@ public:
     void OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8_t alpha);
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage, void* texBackground, math::SizeF texBackgroundSize);
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins);
-    void OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion);
+    void OnDrawPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion);
     void OnDrawOutputPins(const std::vector<IDraw::Pin>& pins);
 
 private:
     uintptr_t m_nodeId = 0;
     bool m_drawed = false;
-    bool m_showMiniPreview = false;
+    bool m_showPreview = false;
     uint8_t m_alpha = 0;
-    DrawPreview* m_miniPreview = nullptr;
+    DrawPreview* m_preview = nullptr;
 
 private:
     float m_headerWidth = 0.f;
@@ -46,7 +46,7 @@ private:
 
 private:
     static constexpr const float m_iconSideSize = 24.f;
-    static constexpr const math::SizeF m_miniPreviewSize = math::SizeF(128.f);
+    static constexpr const math::SizeF m_previewSize = math::SizeF(128.f);
 };
 
 }

@@ -134,7 +134,7 @@ void Draw::OnDrawInputPins(const std::vector<IDraw::Pin>& pins) {
 }
 
 void Draw::OnDrawMiniPreview(TypeId valueTypeId, const cpgf::GVariant& value, uint8_t valueVersion) {
-    m_node->OnDrawMiniPreview(valueTypeId, value, valueVersion);
+    m_node->OnDrawPreview(valueTypeId, value, valueVersion);
 }
 
 void Draw::OnDrawOutputPins(const std::vector<IDraw::Pin>& pins) {
