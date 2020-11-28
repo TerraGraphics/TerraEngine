@@ -50,7 +50,7 @@ void DrawNode::OnStartDrawGraph() {
     m_drawed = false;
 }
 
-void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8_t alpha) {
+void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8_t alpha, bool fullPreview) {
     m_nodeId = id;
     m_drawed = true;
     m_alpha = alpha;
@@ -65,7 +65,15 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8
     gui::LabelStyle labelStyle;
     labelStyle.margin.top = 2.f;
     labelStyle.margin.bottom = ne::GetStyle().NodePadding.y; // NodePadding.top;
-    gui::Label(displayName, labelStyle, &headerLabelRect);
+
+    if (fullPreview) {
+        gui::BeginVertical();
+        gui::Label(displayName, labelStyle);
+        gui::Label("Previewing...", labelStyle);
+        headerLabelRect = gui::EndVertical();
+    } else {
+        gui::Label(displayName, labelStyle, &headerLabelRect);
+    }
     gui::SameLine();
 
     float requiredWidth = m_inputPinsWidth + m_outputPinsWidth;
@@ -78,7 +86,7 @@ void DrawNode::OnStartDrawNode(uintptr_t id, std::string_view displayName, uint8
     buttonStyle.horisontalAlign = gui::HorisontalAlign::Right;
     buttonStyle.margin.left = 4.f;
     buttonStyle.margin.bottom = 1.f;
-    buttonStyle.drawSize = math::SizeF(headerLabelRect.Height() + 0.f);
+    buttonStyle.drawSize = math::SizeF(ImGui::GetFontSize() + labelStyle.margin.Vertical());
     buttonStyle.availableSize.w = std::max(requiredWidth - headerLabelRect.Width(), buttonStyle.drawSize.w + buttonStyle.margin.Horizontal());
 
     std::string buttonId(std::to_string(id) + ".show_pin_preview");

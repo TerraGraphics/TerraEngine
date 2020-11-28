@@ -122,7 +122,7 @@ void Draw::OnStartDrawNode(uintptr_t id, std::string displayName) {
         m_nodes.resize(nodeIndex + 1);
     }
     m_node = &m_nodes[nodeIndex];
-    m_node->OnStartDrawNode(id, displayName, m_alpha);
+    m_node->OnStartDrawNode(id, displayName, m_alpha, (m_previewNodeId == id));
 }
 
 void Draw::OnFinishDrawNode(bool isValid, std::string_view errorMessage) {
