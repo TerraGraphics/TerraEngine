@@ -22,6 +22,4 @@
 
     { include: ['"core/dg/math.h"', public, '"middleware/std_render/structures.h"', public] },
     { include: ['"structures.fxh"', private, '"middleware/std_render/structures.h"', public] },
-
-    { include: ['"FastNoise.h"', private, "<FastNoise.h>", public] },
 ]

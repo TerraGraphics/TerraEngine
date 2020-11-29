@@ -11,7 +11,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_SOURCE_DIR}/src
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC core PRIVATE ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI} ${CONAN_PKG_LIBS_FASTNOISE} ${CONAN_PKG_LIBS_CPGF})
+target_link_libraries(${PROJECT_NAME} PUBLIC core PRIVATE ${CONAN_PKG_LIBS_SPDLOG} ${CONAN_PKG_LIBS_IMGUI} ${CONAN_PKG_LIBS_CPGF})
 set_common_project_properties(${PROJECT_NAME} middleware.imp)
 
 

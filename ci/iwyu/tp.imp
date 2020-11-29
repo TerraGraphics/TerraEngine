@@ -1,4 +1,7 @@
 [
+    { include: ['"FastNoiseList.h"', private, '"noise/fast_noise.h"', public] },
+
+
     { include: ['"ucl.h"', private, '"ucl/ucl.h"', public] },
     { include: ['"ucl++.h"', private, '"ucl/ucl.h"', public] },
 

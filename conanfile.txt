@@ -5,7 +5,7 @@ gtest/1.10.0
 spdlog/1.6.0
 cpgf/1.6.1@terragraphics/stable
 libucl/0.8.1@terragraphics/stable
-fastnoise/0.4.faba444@terragraphics/stable
+fastnoise/1.0.1@terragraphics/stable
 boost_preprocessor/1.69.0@bincrafters/stable
 imgui/1.79.docking.6822493@terragraphics/wip
 imgui_node_editor/0.9.687a72f@terragraphics/wip
