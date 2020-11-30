@@ -5,25 +5,26 @@
 #include "middleware/generator/texture/noise_types.h"
 
 
-enum class NoiseType : uint8_t {
-    OpenSimplex2 = 0,
-    OpenSimplex2S = 1,
-    Cellular = 2,
-    Perlin = 3,
-    ValueCubic = 4,
-    Value = 5
-};
-
-enum class FractalType : uint8_t {
-    None = 0,
-    FBm = 1,
-    Ridged = 2,
-    PingPong = 3,
-    // FractalType_DomainWarpProgressive = 4,
-    // FractalType_DomainWarpIndependent = 5
-};
-
 class CoherentNoise : Fixed {
+public:
+    enum class NoiseType : uint8_t {
+        OpenSimplex2 = 0,
+        OpenSimplex2S = 1,
+        Cellular = 2,
+        Perlin = 3,
+        ValueCubic = 4,
+        Value = 5
+    };
+
+    enum class FractalType : uint8_t {
+        None = 0,
+        FBm = 1,
+        Ridged = 2,
+        PingPong = 3,
+        // FractalType_DomainWarpProgressive = 4,
+        // FractalType_DomainWarpIndependent = 5
+    };
+
 public:
     CoherentNoise() = default;
     ~CoherentNoise() = default;
