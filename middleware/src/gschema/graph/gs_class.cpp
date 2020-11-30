@@ -4,11 +4,14 @@
 #include <utility>
 #include <typeinfo>
 
-#include "cpgf/metaclass.h"
+#include "cpgf/variant.h"
 #include "core/common/meta.h"
+#include "cpgf/metaproperty.h"
+#include "cpgf/metaannotation.h"
 #include "core/common/exception.h"
 #include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/graph/gs_limits.h"
+#include "middleware/gschema/meta/gs_meta_class.h"
 #include "middleware/gschema/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gschema/meta/gs_meta_consts.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
@@ -39,33 +42,22 @@ Class::~Class() {
     m_typesConvertStorage = nullptr;
 }
 
-void Class::Create(const cpgf::GMetaClass* metaClass,
+void Class::Create(const MetaClass* metaClass,
     const TypesConvertStorage* typesConvertStorage, const std::unordered_map<TypeId, TypeInstanceEdit*>* freeTypeInstances) {
 
     m_freeTypeInstances = freeTypeInstances;
-    std::vector<const cpgf::GMetaProperty*> props;
 
     try {
         if (metaClass == nullptr) {
             throw EngineError("invalid metaClass");
         }
 
-        for(size_t i=0; i!=metaClass->getPropertyCount(); ++i) {
-            props.push_back(metaClass->getPropertyAt(i));
-        }
-
-        for(size_t j=0; j!=metaClass->getBaseCount(); ++j) {
-            auto* cls = metaClass->getBaseClass(j);
-            for(size_t i=0; i!=cls->getPropertyCount(); ++i) {
-                props.push_back(cls->getPropertyAt(i));
-            }
-        }
-
-        CheckMetaClass(metaClass, props);
+        CheckMetaClass(metaClass);
     } catch(const std::exception& e) {
         throw EngineError("gs::Class::Create: {}", e.what());
     }
 
+    const std::vector<const cpgf::GMetaProperty*>& props = metaClass->GetProperties();
     m_props = new const cpgf::GMetaProperty*[props.size()];
     for(const cpgf::GMetaProperty* prop: props) {
         auto pinType = prop->getAnnotation(MetaNames::PIN)->getValue(MetaNames::PIN_TYPE)->toObject<PinTypes>();
@@ -112,17 +104,11 @@ void Class::Create(const cpgf::GMetaClass* metaClass,
 }
 
 std::string_view Class::GetName() const {
-    return m_metaClass->getName();
+    return m_metaClass->GetName();
 }
 
-std::string Class::GetDisplayName() const {
-    const cpgf::GMetaAnnotation* clsAnnotation = m_metaClass->getAnnotation(MetaNames::CLASS);
-    const cpgf::GAnnotationValue* clsDisplayNameValue = clsAnnotation->getValue(MetaNames::DISPLAY_NAME);
-    if (clsDisplayNameValue != nullptr) {
-        return clsDisplayNameValue->toString();
-    } else {
-        return m_metaClass->getName();
-    }
+std::string_view Class::GetDisplayName() const {
+    return m_metaClass->GetDisplayName();
 }
 
 std::string_view Class::GetPinName(uint8_t pinIndex) const {
@@ -169,8 +155,8 @@ ConvertFunc Class::GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) 
     return nullptr;
 }
 
-void* Class::NewInstance() {
-    void* instance = m_metaClass->createInstance();
+void* Class::CreateInstance() {
+    void* instance = m_metaClass->CreateInstance();
 
     if (m_defaults == nullptr) {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
@@ -186,10 +172,8 @@ void* Class::NewInstance() {
     return instance;
 }
 
-void Class::DeleteInstance(void* instance) {
-    if (instance != nullptr) {
-        m_metaClass->destroyInstance(instance);
-    }
+void Class::DestroyInstance(void* instance) {
+    m_metaClass->DestroyInstance(instance);
 }
 
 cpgf::GVariant Class::GetValue(uint8_t pinIndex, const void* instance) const {
@@ -233,26 +217,13 @@ TypeInstanceEdit* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex) const {
     return m_embeddedTypeInstances[pinIndex];
 }
 
-void Class::CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const {
+void Class::CheckMetaClass(const MetaClass* metaClass) const {
     if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
         throw EngineError("double create");
     }
 
-    const std::string& clsName = metaClass->getName();
-    if (clsName.empty()) {
-        throw EngineError("invalid metaClass, name is empty");
-    }
-
-    const cpgf::GMetaAnnotation* clsAnnotation = metaClass->getAnnotation(MetaNames::CLASS);
-    if (clsAnnotation == nullptr) {
-        throw EngineError("invalid metaClass (name = '{}'), has invalid annotation CLASS", clsName);
-    }
-
-    const cpgf::GAnnotationValue* clsDisplayNameValue = clsAnnotation->getValue(MetaNames::DISPLAY_NAME);
-    if ((clsDisplayNameValue != nullptr) && (!clsDisplayNameValue->canToString())) {
-        throw EngineError("invalid metaClass (name = '{}'), has invalid annotation type for DISPLAY_NAME, need std::string", clsName);
-    }
-
+    std::string_view clsName = metaClass->GetName();
+    const std::vector<const cpgf::GMetaProperty*> props = metaClass->GetProperties();
     if (props.size() > static_cast<size_t>(MAX_PINS_COUNT)) {
         throw EngineError("invalid metaClass (name = '{}'), max count properties = {}, have = {}",
             clsName, MAX_PINS_COUNT, props.size());

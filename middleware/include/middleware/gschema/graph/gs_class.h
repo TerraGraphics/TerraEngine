@@ -14,12 +14,12 @@
 
 namespace cpgf {
     class GVariant;
-    class GMetaClass;
     class GMetaProperty;
 }
 
 namespace gs {
 
+class MetaClass;
 class TypeInstanceEdit;
 class TypesConvertStorage;
 class Class : Fixed {
@@ -27,13 +27,13 @@ public:
     Class() = default;
     ~Class();
 
-    void Create(const cpgf::GMetaClass* metaClass,
+    void Create(const MetaClass* metaClass,
         const TypesConvertStorage* typesConvertStorage, const std::unordered_map<TypeId, TypeInstanceEdit*>* freeTypeInstances);
 
     // unique class name
     std::string_view GetName() const;
     // name for UI
-    std::string GetDisplayName() const;
+    std::string_view GetDisplayName() const;
 
     // unique pin name
     std::string_view GetPinName(uint8_t pinIndex) const;
@@ -54,8 +54,8 @@ public:
     // will return nullptr if convertation is not possible
     ConvertFunc GetFuncConvertToDefaultType(uint8_t pinIndex, TypeId typeId) const;
 
-    void* NewInstance();
-    void DeleteInstance(void* instance);
+    void* CreateInstance();
+    void DestroyInstance(void* instance);
 
     cpgf::GVariant GetValue(uint8_t pinIndex, const void* instance) const;
     void SetValue(uint8_t pinIndex, void* instance, const cpgf::GVariant& value) const;
@@ -69,7 +69,7 @@ public:
     TypeInstanceEdit* GetTypeInstanceForEmbedded(uint8_t pinIndex) const;
 
 private:
-    void CheckMetaClass(const cpgf::GMetaClass* metaClass, const std::vector<const cpgf::GMetaProperty*>& props) const;
+    void CheckMetaClass(const MetaClass* metaClass) const;
 
 private:
     uint8_t m_countEmbeddedPins = 0;
@@ -80,7 +80,7 @@ private:
     const std::unordered_map<TypeId, TypeInstanceEdit*>* m_freeTypeInstances;
     const cpgf::GMetaProperty** m_props = nullptr;
     cpgf::GVariant* m_defaults = nullptr;
-    const cpgf::GMetaClass* m_metaClass = nullptr;
+    const MetaClass* m_metaClass = nullptr;
     const TypesConvertStorage* m_typesConvertStorage = nullptr;
 };
 

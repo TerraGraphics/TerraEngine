@@ -7,7 +7,6 @@
 #include <unordered_map>
 
 #include "eigen/core.h"
-#include "cpgf/metaclass.h"
 #include "core/common/hash.h"
 #include "core/common/exception.h"
 #include "middleware/gschema/graph/gs_types.h"
@@ -40,30 +39,17 @@ struct ClassStorage::Impl {
 };
 
 ClassStorage::Impl::Impl() {
-    gs::MetaStorage::GetInstance().RunDefineCallbacks();
+    MetaStorage::GetInstance().RunDefineCallbacks();
     GenerateTypeInstances();
 
-    const cpgf::GMetaClass* gMetaClass = cpgf::getGlobalMetaClass();
-
-    for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
-        const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
-        if (metaClass == nullptr) {
-            continue;
-        }
-        if (metaClass->getAnnotation(MetaNames::CLASS) != nullptr) {
-            ++m_countClasses;
-        }
-    }
-
+    const auto& metaClasses = MetaStorage::GetInstance().GetClasses();
     uint16_t index = 0;
+    m_countClasses = static_cast<uint16_t>(metaClasses.size());
     m_classes = new Class[m_countClasses];
-    for(size_t i=0; i!=gMetaClass->getClassCount(); ++i) {
-        const cpgf::GMetaClass* metaClass = gMetaClass->getClassAt(i);
-        if ((metaClass != nullptr) && (metaClass->getAnnotation(MetaNames::CLASS) != nullptr)) {
-            m_classes[index].Create(metaClass, &m_typesConvertStorage, &m_typeInstances);
-            m_classesIndex[m_classes[index].GetName()] = index;
-            ++index;
-        }
+    for(const auto* metaClass: metaClasses) {
+        m_classes[index].Create(metaClass, &m_typesConvertStorage, &m_typeInstances);
+        m_classesIndex[m_classes[index].GetName()] = index;
+        ++index;
     }
 }
 ClassStorage::Impl::~Impl() {
