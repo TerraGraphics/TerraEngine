@@ -1,13 +1,15 @@
 #include "middleware/gschema/meta/gs_meta_class.h"
 
+#include "cpgf/metaproperty.h"
 #include "core/common/exception.h"
 
 
 namespace gs {
 
-MetaClass::MetaClass(TCtor& ctor, std::string_view name, std::string_view displayName, MetaClass* baseClass)
+MetaClass::MetaClass(TCtor ctor, TDtor dtor, std::string_view name, std::string_view displayName, MetaClass* baseClass)
     : m_baseClass(baseClass)
     , m_ctor(ctor)
+    , m_dtor(dtor)
     , m_name(name.cbegin(), name.cend())
     , m_displayName(displayName.cbegin(), displayName.cend()) {
 
@@ -17,13 +19,28 @@ MetaClass::MetaClass(TCtor& ctor, std::string_view name, std::string_view displa
     if (m_ctor == nullptr) {
         throw EngineError("gs::MetaClass::MetaClass: Attempting to create a metaclass (name = {}) with an empty constructor", name);
     }
+    if (m_dtor == nullptr) {
+        throw EngineError("gs::MetaClass::MetaClass: Attempting to create a metaclass (name = {}) with an empty destructor", name);
+    }
     if (displayName.empty()) {
         m_displayName = m_name;
     }
 }
 
-void* MetaClass::Create() const {
+MetaClass::~MetaClass() {
+    for (const auto* v: m_properties) {
+        delete v;
+    }
+}
+
+void* MetaClass::CreateInstance() const {
     return m_ctor();
+}
+
+void MetaClass::DestroyInstance(void* instance) const {
+    if (instance != nullptr) {
+        m_dtor(instance);
+    }
 }
 
 void MetaClass::AddProperty(const cpgf::GMetaProperty* property) {
