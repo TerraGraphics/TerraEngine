@@ -25,8 +25,8 @@ public:
     virtual ~CompositeType();
 
 public:
-    void DisableUI() noexcept;
-    bool IsEnabledUI() const noexcept;
+    void HideInGUI() noexcept;
+    bool IsVisibleInGUI() const noexcept;
     std::type_index GetTypeIndex() const noexcept;
     bool IsChanged() const;
 
@@ -37,7 +37,7 @@ public:
     IPrimitiveType* GetItemValue(size_t index) const;
 
 protected:
-    bool m_enabledUI = true;
+    bool m_visibleInGUI = true;
     std::type_index m_typeIndex;
     std::vector<CompositeTypeItem> m_properties;
 };

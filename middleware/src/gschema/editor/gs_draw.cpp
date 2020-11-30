@@ -55,7 +55,7 @@ static void DrawArithmeticType(std::string_view id, IPrimitiveType* value) {
     style.margin.right = 5;
     style.width = gui::NumberFieldStyle::ALL_AVAILABLE;
     style.isInteger = value->IsIntegerType();
-    style.showStepButtons = value->IsEnabledShowStepButtons();
+    style.showStepButtons = value->IsShowStepButtons();
     std::string textValue = value->ToString();
 
     switch (gui::NumberField(id, textValue, style)) {
@@ -74,7 +74,7 @@ static void DrawArithmeticType(std::string_view id, IPrimitiveType* value) {
 }
 
 static void DrawPropertyRow(std::string_view propertyName, std::string_view labelText, IPrimitiveType* value, bool withOffset) {
-    if (!value->IsEnabledUI()) {
+    if (!value->IsVisibleInGUI()) {
         return;
     }
     gui::LabelStyle style;

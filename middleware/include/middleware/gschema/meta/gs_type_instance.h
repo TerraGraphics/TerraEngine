@@ -23,7 +23,7 @@ protected:
 
 public:
     bool IsPrimitiveType() const;
-    bool IsEnabledUI() const;
+    bool IsVisibleInGUI() const;
     std::type_index GetTypeIndex() const;
 
     size_t Count() const;

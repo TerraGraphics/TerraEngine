@@ -20,12 +20,12 @@ CompositeType::~CompositeType() {
     }
 }
 
-void CompositeType::DisableUI() noexcept {
-    m_enabledUI = false;
+void CompositeType::HideInGUI() noexcept {
+    m_visibleInGUI = false;
 }
 
-bool CompositeType::IsEnabledUI() const noexcept {
-    return m_enabledUI;
+bool CompositeType::IsVisibleInGUI() const noexcept {
+    return m_visibleInGUI;
 }
 
 std::type_index CompositeType::GetTypeIndex() const noexcept {

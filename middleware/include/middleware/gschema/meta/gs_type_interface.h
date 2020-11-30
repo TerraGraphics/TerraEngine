@@ -17,8 +17,8 @@ struct IPrimitiveType {
     virtual bool IsEnumType() const noexcept = 0;
     virtual bool IsIntegerType() const noexcept = 0;
     virtual bool IsFloatingType() const noexcept = 0;
-    virtual bool IsEnabledUI() const noexcept = 0;
-    virtual bool IsEnabledShowStepButtons() const noexcept = 0;
+    virtual bool IsVisibleInGUI() const noexcept = 0;
+    virtual bool IsShowStepButtons() const noexcept = 0;
     virtual std::string_view GetDisplayName() const = 0;
     virtual const std::vector<std::string>& GetItems() const = 0;
 

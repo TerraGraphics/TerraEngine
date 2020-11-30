@@ -65,8 +65,8 @@ public:
 
     }
 
-    DefineEnumTypePin& DisableUI() {
-        m_enumType->DisableUI();
+    DefineEnumTypePin& HideInGUI() {
+        m_enumType->HideInGUI();
         return *this;
     }
 
@@ -109,13 +109,13 @@ public:
         return *this;
     }
 
-    DefineArithmeticTypePin& DisableUI() {
-        m_arithmeticType->DisableUI();
+    DefineArithmeticTypePin& HideInGUI() {
+        m_arithmeticType->HideInGUI();
         return *this;
     }
 
-    DefineArithmeticTypePin& DisableStepButtons() {
-        m_arithmeticType->DisableStepButtons();
+    DefineArithmeticTypePin& HideStepButtons() {
+        m_arithmeticType->HideStepButtons();
         return *this;
     }
 

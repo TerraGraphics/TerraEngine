@@ -26,12 +26,12 @@ bool TypeInstance::IsPrimitiveType() const {
     return (m_primitiveType != nullptr);
 }
 
-bool TypeInstance::IsEnabledUI() const {
+bool TypeInstance::IsVisibleInGUI() const {
     if (IsPrimitiveType()) {
-        return m_primitiveType->IsEnabledUI();
+        return m_primitiveType->IsVisibleInGUI();
     }
 
-    return m_compositeType->IsEnabledUI();
+    return m_compositeType->IsVisibleInGUI();
 }
 
 std::type_index TypeInstance::GetTypeIndex() const {

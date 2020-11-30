@@ -532,7 +532,7 @@ void Node::DrawNodeProperty(IDraw* drawer) {
 
     for (uint8_t i=EmbeddedPinsBeginIndex(); i!=EmbeddedPinsEndIndex(); ++i) {
         TypeInstanceEdit* typeInstance = m_class->GetTypeInstanceForEmbedded(i);
-        if (!typeInstance->IsEnabledUI()) {
+        if (!typeInstance->IsVisibleInGUI()) {
             continue;
         }
 
@@ -551,7 +551,7 @@ void Node::DrawNodeProperty(IDraw* drawer) {
         }
 
         TypeInstanceEdit* typeInstance = m_class->GetFreeTypeInstance(drawTypeId);
-        if (!typeInstance->IsEnabledUI()) {
+        if (!typeInstance->IsVisibleInGUI()) {
             continue;
         }
 

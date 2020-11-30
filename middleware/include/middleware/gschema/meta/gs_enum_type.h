@@ -17,7 +17,7 @@ namespace gs {
 template<typename T, typename Enable = std::enable_if_t<std::is_enum_v<T>>>
 class EnumType final : public IPrimitiveTypeEdit {
     enum StateFlags : uint8_t {
-        EnabledUI = 1,
+        VisibleInGUI = 1,
         ValueChanged = 2,
     };
 
@@ -36,16 +36,16 @@ public:
         m_displayName = displayName;
     }
 
-    void DisableUI() {
-        m_state &= ~StateFlags::EnabledUI;
+    void HideInGUI() {
+        m_state &= ~StateFlags::VisibleInGUI;
     }
 
 public:
-    bool IsEnabledUI() const noexcept final {
-        return (m_state & StateFlags::EnabledUI) != 0;
+    bool IsVisibleInGUI() const noexcept final {
+        return (m_state & StateFlags::VisibleInGUI) != 0;
     }
 
-    bool IsEnabledShowStepButtons() const noexcept final {
+    bool IsShowStepButtons() const noexcept final {
         return false;
     }
 
@@ -105,7 +105,7 @@ public:
 private:
     MetaEnum::ValueType m_value = 0;
 
-    uint8_t m_state = StateFlags::EnabledUI;
+    uint8_t m_state = StateFlags::VisibleInGUI;
     const MetaEnum* m_metaEnum = nullptr;
     const std::vector<std::string>& m_items;
     std::string m_displayName;

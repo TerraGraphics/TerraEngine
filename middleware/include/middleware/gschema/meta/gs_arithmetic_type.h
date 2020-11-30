@@ -16,7 +16,7 @@ namespace gs {
 template<typename T, typename Enable = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
 class ArithmeticType final : public IPrimitiveTypeEdit {
     enum StateFlags : uint8_t {
-        EnabledUI = 1,
+        VisibleInGUI = 1,
         ShowStepButtons = 2,
         StepChanged = 4,
         ValueChanged = 8,
@@ -61,20 +61,20 @@ public:
         m_displayName = displayName;
     }
 
-    void DisableUI() {
-        m_state &= ~StateFlags::EnabledUI;
+    void HideInGUI() {
+        m_state &= ~StateFlags::VisibleInGUI;
     }
 
-    void DisableStepButtons() {
+    void HideStepButtons() {
         m_state &= ~StateFlags::ShowStepButtons;
     }
 
 public:
-    bool IsEnabledUI() const noexcept final {
-        return (m_state & StateFlags::EnabledUI) != 0;
+    bool IsVisibleInGUI() const noexcept final {
+        return (m_state & StateFlags::VisibleInGUI) != 0;
     }
 
-    bool IsEnabledShowStepButtons() const noexcept final {
+    bool IsShowStepButtons() const noexcept final {
         return (m_state & StateFlags::ShowStepButtons) != 0;
     }
 
@@ -218,7 +218,7 @@ private:
     T m_minValue = std::numeric_limits<T>::lowest();
 
     uint8_t m_maxPrecision = 4;
-    uint8_t m_state = StateFlags::EnabledUI | StateFlags::ShowStepButtons;
+    uint8_t m_state = StateFlags::VisibleInGUI | StateFlags::ShowStepButtons;
     std::string m_displayName;
     TLimitFunc m_limitFunc = nullptr;
     TStepFunc m_stepFunc = nullptr;
