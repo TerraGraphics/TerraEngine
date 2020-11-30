@@ -60,8 +60,8 @@ private:
     FractalType m_fractalType = FractalType::FBm;
     uint8_t m_octaveCount = 3;
     int m_seed = 1337;
-    float m_frequency = 0.05f;
-    float m_lacunarity = 2.0;
-    float m_gain = 0.5;
+    float m_frequency = 1.f;
+    float m_lacunarity = 2.f;
+    float m_gain = 0.5f;
     std::shared_ptr<FastNoiseLite> m_noise;
 };

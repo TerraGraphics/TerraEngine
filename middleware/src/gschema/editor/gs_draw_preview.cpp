@@ -103,6 +103,7 @@ void DrawPreview::FillTexture(const math::Generator2D& v) {
     if (m_generator == nullptr) {
         m_generator = new Generator2dToTexture();
         m_generator->SetTextureSize(math::Size(m_fullPreview ? 512 : 128));
+        m_generator->SetGeneratorRect(math::RectF(-5.f, -5.f, 10.f, 10.f));
     }
 
     m_generator->SetInput(v);
