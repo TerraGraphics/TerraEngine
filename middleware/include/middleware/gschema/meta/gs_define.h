@@ -9,13 +9,13 @@
 #include <type_traits>
 #include <string_view>
 
-#include "cpgf/metaclass.h"
 #include "core/common/meta.h"
 #include "core/common/ctor.h"
 #include "cpgf/metaproperty.h"
 #include "cpgf/metaannotation.h"
 #include "middleware/gschema/meta/gs_meta_type.h"
 #include "middleware/gschema/meta/gs_enum_type.h"
+#include "middleware/gschema/meta/gs_meta_class.h"
 #include "middleware/gschema/meta/gs_meta_consts.h"
 #include "middleware/gschema/meta/gs_meta_storage.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
@@ -38,18 +38,6 @@ public:
     }
 };
 
-template <typename ClassType, typename BaseType0>
-GMetaClass* createMetaClass(const char* className) {
-    auto* superList = new meta_internal::GMetaSuperList();
-    superList->add<ClassType, BaseType0>();
-    // superList->add<ClassType, BaseType1>();
-    // ...
-
-    ClassType* classType = nullptr;
-    const auto policy = GMetaPolicyDefault();
-    return new GMetaClass(classType, superList, className, nullptr, policy);
-}
-
 }
 
 namespace gs {
@@ -59,7 +47,7 @@ template<typename T, typename TBase>
 class DefineEnumTypePin : public TBase {
 public:
     DefineEnumTypePin() = delete;
-    DefineEnumTypePin(cpgf::GMetaClass* metaClass, EnumType<T>* enumType)
+    DefineEnumTypePin(MetaClass* metaClass, EnumType<T>* enumType)
         : TBase(metaClass)
         , m_enumType(enumType) {
 
@@ -78,7 +66,7 @@ template<typename T, typename TBase>
 class DefineArithmeticTypePin : public TBase {
 public:
     DefineArithmeticTypePin() = delete;
-    DefineArithmeticTypePin(cpgf::GMetaClass* metaClass, ArithmeticType<T>* arithmeticType)
+    DefineArithmeticTypePin(MetaClass* metaClass, ArithmeticType<T>* arithmeticType)
         : TBase(metaClass)
         , m_arithmeticType(arithmeticType) {
 
@@ -125,11 +113,11 @@ private:
 
 class DefineClass {
 protected:
-    DefineClass(cpgf::GMetaClass* metaClass);
+    DefineClass(MetaClass* metaClass);
 
 public:
     DefineClass() = delete;
-    DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass);
+    DefineClass(std::type_index id, MetaClass* metaClass);
 
 public:
     template <
@@ -222,7 +210,7 @@ private:
     }
 
 private:
-    cpgf::GMetaClass* m_metaClass = nullptr;
+    MetaClass* m_metaClass = nullptr;
     cpgf::GDefineMetaCommon<void, void> m_accessor;
 };
 
@@ -259,6 +247,15 @@ private:
     MetaType* m_metaType = nullptr;
 };
 
+template<typename T> void* Ctor() {
+    return reinterpret_cast<void*>(new T());
+}
+
+template<typename T> void Dtor(void* instance) {
+    T* tInstance = reinterpret_cast<T*>(instance);
+    delete tInstance;
+}
+
 }
 
 template<typename T, std::enable_if_t<std::is_enum_v<T> &&
@@ -273,15 +270,20 @@ detail::DefineArrayType DefineType() {
     return detail::DefineArrayType(std::type_index(typeid(T)));
 }
 
-template <typename ClassType, typename BaseType0 = void>
-detail::DefineClass DefineBaseClass(const char* className) {
-    return detail::DefineClass(cpgf::createMetaClass<ClassType, BaseType0>(className), nullptr, nullptr, true);
+template <typename ClassType>
+detail::DefineClass DefineBaseClass() {
+    return detail::DefineClass(std::type_index(typeid(ClassType)), new MetaClass());
 }
 
 template <typename ClassType, typename BaseType0 = void>
-detail::DefineClass DefineClass(const char* className, const char* displayName = nullptr) {
-    auto* ctor = cpgf::GMetaConstructor::newConstructor<ClassType, void* ()>(cpgf::GMetaPolicyDefault());
-    return detail::DefineClass(cpgf::createMetaClass<ClassType, BaseType0>(className), ctor, displayName, false);
+detail::DefineClass DefineClass(std::string_view className, std::string_view displayName = std::string_view()) {
+    MetaClass* baseClass = nullptr;
+    if constexpr (!std::is_same_v<BaseType0, void>) {
+        baseClass = MetaStorage::GetInstance().GetBaseClass(std::type_index(typeid(BaseType0)));
+    }
+
+    auto* metaClass = new MetaClass(&detail::Ctor<ClassType>, &detail::Dtor<ClassType>, className, displayName, baseClass);
+    return detail::DefineClass(std::type_index(typeid(ClassType)), metaClass);
 }
 
 } // namespace gs

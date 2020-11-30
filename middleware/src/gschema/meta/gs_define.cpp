@@ -14,33 +14,24 @@ int RegisterCallbacksImpl(void(*types)(), void(*classes)()) {
     return 0;
 }
 
-DefineClass::DefineClass(cpgf::GMetaClass* metaClass)
+DefineClass::DefineClass(MetaClass* metaClass)
     : m_metaClass(metaClass) {
 
 }
 
-DefineClass::DefineClass(cpgf::GMetaClass* metaClass, cpgf::GMetaConstructor* ctor, const char* displayName, bool isBaseClass) {
-    m_metaClass = const_cast<cpgf::GMetaClass *>(cpgf::getGlobalMetaClass()->doGetClass(metaClass->getName().c_str()));
-    if(m_metaClass == nullptr) {
-        m_metaClass = metaClass;
-        cpgf::getGlobalMetaClass()->addClass(m_metaClass);
+DefineClass::DefineClass(std::type_index id, MetaClass* metaClass)
+    : m_metaClass(metaClass) {
+
+    if (metaClass->IsBaseClass()) {
+        MetaStorage::GetInstance().AddBaseClass(id, metaClass);
     } else {
-        delete metaClass;
-    }
-
-    if (!isBaseClass) {
-        m_metaClass->addConstructor(ctor);
-
-        cpgf::GMetaAnnotation *annotation = m_accessor.AddItemAnnotation(m_metaClass, new cpgf::GMetaAnnotation(gs::MetaNames::CLASS));
-        if (displayName != nullptr) {
-            annotation->addItem(gs::MetaNames::DISPLAY_NAME, displayName);
-        }
+        MetaStorage::GetInstance().AddClass(id, metaClass);
     }
 }
 
 void DefineClass::RegisterPin(cpgf::GMetaProperty* property, gs::PinTypes pinType, const char* displayName, gs::TypeInstanceEdit* typeInstance) {
-    cpgf::GMetaProperty* prop = m_metaClass->addProperty(property);
-    cpgf::GMetaAnnotation *annotation = m_accessor.AddItemAnnotation(prop, new cpgf::GMetaAnnotation(MetaNames::PIN));
+    m_metaClass->AddProperty(property);
+    cpgf::GMetaAnnotation *annotation = m_accessor.AddItemAnnotation(property, new cpgf::GMetaAnnotation(MetaNames::PIN));
     annotation->addItem(MetaNames::PIN_TYPE, pinType);
     if (typeInstance != nullptr) {
         annotation->addItem(MetaNames::TYPE_INSTANCE, typeInstance);

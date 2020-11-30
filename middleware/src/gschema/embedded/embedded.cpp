@@ -58,7 +58,7 @@ DEFINE_CLASSES_IMPL(detail::EmbeddedFuncs) {
         .AddEmbeddedPinArray("Value", &FuncConstant4::GetValue, &FuncConstant4::SetValue, "Value")
     ;
 
-    DefineBaseClass<FuncBinaryUniversal>("Meta")
+    DefineBaseClass<FuncBinaryUniversal>()
         .AddInputPin("A", &FuncBinaryUniversal::GetA, &FuncBinaryUniversal::SetA, "A")
         .AddInputPin("B", &FuncBinaryUniversal::GetB, &FuncBinaryUniversal::SetB, "B")
     ;
