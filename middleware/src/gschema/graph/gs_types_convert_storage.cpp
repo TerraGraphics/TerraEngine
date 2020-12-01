@@ -8,7 +8,7 @@
 #include <boost/preprocessor/list/for_each_product.hpp>
 
 #include "eigen/core.h"
-#include "cpgf/metaclass.h"
+#include "cpgf/variant.h"
 #include "core/common/exception.h"
 #include "core/math/generator_type.h"
 #include "middleware/gschema/graph/gs_types.h"

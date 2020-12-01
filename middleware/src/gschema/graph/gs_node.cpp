@@ -50,7 +50,7 @@ void Node::Init(uint16_t id) noexcept {
 
 void Node::Create(Class* cls) {
     m_class = cls;
-    m_instance = cls->NewInstance();
+    m_instance = cls->CreateInstance();
 
     m_countEmbeddedPins = m_class->EmbeddedPinsCount();
     m_countInputPins = m_class->InputPinsCount();
@@ -99,7 +99,7 @@ void Node::Reset(uint16_t nextIndex) {
     m_nextIndex = nextIndex;
 
     if (m_instance != nullptr) {
-        m_class->DeleteInstance(m_instance);
+        m_class->DestroyInstance(m_instance);
         m_instance = nullptr;
     }
 

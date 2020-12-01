@@ -28,7 +28,7 @@ public:
     virtual void OnStartDrawGraph() = 0;
     virtual void OnFinishDrawGraph() = 0;
 
-    virtual void OnStartDrawNode(uintptr_t id, std::string displayName) = 0;
+    virtual void OnStartDrawNode(uintptr_t id, std::string_view displayName) = 0;
     virtual void OnFinishDrawNode(bool isValid, std::string_view errorMessage) = 0;
 
     virtual void OnDrawInputPins(const std::vector<Pin>& pins) = 0;
@@ -45,7 +45,7 @@ public:
         None = 0,
         ResetToDefault = 1,
     };
-    virtual void OnStartDrawNodeProperty(const std::string& displayName) = 0;
+    virtual void OnStartDrawNodeProperty(std::string_view displayName) = 0;
     virtual ButtonsState OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) = 0;
     virtual void OnFinishDrawNodeProperty() = 0;
 };

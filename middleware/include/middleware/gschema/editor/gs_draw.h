@@ -31,7 +31,7 @@ public:
     void OnStartDrawGraph() final;
     void OnFinishDrawGraph() final;
 
-    void OnStartDrawNode(uintptr_t id, std::string displayName) final;
+    void OnStartDrawNode(uintptr_t id, std::string_view displayName) final;
     void OnFinishDrawNode(bool isValid, std::string_view errorMessage) final;
 
     void OnDrawInputPins(const std::vector<IDraw::Pin>& pins) final;
@@ -44,7 +44,7 @@ public:
 
 // Draw node edit GUI
 public:
-    void OnStartDrawNodeProperty(const std::string& displayName) final;
+    void OnStartDrawNodeProperty(std::string_view displayName) final;
     ButtonsState OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) final;
     void OnFinishDrawNodeProperty() final;
 

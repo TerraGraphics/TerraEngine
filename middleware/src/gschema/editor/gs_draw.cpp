@@ -116,7 +116,7 @@ void Draw::OnStartDrawGraph() {
 void Draw::OnFinishDrawGraph() {
 }
 
-void Draw::OnStartDrawNode(uintptr_t id, std::string displayName) {
+void Draw::OnStartDrawNode(uintptr_t id, std::string_view displayName) {
     auto nodeIndex = id - 1;
     if (nodeIndex >= m_nodes.size()) {
         m_nodes.resize(nodeIndex + 1);
@@ -168,11 +168,11 @@ void Draw::OnDrawFullPreview(uint16_t nodeId, TypeId valueTypeId, const cpgf::GV
     m_preview->Draw(valueTypeId, value, valueVersion, previewStyle, drawSize);
 }
 
-void Draw::OnStartDrawNodeProperty(const std::string& displayName) {
+void Draw::OnStartDrawNodeProperty(std::string_view displayName) {
     gui::LabelStyle labelStyle;
     labelStyle.margin.left = 5;
     labelStyle.margin.bottom = 10;
-    gui::Label(displayName + ":", labelStyle);
+    gui::Label(std::string(displayName) + ":", labelStyle);
 
     ImGui::Columns(2, "gs_node_property", true);
 }
