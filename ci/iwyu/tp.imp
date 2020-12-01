@@ -1,5 +1,5 @@
 [
-    { include: ['"FastNoiseList.h"', private, '"noise/fast_noise.h"', public] },
+    { include: ['"FastNoiseLite.h"', private, '"noise/fast_noise.h"', public] },
 
 
     { include: ['"ucl.h"', private, '"ucl/ucl.h"', public] },
@@ -97,26 +97,14 @@
     { symbol: ["Diligent::TEXTURE_ADDRESS_MODE", "private", '"dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"dg/dg.h"', "public"] },
 
-    { include: ['"cpgf/gmetaproperty.h"', private, '"cpgf/metaproperty.h"', public] },
-    { include: ['"cpgf/gmetaannotation.h"', private, '"cpgf/metaannotation.h"', public] },
-
-    { include: ['"cpgf/gmetaclass.h"', private, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/private/gmetaclass_p.h"', private, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/gmetaapi.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/gmetacommon.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/gmetapolicy.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/gmetamethod.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/metaproperty.h"', public, '"cpgf/metaclass.h"', public] },
-    { include: ['"cpgf/metaannotation.h"', public, '"cpgf/metaclass.h"', public] },
-
     { include: ['"cpgf/gvariant.h"', private, '"cpgf/variant.h"', public] },
-
-    { include: ['"cpgf/private/gmetacommon_p.h"', private, '"cpgf/gmetacommon.h"', public] },
-    { include: ['"cpgf/variant.h"', public, '"cpgf/gmetacommon.h"', public] },
-
-    { include: ['"cpgf/gmetatype.h"', public, '"cpgf/gmetaapi.h"', public] },
-    { include: ['"cpgf/gpolicy.h"', public, '"cpgf/gmetapolicy.h"', public] },
-    { include: ['"cpgf/gtypelist.h"', public, '"cpgf/gpolicy.h"', public] },
+    { include: ['"cpgf/gmetaproperty.h"', private, '"cpgf/metaproperty.h"', public] },
+    { include: ['"cpgf/gmetaproperty_p.h"', private, '"cpgf/gmetaproperty.h"', private] },
+    { include: ['"cpgf/gmetatype.h"', private, '"cpgf/gmetaproperty_p.h"', private] },
+    { include: ['"cpgf/gmetacommon.h"', private, '"cpgf/gmetaproperty_p.h"', private] },
+    { include: ['"cpgf/gmetapolicy.h"', private, '"cpgf/gmetaproperty_p.h"', private] },
+    { include: ['"cpgf/gvariant.h"', private, '"cpgf/gmetacommon.h"', private] },
+    { include: ['"cpgf/gmetaannotation.h"', private, '"cpgf/metaannotation.h"', public] },
 
 
     { include: ['"boost/preprocessor/list/adt.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },

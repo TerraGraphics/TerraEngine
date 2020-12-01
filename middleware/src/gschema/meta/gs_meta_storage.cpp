@@ -1,6 +1,8 @@
 #include "middleware/gschema/meta/gs_meta_storage.h"
 
+#include <string>
 #include <utility>
+#include <string_view>
 #include <unordered_map>
 
 #include "core/common/hash.h"

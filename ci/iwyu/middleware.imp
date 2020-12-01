@@ -16,7 +16,6 @@
 
     { include: ['"middleware/gschema/graph/gs_types_decl.h"', public, '"middleware/gschema/graph/gs_types.h"', public] },
 
-    { include: ['"cpgf/metaclass.h"', public, '"middleware/gschema/meta/gs_define.h"', public] },
     { include: ['"cpgf/metaproperty.h"', public, '"middleware/gschema/meta/gs_define.h"', public] },
     { include: ['"cpgf/metaannotation.h"', public, '"middleware/gschema/meta/gs_define.h"', public] },
 

@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstdint>
+
 #include "core/common/ctor.h"
 #include "core/math/generator_type_fwd.h"
-#include "middleware/generator/texture/noise_types.h"
 
 
 class CoherentNoise : Fixed {

@@ -1,6 +1,7 @@
 #include "middleware/gschema/editor/gs_editor.h"
 
 #include <utility>
+#include <string_view>
 
 #include "imgui/imgui.h"
 #include "core/math/types.h"

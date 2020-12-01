@@ -1,7 +1,6 @@
 #include "middleware/gschema/meta/gs_define.h"
 #include "middleware/gschema/meta/gs_define_decl.h"
 
-#include <string>
 #include "core/common/exception.h"
 
 

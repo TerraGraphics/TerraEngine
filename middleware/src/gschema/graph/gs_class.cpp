@@ -1,5 +1,6 @@
 #include "middleware/gschema/graph/gs_class.h"
 
+#include <vector>
 #include <cstdlib>
 #include <utility>
 #include <typeinfo>

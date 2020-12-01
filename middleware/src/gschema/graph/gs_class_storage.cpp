@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <utility>
-#include <cstddef>
 #include <typeindex>
 #include <unordered_map>
 
@@ -14,7 +13,6 @@
 #include "middleware/gschema/meta/gs_meta_type.h"
 #include "middleware/gschema/embedded/embedded.h" // IWYU pragma: keep
 #include "middleware/gschema/graph/gs_types_fmt.h" // IWYU pragma: keep
-#include "middleware/gschema/meta/gs_meta_consts.h"
 #include "middleware/generator/generator_register.h" // IWYU pragma: keep
 #include "middleware/gschema/meta/gs_meta_storage.h"
 #include "middleware/gschema/meta/gs_type_instance.h"

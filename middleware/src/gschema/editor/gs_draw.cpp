@@ -1,6 +1,7 @@
 #include "middleware/gschema/editor/gs_draw.h"
 
 #include <cstddef>
+#include <algorithm>
 #include <ext/alloc_traits.h>
 
 #include "fmt/fmt.h"
