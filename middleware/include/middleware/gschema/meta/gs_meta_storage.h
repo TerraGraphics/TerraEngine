@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <typeindex>
 
 #include "core/common/ctor.h"
@@ -10,6 +11,7 @@ namespace gs {
 
 class MetaType;
 class MetaEnum;
+class MetaClass;
 class MetaStorage : Fixed {
 private:
     MetaStorage();
@@ -30,15 +32,22 @@ public:
     void RunDefineCallbacks();
 
 public:
-    MetaType* GetType(std::type_index id);
+    MetaClass* GetBaseClass(std::type_index id) const;
+    void AddBaseClass(std::type_index id, MetaClass* metaClass);
+
+    std::vector<const MetaClass*> GetClasses() const;
+    MetaClass* GetClass(std::type_index id) const;
+    void AddClass(std::type_index id, MetaClass* metaClass);
+
+    MetaType* GetType(std::type_index id) const;
     void AddType(std::type_index id, MetaType* metaType);
 
-    MetaEnum* GetEnum(std::type_index id);
+    MetaEnum* GetEnum(std::type_index id) const;
     void AddEnum(std::type_index id, MetaEnum* metaEnum);
 
 private:
     struct Impl;
-    Pimpl<Impl, 160, 8> impl;
+    Pimpl<Impl, 272, 8> impl;
 };
 
 }
