@@ -2,6 +2,7 @@
 #include "middleware/gschema/meta/gs_define_decl.h"
 
 #include "core/common/exception.h"
+#include "middleware/gschema/meta/gs_meta_property.h"
 
 
 namespace gs::detail {
@@ -28,16 +29,8 @@ DefineClass::DefineClass(std::type_index id, MetaClass* metaClass)
     }
 }
 
-void DefineClass::RegisterPin(cpgf::GMetaProperty* property, gs::PinTypes pinType, const char* displayName, gs::TypeInstanceEdit* typeInstance) {
-    m_metaClass->AddProperty(property);
-    cpgf::GMetaAnnotation *annotation = m_accessor.AddItemAnnotation(property, new cpgf::GMetaAnnotation(MetaNames::PIN));
-    annotation->addItem(MetaNames::PIN_TYPE, pinType);
-    if (typeInstance != nullptr) {
-        annotation->addItem(MetaNames::TYPE_INSTANCE, typeInstance);
-    }
-    if (displayName != nullptr) {
-        annotation->addItem(MetaNames::DISPLAY_NAME, displayName);
-    }
+void DefineClass::RegisterPin(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance) {
+    m_metaClass->AddProperty(new MetaProperty(property, name, displayName, pinType, typeInstance));
 }
 
 DefineEnum::DefineEnum(std::type_index typeIndex) {

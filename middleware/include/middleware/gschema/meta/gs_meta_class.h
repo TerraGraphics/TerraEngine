@@ -7,12 +7,9 @@
 #include "core/common/ctor.h"
 
 
-namespace cpgf {
-class GMetaProperty;
-}
-
 namespace gs {
 
+class MetaProperty;
 class MetaClass : Fixed {
 public:
     using TCtor = void* (*)();
@@ -31,8 +28,8 @@ public:
     void* CreateInstance() const;
     void DestroyInstance(void* instance) const;
 
-    void AddProperty(const cpgf::GMetaProperty* property);
-    std::vector<const cpgf::GMetaProperty*> GetProperties() const;
+    void AddProperty(const MetaProperty* property);
+    std::vector<const MetaProperty*> GetProperties() const;
 
 private:
     MetaClass* m_baseClass = nullptr;
@@ -40,7 +37,7 @@ private:
     TDtor m_dtor = nullptr;
     std::string m_name;
     std::string m_displayName;
-    std::vector<const cpgf::GMetaProperty*> m_properties;
+    std::vector<const MetaProperty*> m_properties;
 };
 
 }

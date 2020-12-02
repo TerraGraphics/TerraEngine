@@ -1,7 +1,7 @@
 #include "middleware/gschema/meta/gs_meta_class.h"
 
-#include "cpgf/metaproperty.h"
 #include "core/common/exception.h"
+#include "middleware/gschema/meta/gs_meta_property.h"
 
 
 namespace gs {
@@ -43,12 +43,12 @@ void MetaClass::DestroyInstance(void* instance) const {
     }
 }
 
-void MetaClass::AddProperty(const cpgf::GMetaProperty* property) {
+void MetaClass::AddProperty(const MetaProperty* property) {
     // TODO: check unique for property name
     m_properties.push_back(property);
 }
 
-std::vector<const cpgf::GMetaProperty*> MetaClass::GetProperties() const {
+std::vector<const MetaProperty*> MetaClass::GetProperties() const {
     if (m_baseClass == nullptr) {
         return m_properties;
     }
