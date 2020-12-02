@@ -16,22 +16,17 @@
 #include "middleware/gschema/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gschema/meta/gs_meta_consts.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
+#include "middleware/gschema/meta/gs_meta_property.h"
 #include "middleware/gschema/graph/gs_types_convert_storage.h"
 
 
 namespace gs {
 
-static_assert(sizeof(Class) == 64, "sizeof(Class) == 64 bytes");
+static_assert(sizeof(Class) == 56, "sizeof(Class) == 56 bytes");
 
 Class::~Class() {
     if (m_defaultTypeIds != nullptr) {
         delete[] m_defaultTypeIds;
-    }
-    if (m_embeddedTypeInstances != nullptr) {
-        for (int i=0; i!=m_countEmbeddedPins; ++i) {
-            delete m_embeddedTypeInstances[i];
-        }
-        delete[] m_embeddedTypeInstances;
     }
     if (m_props != nullptr) {
         delete[] m_props;
@@ -53,16 +48,23 @@ void Class::Create(const MetaClass* metaClass,
             throw EngineError("invalid metaClass");
         }
 
-        CheckMetaClass(metaClass);
+        if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
+            throw EngineError("double create");
+        }
+
+        size_t propsCount = metaClass->GetProperties().size();
+        if (propsCount > static_cast<size_t>(MAX_PINS_COUNT)) {
+            throw EngineError("invalid metaClass (name = '{}'), max count properties = {}, have = {}",
+                metaClass->GetName(), MAX_PINS_COUNT, propsCount);
+        }
     } catch(const std::exception& e) {
         throw EngineError("gs::Class::Create: {}", e.what());
     }
 
-    const std::vector<const cpgf::GMetaProperty*>& props = metaClass->GetProperties();
-    m_props = new const cpgf::GMetaProperty*[props.size()];
-    for(const cpgf::GMetaProperty* prop: props) {
-        auto pinType = prop->getAnnotation(MetaNames::PIN)->getValue(MetaNames::PIN_TYPE)->toObject<PinTypes>();
-        switch (pinType) {
+    const std::vector<const MetaProperty*>& props = metaClass->GetProperties();
+    m_props = new const MetaProperty*[props.size()];
+    for(const MetaProperty* prop: props) {
+        switch (prop->GetPinType()) {
         case PinTypes::EMBEDDED:
             ++m_countEmbeddedPins;
             break;
@@ -81,15 +83,11 @@ void Class::Create(const MetaClass* metaClass,
     m_typesConvertStorage = typesConvertStorage;
     m_metaClass = metaClass;
     m_defaultTypeIds = new TypeId[props.size()];
-    m_embeddedTypeInstances = new TypeInstanceEdit*[m_countEmbeddedPins];
-    for(const cpgf::GMetaProperty* prop: props) {
-        TypeId typeId = GetTypeId(prop->getItemType().getBaseType().getStdTypeInfo());
-        const cpgf::GMetaAnnotation* pinAnnotation = prop->getAnnotation(MetaNames::PIN);
-        auto pinType = pinAnnotation->getValue(MetaNames::PIN_TYPE)->toObject<PinTypes>();
-        switch (pinType) {
+    for(const MetaProperty* prop: props) {
+        TypeId typeId = GetTypeId(prop->GetTypeInfo());
+        switch (prop->GetPinType()) {
         case PinTypes::EMBEDDED:
             m_defaultTypeIds[embeddedIndex] = TypeId::Unknown;
-            m_embeddedTypeInstances[embeddedIndex] = pinAnnotation->getValue(MetaNames::TYPE_INSTANCE)->toObject<TypeInstanceEdit*>();
             m_props[embeddedIndex++] = prop;
             break;
         case PinTypes::INPUT:
@@ -113,17 +111,11 @@ std::string_view Class::GetDisplayName() const {
 }
 
 std::string_view Class::GetPinName(uint8_t pinIndex) const {
-    return m_props[pinIndex]->getName();
+    return m_props[pinIndex]->GetName();
 }
 
-std::string Class::GetPinDisplayName(uint8_t pinIndex) const {
-    const cpgf::GMetaAnnotation* pinAnnotation = m_props[pinIndex]->getAnnotation(MetaNames::PIN);
-    const cpgf::GAnnotationValue* propDisplayNameValue = pinAnnotation->getValue(MetaNames::DISPLAY_NAME);
-    if (propDisplayNameValue != nullptr) {
-        return propDisplayNameValue->toString();
-    } else {
-        return m_props[pinIndex]->getName();
-    }
+std::string_view Class::GetPinDisplayName(uint8_t pinIndex) const {
+    return m_props[pinIndex]->GetDisplayName();
 }
 
 TypeId Class::GetDeclPinTypeId(uint8_t pinIndex) const noexcept {
@@ -163,7 +155,7 @@ void* Class::CreateInstance() {
         m_defaults = new cpgf::GVariant[m_countEmbeddedPins + m_countInputPins];
         for (uint8_t i=0; i!=(m_countEmbeddedPins + m_countInputPins); ++i) {
             // inside the value is completely copied
-            m_defaults[i] = m_props[i]->get(instance);
+            m_defaults[i] = m_props[i]->Get(instance);
             if (HasUniversalBit(m_defaultTypeIds[i])) {
                 m_defaultTypeIds[i] = GetUniversalTypeId(cpgf::fromVariant<UniversalType>(m_defaults[i]));
             }
@@ -179,11 +171,11 @@ void Class::DestroyInstance(void* instance) {
 
 cpgf::GVariant Class::GetValue(uint8_t pinIndex, const void* instance) const {
     // inside the value is completely copied
-    return m_props[pinIndex]->get(instance);
+    return m_props[pinIndex]->Get(instance);
 }
 
 void Class::SetValue(uint8_t pinIndex, void* instance, const cpgf::GVariant& value) const {
-    m_props[pinIndex]->set(instance, value);
+    m_props[pinIndex]->Set(instance, value);
 }
 
 const cpgf::GVariant& Class::GetDefaultValue(uint8_t pinIndex) const {
@@ -191,15 +183,11 @@ const cpgf::GVariant& Class::GetDefaultValue(uint8_t pinIndex) const {
 }
 
 void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
-    m_props[pinIndex]->set(instance, m_defaults[pinIndex]);
+    m_props[pinIndex]->Set(instance, m_defaults[pinIndex]);
 }
 
-std::type_index Class::GetTypeIndexForEmbedded(uint8_t pinIndex) const {
-    if (pinIndex >= m_countEmbeddedPins) {
-        throw EngineError("gs::Class::GetTypeIndexForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);
-    }
-
-    return m_embeddedTypeInstances[pinIndex]->GetTypeIndex();
+std::type_index Class::GetTypeIndex(uint8_t pinIndex) const {
+    return std::type_index(m_props[pinIndex]->GetTypeInfo());
 }
 
 TypeInstanceEdit* Class::GetFreeTypeInstance(TypeId typeId) const {
@@ -215,109 +203,7 @@ TypeInstanceEdit* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex) const {
         throw EngineError("gs::Class::GetTypeInstanceForEmbedded: invalid pinIndex = {}, need embedded index", pinIndex);
     }
 
-    return m_embeddedTypeInstances[pinIndex];
-}
-
-void Class::CheckMetaClass(const MetaClass* metaClass) const {
-    if ((m_countEmbeddedPins != 0) || (m_countInputPins != 0) || (m_countOutputPins != 0)) {
-        throw EngineError("double create");
-    }
-
-    std::string_view clsName = metaClass->GetName();
-    const std::vector<const cpgf::GMetaProperty*> props = metaClass->GetProperties();
-    if (props.size() > static_cast<size_t>(MAX_PINS_COUNT)) {
-        throw EngineError("invalid metaClass (name = '{}'), max count properties = {}, have = {}",
-            clsName, MAX_PINS_COUNT, props.size());
-    }
-
-    for(const cpgf::GMetaProperty* prop: props) {
-        if (prop == nullptr) {
-            throw EngineError("invalid metaClass (name = '{}'), has invalid property", clsName);
-        }
-
-        const std::string& propName = prop->getName();
-        if (propName.empty()) {
-            throw EngineError("invalid metaClass (name = '{}'), has property with empty name", clsName);
-        }
-
-        const cpgf::GMetaAnnotation* pinAnnotation = prop->getAnnotation(MetaNames::PIN);
-        if (pinAnnotation == nullptr) {
-            throw EngineError("invalid metaClass (name = '{}'), has property (name = {}) with invalid annotation PIN", clsName, propName);
-        }
-
-        const cpgf::GAnnotationValue* propDisplayNameValue = pinAnnotation->getValue(MetaNames::DISPLAY_NAME);
-        if ((propDisplayNameValue != nullptr) && (!propDisplayNameValue->canToString())) {
-            throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) with invalid annotation type for DISPLAY_NAME, need std::string",
-                clsName, propName);
-        }
-
-        const cpgf::GAnnotationValue* propPinTypeValue = pinAnnotation->getValue(MetaNames::PIN_TYPE);
-        if (propPinTypeValue == nullptr) {
-            throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) without annotation PIN_TYPE",
-                clsName, propName);
-        }
-
-        const cpgf::GVariant* propPinTypeVariant = propPinTypeValue->getVariant();
-        if (propPinTypeVariant == nullptr) {
-            throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) with invalid annotation PIN_TYPE",
-                clsName, propName);
-        }
-        if (!cpgf::canFromVariant<PinTypes>(*propPinTypeVariant)) {
-            throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) with invalid type for annotation PIN_TYPE, need gs::PinTypes",
-                clsName, propName);
-        }
-        PinTypes propPinType = cpgf::fromVariant<PinTypes>(*propPinTypeVariant);
-
-        const cpgf::GAnnotationValue* propPinTypeInstance = pinAnnotation->getValue(MetaNames::TYPE_INSTANCE);
-        if (propPinType == PinTypes::EMBEDDED) {
-            if (propPinTypeInstance == nullptr) {
-                throw EngineError(
-                    "invalid metaClass (name = '{}'), has embedded property (name = {}) without annotation TYPE_INSTANCE",
-                    clsName, propName);
-            }
-            const cpgf::GVariant* propPinTypeInstanceVariant = propPinTypeInstance->getVariant();
-            if (propPinTypeInstanceVariant == nullptr) {
-                throw EngineError(
-                    "invalid metaClass (name = '{}'), has embedded property (name = {}) with invalid annotation TYPE_INSTANCE",
-                    clsName, propName);
-            }
-            if (!cpgf::canFromVariant<TypeInstanceEdit*>(*propPinTypeInstanceVariant)) {
-                throw EngineError(
-                    "invalid metaClass (name = '{}'), has embedded property (name = {}) with invalid type for annotation TYPE_INSTANCE, need gs::TypeInstanceEdit*",
-                    clsName, propName);
-            }
-            TypeInstanceEdit* typeInstance = cpgf::fromVariant<TypeInstanceEdit*>(*propPinTypeInstanceVariant);
-            if (typeInstance == nullptr) {
-                throw EngineError(
-                    "invalid metaClass (name = '{}'), has embedded property (name = {}) with annotation TYPE_INSTANCE equals nullptr",
-                    clsName, propName);
-            }
-        }
-
-        const auto& typeInfo = prop->getItemType().getBaseType().getStdTypeInfo();
-        bool isValidType = true;
-        if (propPinType == PinTypes::EMBEDDED) {
-            isValidType = true;
-        } else if (propPinType == PinTypes::INPUT) {
-            isValidType = IsValidInputPinType(typeInfo);
-        } else if (propPinType == PinTypes::OUTPUT) {
-            isValidType = IsValidOutputPinType(typeInfo);
-        } else {
-            throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) with invalid value for annotation PIN_TYPE = {}",
-                clsName, propName, static_cast<int>(propPinType));
-        }
-
-        if (!isValidType) {
-            throw EngineError(
-                "invalid metaClass (name = '{}'), has property (name = {}) with unsupported type = '{}' for this pin type",
-                clsName, propName, meta::DemangleTypeName(typeInfo.name()));
-        }
-    }
+    return m_props[pinIndex]->GetTypeInstance();
 }
 
 }
