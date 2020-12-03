@@ -16,6 +16,50 @@ namespace detail {
 	void WriteForbidden();
 }
 
+template <typename Getter, typename Policy>
+class MetaGetter : public cpgf::GInstanceGetter<Getter, Policy> {
+private:
+	using TSuper = cpgf::GInstanceGetter<Getter, Policy>;
+
+public:
+	MetaGetter(const Getter& getter)
+		: TSuper(getter) {
+	}
+
+	cpgf::GVariant Get(const void* instance) const {
+		return this->DoGet<void>(instance);
+	}
+
+private:
+	template <typename T>
+	cpgf::GVariant DoGet(typename cpgf::GEnableIf<TSuper::Readable, T>::Result const* instance) const {
+		return cpgf::createVariant<typename TSuper::ValueType>(TSuper::get(instance), true);
+	}
+
+	template <typename T>
+	cpgf::GVariant DoGet(typename cpgf::GDisableIf<TSuper::Readable, T>::Result const* /*instance*/) const {
+		detail::ReadForbidden();
+
+		return cpgf::GVariant();
+	}
+};
+
+template <typename Setter, typename Policy>
+class MetaSetter : public cpgf::GInstanceSetter<Setter, Policy>
+{
+private:
+	using TSuper = cpgf::GInstanceSetter<Setter, Policy>;
+
+public:
+	MetaSetter(const Setter& setter)
+		: TSuper(setter) {
+	}
+
+	void Set(void* instance, const cpgf::GVariant& value) const {
+		TSuper::set(instance, cpgf::fromVariant<typename TSuper::PassType>(value));
+	}
+};
+
 struct MetaPropertyDataVTable {
 	void (*DeleteSelf)(void* self);
 	cpgf::GVariant (*Get)(const void* self, const void* instance);
@@ -35,22 +79,22 @@ protected:
 template <typename Getter, typename Setter, typename Policy>
 class MetaPropertyData : public MetaPropertyDataBase {
 private:
-	using TGetter = cpgf::meta_internal::GMetaGetter<Getter, Policy>;
-	using TSetter = cpgf::meta_internal::GMetaSetter<Setter, Policy>;
+	using TGetter = MetaGetter<Getter, Policy>;
+	using TSetter = MetaSetter<Setter, Policy>;
 
 private:
 	static cpgf::GVariant VirtualGet(const void* self, const void* instance) {
 		if (!TGetter::Readable) {
 			detail::ReadForbidden();
 		}
-		return static_cast<const MetaPropertyData *>(self)->m_getter.get(instance);
+		return static_cast<const MetaPropertyData *>(self)->m_getter.Get(instance);
 	}
 
 	static void VirtualSet(const void* self, void* instance, const cpgf::GVariant& value) {
 		if (!TSetter::Writable) {
 			detail::WriteForbidden();
 		}
-		static_cast<const MetaPropertyData *>(self)->m_setter.set(instance, value);
+		static_cast<const MetaPropertyData *>(self)->m_setter.Set(instance, value);
 	}
 
 public:
