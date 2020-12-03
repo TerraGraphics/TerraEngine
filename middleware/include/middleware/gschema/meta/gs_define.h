@@ -21,6 +21,7 @@
 #include "middleware/gschema/meta/gs_type_instance.h"
 #include "middleware/gschema/meta/gs_composite_type.h"
 #include "middleware/gschema/meta/gs_arithmetic_type.h"
+#include "middleware/gschema/meta/gs_meta_property_data.h"
 
 
 #define DEFINE_TYPES_IMPL(cls) template <> void GSAutoRegisterTypesFuncT<cls>()
@@ -116,11 +117,12 @@ public:
     DefineEnumTypePin<T, DefineClass> AddEmbeddedPinEnum(
         std::string_view name, const Getter& getter, const Setter& setter, std::string_view displayName = std::string_view()) {
 
-        auto* metaEnum = MetaStorage::GetInstance().GetEnum(std::type_index(typeid(T)));
+        auto typeIndex = std::type_index(typeid(T));
+        auto* metaEnum = MetaStorage::GetInstance().GetEnum(typeIndex);
         auto* enumType = new EnumType<T>(metaEnum);
         auto* typeInstance = new TypeInstanceEdit(enumType);
-        auto* metaPropoperty = new cpgf::GMetaProperty(name.data(), getter, setter, cpgf::GMetaPolicyDefault());
-        m_metaClass->AddProperty(metaPropoperty, name, displayName, PinTypes::EMBEDDED, typeInstance);
+        auto* data = new MetaPropertyData<Getter, Setter, cpgf::GMetaPolicyDefault>(getter, setter);
+        m_metaClass->AddProperty(data, typeIndex, name, displayName, PinTypes::EMBEDDED, typeInstance);
 
         return DefineEnumTypePin<T, DefineClass>(m_metaClass, enumType);
     }
@@ -134,10 +136,11 @@ public:
     DefineArithmeticTypePin<T, DefineClass> AddEmbeddedPinArithmetic(
         std::string_view name, const Getter& getter, const Setter& setter, std::string_view displayName = std::string_view()) {
 
+        auto typeIndex = std::type_index(typeid(T));
         auto* arithmeticType = new ArithmeticType<T>();
         auto* typeInstance = new TypeInstanceEdit(arithmeticType);
-        auto* metaPropoperty = new cpgf::GMetaProperty(name.data(), getter, setter, cpgf::GMetaPolicyDefault());
-        m_metaClass->AddProperty(metaPropoperty, name, displayName, PinTypes::EMBEDDED, typeInstance);
+        auto* data = new MetaPropertyData<Getter, Setter, cpgf::GMetaPolicyDefault>(getter, setter);
+        m_metaClass->AddProperty(data, typeIndex, name, displayName, PinTypes::EMBEDDED, typeInstance);
 
         return DefineArithmeticTypePin<T, DefineClass>(m_metaClass, arithmeticType);
     }
@@ -151,25 +154,35 @@ public:
     DefineClass& AddEmbeddedPinArray(
         std::string_view name, const Getter& getter, const Setter& setter, std::string_view displayName = std::string_view()) {
 
+        auto typeIndex = std::type_index(typeid(T));
         auto* typeInstance = CreateCompositeTypeInstance<T>();
-        auto* metaPropoperty = new cpgf::GMetaProperty(name.data(), getter, setter, cpgf::GMetaPolicyDefault());
-        m_metaClass->AddProperty(metaPropoperty, name, displayName, PinTypes::EMBEDDED, typeInstance);
+        auto* data = new MetaPropertyData<Getter, Setter, cpgf::GMetaPolicyDefault>(getter, setter);
+        m_metaClass->AddProperty(data, typeIndex, name, displayName, PinTypes::EMBEDDED, typeInstance);
 
         return *this;
     }
 
-    template <typename Getter, typename Setter>
+    template <
+        typename Getter,
+        typename Setter,
+        typename T = typename meta::MemberFuncReturnType<Getter>::type
+        >
     DefineClass& AddInputPin(std::string_view name, const Getter& getter, const Setter& setter, std::string_view displayName = std::string_view()) {
-        auto* metaPropoperty = new cpgf::GMetaProperty(name.data(), getter, setter, cpgf::GMetaPolicyDefault());
-        m_metaClass->AddProperty(metaPropoperty, name, displayName, PinTypes::INPUT, nullptr);
+        auto typeIndex = std::type_index(typeid(T));
+        auto* data = new MetaPropertyData<Getter, Setter, cpgf::GMetaPolicyDefault>(getter, setter);
+        m_metaClass->AddProperty(data, typeIndex, name, displayName, PinTypes::INPUT, nullptr);
 
         return *this;
     }
 
-    template <typename Getter>
+    template <
+        typename Getter,
+        typename T = typename meta::MemberFuncReturnType<Getter>::type
+        >
     DefineClass& AddOutputPin(std::string_view name, const Getter& getter, std::string_view displayName = std::string_view()) {
-        auto* metaPropoperty = new cpgf::GMetaProperty(name.data(), getter, 0, cpgf::GMetaPolicyDefault());
-        m_metaClass->AddProperty(metaPropoperty, name, displayName, PinTypes::OUTPUT, nullptr);
+        auto typeIndex = std::type_index(typeid(T));
+        auto* data = new MetaPropertyData<Getter, int, cpgf::GMetaPolicyDefault>(getter, 0);
+        m_metaClass->AddProperty(data, typeIndex, name, displayName, PinTypes::OUTPUT, nullptr);
 
         return *this;
     }

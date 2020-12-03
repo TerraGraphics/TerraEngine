@@ -4,13 +4,15 @@
 #include "core/common/exception.h"
 #include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
+#include "middleware/gschema/meta/gs_meta_property_data.h"
 
 
 namespace gs {
 
-MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance)
-    : m_property(property)
+MetaProperty::MetaProperty(MetaPropertyDataBase* data, std::type_index typeIndex, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance)
+    : m_data(data)
     , m_typeInstance(typeInstance)
+    , m_typeIndex(typeIndex)
     , m_name(name.cbegin(), name.cend())
     , m_displayName(displayName.cbegin(), displayName.cend())
     , m_pinType(pinType) {
@@ -19,7 +21,7 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
         throw EngineError("gs::MetaProperty::MetaProperty: Attempting to create a metaproperty with an empty name");
     }
 
-    if (m_property == nullptr) {
+    if (m_data == nullptr) {
         throw EngineError("gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) an empty property", m_name);
     }
 
@@ -30,7 +32,7 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for embedded pin with an empty TypeInstance",
                 m_name);
         }
-        if (m_typeInstance->GetTypeIndex() != GetTypeIndex()) {
+        if (m_typeInstance->GetTypeIndex() != m_typeIndex) {
             throw EngineError(
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for embedded pin with wrong type_index",
                 m_name);
@@ -43,10 +45,10 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for input or output pin with a TypeInstance",
                 m_name);
         }
-        if (!IsValidPinType(GetTypeIndex())) {
+        if (!IsValidPinType(m_typeIndex)) {
             throw EngineError(
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) with unsupported type = '{}' for this pin type",
-                m_name, meta::DemangleTypeName(GetTypeIndex().name()));
+                m_name, meta::DemangleTypeName(m_typeIndex.name()));
         }
         break;
     default:
@@ -62,24 +64,20 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
 }
 
 MetaProperty::~MetaProperty() {
-    if (m_property != nullptr) {
-        delete m_property;
+    if (m_data != nullptr) {
+        m_data->DeleteSelf();
     }
     if (m_typeInstance != nullptr) {
         delete m_typeInstance;
     }
 }
 
-std::type_index MetaProperty::GetTypeIndex() const {
-    return std::type_index(m_property->getItemType().getBaseType().getStdTypeInfo());
-}
-
 cpgf::GVariant MetaProperty::Get(const void* instance) const {
-    return m_property->get(instance);
+	return m_data->Get(instance);
 }
 
 void MetaProperty::Set(void* instance, const cpgf::GVariant& value) const {
-    return m_property->set(instance, value);
+	m_data->Set(instance, value);
 }
 
 }

@@ -43,14 +43,14 @@ void MetaClass::DestroyInstance(void* instance) const {
     }
 }
 
-void MetaClass::AddProperty(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance) {
+void MetaClass::AddProperty(MetaPropertyDataBase* data, std::type_index typeIndex, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance) {
     for (const auto* prop: m_properties) {
         if (prop->GetName() == name) {
             throw EngineError(
                 "gs::MetaClass::AddProperty: metaproperty with name = {} already exists by name for metaclass = {}", name, m_name);
         }
     }
-    m_properties.push_back(new MetaProperty(property, name, displayName, pinType, typeInstance));
+    m_properties.push_back(new MetaProperty(data, typeIndex, name, displayName, pinType, typeInstance));
 }
 
 std::vector<const MetaProperty*> MetaClass::GetProperties() const {
