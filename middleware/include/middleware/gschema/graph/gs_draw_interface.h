@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <cstdint>
 #include <string_view>
 
 #include "core/common/ctor.h"
@@ -21,7 +20,7 @@ public:
     struct Pin {
         uintptr_t id;
         bool isConnected;
-        std::string displayName;
+        std::string_view displayName;
     };
 
 public:
@@ -46,7 +45,7 @@ public:
         ResetToDefault = 1,
     };
     virtual void OnStartDrawNodeProperty(std::string_view displayName) = 0;
-    virtual ButtonsState OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) = 0;
+    virtual ButtonsState OnDrawPinProperty(std::string_view displayName, TypeInstance* typeInstance, bool disabled) = 0;
     virtual void OnFinishDrawNodeProperty() = 0;
 };
 

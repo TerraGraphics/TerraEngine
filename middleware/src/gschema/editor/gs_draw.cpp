@@ -178,7 +178,7 @@ void Draw::OnStartDrawNodeProperty(std::string_view displayName) {
     ImGui::Columns(2, "gs_node_property", true);
 }
 
-IDraw::ButtonsState Draw::OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) {
+IDraw::ButtonsState Draw::OnDrawPinProperty(std::string_view displayName, TypeInstance* typeInstance, bool disabled) {
     if (disabled) {
         gui::StartDisable();
     }

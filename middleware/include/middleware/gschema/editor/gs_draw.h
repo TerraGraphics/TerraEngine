@@ -45,7 +45,7 @@ public:
 // Draw node edit GUI
 public:
     void OnStartDrawNodeProperty(std::string_view displayName) final;
-    ButtonsState OnDrawPinProperty(const std::string& displayName, TypeInstance* typeInstance, bool disabled) final;
+    ButtonsState OnDrawPinProperty(std::string_view displayName, TypeInstance* typeInstance, bool disabled) final;
     void OnFinishDrawNodeProperty() final;
 
 // tmp data for draw frame

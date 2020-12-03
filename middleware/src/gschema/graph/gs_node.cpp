@@ -150,7 +150,7 @@ void Node::CheckIsValidEmbeddedPinId(uint32_t pinId) const {
 }
 
 void Node::CheckIsValidEmbeddedPinType(uint8_t pinIndex, std::type_index typeIndex) const {
-    auto pinTypeIndex = m_class->GetTypeIndexForEmbedded(pinIndex);
+    auto pinTypeIndex = m_class->GetTypeIndex(pinIndex);
     if (pinTypeIndex != typeIndex) {
         throw EngineError("for pinIndex = {} type \"{}\" not applicable, type \"{}\" required", pinIndex,
             meta::DemangleTypeName(typeIndex.name()),
