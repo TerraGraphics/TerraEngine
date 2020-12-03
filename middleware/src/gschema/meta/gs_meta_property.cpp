@@ -23,7 +23,6 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
         throw EngineError("gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) an empty property", m_name);
     }
 
-    const std::type_info& typeInfo = m_property->getItemType().getBaseType().getStdTypeInfo();
     switch (m_pinType) {
     case PinTypes::EMBEDDED:
         if (m_typeInstance == nullptr) {
@@ -31,7 +30,7 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for embedded pin with an empty TypeInstance",
                 m_name);
         }
-        if (m_typeInstance->GetTypeIndex() != std::type_index(typeInfo)) {
+        if (m_typeInstance->GetTypeIndex() != GetTypeIndex()) {
             throw EngineError(
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for embedded pin with wrong type_index",
                 m_name);
@@ -44,10 +43,10 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for input or output pin with a TypeInstance",
                 m_name);
         }
-        if (!IsValidPinType(typeInfo)) {
+        if (!IsValidPinType(GetTypeIndex())) {
             throw EngineError(
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) with unsupported type = '{}' for this pin type",
-                m_name, meta::DemangleTypeName(typeInfo.name()));
+                m_name, meta::DemangleTypeName(GetTypeIndex().name()));
         }
         break;
     default:
@@ -71,8 +70,8 @@ MetaProperty::~MetaProperty() {
     }
 }
 
-const std::type_info& MetaProperty::GetTypeInfo() const {
-    return m_property->getItemType().getBaseType().getStdTypeInfo();
+std::type_index MetaProperty::GetTypeIndex() const {
+    return std::type_index(m_property->getItemType().getBaseType().getStdTypeInfo());
 }
 
 cpgf::GVariant MetaProperty::Get(const void* instance) const {

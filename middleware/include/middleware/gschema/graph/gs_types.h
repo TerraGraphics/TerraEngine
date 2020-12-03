@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <variant>
-#include <typeinfo>
+#include <typeindex>
 #include <type_traits>
 
 #include "eigen/core.h"
@@ -64,14 +64,14 @@ template<typename T, typename Enable = std::enable_if_t<IsGsType<T>>>
     }
 }
 
-TypeId GetTypeId(const std::type_info& typeInfo);
+TypeId GetTypeId(std::type_index typeIndex);
 TypeId GetUniversalTypeId(const UniversalType& v);
 
 TypeId GetBeginBaseType();
 TypeId GetEndBaseType();
 TypeId GetNextBaseType(TypeId typeId);
 
-bool IsValidPinType(const std::type_info& typeInfo);
+bool IsValidPinType(std::type_index typeIndex);
 bool IsEnableUI(TypeId typeId);
 
 }

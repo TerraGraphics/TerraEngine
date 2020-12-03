@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <typeinfo>
+#include <typeindex>
 #include <string_view>
 
 #include "core/common/ctor.h"
@@ -26,7 +26,7 @@ public:
     std::string_view GetDisplayName() const { return m_displayName; }
     PinTypes GetPinType() const { return m_pinType; }
     TypeInstanceEdit* GetTypeInstance() const { return m_typeInstance; }
-    const std::type_info& GetTypeInfo() const;
+    std::type_index GetTypeIndex() const;
 
     cpgf::GVariant Get(const void* instance) const;
 	void Set(void* instance, const cpgf::GVariant& value) const;

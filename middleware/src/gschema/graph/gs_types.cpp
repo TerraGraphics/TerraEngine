@@ -18,7 +18,7 @@ TypeId MaxTypeId(TypeId a, TypeId b) {
     return static_cast<TypeId>((aVal > bVal) ? aVal : bVal);
 }
 
-TypeId GetTypeId(const std::type_info& typeInfo) {
+TypeId GetTypeId(std::type_index typeIndex) {
     static const std::unordered_map<std::type_index, TypeId> typeIndexToId = {
         { std::type_index(typeid(float)), TypeId::Float },
         { std::type_index(typeid(Eigen::Vector2f)), TypeId::Vector2f },
@@ -29,7 +29,7 @@ TypeId GetTypeId(const std::type_info& typeInfo) {
         { std::type_index(typeid(UniversalType)), TypeId::UniversalType },
     };
 
-    if (const auto it = typeIndexToId.find(std::type_index(typeInfo)); it != typeIndexToId.cend()) {
+    if (const auto it = typeIndexToId.find(typeIndex); it != typeIndexToId.cend()) {
         return it->second;
     }
 
@@ -59,8 +59,8 @@ TypeId GetNextBaseType(TypeId typeId) {
     return static_cast<TypeId>(static_cast<uint8_t>(typeId) + 1);
 }
 
-bool IsValidPinType(const std::type_info& typeInfo) {
-    auto typeId = GetTypeId(typeInfo);
+bool IsValidPinType(std::type_index typeIndex) {
+    auto typeId = GetTypeId(typeIndex);
     return (
         (typeId == TypeId::Float) ||
         (typeId == TypeId::Vector2f) ||

@@ -84,7 +84,7 @@ void Class::Create(const MetaClass* metaClass,
     m_metaClass = metaClass;
     m_defaultTypeIds = new TypeId[props.size()];
     for(const MetaProperty* prop: props) {
-        TypeId typeId = GetTypeId(prop->GetTypeInfo());
+        TypeId typeId = GetTypeId(prop->GetTypeIndex());
         switch (prop->GetPinType()) {
         case PinTypes::EMBEDDED:
             m_defaultTypeIds[embeddedIndex] = TypeId::Unknown;
@@ -187,7 +187,7 @@ void Class::ResetToDefault(uint8_t pinIndex, void* instance) const {
 }
 
 std::type_index Class::GetTypeIndex(uint8_t pinIndex) const {
-    return std::type_index(m_props[pinIndex]->GetTypeInfo());
+    return m_props[pinIndex]->GetTypeIndex();
 }
 
 TypeInstanceEdit* Class::GetFreeTypeInstance(TypeId typeId) const {

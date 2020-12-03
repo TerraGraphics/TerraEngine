@@ -28,10 +28,6 @@ DefineClass::DefineClass(std::type_index id, MetaClass* metaClass)
     }
 }
 
-void DefineClass::RegisterPin(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance) {
-    m_metaClass->AddProperty(property, name, displayName, pinType, typeInstance);
-}
-
 DefineEnum::DefineEnum(std::type_index typeIndex) {
     m_metaEnum = new MetaEnum();
     MetaStorage::GetInstance().AddEnum(typeIndex, m_metaEnum);
