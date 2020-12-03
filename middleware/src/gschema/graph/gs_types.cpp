@@ -59,7 +59,7 @@ TypeId GetNextBaseType(TypeId typeId) {
     return static_cast<TypeId>(static_cast<uint8_t>(typeId) + 1);
 }
 
-bool IsValidInputPinType(const std::type_info& typeInfo) {
+bool IsValidPinType(const std::type_info& typeInfo) {
     auto typeId = GetTypeId(typeInfo);
     return (
         (typeId == TypeId::Float) ||
@@ -70,10 +70,6 @@ bool IsValidInputPinType(const std::type_info& typeInfo) {
         (typeId == TypeId::Generator3d) ||
         (typeId == TypeId::UniversalType)
     );
-}
-
-bool IsValidOutputPinType(const std::type_info& typeInfo) {
-    return IsValidInputPinType(typeInfo);
 }
 
 bool IsEnableUI(TypeId typeId) {

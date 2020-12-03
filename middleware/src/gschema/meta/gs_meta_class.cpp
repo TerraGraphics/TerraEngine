@@ -28,8 +28,8 @@ MetaClass::MetaClass(TCtor ctor, TDtor dtor, std::string_view name, std::string_
 }
 
 MetaClass::~MetaClass() {
-    for (const auto* v: m_properties) {
-        delete v;
+    for (const auto* prop: m_properties) {
+        delete prop;
     }
 }
 
@@ -43,9 +43,14 @@ void MetaClass::DestroyInstance(void* instance) const {
     }
 }
 
-void MetaClass::AddProperty(const MetaProperty* property) {
-    // TODO: check unique for property name
-    m_properties.push_back(property);
+void MetaClass::AddProperty(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance) {
+    for (const auto* prop: m_properties) {
+        if (prop->GetName() == name) {
+            throw EngineError(
+                "gs::MetaClass::AddProperty: metaproperty with name = {} already exists by name for metaclass = {}", name, m_name);
+        }
+    }
+    m_properties.push_back(new MetaProperty(property, name, displayName, pinType, typeInstance));
 }
 
 std::vector<const MetaProperty*> MetaClass::GetProperties() const {

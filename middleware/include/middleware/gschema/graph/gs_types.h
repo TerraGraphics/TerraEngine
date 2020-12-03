@@ -71,8 +71,7 @@ TypeId GetBeginBaseType();
 TypeId GetEndBaseType();
 TypeId GetNextBaseType(TypeId typeId);
 
-bool IsValidInputPinType(const std::type_info& typeInfo);
-bool IsValidOutputPinType(const std::type_info& typeInfo);
+bool IsValidPinType(const std::type_info& typeInfo);
 bool IsEnableUI(TypeId typeId);
 
 }

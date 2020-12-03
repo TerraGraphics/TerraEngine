@@ -19,7 +19,7 @@ class TypeInstanceEdit;
 class MetaProperty : Fixed {
 public:
     MetaProperty() = delete;
-    MetaProperty(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance = nullptr);
+    MetaProperty(cpgf::GMetaProperty* property, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance);
     ~MetaProperty();
 
     std::string_view GetName() const { return m_name; }

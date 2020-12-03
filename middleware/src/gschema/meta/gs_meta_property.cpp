@@ -2,6 +2,7 @@
 
 #include "cpgf/metaproperty.h"
 #include "core/common/exception.h"
+#include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/meta/gs_type_instance.h"
 
 
@@ -17,6 +18,12 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
     if (m_name.empty()) {
         throw EngineError("gs::MetaProperty::MetaProperty: Attempting to create a metaproperty with an empty name");
     }
+
+    if (m_property == nullptr) {
+        throw EngineError("gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) an empty property", m_name);
+    }
+
+    const std::type_info& typeInfo = m_property->getItemType().getBaseType().getStdTypeInfo();
     switch (m_pinType) {
     case PinTypes::EMBEDDED:
         if (m_typeInstance == nullptr) {
@@ -24,7 +31,7 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for embedded pin with an empty TypeInstance",
                 m_name);
         }
-        if (m_typeInstance->GetTypeIndex() != std::type_index(m_property->getItemType().getBaseType().getStdTypeInfo())) {
+        if (m_typeInstance->GetTypeIndex() != std::type_index(typeInfo)) {
             throw EngineError(
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for embedded pin with wrong type_index",
                 m_name);
@@ -36,6 +43,11 @@ MetaProperty::MetaProperty(cpgf::GMetaProperty* property, std::string_view name,
             throw EngineError(
                 "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) for input or output pin with a TypeInstance",
                 m_name);
+        }
+        if (!IsValidPinType(typeInfo)) {
+            throw EngineError(
+                "gs::MetaProperty::MetaProperty: Attempting to create a metaproperty (name = {}) with unsupported type = '{}' for this pin type",
+                m_name, meta::DemangleTypeName(typeInfo.name()));
         }
         break;
     default:
