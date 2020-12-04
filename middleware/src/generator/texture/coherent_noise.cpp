@@ -87,7 +87,7 @@ math::Generator3D CoherentNoise::Result() const {
         noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance2Div);
         break;
     }
-    // SetCellularJitter
+    noise.SetCellularJitter(m_cellularJitter);
     // SetDomainWarpType
     // SetDomainWarpAmp
     return math::Generator3D([noise](double x, double y, double z) mutable -> double {
@@ -97,4 +97,8 @@ math::Generator3D CoherentNoise::Result() const {
 
 void CoherentNoise::SetOctaveCount(const uint8_t v) {
     m_octaveCount = std::clamp(v, uint8_t(1), uint8_t(30));
+}
+
+void CoherentNoise::SetCellularJitter(const float v) {
+    m_cellularJitter = std::clamp(v, 0.f, 1.f);
 }
