@@ -107,6 +107,12 @@ public:
     DefineClass(std::type_index id, MetaClass* metaClass);
 
 public:
+    DefineClass& SetIsPinEnableInGUI(MetaClass::TIsPinEnableInGUI func) {
+        m_metaClass->SetIsPinEnableInGUI(func);
+
+        return *this;
+    }
+
     template <
         typename Getter,
         typename Setter,

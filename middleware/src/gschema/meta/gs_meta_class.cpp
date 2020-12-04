@@ -43,6 +43,18 @@ void MetaClass::DestroyInstance(void* instance) const {
     }
 }
 
+void MetaClass::SetIsPinEnableInGUI(TIsPinEnableInGUI func) {
+    m_isPinEnableInGUI = func;
+}
+
+bool MetaClass::IsPinEnableInGUI(void* instance, std::string_view name) const {
+    if (m_isPinEnableInGUI) {
+        return m_isPinEnableInGUI(instance, name);
+    }
+
+    return true;
+}
+
 void MetaClass::AddProperty(MetaPropertyDataBase* data, std::type_index typeIndex, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance) {
     for (const auto* prop: m_properties) {
         if (prop->GetName() == name) {

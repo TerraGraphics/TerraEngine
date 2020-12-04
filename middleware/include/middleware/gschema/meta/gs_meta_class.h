@@ -18,6 +18,7 @@ class MetaClass : Fixed {
 public:
     using TCtor = void* (*)();
     using TDtor = void (*)(void*);
+    using TIsPinEnableInGUI = bool (*)(void* instance, std::string_view name);
 
 public:
     MetaClass() = default;
@@ -32,6 +33,9 @@ public:
     void* CreateInstance() const;
     void DestroyInstance(void* instance) const;
 
+    void SetIsPinEnableInGUI(TIsPinEnableInGUI func);
+    bool IsPinEnableInGUI(void* instance, std::string_view name) const;
+
     void AddProperty(MetaPropertyDataBase* data, std::type_index typeIndex, std::string_view name, std::string_view displayName, PinTypes pinType, TypeInstanceEdit* typeInstance);
     std::vector<const MetaProperty*> GetProperties() const;
 
@@ -39,6 +43,7 @@ private:
     MetaClass* m_baseClass = nullptr;
     TCtor m_ctor = nullptr;
     TDtor m_dtor = nullptr;
+    TIsPinEnableInGUI m_isPinEnableInGUI = nullptr;
     std::string m_name;
     std::string m_displayName;
     std::vector<const MetaProperty*> m_properties;
