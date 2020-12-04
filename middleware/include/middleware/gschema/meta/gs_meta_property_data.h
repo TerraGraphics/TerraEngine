@@ -44,22 +44,6 @@ private:
 	}
 };
 
-template <typename Setter, typename Policy>
-class MetaSetter : public cpgf::GInstanceSetter<Setter, Policy>
-{
-private:
-	using TSuper = cpgf::GInstanceSetter<Setter, Policy>;
-
-public:
-	MetaSetter(const Setter& setter)
-		: TSuper(setter) {
-	}
-
-	void Set(void* instance, const cpgf::GVariant& value) const {
-		TSuper::set(instance, cpgf::fromVariant<typename TSuper::PassType>(value));
-	}
-};
-
 struct MetaPropertyDataVTable {
 	void (*DeleteSelf)(void* self);
 	cpgf::GVariant (*Get)(const void* self, const void* instance);
@@ -80,7 +64,7 @@ template <typename Getter, typename Setter, typename Policy>
 class MetaPropertyData : public MetaPropertyDataBase {
 private:
 	using TGetter = MetaGetter<Getter, Policy>;
-	using TSetter = MetaSetter<Setter, Policy>;
+	using TSetter = cpgf::setter_internal::GInstanceSetterImplement<Setter, cpgf::GMetaPolicyDefault>;
 
 private:
 	static cpgf::GVariant VirtualGet(const void* self, const void* instance) {
@@ -91,10 +75,11 @@ private:
 	}
 
 	static void VirtualSet(const void* self, void* instance, const cpgf::GVariant& value) {
-		if (!TSetter::Writable) {
+		if constexpr (!TSetter::HasSetter || !TSetter::Writable) {
 			detail::WriteForbidden();
+		} else {
+			TSetter::set(static_cast<const MetaPropertyData *>(self)->m_setter, instance, cpgf::fromVariant<typename TSetter::PassType>(value));
 		}
-		static_cast<const MetaPropertyData *>(self)->m_setter.Set(instance, value);
 	}
 
 public:
@@ -112,7 +97,7 @@ public:
 
 private:
 	TGetter m_getter;
-	TSetter m_setter;
+	mutable typename TSetter::DataType m_setter;
 };
 
 }
