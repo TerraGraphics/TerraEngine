@@ -17,8 +17,8 @@ void WriteForbidden() {
 
 }
 
-void MetaPropertyDataBase::DeleteSelf() {
-	m_vTable->DeleteSelf(this);
+void MetaPropertyDataBase::Release() {
+	m_vTable->Release(this);
 }
 
 cpgf::GVariant MetaPropertyDataBase::Get(const void * instance) const {

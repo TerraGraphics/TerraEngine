@@ -16,43 +16,15 @@ namespace detail {
 	void WriteForbidden();
 }
 
-template <typename Getter, typename Policy>
-class MetaGetter : public cpgf::GInstanceGetter<Getter, Policy> {
-private:
-	using TSuper = cpgf::GInstanceGetter<Getter, Policy>;
-
-public:
-	MetaGetter(const Getter& getter)
-		: TSuper(getter) {
-	}
-
-	cpgf::GVariant Get(const void* instance) const {
-		return this->DoGet<void>(instance);
-	}
-
-private:
-	template <typename T>
-	cpgf::GVariant DoGet(typename cpgf::GEnableIf<TSuper::Readable, T>::Result const* instance) const {
-		return cpgf::createVariant<typename TSuper::ValueType>(TSuper::get(instance), true);
-	}
-
-	template <typename T>
-	cpgf::GVariant DoGet(typename cpgf::GDisableIf<TSuper::Readable, T>::Result const* /*instance*/) const {
-		detail::ReadForbidden();
-
-		return cpgf::GVariant();
-	}
-};
-
 struct MetaPropertyDataVTable {
-	void (*DeleteSelf)(void* self);
+	void (*Release)(void* self);
 	cpgf::GVariant (*Get)(const void* self, const void* instance);
 	void (*Set)(const void* self, void* instance, const cpgf::GVariant& v);
 };
 
 class MetaPropertyDataBase {
 public:
-	void DeleteSelf();
+	void Release();
 	cpgf::GVariant Get(const void* instance) const;
 	void Set(void* instance, const cpgf::GVariant& v) const;
 
@@ -60,25 +32,31 @@ protected:
 	MetaPropertyDataVTable* m_vTable = nullptr;
 };
 
-template <typename Getter, typename Setter, typename Policy>
+template <typename Getter, typename Setter>
 class MetaPropertyData : public MetaPropertyDataBase {
 private:
-	using TGetter = MetaGetter<Getter, Policy>;
+	using TGetter = cpgf::getter_internal::GInstanceGetterImplement<Getter, cpgf::GMetaPolicyDefault>;
 	using TSetter = cpgf::setter_internal::GInstanceSetterImplement<Setter, cpgf::GMetaPolicyDefault>;
 
 private:
+	static void VirtualRelease(void* self) {
+		delete static_cast<MetaPropertyData *>(self);
+	}
+
 	static cpgf::GVariant VirtualGet(const void* self, const void* instance) {
-		if (!TGetter::Readable) {
+		if constexpr (TGetter::HasGetter && TGetter::Readable) {
+			return cpgf::createVariant<typename TGetter::ValueType>(TGetter::get(static_cast<const MetaPropertyData *>(self)->m_getter, instance), true);
+		} else {
 			detail::ReadForbidden();
+			return cpgf::GVariant();
 		}
-		return static_cast<const MetaPropertyData *>(self)->m_getter.Get(instance);
 	}
 
 	static void VirtualSet(const void* self, void* instance, const cpgf::GVariant& value) {
-		if constexpr (!TSetter::HasSetter || !TSetter::Writable) {
-			detail::WriteForbidden();
-		} else {
+		if constexpr (TSetter::HasSetter && TSetter::Writable) {
 			TSetter::set(static_cast<const MetaPropertyData *>(self)->m_setter, instance, cpgf::fromVariant<typename TSetter::PassType>(value));
+		} else {
+			detail::WriteForbidden();
 		}
 	}
 
@@ -88,7 +66,7 @@ public:
 		, m_setter(setter) {
 
 		static MetaPropertyDataVTable vTable = {
-			&cpgf::meta_internal::virtualBaseMetaDeleter<MetaPropertyData>,
+			&VirtualRelease,
 			&VirtualGet,
 			&VirtualSet
 		};
@@ -96,7 +74,7 @@ public:
 	}
 
 private:
-	TGetter m_getter;
+	mutable typename TGetter::DataType m_getter;
 	mutable typename TSetter::DataType m_setter;
 };
 

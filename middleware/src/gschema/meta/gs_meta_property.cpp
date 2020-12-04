@@ -65,7 +65,7 @@ MetaProperty::MetaProperty(MetaPropertyDataBase* data, std::type_index typeIndex
 
 MetaProperty::~MetaProperty() {
     if (m_data != nullptr) {
-        m_data->DeleteSelf();
+        m_data->Release();
     }
     if (m_typeInstance != nullptr) {
         delete m_typeInstance;
