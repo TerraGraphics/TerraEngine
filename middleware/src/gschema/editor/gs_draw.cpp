@@ -1,5 +1,6 @@
 #include "middleware/gschema/editor/gs_draw.h"
 
+#include <string>
 #include <cstddef>
 #include <algorithm>
 #include <ext/alloc_traits.h>

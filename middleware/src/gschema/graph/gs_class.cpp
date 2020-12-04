@@ -3,19 +3,14 @@
 #include <vector>
 #include <cstdlib>
 #include <utility>
-#include <typeinfo>
 
 #include "cpgf/variant.h"
-#include "core/common/meta.h"
-#include "cpgf/metaproperty.h"
-#include "cpgf/metaannotation.h"
 #include "core/common/exception.h"
 #include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/graph/gs_limits.h"
 #include "middleware/gschema/meta/gs_meta_class.h"
 #include "middleware/gschema/graph/gs_types_fmt.h" // IWYU pragma: keep
 #include "middleware/gschema/meta/gs_meta_consts.h"
-#include "middleware/gschema/meta/gs_type_instance.h"
 #include "middleware/gschema/meta/gs_meta_property.h"
 #include "middleware/gschema/graph/gs_types_convert_storage.h"
 

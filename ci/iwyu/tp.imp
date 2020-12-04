@@ -97,14 +97,11 @@
     { symbol: ["Diligent::TEXTURE_ADDRESS_MODE", "private", '"dg/dg.h"', "public"] },
     { symbol: ["Diligent::SHADER_RESOURCE_VARIABLE_TYPE", "private", '"dg/dg.h"', "public"] },
 
+
     { include: ['"cpgf/gvariant.h"', private, '"cpgf/variant.h"', public] },
-    { include: ['"cpgf/gmetaproperty.h"', private, '"cpgf/metaproperty.h"', public] },
-    { include: ['"cpgf/gmetaproperty_p.h"', private, '"cpgf/gmetaproperty.h"', private] },
-    { include: ['"cpgf/gmetatype.h"', private, '"cpgf/gmetaproperty_p.h"', private] },
-    { include: ['"cpgf/gmetacommon.h"', private, '"cpgf/gmetaproperty_p.h"', private] },
-    { include: ['"cpgf/gmetapolicy.h"', private, '"cpgf/gmetaproperty_p.h"', private] },
-    { include: ['"cpgf/gvariant.h"', private, '"cpgf/gmetacommon.h"', private] },
-    { include: ['"cpgf/gmetaannotation.h"', private, '"cpgf/metaannotation.h"', public] },
+    { include: ['"cpgf/accessor/ggetter.h"', private, '"cpgf/accessor.h"', public] },
+    { include: ['"cpgf/accessor/gsetter.h"', private, '"cpgf/accessor.h"', public] },
+    { include: ['"cpgf/gmetapolicy.h"', private, '"cpgf/accessor/ggetter.h"', private] },
 
 
     { include: ['"boost/preprocessor/list/adt.hpp"', public, "<boost/preprocessor/list/for_each_product.hpp>", public] },

@@ -1,6 +1,9 @@
 #include "middleware/gschema/meta/gs_meta_property.h"
 
-#include "cpgf/metaproperty.h"
+#include <cstdint>
+
+#include "cpgf/variant.h"
+#include "core/common/meta.h"
 #include "core/common/exception.h"
 #include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/meta/gs_type_instance.h"

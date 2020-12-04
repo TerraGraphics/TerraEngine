@@ -6,6 +6,7 @@
 
 #include "eigen/core.h"
 #include "middleware/gschema/meta/gs_define.h"
+#include "middleware/gschema/graph/gs_types.h"
 #include "middleware/gschema/embedded/func_add.h"
 #include "middleware/gschema/embedded/func_min.h"
 #include "middleware/gschema/embedded/func_max.h"

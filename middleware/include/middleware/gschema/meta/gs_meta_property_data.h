@@ -1,12 +1,7 @@
 #pragma once
 
-#include <string>
-#include <typeindex>
-#include <string_view>
-
-#include "core/common/ctor.h"
-#include "cpgf/metaproperty.h"
-#include "middleware/gschema/meta/gs_meta_consts.h"
+#include "cpgf/variant.h"
+#include "cpgf/accessor.h"
 
 
 namespace gs {

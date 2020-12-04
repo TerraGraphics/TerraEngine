@@ -9,10 +9,9 @@
 #include <type_traits>
 #include <string_view>
 
+#include "cpgf/variant.h"
 #include "core/common/meta.h"
 #include "core/common/ctor.h"
-#include "cpgf/metaproperty.h"
-#include "cpgf/metaannotation.h"
 #include "middleware/gschema/meta/gs_meta_type.h"
 #include "middleware/gschema/meta/gs_enum_type.h"
 #include "middleware/gschema/meta/gs_meta_class.h"
