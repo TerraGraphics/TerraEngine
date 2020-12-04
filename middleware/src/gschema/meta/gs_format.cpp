@@ -11,7 +11,7 @@ namespace gs {
 std::string ToString(double value, int maxExp, uint8_t maxPrecision) {
     uint8_t precision = 0;
     auto absValue = std::abs(value);
-    for (int i=maxExp; i>0; i--) {
+    for (int i=maxExp; i>0; --i) {
         if (absValue >= std::pow(10., static_cast<double>(i))) {
             break;
         }
@@ -19,7 +19,7 @@ std::string ToString(double value, int maxExp, uint8_t maxPrecision) {
     }
 
     precision = std::min(precision, maxPrecision);
-    return fmt::format("{:." + std::to_string(precision) + "f}", value);
+    return fmt::format("{:." + std::to_string(static_cast<int>(precision)) + "f}", value);
 }
 
 std::string ToString(int64_t value) {

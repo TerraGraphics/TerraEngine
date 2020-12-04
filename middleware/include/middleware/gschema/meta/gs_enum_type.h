@@ -37,7 +37,7 @@ public:
     }
 
     void HideInGUI() {
-        m_state &= ~StateFlags::VisibleInGUI;
+        m_state &= static_cast<uint8_t>(~StateFlags::VisibleInGUI);
     }
 
 public:
@@ -59,7 +59,7 @@ public:
 
     void SetValue(const cpgf::GVariant& value) final {
         m_value = static_cast<MetaEnum::ValueType>(cpgf::fromVariant<T>(value));
-        m_state &= ~StateFlags::ValueChanged;
+        m_state &= static_cast<uint8_t>(~StateFlags::ValueChanged);
     }
 
     cpgf::GVariant GetValue() const final {

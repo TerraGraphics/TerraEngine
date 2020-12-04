@@ -6,12 +6,11 @@
 #include <type_traits>
 
 #include "cpgf/variant.h"
+#include "middleware/gschema/meta/gs_type_interface.h" // IWYU pragma: keep
 
 
 namespace gs {
 
-struct IPrimitiveType;
-struct IPrimitiveTypeEdit;
 class CompositeType {
 public:
     struct CompositeTypeItem {

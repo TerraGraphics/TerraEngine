@@ -88,7 +88,7 @@ public:
 
     void SetValue(const cpgf::GVariant& value) final {
         ApplyLimitsAndSet(cpgf::fromVariant<T>(value));
-        m_state &= ~StateFlags::ValueChanged;
+        m_state &= static_cast<uint8_t>(~StateFlags::ValueChanged);
     }
 
     cpgf::GVariant GetValue() const final {

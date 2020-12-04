@@ -1,6 +1,7 @@
 #include "middleware/gschema/graph/gs_class_storage.h"
 
 #include <vector>
+#include <string>
 #include <utility>
 #include <typeindex>
 #include <unordered_map>
