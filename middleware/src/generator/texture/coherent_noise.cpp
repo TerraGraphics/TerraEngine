@@ -49,8 +49,7 @@ math::Generator3D CoherentNoise::Result() const {
     noise.SetFractalLacunarity(m_lacunarity);
     noise.SetFractalGain(m_gain);
     // SetFractalWeightedStrength
-    // SetFractalPingPongStrength
-    // SetCellularDistanceFunction
+    noise.SetFractalPingPongStrength(m_pingPongStrength);
     // SetCellularReturnType
     // SetCellularJitter
     // SetDomainWarpType

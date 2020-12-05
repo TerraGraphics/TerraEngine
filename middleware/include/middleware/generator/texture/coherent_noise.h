@@ -54,6 +54,9 @@ public:
     float GetGain() const { return m_gain; }
     void SetGain(const float v) { m_gain = v; }
 
+    float GetPingPongStrength() const { return m_pingPongStrength; }
+    void SetPingPongStrength(const float v) { m_pingPongStrength = v; }
+
 private:
     NoiseType m_noiseType = NoiseType::OpenSimplex2;
     FractalType m_fractalType = FractalType::FBm;
@@ -62,4 +65,5 @@ private:
     float m_frequency = 1.f;
     float m_lacunarity = 2.f;
     float m_gain = 0.5f;
+    float m_pingPongStrength = 2.f;
 };
