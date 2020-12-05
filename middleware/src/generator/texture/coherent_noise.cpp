@@ -64,7 +64,29 @@ math::Generator3D CoherentNoise::Result() const {
         noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Hybrid);
         break;
     }
-    // SetCellularReturnType
+    switch (m_cellularReturnType) {
+    case CellularReturnType::CellValue:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_CellValue);
+        break;
+    case CellularReturnType::Distance:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance);
+        break;
+    case CellularReturnType::Distance2:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance2);
+        break;
+    case CellularReturnType::Distance2Add:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance2Add);
+        break;
+    case CellularReturnType::Distance2Sub:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance2Sub);
+        break;
+    case CellularReturnType::Distance2Mul:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance2Mul);
+        break;
+    case CellularReturnType::Distance2Div:
+        noise.SetCellularReturnType(FastNoiseLite::CellularReturnType_Distance2Div);
+        break;
+    }
     // SetCellularJitter
     // SetDomainWarpType
     // SetDomainWarpAmp
