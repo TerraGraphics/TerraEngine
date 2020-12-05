@@ -26,6 +26,13 @@ public:
         // FractalType_DomainWarpIndependent = 5
     };
 
+    enum class CellularDistanceFunction : uint8_t {
+        Euclidean = 0,
+        EuclideanSq = 1,
+        Manhattan = 2,
+        Hybrid = 3,
+    };
+
 public:
     CoherentNoise() = default;
     ~CoherentNoise() = default;
@@ -37,6 +44,9 @@ public:
 
     FractalType GetFractalType() const { return m_fractalType; }
     void SetFractalType(const FractalType v) { m_fractalType = v; }
+
+    CellularDistanceFunction GetCellularDistanceFunction() const { return m_cellularDistanceFunction; }
+    void SetCellularDistanceFunction(const CellularDistanceFunction v) { m_cellularDistanceFunction = v; }
 
     uint8_t GetOctaveCount() const { return m_octaveCount; }
     // range: [1 - 30]
@@ -60,6 +70,7 @@ public:
 private:
     NoiseType m_noiseType = NoiseType::OpenSimplex2;
     FractalType m_fractalType = FractalType::FBm;
+    CellularDistanceFunction m_cellularDistanceFunction = CellularDistanceFunction::EuclideanSq;
     uint8_t m_octaveCount = 3;
     int m_seed = 1337;
     float m_frequency = 1.f;

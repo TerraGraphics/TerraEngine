@@ -50,6 +50,20 @@ math::Generator3D CoherentNoise::Result() const {
     noise.SetFractalGain(m_gain);
     // SetFractalWeightedStrength
     noise.SetFractalPingPongStrength(m_pingPongStrength);
+    switch (m_cellularDistanceFunction) {
+    case CellularDistanceFunction::Euclidean:
+        noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Euclidean);
+        break;
+    case CellularDistanceFunction::EuclideanSq:
+        noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_EuclideanSq);
+        break;
+    case CellularDistanceFunction::Manhattan:
+        noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Manhattan);
+        break;
+    case CellularDistanceFunction::Hybrid:
+        noise.SetCellularDistanceFunction(FastNoiseLite::CellularDistanceFunction_Hybrid);
+        break;
+    }
     // SetCellularReturnType
     // SetCellularJitter
     // SetDomainWarpType
