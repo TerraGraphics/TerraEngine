@@ -474,6 +474,13 @@ void Node::DetachFromInputPinCalcType(uint8_t inputPinIndex) {
     }
 }
 
+void Node::TryChange(uint8_t pinIndex) {
+    bool disabled = !m_class->IsPinEnableInGUI(m_instance, m_class->GetPinName(pinIndex));
+    if (disabled) {
+        throw EngineError("gs::Node::DrawNodeProperty: trying to change the disabled pin (name = {})", m_class->GetPinName(pinIndex));
+    }
+}
+
 TypeId Node::GetValueForPreview(cpgf::GVariant& value) {
     if (OutputPinsCount() > 0) {
         auto index = OutputPinsBeginIndex();
@@ -537,13 +544,17 @@ void Node::DrawNodeProperty(IDraw* drawer) {
         }
 
         typeInstance->Init(m_class->GetValue(i, m_instance));
-        IDraw::ButtonsState buttonsState = drawer->OnDrawPinProperty(m_class->GetPinDisplayName(i), typeInstance, false);
+        bool disabled = !m_class->IsPinEnableInGUI(m_instance, m_class->GetPinName(i));
+        IDraw::ButtonsState buttonsState = drawer->OnDrawPinProperty(m_class->GetPinDisplayName(i), typeInstance, disabled);
         if (typeInstance->IsChanged()) {
+            TryChange(i);
             SetEmbeddedValue(i, typeInstance->Result());
         } else if (buttonsState == IDraw::ButtonsState::ResetToDefault) {
+            TryChange(i);
             ResetToDefault(i);
         }
     }
+
     for (uint8_t i=InputPinsBeginIndex(); i!=InputPinsEndIndex(); ++i) {
         const TypeId drawTypeId = ToBaseTypeId(GetPinType(i));
         if (!IsEnableUI(drawTypeId)) {
@@ -563,10 +574,13 @@ void Node::DrawNodeProperty(IDraw* drawer) {
         }
 
         typeInstance->Init(value);
-        IDraw::ButtonsState buttonsState = drawer->OnDrawPinProperty(m_class->GetPinDisplayName(i), typeInstance, IsConnectedPin(i));
+        bool disabled = (IsConnectedPin(i) || (!m_class->IsPinEnableInGUI(m_instance, m_class->GetPinName(i))));
+        IDraw::ButtonsState buttonsState = drawer->OnDrawPinProperty(m_class->GetPinDisplayName(i), typeInstance, disabled);
         if (typeInstance->IsChanged()) {
+            TryChange(i);
             SetInputValue(i, drawTypeId, typeInstance->Result());
         } else if (buttonsState == IDraw::ButtonsState::ResetToDefault) {
+            TryChange(i);
             ResetToDefault(i);
         }
     }

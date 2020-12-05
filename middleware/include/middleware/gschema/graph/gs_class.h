@@ -66,6 +66,8 @@ public:
     TypeInstanceEdit* GetFreeTypeInstance(TypeId typeId) const;
     TypeInstanceEdit* GetTypeInstanceForEmbedded(uint8_t pinIndex) const;
 
+    bool IsPinEnableInGUI(void* instance, std::string_view name) const;
+
 private:
     uint8_t m_countEmbeddedPins = 0;
     uint8_t m_countInputPins = 0;

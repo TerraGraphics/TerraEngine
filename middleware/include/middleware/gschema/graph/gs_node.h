@@ -147,6 +147,7 @@ private:
     bool NeedConvertFunc(uint8_t inputPinIndex, TypeId attachedPinType) const noexcept;
     void AttachToInputPinCalcType(uint8_t inputPinIndex, TypeId attachedPinType);
     void DetachFromInputPinCalcType(uint8_t inputPinIndex);
+    void TryChange(uint8_t pinIndex);
 
 public:
     TypeId GetValueForPreview(cpgf::GVariant& value);

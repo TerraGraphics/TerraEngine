@@ -201,4 +201,8 @@ TypeInstanceEdit* Class::GetTypeInstanceForEmbedded(uint8_t pinIndex) const {
     return m_props[pinIndex]->GetTypeInstance();
 }
 
+bool Class::IsPinEnableInGUI(void* instance, std::string_view name) const {
+    return m_metaClass->IsPinEnableInGUI(instance, name);
+}
+
 }
