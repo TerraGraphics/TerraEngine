@@ -21,6 +21,39 @@ DEFINE_TYPES_IMPL(detail::GeneratorFuncs) {
         .AddField(NoiseQuality::Default, "Default")
         .AddField(NoiseQuality::BestQuality, "BestQuality")
     ;
+
+    DefineEnum<CoherentNoise::NoiseType>()
+        .AddField(CoherentNoise::NoiseType::OpenSimplex2, "OpenSimplex2")
+        .AddField(CoherentNoise::NoiseType::OpenSimplex2S, "OpenSimplex2S")
+        .AddField(CoherentNoise::NoiseType::Cellular, "Cellular")
+        .AddField(CoherentNoise::NoiseType::Perlin, "Perlin")
+        .AddField(CoherentNoise::NoiseType::ValueCubic, "ValueCubic")
+        .AddField(CoherentNoise::NoiseType::Value, "Value")
+    ;
+
+    DefineEnum<CoherentNoise::FractalType>()
+        .AddField(CoherentNoise::FractalType::None, "None")
+        .AddField(CoherentNoise::FractalType::FBm, "FBm")
+        .AddField(CoherentNoise::FractalType::Ridged, "Ridged")
+        .AddField(CoherentNoise::FractalType::PingPong, "PingPong")
+    ;
+
+    DefineEnum<CoherentNoise::CellularDistanceFunction>()
+        .AddField(CoherentNoise::CellularDistanceFunction::Euclidean, "Euclidean")
+        .AddField(CoherentNoise::CellularDistanceFunction::EuclideanSq, "EuclideanSq")
+        .AddField(CoherentNoise::CellularDistanceFunction::Manhattan, "Manhattan")
+        .AddField(CoherentNoise::CellularDistanceFunction::Hybrid, "Hybrid")
+    ;
+
+    DefineEnum<CoherentNoise::CellularReturnType>()
+        .AddField(CoherentNoise::CellularReturnType::CellValue, "CellValue")
+        .AddField(CoherentNoise::CellularReturnType::Distance, "Distance")
+        .AddField(CoherentNoise::CellularReturnType::Distance2, "Distance2")
+        .AddField(CoherentNoise::CellularReturnType::Distance2Add, "Distance2Add")
+        .AddField(CoherentNoise::CellularReturnType::Distance2Sub, "Distance2Sub")
+        .AddField(CoherentNoise::CellularReturnType::Distance2Mul, "Distance2Mul")
+        .AddField(CoherentNoise::CellularReturnType::Distance2Div, "Distance2Div")
+    ;
 }
 
 DEFINE_CLASSES_IMPL(detail::GeneratorFuncs) {
