@@ -11,6 +11,7 @@
 #include "middleware/generator/texture/cylinders.h"
 #include "middleware/generator/texture/noise_types.h"
 #include "middleware/generator/texture/chess_cubes.h"
+#include "middleware/generator/texture/coherent_noise.h"
 
 
 DEFINE_TYPES_IMPL(detail::GeneratorFuncs) {
@@ -56,6 +57,29 @@ DEFINE_TYPES_IMPL(detail::GeneratorFuncs) {
     ;
 }
 
+static bool CoherentNoiseIsPinEnableInGUI(void* instance, std::string_view name) {
+    if ((name == "NoiseType") || (name == "FractalType") || (name == "Seed") || (name == "Frequency")) {
+        return true;
+    }
+
+    auto* cls = reinterpret_cast<CoherentNoise*>(instance);
+    if (cls->GetFractalType() == CoherentNoise::FractalType::None) {
+        if ((name == "OctaveCount") || (name == "Lacunarity") || (name == "Gain")) {
+            return false;
+        }
+    }
+
+    if (name == "PingPongStrength") {
+        return (cls->GetFractalType() == CoherentNoise::FractalType::PingPong);
+    }
+
+    if ((name == "CellularDistanceFunction") || (name == "CellularReturnType") || (name == "CellularJitter")) {
+        return (cls->GetNoiseType() == CoherentNoise::NoiseType::Cellular);
+    }
+
+    return true;
+}
+
 DEFINE_CLASSES_IMPL(detail::GeneratorFuncs) {
     using namespace gs;
 
@@ -82,5 +106,21 @@ DEFINE_CLASSES_IMPL(detail::GeneratorFuncs) {
         .AddEmbeddedPinArithmetic("OctaveCount", &Perlin::GetOctaveCount, &Perlin::SetOctaveCount, "OctaveCount").Min(1).Max(30)
         .AddEmbeddedPinArithmetic("Seed", &Perlin::GetSeed, &Perlin::SetSeed, "Seed")
         .AddEmbeddedPinEnum("Quality", &Perlin::GetQuality, &Perlin::SetQuality, "Quality")
+    ;
+
+    DefineClass<CoherentNoise>("CoherentNoise", "Coherent noise")
+        .SetIsPinEnableInGUI(&CoherentNoiseIsPinEnableInGUI)
+        .AddOutputPin("Result", &CoherentNoise::Result, "Result")
+        .AddEmbeddedPinEnum("NoiseType", &CoherentNoise::GetNoiseType, &CoherentNoise::SetNoiseType, "Noise type")
+        .AddEmbeddedPinEnum("FractalType", &CoherentNoise::GetFractalType, &CoherentNoise::SetFractalType, "Fractal type")
+        .AddEmbeddedPinArithmetic("Seed", &CoherentNoise::GetSeed, &CoherentNoise::SetSeed, "Seed")
+        .AddEmbeddedPinArithmetic("Frequency", &CoherentNoise::GetFrequency, &CoherentNoise::SetFrequency, "Frequency").Step(0.01f)
+        .AddEmbeddedPinArithmetic("OctaveCount", &CoherentNoise::GetOctaveCount, &CoherentNoise::SetOctaveCount, "Octave count").Min(1).Max(30)
+        .AddEmbeddedPinArithmetic("Lacunarity", &CoherentNoise::GetLacunarity, &CoherentNoise::SetLacunarity, "Lacunarity").Step(0.1f)
+        .AddEmbeddedPinArithmetic("Gain", &CoherentNoise::GetGain, &CoherentNoise::SetGain, "Gain").Step(0.1f)
+        .AddEmbeddedPinEnum("CellularDistanceFunction", &CoherentNoise::GetCellularDistanceFunction, &CoherentNoise::SetCellularDistanceFunction, "Cellular distance")
+        .AddEmbeddedPinEnum("CellularReturnType", &CoherentNoise::GetCellularReturnType, &CoherentNoise::SetCellularReturnType, "Cellular return type")
+        .AddEmbeddedPinArithmetic("CellularJitter", &CoherentNoise::GetCellularJitter, &CoherentNoise::SetCellularJitter, "Cellular jitter").Min(0.f).Max(1.f).Step(0.05f)
+        .AddEmbeddedPinArithmetic("PingPongStrength", &CoherentNoise::GetPingPongStrength, &CoherentNoise::SetPingPongStrength, "PingPong strength").Step(0.1f)
     ;
 }
